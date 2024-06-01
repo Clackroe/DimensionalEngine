@@ -1,3 +1,6 @@
 [submodule "Voxler-Core/lib/GLFW"]
 	path = Voxler-Core/lib/GLFW
 	url = git@github.com:glfw/glfw.git
+[submodule "Voxler-Core/lib/GLM"]
+	path = Voxler-Core/lib/GLM
+	url = git@github.com:g-truc/glm.git
