@@ -4,3 +4,6 @@
 [submodule "Voxler-Core/lib/GLM"]
 	path = Voxler-Core/lib/GLM
 	url = git@github.com:g-truc/glm.git
+[submodule "Voxler-Core/lib/IMGUI"]
+	path = Voxler-Core/lib/IMGUI
+	url = git@github.com:ocornut/imgui.git
