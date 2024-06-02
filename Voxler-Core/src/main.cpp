@@ -1,6 +1,6 @@
-#include <iostream>
-
+#include <Core/Application.hpp>
 int main()
 {
-    std::cout << "Hello World" << "\n";
+    Voxler::Scope<Voxler::Application> app = Voxler::CreateScope<Voxler::Application>();
+    app->runApplication();
 }

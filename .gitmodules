@@ -7,3 +7,6 @@
 [submodule "Voxler-Core/lib/IMGUI"]
 	path = Voxler-Core/lib/IMGUI
 	url = git@github.com:ocornut/imgui.git
+[submodule "Voxler-Core/lib/spdlog"]
+	path = Voxler-Core/lib/spdlog
+	url = git@github.com:gabime/spdlog.git

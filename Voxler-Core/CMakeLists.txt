@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Include directories
-include_directories(include)
+include_directories(src)
 
 # GLFW
 add_subdirectory(lib/GLFW)
@@ -37,10 +37,20 @@ file(GLOB IMGUI_SOURCES
 
 add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC ${IMGUI_PATH} lib/IMGUI/backends)
-
-
 include_directories(lib/IMGUI)
+
+
+# SPDLOG
+include_directories(lib/spdlog/include)
+
+# Precompiled Header
+set(PCH_HEADER "src/core.hpp")
+set_source_files_properties(${PCH_HEADER} PROPERTIES HEADER_FILE_ONLY ON)
+
+
 
 # Executable
 add_executable(Voxler-Core ${SOURCES})
-target_link_libraries(Voxler-Core glfw glad imgui)
+target_link_libraries(Voxler-Core glfw glad imgui spdlog)
+
+target_precompile_headers(Voxler-Core PRIVATE ${PCH_HEADER})
