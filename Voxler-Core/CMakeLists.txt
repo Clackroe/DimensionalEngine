@@ -41,6 +41,7 @@ include_directories(lib/IMGUI)
 
 
 # SPDLOG
+add_subdirectory(lib/spdlog)
 include_directories(lib/spdlog/include)
 
 # Precompiled Header

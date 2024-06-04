@@ -1,5 +1,6 @@
 #ifndef VX_APPLICATIONH
 #define VX_APPLICATIONH
+#include <Core/LayerStack.hpp>
 #include <Core/Window.hpp>
 #include <core.hpp>
 namespace Voxler {
@@ -10,10 +11,12 @@ public:
 
     void runApplication();
 
-    inline Window& GetWindowVX() { return *m_Window; };
+    inline Window& getWindowVX() { return *m_Window; };
 
 private:
     Scope<Window> m_Window;
+
+    LayerStack m_LayerStack;
 
     bool m_Running = true;
 

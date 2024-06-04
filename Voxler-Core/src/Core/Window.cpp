@@ -1,5 +1,5 @@
 #include "Window.hpp"
-#include "Core/log.hpp"
+# include "Core/log.hpp"
 #include "GLFW/glfw3.h"
 
 namespace Voxler {

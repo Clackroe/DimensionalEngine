@@ -17,6 +17,15 @@ void Application::runApplication()
 {
     while (m_Running) {
         float time = (float)glfwGetTime();
+
+        //------Update Layers-------
+        for (Layer* layer : m_LayerStack) {
+            layer->OnUpdate();
+        }
+
+        //------Update imgui Layers-------
+
+        //------
         m_Window->update();
     }
 }
