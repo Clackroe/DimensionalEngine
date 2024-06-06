@@ -2,6 +2,10 @@
 
 namespace Voxler {
 
+LayerStack::LayerStack()
+{
+}
+
 LayerStack::~LayerStack()
 {
     for (auto l : m_Layers) {
@@ -13,11 +17,13 @@ LayerStack::~LayerStack()
 void LayerStack::pushLayer(Layer* layer)
 {
     m_Layers.emplace(begin() + m_InsertIndex, layer);
+    layer->OnAttatch();
     m_InsertIndex++;
 }
 
 void LayerStack::pushOverlay(Layer* layer)
 {
+    layer->OnAttatch();
     m_Layers.emplace_back(layer);
 }
 

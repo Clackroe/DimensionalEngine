@@ -1,8 +1,11 @@
 #ifndef VX_APPLICATIONH
 #define VX_APPLICATIONH
+#include "ImGui/ImGuiLayer.hpp"
 #include <Core/LayerStack.hpp>
 #include <Core/Window.hpp>
 #include <core.hpp>
+
+// Using Singleton Pattern | There should only ever be one application.
 namespace Voxler {
 
 class Application {
@@ -11,6 +14,7 @@ public:
 
     void runApplication();
 
+    static Application& getApp() { return *s_Application; }
     inline Window& getWindowVX() { return *m_Window; };
 
 private:
@@ -18,11 +22,13 @@ private:
 
     LayerStack m_LayerStack;
 
+    ImGuiLayer* m_ImGuiOverlay;
+
     bool m_Running = true;
 
     float m_LastFrameTime = 0.0f;
 
-    static bool m_ApplicationCreated;
+    static Application* s_Application;
 };
 
 }

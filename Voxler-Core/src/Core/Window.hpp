@@ -3,6 +3,7 @@
 #include <glad.h>
 //
 #include "GLFW/glfw3.h"
+#include "imgui_impl_glfw.h"
 #include <core.hpp>
 
 namespace Voxler {
@@ -27,6 +28,8 @@ public:
 
     void setVsync(bool enabled);
     bool vsyncEnabled() { return m_Settings.VSync; }
+
+    GLFWwindow* getGLFWWindow() { return m_Window; }
 
 private:
     void initWindow(const WindowSettings& settings);
