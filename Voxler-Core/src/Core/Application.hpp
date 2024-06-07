@@ -5,10 +5,10 @@
 #include <Core/Window.hpp>
 #include <core.hpp>
 
-// Using Singleton Pattern | There should only ever be one application.
+// Using Singleton Pattern | There should only ever be one application. namespace Voxler {
 namespace Voxler {
 
-class Application {
+class VXCORE_API Application {
 public:
     Application(const std::string& title = "VoxlerEngine - Default", u32 width = 1280, u32 height = 720);
 
@@ -31,6 +31,8 @@ private:
     static Application* s_Application;
 };
 
+// Defined in client to intialize the app
+Application* EXT_InitApplication();
 }
 
 #endif

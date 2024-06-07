@@ -1,10 +1,8 @@
 #ifndef VX_WINDOWH
 #define VX_WINDOWH
-#include <glad.h>
-//
-#include "GLFW/glfw3.h"
-#include "imgui_impl_glfw.h"
 #include <core.hpp>
+
+class GLFWwindow;
 
 namespace Voxler {
 

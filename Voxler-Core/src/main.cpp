@@ -1,7 +1,10 @@
 #include <Core/Application.hpp>
 
+extern Voxler::Application* Voxler::EXT_InitApplication();
+
 int main()
 {
-    Voxler::Scope<Voxler::Application> app = Voxler::CreateScope<Voxler::Application>();
+    Voxler::Application* app = Voxler::EXT_InitApplication();
     app->runApplication();
+    delete app;
 }

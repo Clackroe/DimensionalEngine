@@ -1,4 +1,7 @@
 #include "Window.hpp"
+#include <glad.h>
+
+#include "GLFW/glfw3.h"
 
 namespace Voxler {
 

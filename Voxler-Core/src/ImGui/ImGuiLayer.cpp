@@ -7,7 +7,6 @@
 #include <imgui.h>
 
 #include <GLFW/glfw3.h>
-#include <glad.h>
 namespace Voxler {
 
 ImGuiLayer::ImGuiLayer()
