@@ -4,3 +4,6 @@
 
 #include <Core/Application.hpp>
 #include <Core/Layer.hpp>
+
+// ---- EVENTS
+#include <Event/EventSystem.hpp>

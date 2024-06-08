@@ -1,9 +1,12 @@
 #ifndef VX_APPLICATIONH
 #define VX_APPLICATIONH
+#include <core.hpp>
+
 #include "ImGui/ImGuiLayer.hpp"
 #include <Core/LayerStack.hpp>
 #include <Core/Window.hpp>
-#include <core.hpp>
+
+#include <Event/EventSystem.hpp>
 
 // Using Singleton Pattern | There should only ever be one application. namespace Voxler {
 namespace Voxler {
@@ -16,6 +19,12 @@ public:
 
     static Application& getApp() { return *s_Application; }
     inline Window& getWindowVX() { return *m_Window; };
+
+private:
+    void initializeSubSystems();
+
+private:
+    EventSystem m_EventSystem;
 
 private:
     Scope<Window> m_Window;

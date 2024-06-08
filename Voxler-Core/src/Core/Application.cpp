@@ -11,7 +11,7 @@ Application::Application(const std::string& title, u32 width, u32 height)
     VX_CORE_ASSERT(!s_Application, "Application already created!! Aborting.");
     s_Application = this;
 
-    Log::Init();
+    initializeSubSystems();
 
     m_Window = CreateScope<Window>((WindowSettings) { width, height, title });
 
@@ -24,6 +24,8 @@ Application::Application(const std::string& title, u32 width, u32 height)
 void Application::runApplication()
 {
     while (m_Running) {
+
+        EventSystem::ProcessEvents();
 
         //------Update Layers-------
         for (Layer* layer : m_LayerStack) {
@@ -41,6 +43,12 @@ void Application::runApplication()
         //------
         m_Window->update();
     }
+}
+
+void Application::initializeSubSystems()
+{
+    Log::Init();
+    m_EventSystem.Init();
 }
 
 }
