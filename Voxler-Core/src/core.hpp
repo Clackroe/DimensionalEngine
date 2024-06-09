@@ -5,9 +5,12 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <stack>
+#include <typeindex>
 #include <utility>
 
 #include <array>
+#include <queue>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -17,6 +20,15 @@
 #include <defines.hpp>
 
 namespace Voxler {
+
+template <typename T, typename Y>
+using UMap = std::unordered_map<T, Y>;
+
+template <typename T, typename Y>
+using USet = std::unordered_set<T, Y>;
+
+template <typename T>
+using Stack = std::stack<T>;
 
 // Thanks TheCherno | Very Helpful
 template <typename T>
@@ -36,7 +48,7 @@ constexpr Ref<T> CreateRef(Args&&... args)
 }
 }
 
-#include <Core/log.hpp>
+#include <Log/log.hpp>
 
 //--ASSERTIONS-- Again. Thanks TheCherno
 

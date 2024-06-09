@@ -5,5 +5,15 @@ Run the following command to get started
 git clone https://github.com/Clackroe/Voxler.git --recursive
 ```
 
+# Development
+This project is being developed from scratch (minus a couple of low level libraries) on Linux in Neovim. Support for Windows is planned.
+
 # Build System
-I am using CMake to build this project. Build as usual!
+
+## Linux
+```bash
+mkdir build
+cd build
+cmake ../
+make
+```

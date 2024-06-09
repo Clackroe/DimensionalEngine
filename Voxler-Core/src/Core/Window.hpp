@@ -1,9 +1,8 @@
 #ifndef VX_WINDOWH
 #define VX_WINDOWH
-#include <glad.h>
-//
-#include "GLFW/glfw3.h"
 #include <core.hpp>
+
+class GLFWwindow;
 
 namespace Voxler {
 
@@ -27,6 +26,8 @@ public:
 
     void setVsync(bool enabled);
     bool vsyncEnabled() { return m_Settings.VSync; }
+
+    GLFWwindow* getGLFWWindow() { return m_Window; }
 
 private:
     void initWindow(const WindowSettings& settings);
