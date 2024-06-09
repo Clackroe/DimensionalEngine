@@ -16,6 +16,12 @@ include_directories(src)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # GLFW
+set(BUILD_SHARED_LIBS OFF)           
+set(GLFW_LIBRARY_TYPE STATIC)        
+set(GLFW_BUILD_EXAMPLES OFF)         
+set(GLFW_BUILD_TESTS OFF)            
+set(GLFW_BUILD_DOCS OFF)             
+
 add_subdirectory(lib/GLFW)
 include_directories(lib/GLFW/include)
 set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE ON)
