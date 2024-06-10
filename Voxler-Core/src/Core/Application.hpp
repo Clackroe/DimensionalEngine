@@ -8,6 +8,8 @@
 
 #include <Event/EventSystem.hpp>
 
+#include <Input/Input.hpp>
+
 // Using Singleton Pattern | There should only ever be one application. namespace Voxler {
 namespace Voxler {
 
@@ -16,6 +18,9 @@ public:
     Application(const std::string& title = "VoxlerEngine - Default", u32 width = 1280, u32 height = 720);
 
     void runApplication();
+    void stopApplication() { m_Running = false; };
+
+    void PushLayer(Layer* layer) { m_LayerStack.pushLayer(layer); }
 
     static Application& getApp() { return *s_Application; }
     inline Window& getWindowVX() { return *m_Window; };
@@ -25,6 +30,7 @@ private:
 
 private:
     EventSystem m_EventSystem;
+    Input m_Input;
 
 private:
     Scope<Window> m_Window;

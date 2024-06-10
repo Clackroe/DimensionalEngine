@@ -3,6 +3,7 @@
 #include <glad.h>
 
 #include "GLFW/glfw3.h"
+#include "Input/KeyCodes.hpp"
 
 namespace Voxler {
 
@@ -61,7 +62,22 @@ void Window::initCallbacks()
     });
 
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanCode, int action, int mods) {
-        EventSystem::RaiseEvent<KeyEvent>(key);
+        Mode mode = -1;
+        switch (action) {
+        case GLFW_REPEAT:
+            mode = Key::REPEAT;
+            break;
+        case GLFW_PRESS:
+            mode = Key::PRESS;
+            break;
+        case GLFW_RELEASE:
+            mode = Key::RELEASE;
+            break;
+        default:
+            VX_CORE_WARN("UNKNOWN KEY MODE/ACTION");
+            break;
+        }
+        EventSystem::RaiseEvent<KeyEvent>((KeyCode)key, (Mode)mode);
     });
 }
 

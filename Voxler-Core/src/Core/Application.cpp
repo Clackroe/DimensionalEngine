@@ -49,6 +49,7 @@ void Application::initializeSubSystems()
 {
     Log::Init();
     m_EventSystem.Init();
+    m_Input.Init();
 }
 
 }
