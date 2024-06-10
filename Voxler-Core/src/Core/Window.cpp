@@ -1,4 +1,5 @@
 #include "Window.hpp"
+#include <Event/EventSystem.hpp>
 #include <glad.h>
 
 #include "GLFW/glfw3.h"
@@ -57,6 +58,10 @@ void Window::initCallbacks()
         settings.Height = height;
         settings.Width = width;
         glViewport(0, 0, width, height);
+    });
+
+    glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanCode, int action, int mods) {
+        EventSystem::RaiseEvent<KeyEvent>(key);
     });
 }
 

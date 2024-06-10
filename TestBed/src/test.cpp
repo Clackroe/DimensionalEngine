@@ -24,8 +24,6 @@ public:
         EventSystem::AddListener<KeyEvent>(*[](const Ref<KeyEvent>& e) {
             VX_INFO("Event Received: {0}", e->getKey());
         });
-        EventSystem::RaiseEvent<KeyEvent>(32);
-        EventSystem::RaiseEvent<KeyEvent>(66);
     }
 
     ~TestBed()
