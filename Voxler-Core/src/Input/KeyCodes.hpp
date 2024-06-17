@@ -5,7 +5,13 @@ namespace Voxler {
 
 // THESE ARE COPIED FROM GLFW
 using KeyCode = u16;
+using Mode = u16;
 namespace Key {
+    enum : Mode {
+        RELEASE,
+        PRESS,
+        REPEAT
+    };
     enum : KeyCode {
         /* Printable keys */
         Space = 32,

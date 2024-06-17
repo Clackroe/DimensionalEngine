@@ -13,15 +13,18 @@ public:
 
 class KeyEvent : public Event {
 public:
-    KeyEvent(KeyCode code)
+    KeyEvent(KeyCode code, Mode mode)
         : m_KeyCode(code)
+        , m_Mode(mode)
     {
     }
     u32 getKey() const { return m_KeyCode; }
+    Mode getMode() const { return m_Mode; }
     const char* getName() const override { return "KeyEvent"; }
 
 private:
     KeyCode m_KeyCode;
+    Mode m_Mode;
 };
 
 // Mouse Events
