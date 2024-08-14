@@ -2,7 +2,7 @@
 
 Run the following command to get started
 ```bash
-git clone https://github.com/Clackroe/Dimensional.git --recursive
+git clone https://github.com/Clackroe/DimensionalEngine.git --recursive
 ```
 
 # Development
