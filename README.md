@@ -1,4 +1,4 @@
-# Welcome to Dimensional!! My attempt at a Voxel based engine.
+# Welcome to Dimensional!! My attempt at a 2.5D Engine.
 
 Run the following command to get started
 ```bash
