@@ -1,15 +1,15 @@
 [submodule "Voxler-Core/lib/GLFW"]
-	path = Voxler-Core/lib/GLFW
+	path = Dimensional-Core/lib/GLFW
 	url = git@github.com:glfw/glfw.git
 [submodule "Voxler-Core/lib/GLM"]
-	path = Voxler-Core/lib/GLM
+	path = Dimensional-Core/lib/GLM
 	url = git@github.com:g-truc/glm.git
 [submodule "Voxler-Core/lib/IMGUI"]
-	path = Voxler-Core/lib/IMGUI
+	path = Dimensional-Core/lib/IMGUI
 	url = git@github.com:ocornut/imgui.git
 [submodule "Voxler-Core/lib/spdlog"]
-	path = Voxler-Core/lib/spdlog
+	path = Dimensional-Core/lib/spdlog
 	url = git@github.com:gabime/spdlog.git
 [submodule "Voxler-Core/lib/GLAD"]
-	path = Voxler-Core/lib/GLAD
+	path = Dimensional-Core/lib/GLAD
 	url = https://github.com/Clackroe/GLAD-Modern.git
