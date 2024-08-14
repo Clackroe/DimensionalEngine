@@ -10,12 +10,12 @@
 
 #include <Input/Input.hpp>
 
-// Using Singleton Pattern | There should only ever be one application. namespace Voxler {
-namespace Voxler {
+// Using Singleton Pattern | There should only ever be one application. namespace Dimensional {
+namespace Dimensional {
 
 class VXCORE_API Application {
 public:
-    Application(const std::string& title = "VoxlerEngine - Default", u32 width = 1280, u32 height = 720);
+    Application(const std::string& title = "DimensionalEngine - Default", u32 width = 1280, u32 height = 720);
 
     void runApplication();
     void stopApplication() { m_Running = false; };

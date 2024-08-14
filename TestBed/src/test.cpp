@@ -1,6 +1,6 @@
 #include <voxler.hpp>
 
-namespace Voxler {
+namespace Dimensional {
 
 class TestLayer : public Layer {
 

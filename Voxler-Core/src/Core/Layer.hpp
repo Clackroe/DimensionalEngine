@@ -2,7 +2,7 @@
 #define VX_LAYERH
 #include <core.hpp>
 
-namespace Voxler {
+namespace Dimensional {
 class Layer {
 public:
     Layer(const std::string& name = "Layer - Default");

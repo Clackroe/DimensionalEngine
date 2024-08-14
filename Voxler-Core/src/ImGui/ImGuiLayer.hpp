@@ -2,7 +2,7 @@
 #define VX_IMGUILAYERH
 #include <Core/Layer.hpp>
 #include <core.hpp>
-namespace Voxler {
+namespace Dimensional {
 
 class ImGuiLayer : public Layer {
 public:

@@ -5,7 +5,7 @@
 #include "GLFW/glfw3.h"
 #include "Input/KeyCodes.hpp"
 
-namespace Voxler {
+namespace Dimensional {
 
 Window::Window(const WindowSettings settings)
 {

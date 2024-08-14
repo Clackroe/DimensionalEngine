@@ -7,7 +7,7 @@
 #include <Event/Event.hpp>
 #include <utility>
 
-namespace Voxler {
+namespace Dimensional {
 
 // Currently a singleton, could change in the future.
 class VXCORE_API EventSystem {

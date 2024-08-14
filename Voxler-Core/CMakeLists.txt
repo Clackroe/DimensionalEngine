@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(Voxler-Core)
+project(Dimensional-Core)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -60,12 +60,12 @@ set(PCH_HEADER "src/core.hpp")
 set_source_files_properties(${PCH_HEADER} PROPERTIES HEADER_FILE_ONLY ON)
 
 # Shared Library
-add_library(Voxler-Core SHARED ${SOURCES})
-target_link_libraries(Voxler-Core glfw glad imgui spdlog)
-target_compile_definitions(Voxler-Core PRIVATE MYLIB_BUILD)
+add_library(Dimensional-Core SHARED ${SOURCES})
+target_link_libraries(Dimensional-Core glfw glad imgui spdlog)
+target_compile_definitions(Dimensional-Core PRIVATE MYLIB_BUILD)
 
-target_precompile_headers(Voxler-Core PRIVATE ${PCH_HEADER})
+target_precompile_headers(Dimensional-Core PRIVATE ${PCH_HEADER})
 
 # Install targets
-install(TARGETS Voxler-Core DESTINATION lib)
+install(TARGETS Dimensional-Core DESTINATION lib)
 install(DIRECTORY src/ DESTINATION include FILES_MATCHING PATTERN "*.hpp")

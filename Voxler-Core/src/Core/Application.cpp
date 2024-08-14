@@ -1,7 +1,7 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include <Core/Application.hpp>
 
-namespace Voxler {
+namespace Dimensional {
 
 Application* Application::s_Application = nullptr;
 
