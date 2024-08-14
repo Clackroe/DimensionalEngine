@@ -2,7 +2,7 @@
 #define VX_LAYERSTACKH
 
 #include <Core/Layer.hpp>
-namespace Voxler {
+namespace Dimensional {
 
 class LayerStack {
 public:

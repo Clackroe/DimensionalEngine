@@ -4,7 +4,7 @@
 #include <core.hpp>
 #include <memory>
 
-namespace Voxler {
+namespace Dimensional {
 
 class EventDispatcher {
 public:

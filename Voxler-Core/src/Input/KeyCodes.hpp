@@ -1,7 +1,7 @@
 #ifndef VX_KEYCODESH
 #define VX_KEYCODESH
 
-namespace Voxler {
+namespace Dimensional {
 
 // THESE ARE COPIED FROM GLFW
 using KeyCode = u16;

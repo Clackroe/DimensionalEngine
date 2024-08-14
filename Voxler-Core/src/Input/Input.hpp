@@ -5,7 +5,7 @@
 #include <Event/EventSystem.hpp>
 #include <Input/KeyCodes.hpp>
 
-namespace Voxler {
+namespace Dimensional {
 
 class Input {
 public:

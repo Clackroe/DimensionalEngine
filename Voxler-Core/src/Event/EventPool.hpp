@@ -6,7 +6,7 @@
 #include <memory>
 #include <utility>
 
-namespace Voxler {
+namespace Dimensional {
 
 class EventPool {
 public:

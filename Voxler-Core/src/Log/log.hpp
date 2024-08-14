@@ -1,4 +1,4 @@
-// This Class was derived from Voxler Engine developed by TheCherno.
+// This Class was derived from Dimensional Engine developed by TheCherno.
 #ifndef VX_LOGH
 #define VX_LOGH
 
@@ -10,7 +10,7 @@
 //
 #include <spdlog/fmt/ostr.h>
 
-namespace Voxler {
+namespace Dimensional {
 
 class Log {
 public:
@@ -45,16 +45,16 @@ private:
 // }
 
 // Core log macros
-#define VX_CORE_TRACE(...) Voxler::Log::GetCoreLogger()->trace(__VA_ARGS__);
-#define VX_CORE_INFO(...) Voxler::Log::GetCoreLogger()->info(__VA_ARGS__);
-#define VX_CORE_WARN(...) Voxler::Log::GetCoreLogger()->warn(__VA_ARGS__);
-#define VX_CORE_ERROR(...) Voxler::Log::GetCoreLogger()->error(__VA_ARGS__);
-#define VX_CORE_CRITICAL(...) Voxler::Log::GetCoreLogger()->critical(__VA_ARGS__);
+#define VX_CORE_TRACE(...) Dimensional::Log::GetCoreLogger()->trace(__VA_ARGS__);
+#define VX_CORE_INFO(...) Dimensional::Log::GetCoreLogger()->info(__VA_ARGS__);
+#define VX_CORE_WARN(...) Dimensional::Log::GetCoreLogger()->warn(__VA_ARGS__);
+#define VX_CORE_ERROR(...) Dimensional::Log::GetCoreLogger()->error(__VA_ARGS__);
+#define VX_CORE_CRITICAL(...) Dimensional::Log::GetCoreLogger()->critical(__VA_ARGS__);
 
 // Client log macros
-#define VX_TRACE(...) Voxler::Log::GetClientLogger()->trace(__VA_ARGS__);
-#define VX_INFO(...) Voxler::Log::GetClientLogger()->info(__VA_ARGS__);
-#define VX_WARN(...) Voxler::Log::GetClientLogger()->warn(__VA_ARGS__);
-#define VX_ERROR(...) Voxler::Log::GetClientLogger()->error(__VA_ARGS__);
-#define VX_CRITICAL(...) Voxler::Log::GetClientLogger()->critical(__VA_ARGS__);
+#define VX_TRACE(...) Dimensional::Log::GetClientLogger()->trace(__VA_ARGS__);
+#define VX_INFO(...) Dimensional::Log::GetClientLogger()->info(__VA_ARGS__);
+#define VX_WARN(...) Dimensional::Log::GetClientLogger()->warn(__VA_ARGS__);
+#define VX_ERROR(...) Dimensional::Log::GetClientLogger()->error(__VA_ARGS__);
+#define VX_CRITICAL(...) Dimensional::Log::GetClientLogger()->critical(__VA_ARGS__);
 #endif

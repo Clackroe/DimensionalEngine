@@ -19,7 +19,7 @@
 
 #include <defines.hpp>
 
-namespace Voxler {
+namespace Dimensional {
 
 template <typename T, typename Y>
 using UMap = std::unordered_map<T, Y>;

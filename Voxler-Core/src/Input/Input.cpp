@@ -1,6 +1,6 @@
 #include <Input/Input.hpp>
 
-namespace Voxler {
+namespace Dimensional {
 
 UMap<KeyCode, bool> Input::s_KeyPressed;
 UMap<KeyCode, bool> Input::s_KeyReleased;

@@ -4,7 +4,7 @@
 
 class GLFWwindow;
 
-namespace Voxler {
+namespace Dimensional {
 
 struct WindowSettings {
 

@@ -1,8 +1,8 @@
-# Welcome to Voxler!! My attempt at a Voxel based engine.
+# Welcome to Dimensional!! My attempt at a Voxel based engine.
 
 Run the following command to get started
 ```bash
-git clone https://github.com/Clackroe/Voxler.git --recursive
+git clone https://github.com/Clackroe/Dimensional.git --recursive
 ```
 
 # Development

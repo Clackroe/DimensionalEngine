@@ -1,6 +1,6 @@
 #include <Event/EventSystem.hpp>
 
-namespace Voxler {
+namespace Dimensional {
 
 EventSystem* EventSystem::s_EventSystem = nullptr;
 

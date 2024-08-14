@@ -7,7 +7,7 @@
 #include <imgui.h>
 
 #include <GLFW/glfw3.h>
-namespace Voxler {
+namespace Dimensional {
 
 ImGuiLayer::ImGuiLayer()
     : Layer("ImGuiOverlay")

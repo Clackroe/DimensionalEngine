@@ -1,6 +1,6 @@
 #include <Core/LayerStack.hpp>
 
-namespace Voxler {
+namespace Dimensional {
 
 LayerStack::LayerStack()
 {
