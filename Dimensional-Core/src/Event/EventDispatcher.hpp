@@ -1,5 +1,5 @@
-#ifndef VX_EVENTDISPATCHERH
-#define VX_EVENTDISPATCHERH
+#ifndef DM_EVENTDISPATCHERH
+#define DM_EVENTDISPATCHERH
 #include <Event/Event.hpp>
 #include <core.hpp>
 #include <memory>

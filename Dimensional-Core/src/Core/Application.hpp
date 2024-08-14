@@ -1,5 +1,5 @@
-#ifndef VX_APPLICATIONH
-#define VX_APPLICATIONH
+#ifndef DM_APPLICATIONH
+#define DM_APPLICATIONH
 #include <core.hpp>
 
 #include "ImGui/ImGuiLayer.hpp"
@@ -13,7 +13,7 @@
 // Using Singleton Pattern | There should only ever be one application. namespace Dimensional {
 namespace Dimensional {
 
-class VXCORE_API Application {
+class DMCORE_API Application {
 public:
     Application(const std::string& title = "DimensionalEngine - Default", u32 width = 1280, u32 height = 720);
 
@@ -23,7 +23,7 @@ public:
     void PushLayer(Layer* layer) { m_LayerStack.pushLayer(layer); }
 
     static Application& getApp() { return *s_Application; }
-    inline Window& getWindowVX() { return *m_Window; };
+    inline Window& getWindowDM() { return *m_Window; };
 
 private:
     void initializeSubSystems();

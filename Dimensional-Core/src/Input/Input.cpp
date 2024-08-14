@@ -13,7 +13,7 @@ bool Input::IsKeyReleased(KeyCode key) { return s_KeyReleased[key]; };
 void Input::Init()
 {
     if (s_Instance != nullptr) {
-        VX_CORE_WARN("Input System already Initialized!!");
+        DM_CORE_WARN("Input System already Initialized!!");
     }
 
     s_Instance = this;
@@ -31,6 +31,6 @@ void Input::Init()
         }
     });
 
-    VX_CORE_INFO("Input System Initialized");
+    DM_CORE_INFO("Input System Initialized");
 }
 }

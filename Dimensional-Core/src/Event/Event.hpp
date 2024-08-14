@@ -1,5 +1,5 @@
-#ifndef VX_EVENTH
-#define VX_EVENTH
+#ifndef DM_EVENTH
+#define DM_EVENTH
 #include <Input/KeyCodes.hpp>
 #include <core.hpp>
 

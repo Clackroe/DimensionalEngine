@@ -1,5 +1,5 @@
-#ifndef VX_EVENTSYSTEMH
-#define VX_EVENTSYSTEMH
+#ifndef DM_EVENTSYSTEMH
+#define DM_EVENTSYSTEMH
 #include <core.hpp>
 
 #include "Event/EventDispatcher.hpp"
@@ -10,7 +10,7 @@
 namespace Dimensional {
 
 // Currently a singleton, could change in the future.
-class VXCORE_API EventSystem {
+class DMCORE_API EventSystem {
 public:
     EventSystem()
     {
@@ -20,11 +20,11 @@ public:
     void Init()
     {
         if (s_EventSystem) {
-            VX_CORE_WARN("EventSystem Already initialized!");
+            DM_CORE_WARN("EventSystem Already initialized!");
             return;
         }
         s_EventSystem = this;
-        VX_CORE_INFO("Event System Initialized.")
+        DM_CORE_INFO("Event System Initialized.")
     }
 
     template <typename EventType, typename... Args>

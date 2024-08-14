@@ -6,7 +6,7 @@ class TestLayer : public Layer {
 
     virtual void OnAttatch() override
     {
-        VX_INFO("TestLayer Attached!!");
+        DM_INFO("TestLayer Attached!!");
     }
     virtual void OnDetatch() override { }
     virtual void OnUpdate() override

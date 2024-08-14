@@ -1,5 +1,5 @@
-#ifndef VX_LAYERSTACKH
-#define VX_LAYERSTACKH
+#ifndef DM_LAYERSTACKH
+#define DM_LAYERSTACKH
 
 #include <Core/Layer.hpp>
 namespace Dimensional {

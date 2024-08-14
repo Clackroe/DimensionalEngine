@@ -1,5 +1,5 @@
-#ifndef VX_KEYCODESH
-#define VX_KEYCODESH
+#ifndef DM_KEYCODESH
+#define DM_KEYCODESH
 
 namespace Dimensional {
 

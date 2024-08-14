@@ -1,5 +1,5 @@
-#ifndef VX_IMGUILAYERH
-#define VX_IMGUILAYERH
+#ifndef DM_IMGUILAYERH
+#define DM_IMGUILAYERH
 #include <Core/Layer.hpp>
 #include <core.hpp>
 namespace Dimensional {

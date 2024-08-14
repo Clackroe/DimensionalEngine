@@ -1,5 +1,5 @@
-#ifndef VX_DEFINES
-#define VX_DEFINES
+#ifndef DM_DEFINES
+#define DM_DEFINES
 
 // Core Defines
 
@@ -34,21 +34,21 @@ typedef double f64;
 // Thanks TheCherno!
 #define BIT(x) (1 << x)
 
-#define VX_EXPAND_MACRO(x) x
-#define VX_STRINGIFY_MACRO(x) #x
+#define DM_EXPAND_MACRO(x) x
+#define DM_STRINGIFY_MACRO(x) #x
 
 //----SYSTEM INFO----
 #if defined(_WIN32) || defined(_WIN64)
-#define VX_WINDOWS
-#define VX_PLATFORM "WINDOWS"
+#define DM_WINDOWS
+#define DM_PLATFORM "WINDOWS"
 
 #elif defined(__linux__)
-#define VX_LINUX
-#define VX_PLATFORM "LINUX"
+#define DM_LINUX
+#define DM_PLATFORM "LINUX"
 
 #elif defined(__APPLE__) && defined(__MACH__)
-#define VX_MACOS
-#define VX_PLATFORM "MACOS"
+#define DM_MACOS
+#define DM_PLATFORM "MACOS"
 
 #else
 #error UNKNOWN_PLATFORM
@@ -56,18 +56,18 @@ typedef double f64;
 #endif
 
 //----CORE-APP ARCH HELP----
-#if defined(VX_WINDOWS)
+#if defined(DM_WINDOWS)
 #ifdef MYLIB_BUILD
-#define VXCORE_API __declspec(dllexport)
+#define DMCORE_API __declspec(dllexport)
 #else
-#define VXCORE_API __declspec(dllimport)
+#define DMCORE_API __declspec(dllimport)
 #endif
-#elif defined(VX_LINUX)
+#elif defined(DM_LINUX)
 #ifdef MYLIB_BUILD
-#define VXCORE_API __attribute__((visibility("default")))
+#define DMCORE_API __attribute__((visibility("default")))
 #else
-#define VXCORE_API
+#define DMCORE_API
 #endif
 #else
-#define VXCORE_API
+#define DMCORE_API
 #endif

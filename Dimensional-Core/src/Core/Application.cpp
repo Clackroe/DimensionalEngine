@@ -8,7 +8,7 @@ Application* Application::s_Application = nullptr;
 Application::Application(const std::string& title, u32 width, u32 height)
 {
 
-    VX_CORE_ASSERT(!s_Application, "Application already created!! Aborting.");
+    DM_CORE_ASSERT(!s_Application, "Application already created!! Aborting.");
     s_Application = this;
 
     initializeSubSystems();
@@ -18,7 +18,7 @@ Application::Application(const std::string& title, u32 width, u32 height)
     m_ImGuiOverlay = new ImGuiLayer();
     m_LayerStack.pushOverlay(m_ImGuiOverlay);
 
-    VX_CORE_INFO("Platform: {0}", VX_PLATFORM);
+    DM_CORE_INFO("Platform: {0}", DM_PLATFORM);
 }
 
 void Application::runApplication()
