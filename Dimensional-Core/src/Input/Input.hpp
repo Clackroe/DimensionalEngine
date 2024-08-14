@@ -1,5 +1,5 @@
-#ifndef VX_INPUTH
-#define VX_INPUTH
+#ifndef DM_INPUTH
+#define DM_INPUTH
 #include <core.hpp>
 
 #include <Event/EventSystem.hpp>

@@ -1,5 +1,5 @@
-#ifndef VX_LAYERH
-#define VX_LAYERH
+#ifndef DM_LAYERH
+#define DM_LAYERH
 #include <core.hpp>
 
 namespace Dimensional {

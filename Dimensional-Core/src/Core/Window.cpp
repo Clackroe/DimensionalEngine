@@ -29,7 +29,7 @@ void Window::update()
 void Window::initWindow(const WindowSettings& settings)
 {
 
-    VX_CORE_ASSERT(glfwInit(), "Failed to initialize GLFW")
+    DM_CORE_ASSERT(glfwInit(), "Failed to initialize GLFW")
 
     // define openGL version and profile
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -38,10 +38,10 @@ void Window::initWindow(const WindowSettings& settings)
 
     m_Window = glfwCreateWindow(settings.Width, settings.Height, settings.Title.c_str(), nullptr, nullptr);
 
-    VX_CORE_ASSERT(m_Window, "Failed to create GLFW window. Terminating.");
+    DM_CORE_ASSERT(m_Window, "Failed to create GLFW window. Terminating.");
 
     glfwMakeContextCurrent(m_Window);
-    VX_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize GLAD. Aborting");
+    DM_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize GLAD. Aborting");
 
     glfwSetWindowUserPointer(m_Window, &m_Settings);
     initCallbacks();
@@ -51,7 +51,7 @@ void Window::shutdown() { }
 void Window::initCallbacks()
 {
     glfwSetErrorCallback([](int error, const char* description) {
-        VX_CORE_ERROR("GLFW Error {0}: {0}", error, description);
+        DM_CORE_ERROR("GLFW Error {0}: {0}", error, description);
     });
 
     glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
@@ -74,7 +74,7 @@ void Window::initCallbacks()
             mode = Key::RELEASE;
             break;
         default:
-            VX_CORE_WARN("UNKNOWN KEY MODE/ACTION");
+            DM_CORE_WARN("UNKNOWN KEY MODE/ACTION");
             break;
         }
         EventSystem::RaiseEvent<KeyEvent>((KeyCode)key, (Mode)mode);

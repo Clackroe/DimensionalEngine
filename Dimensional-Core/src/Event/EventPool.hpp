@@ -1,5 +1,5 @@
-#ifndef VX_EVENTPOOLH
-#define VX_EVENTPOOLH
+#ifndef DM_EVENTPOOLH
+#define DM_EVENTPOOLH
 #include <core.hpp>
 
 #include <Event/Event.hpp>

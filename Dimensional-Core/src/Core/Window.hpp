@@ -1,5 +1,5 @@
-#ifndef VX_WINDOWH
-#define VX_WINDOWH
+#ifndef DM_WINDOWH
+#define DM_WINDOWH
 #include <core.hpp>
 
 class GLFWwindow;

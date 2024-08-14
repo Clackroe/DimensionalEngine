@@ -1,6 +1,6 @@
 // This Class was derived from Dimensional Engine developed by TheCherno.
-#ifndef VX_LOGH
-#define VX_LOGH
+#ifndef DM_LOGH
+#define DM_LOGH
 
 #define GLM_ENABLE_EXPERIMENTAL
 // #include <glm/gtx/string_cast.hpp>
@@ -45,16 +45,16 @@ private:
 // }
 
 // Core log macros
-#define VX_CORE_TRACE(...) Dimensional::Log::GetCoreLogger()->trace(__VA_ARGS__);
-#define VX_CORE_INFO(...) Dimensional::Log::GetCoreLogger()->info(__VA_ARGS__);
-#define VX_CORE_WARN(...) Dimensional::Log::GetCoreLogger()->warn(__VA_ARGS__);
-#define VX_CORE_ERROR(...) Dimensional::Log::GetCoreLogger()->error(__VA_ARGS__);
-#define VX_CORE_CRITICAL(...) Dimensional::Log::GetCoreLogger()->critical(__VA_ARGS__);
+#define DM_CORE_TRACE(...) Dimensional::Log::GetCoreLogger()->trace(__VA_ARGS__);
+#define DM_CORE_INFO(...) Dimensional::Log::GetCoreLogger()->info(__VA_ARGS__);
+#define DM_CORE_WARN(...) Dimensional::Log::GetCoreLogger()->warn(__VA_ARGS__);
+#define DM_CORE_ERROR(...) Dimensional::Log::GetCoreLogger()->error(__VA_ARGS__);
+#define DM_CORE_CRITICAL(...) Dimensional::Log::GetCoreLogger()->critical(__VA_ARGS__);
 
 // Client log macros
-#define VX_TRACE(...) Dimensional::Log::GetClientLogger()->trace(__VA_ARGS__);
-#define VX_INFO(...) Dimensional::Log::GetClientLogger()->info(__VA_ARGS__);
-#define VX_WARN(...) Dimensional::Log::GetClientLogger()->warn(__VA_ARGS__);
-#define VX_ERROR(...) Dimensional::Log::GetClientLogger()->error(__VA_ARGS__);
-#define VX_CRITICAL(...) Dimensional::Log::GetClientLogger()->critical(__VA_ARGS__);
+#define DM_TRACE(...) Dimensional::Log::GetClientLogger()->trace(__VA_ARGS__);
+#define DM_INFO(...) Dimensional::Log::GetClientLogger()->info(__VA_ARGS__);
+#define DM_WARN(...) Dimensional::Log::GetClientLogger()->warn(__VA_ARGS__);
+#define DM_ERROR(...) Dimensional::Log::GetClientLogger()->error(__VA_ARGS__);
+#define DM_CRITICAL(...) Dimensional::Log::GetClientLogger()->critical(__VA_ARGS__);
 #endif

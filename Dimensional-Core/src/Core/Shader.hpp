@@ -1,5 +1,5 @@
-#ifndef VX_SHADERH
-#define VX_SHADERH
+#ifndef DM_SHADERH
+#define DM_SHADERH
 
 #include <core.hpp>
 

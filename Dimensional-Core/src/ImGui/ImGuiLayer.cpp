@@ -24,7 +24,7 @@ void ImGuiLayer::OnAttatch()
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
     // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
 
-    ImGui_ImplGlfw_InitForOpenGL(Application::getApp().getWindowVX().getGLFWWindow(), true);
+    ImGui_ImplGlfw_InitForOpenGL(Application::getApp().getWindowDM().getGLFWWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 410");
 }
 void ImGuiLayer::OnDetatch()
@@ -45,7 +45,7 @@ void ImGuiLayer::endFrame()
     // Resize the window if
     ImGuiIO& io = ImGui::GetIO();
     Application& application = Application::getApp();
-    io.DisplaySize = ImVec2((float)application.getWindowVX().getWidth(), (float)application.getWindowVX().getWidth());
+    io.DisplaySize = ImVec2((float)application.getWindowDM().getWidth(), (float)application.getWindowDM().getWidth());
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
