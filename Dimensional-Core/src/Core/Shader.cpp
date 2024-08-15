@@ -1,9 +1,11 @@
+#include "Log/log.hpp"
 #include <Core/Shader.hpp>
 
 #include <glad.h>
 
 namespace Dimensional {
-Shader::Shader(const char* vertexPath, const char* fragPath)
+Shader::Shader(const std::string& vertexPath, const std::string& fragPath)
+    : Asset(vertexPath + fragPath)
 {
     std::string vertexSourceCode;
     std::string fragmentSourceCode;
@@ -26,8 +28,7 @@ Shader::Shader(const char* vertexPath, const char* fragPath)
         vertexSourceCode = vShaderStream.str();
         fragmentSourceCode = fShaderStream.str();
     } catch (std::ifstream::failure err) {
-        // std::cerr << "Current Path: " << std::filesystem::current_path() << std::endl;
-        std::cerr << "ERROR WITH READING THE SHADER FILES: " << err.what() << std::endl;
+        DM_CORE_ERROR("ERROR WITH READING THE SHADER FILES: {0}", err.what());
     }
     const char* vShaderProg = vertexSourceCode.c_str();
     const char* fShaderProg = fragmentSourceCode.c_str();
@@ -53,8 +54,7 @@ Shader::Shader(const char* vertexPath, const char* fragPath)
     glGetShaderiv(fShader, GL_COMPILE_STATUS, &result);
     if (!result) {
         glGetShaderInfoLog(fShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
+        DM_CORE_WARN("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n {0}", infoLog)
     };
 
     ID = glCreateProgram();
@@ -65,7 +65,7 @@ Shader::Shader(const char* vertexPath, const char* fragPath)
     glGetProgramiv(ID, GL_LINK_STATUS, &result);
     if (!result) {
         glGetProgramInfoLog(ID, 512, NULL, infoLog);
-        std::cout << "ERROR LINKIG SHADER: " << infoLog << std::endl;
+        DM_CORE_ERROR("ERROR LINKING SHADER: {0}", infoLog);
     }
 
     // load();

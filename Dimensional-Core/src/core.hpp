@@ -19,6 +19,8 @@
 
 #include <defines.hpp>
 
+using Hash = u64;
+
 namespace Dimensional {
 
 template <typename T, typename Y>

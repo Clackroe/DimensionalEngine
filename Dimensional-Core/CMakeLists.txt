@@ -12,6 +12,12 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 # Include directories
 include_directories(src)
 
+# UUID
+include_directories(lib/UUID)
+
+# STB
+include_directories(lib/STB)
+
 # Ensure all static libraries are compiled with -fPIC
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -65,6 +71,8 @@ target_link_libraries(Dimensional-Core glfw glad imgui spdlog)
 target_compile_definitions(Dimensional-Core PRIVATE MYLIB_BUILD)
 
 target_precompile_headers(Dimensional-Core PRIVATE ${PCH_HEADER})
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")
 
 # Install targets
 install(TARGETS Dimensional-Core DESTINATION lib)

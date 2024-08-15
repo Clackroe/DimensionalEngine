@@ -3,18 +3,20 @@
 
 #include <core.hpp>
 
+#include "Assets/Asset.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Dimensional {
-class Shader {
+class Shader : public Asset {
 private:
     void load();
 
 public:
     unsigned int ID;
 
-    Shader(const char* vertexPath, const char* fragPath);
+    Shader(const std::string& vertexPath, const std::string& fragPath);
 
     void use();
 
