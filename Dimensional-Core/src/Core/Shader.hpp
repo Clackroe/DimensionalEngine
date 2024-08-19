@@ -10,9 +10,6 @@
 
 namespace Dimensional {
 class Shader : public Asset {
-private:
-    void load();
-
 public:
     unsigned int ID;
 
@@ -24,6 +21,9 @@ public:
     void setBool(const std::string& name, bool value) const;
     void setFloat(const std::string& name, float value) const;
     void setInt(const std::string& name, int value) const;
+
+private:
+    void load();
 };
 }
 

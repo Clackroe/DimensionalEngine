@@ -4,6 +4,10 @@
 
 namespace Dimensional {
 
+Renderer::Renderer()
+{
+}
+
 Hash Renderer::createShader(std::string vertexShader, std::string fragShader)
 {
 

@@ -10,7 +10,7 @@ class Shader;
 namespace Dimensional {
 class Renderer {
 public:
-    Renderer() {};
+    Renderer();
     ~Renderer() {};
 
     void Init() {};
@@ -37,6 +37,8 @@ public:
 private:
     Ref<Shader> m_CurrentShader;
     std::unordered_map<Hash, Ref<Shader>> m_ShaderMap;
+
+    static Renderer* m_RendererRef;
 };
 }
 
