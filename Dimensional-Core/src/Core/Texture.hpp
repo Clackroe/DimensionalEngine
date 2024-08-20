@@ -10,6 +10,10 @@ public:
     Texture(std::string path);
 
 private:
+    void load(std::string path);
+    void bind();
+    void use();
+
     std::vector<unsigned char> textureData;
 };
 }

@@ -3,7 +3,6 @@
 #include "Log/log.hpp"
 #include <Core/Application.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.hpp>
 
 #include <glad.h>
@@ -72,8 +71,8 @@ static void temp_init()
 void Application::m_Render()
 {
 
-    Hash shaderHash = m_Renderer.createShader(engineAssetDirectory + "/Shaders/testVert.glsl", engineAssetDirectory + "/Shaders/testFrag.glsl");
-    m_Renderer.setShader(shaderHash);
+    Hash shaderHash = Renderer::createShader(engineAssetDirectory + "/Shaders/testVert.glsl", engineAssetDirectory + "/Shaders/testFrag.glsl");
+    Renderer::setShader(shaderHash);
 
     float vertices[] = {
         // positions          // colors           // texture coords

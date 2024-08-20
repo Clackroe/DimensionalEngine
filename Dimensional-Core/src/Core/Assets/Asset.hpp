@@ -1,6 +1,5 @@
 #ifndef DM_ASSET_HPP
 #define DM_ASSET_HPP
-
 #include <core.hpp>
 
 namespace uuids {

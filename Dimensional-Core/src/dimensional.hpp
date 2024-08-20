@@ -9,5 +9,9 @@
 #include <Event/Event.hpp>
 #include <Event/EventSystem.hpp>
 
+// ---- INPUT
 #include <Input/Input.hpp>
 #include <Input/KeyCodes.hpp>
+
+// --- ASSETS
+#include <Core/Assets/Asset.hpp>

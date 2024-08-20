@@ -72,7 +72,6 @@ target_compile_definitions(Dimensional-Core PRIVATE MYLIB_BUILD)
 
 target_precompile_headers(Dimensional-Core PRIVATE ${PCH_HEADER})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")
 
 # Install targets
 install(TARGETS Dimensional-Core DESTINATION lib)
