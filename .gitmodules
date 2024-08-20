@@ -10,6 +10,6 @@
 [submodule "Voxler-Core/lib/spdlog"]
 	path = Dimensional-Core/lib/spdlog
 	url = git@github.com:gabime/spdlog.git
-[submodule "Voxler-Core/lib/GLAD"]
+[submodule "Dimensional-Core/lib/GLAD"]
 	path = Dimensional-Core/lib/GLAD
-	url = https://github.com/Clackroe/GLAD-Modern.git
+	url = https://github.com/Clackroe/GLAD-4.5.git

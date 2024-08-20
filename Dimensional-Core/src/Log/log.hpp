@@ -3,12 +3,15 @@
 #define DM_LOGH
 
 #define GLM_ENABLE_EXPERIMENTAL
-// #include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <memory>
 
 #include <spdlog/spdlog.h>
 //
 #include <spdlog/fmt/ostr.h>
+
+#include <fmt/format.h>
+#include <glm/glm.hpp>
 
 namespace Dimensional {
 
@@ -26,23 +29,39 @@ private:
 
 }
 
-// template <typename OStream, glm::length_t L, typename T, glm::qualifier Q>
-// inline OStream& operator<<(OStream& os, const glm::vec<L, T, Q>& vector)
-// {
-//     return os << glm::to_string(vector);
-// }
+template <typename OStream, glm::length_t L, typename T, glm::qualifier Q>
+inline OStream& operator<<(OStream& os, const glm::vec<L, T, Q>& vector)
+{
+    return os << glm::to_string(vector);
+}
 //
-// template <typename OStream, glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
-// inline OStream& operator<<(OStream& os, const glm::mat<C, R, T, Q>& matrix)
-// {
-//     return os << glm::to_string(matrix);
-// }
-//
-// template <typename OStream, typename T, glm::qualifier Q>
-// inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
-// {
-//     return os << glm::to_string(quaternion);
-// }
+template <typename OStream, glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
+inline OStream& operator<<(OStream& os, const glm::mat<C, R, T, Q>& matrix)
+{
+    return os << glm::to_string(matrix);
+}
+
+template <typename OStream, typename T, glm::qualifier Q>
+inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
+{
+    return os << glm::to_string(quaternion);
+}
+
+// Custom formatter for vec3
+template <>
+struct fmt::formatter<glm::vec3> {
+    // Parses format specs, but we don't care about those in this example.
+    constexpr auto parse(format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const glm::vec3& vec, FormatContext& ctx)
+    {
+        return format_to(ctx.out(), "({}, {}, {})", vec.x, vec.y, vec.z);
+    }
+};
 
 // Core log macros
 #define DM_CORE_TRACE(...) Dimensional::Log::GetCoreLogger()->trace(__VA_ARGS__);

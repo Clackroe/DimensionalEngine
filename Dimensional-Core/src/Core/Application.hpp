@@ -8,6 +8,8 @@
 
 #include <Event/EventSystem.hpp>
 
+#include <Rendering/Renderer.hpp>
+
 #include <Input/Input.hpp>
 
 // Using Singleton Pattern | There should only ever be one application. namespace Dimensional {
@@ -25,12 +27,18 @@ public:
     static Application& getApp() { return *s_Application; }
     inline Window& getWindowDM() { return *m_Window; };
 
+    // TEMPORARY | WILL BE AUTOMATIC/USERSET
+    std::string engineAssetDirectory = "/home/clack/dev/personal/DimensionalEngine/Dimensional-Core/src/CoreAssets";
+    // ---
+
 private:
     void initializeSubSystems();
+    void m_Render();
 
 private:
     EventSystem m_EventSystem;
     Input m_Input;
+    Renderer m_Renderer;
 
 private:
     Scope<Window> m_Window;

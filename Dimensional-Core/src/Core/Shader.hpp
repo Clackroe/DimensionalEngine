@@ -3,18 +3,17 @@
 
 #include <core.hpp>
 
+#include "Assets/Asset.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Dimensional {
-class Shader {
-private:
-    void load();
-
+class Shader : public Asset {
 public:
     unsigned int ID;
 
-    Shader(const char* vertexPath, const char* fragPath);
+    Shader(const std::string& vertexPath, const std::string& fragPath);
 
     void use();
 
@@ -22,6 +21,9 @@ public:
     void setBool(const std::string& name, bool value) const;
     void setFloat(const std::string& name, float value) const;
     void setInt(const std::string& name, int value) const;
+
+private:
+    void load();
 };
 }
 
