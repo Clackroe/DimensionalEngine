@@ -15,9 +15,7 @@ private:
 
     std::string m_Path;
 
-    bool m_IsLoaded;
-
-    u32 m_Width, m_Height;
+    u32 m_Width, m_Height, m_Channels;
     u32 m_GLId;
 
     // Add more member vars to support alternative formats

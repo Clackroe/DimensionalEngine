@@ -35,8 +35,9 @@ set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # Glad
 add_library(glad STATIC lib/GLAD/src/glad.c)
 set_target_properties(glad PROPERTIES POSITION_INDEPENDENT_CODE ON)
-include_directories(lib/GLAD/include/GLAD)
-include_directories(lib/GLAD/include/KHR)
+include_directories(lib/GLAD/include)
+include_directories(lib/GLAD/include/glad)
+# include_directories(lib/GLAD/include)
 
 # GLM
 include_directories(lib/GLM)
