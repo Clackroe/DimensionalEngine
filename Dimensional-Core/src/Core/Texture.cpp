@@ -5,13 +5,16 @@
 
 namespace Dimensional {
 Texture::Texture(std::string path)
-    : Asset(path) {
-
-    };
+    : Asset(path)
+{
+    m_Path = path;
+};
 
 void Texture::load(std::string path)
 {
     unsigned int texture;
+
+    // UPGRADE TO GLAD 4.5!!
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     // set the texture wrapping/filtering options (on the currently bound texture object)
@@ -19,9 +22,10 @@ void Texture::load(std::string path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     // load and generate the texture
     int width, height, nrChannels;
-    unsigned char* data = stbi_load((engineAssetDirectory + "/Textures/Wood.jpg").c_str(), &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load(m_Path.c_str(), &width, &height, &nrChannels, 0);
     if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -30,10 +34,7 @@ void Texture::load(std::string path)
     }
     stbi_image_free(data);
 }
-void Texture::bind()
-{
-}
-void Texture::use()
+void Texture::bind(u32 textureSlot)
 {
 }
 
