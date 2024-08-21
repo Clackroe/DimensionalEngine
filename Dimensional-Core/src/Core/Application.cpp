@@ -2,8 +2,14 @@
 #include "Core/Texture.hpp"
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
+#include "Rendering/ElementBuffer.hpp"
 #include "Rendering/Renderer.hpp"
+#include "Rendering/VertexArray.hpp"
+#include "Rendering/VertexLayout.hpp"
+#include "imgui.h"
 #include <Core/Application.hpp>
+
+#include <buffer.hpp>
 
 #include <Core/Time.hpp>
 
@@ -14,8 +20,6 @@
 namespace Dimensional {
 
 Application* Application::s_Application = nullptr;
-
-static void temp_init();
 
 // Move to Editor once created
 static EditorCamera cam;
@@ -38,8 +42,6 @@ Application::Application(const std::string& title, u32 width, u32 height)
     m_LayerStack.pushOverlay(m_ImGuiOverlay);
 
     DM_CORE_INFO("Platform: {0}", DM_PLATFORM);
-
-    temp_init();
 }
 
 void Application::runApplication()
@@ -59,6 +61,13 @@ void Application::runApplication()
         //------Update imgui Layers-------
         m_ImGuiOverlay->beginFrame();
 
+        // ImGui::Begin("Test");
+        // ImGui::Text("HELLOOOWOWOWOWO");
+        // ImGui::End();
+        //
+        // static bool t = true;
+        // ImGui::ShowDemoWindow(&t);
+
         for (Layer* layer : m_LayerStack) {
             layer->OnImGuiRender();
         }
@@ -77,10 +86,6 @@ void Application::initializeSubSystems()
     m_EventSystem.Init();
     m_Input.Init();
     m_Renderer.Init();
-}
-
-static void temp_init()
-{
 }
 
 void Application::m_Render()
@@ -111,45 +116,26 @@ void Application::m_Render()
     Hash texHash = Renderer::createTexture((engineAssetDirectory + "/Textures/Wood.jpg"), false);
     Ref<Texture> tex = Renderer::getTexture(texHash);
 
-    unsigned int VBO,
-        VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);
+    VertexArray vao;
+    VertexBuffer vb(vertices, sizeof(vertices));
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    ElementBuffer eb(indices, sizeof(indices) / sizeof(u32));
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    VertexLayout vLayout;
+    vLayout.Push<float>(3);
+    vLayout.Push<float>(3);
+    vLayout.Push<float>(2);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0);
+    vao.AddBuffer(vb, vLayout);
 
     Renderer::getCurrentShader()->setMat4("viewProj", cam.getViewProj());
 
     Renderer::getCurrentShader()->use();
     tex->bind(0);
 
-    glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+    vao.Bind();
+    eb.Bind();
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
