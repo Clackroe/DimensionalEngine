@@ -15,3 +15,5 @@
 
 // --- ASSETS
 #include <Core/Assets/Asset.hpp>
+
+#include <Core/EditorCamera.hpp>

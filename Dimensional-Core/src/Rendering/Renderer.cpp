@@ -1,5 +1,6 @@
 #include "core.hpp"
 #include <Core/Shader.hpp>
+#include <Core/Texture.hpp>
 #include <Rendering/Renderer.hpp>
 
 namespace Dimensional {
@@ -23,4 +24,22 @@ Hash Renderer::createShader(std::string vertexShader, std::string fragShader)
         return shader->hash;
     }
 }
+Hash Renderer::createTexture(std::string path, bool retainInMemory)
+{
+    Renderer& ref = m_GetRenderer();
+
+    Hash t = std::hash<std::string> {}(path);
+    auto it = ref.m_TextureMap.find(t);
+    if (it != ref.m_TextureMap.end()) {
+        return it->second->hash;
+    } else {
+        Ref<Texture> tex = CreateRef<Texture>(path, retainInMemory);
+
+        // If necessary, ensure there is no hash collisions
+
+        ref.m_TextureMap[tex->hash] = tex;
+        return tex->hash;
+    }
+}
+
 }

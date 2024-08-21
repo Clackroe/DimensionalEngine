@@ -1,9 +1,13 @@
 #include "Core/Shader.hpp"
+#include "Core/Texture.hpp"
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
+#include "Rendering/Renderer.hpp"
 #include <Core/Application.hpp>
 
-#include <stb_image.hpp>
+#include <Core/Time.hpp>
+
+#include <Core/EditorCamera.hpp>
 
 #include <glad.h>
 
@@ -13,8 +17,15 @@ Application* Application::s_Application = nullptr;
 
 static void temp_init();
 
+// Move to Editor once created
+static EditorCamera cam;
+//
+
 Application::Application(const std::string& title, u32 width, u32 height)
 {
+    // Move to Editor once created
+    cam = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+    //
 
     DM_CORE_ASSERT(!s_Application, "Application already created!! Aborting.");
     s_Application = this;
@@ -34,8 +45,11 @@ Application::Application(const std::string& title, u32 width, u32 height)
 void Application::runApplication()
 {
     while (m_Running) {
+        Time::Update();
 
         EventSystem::ProcessEvents();
+
+        cam.Update();
 
         //------Update Layers-------
         for (Layer* layer : m_LayerStack) {
@@ -50,6 +64,7 @@ void Application::runApplication()
         }
 
         m_ImGuiOverlay->endFrame();
+
         //------
         m_Window->update();
         m_Render();
@@ -93,26 +108,11 @@ void Application::m_Render()
         1, 2, 3 // second Triangle
     };
 
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load and generate the texture
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load((engineAssetDirectory + "/Textures/Wood.jpg").c_str(), &width, &height, &nrChannels, 0);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        DM_CORE_ERROR("Failed to load texture");
-    }
-    stbi_image_free(data);
+    Hash texHash = Renderer::createTexture((engineAssetDirectory + "/Textures/Wood.jpg"), false);
+    Ref<Texture> tex = Renderer::getTexture(texHash);
 
-    unsigned int VBO, VAO, EBO;
+    unsigned int VBO,
+        VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -144,12 +144,12 @@ void Application::m_Render()
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
 
-    m_Renderer.getCurrentShader()->use();
+    Renderer::getCurrentShader()->setMat4("viewProj", cam.getViewProj());
 
-    glBindTexture(GL_TEXTURE_2D, texture);
+    Renderer::getCurrentShader()->use();
+    tex->bind(0);
 
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-    // glDrawArrays(GL_TRIANGLES, 0, 6);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
