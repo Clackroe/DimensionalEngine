@@ -1,3 +1,4 @@
+#include "Event/EventSystem.hpp"
 #include <Input/Input.hpp>
 
 namespace Dimensional {
@@ -6,6 +7,9 @@ UMap<KeyCode, bool> Input::s_KeyPressed;
 UMap<KeyCode, bool> Input::s_KeyReleased;
 
 Input* Input::s_Instance = nullptr;
+
+float Input::m_MouseX = 0.0f;
+float Input::m_MouseY = 0.0f;
 
 bool Input::IsKeyDown(KeyCode key) { return s_KeyPressed[key]; };
 bool Input::IsKeyReleased(KeyCode key) { return s_KeyReleased[key]; };
@@ -29,6 +33,13 @@ void Input::Init()
             s_KeyReleased[key] = false;
             s_KeyPressed[key] = true;
         }
+    });
+
+    EventSystem::AddListener<MouseEvent>([](const Ref<MouseEvent>& e) {
+        float x = e->getX();
+        float y = e->getY();
+        m_MouseX = x;
+        m_MouseY = y;
     });
 
     DM_CORE_INFO("Input System Initialized");

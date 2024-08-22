@@ -9,21 +9,19 @@ namespace Dimensional {
 
 class Asset {
 public:
-    // const uuids::uuid UID;
-
     const Hash hash;
+    const std::string name;
 
     Asset(const std::string& path)
         : // UID(generateUUID())
         hash(generateHash(path))
+        , name(generateName(path))
     {
     }
 
-    // std::string idAsString() const;
-
 private:
-    // static uuids::uuid generateUUID();
     static Hash generateHash(const std::string& path);
+    std::string generateName(const std::string& path);
 };
 
 }

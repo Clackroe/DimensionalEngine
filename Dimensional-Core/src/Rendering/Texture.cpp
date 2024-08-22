@@ -1,6 +1,6 @@
 #include "Log/log.hpp"
 #include "core.hpp"
-#include <Core/Texture.hpp>
+#include <Rendering/Texture.hpp>
 
 #include <glad.h>
 #include <stb_image.hpp>

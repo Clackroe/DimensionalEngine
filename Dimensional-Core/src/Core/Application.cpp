@@ -1,9 +1,9 @@
-#include "Core/Shader.hpp"
-#include "Core/Texture.hpp"
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
 #include "Rendering/ElementBuffer.hpp"
 #include "Rendering/Renderer.hpp"
+#include "Rendering/Shader.hpp"
+#include "Rendering/Texture.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/VertexLayout.hpp"
 #include "imgui.h"
@@ -91,53 +91,96 @@ void Application::initializeSubSystems()
 void Application::m_Render()
 {
 
-    Hash shaderHash = Renderer::createShader(engineAssetDirectory + "/Shaders/testVert.glsl", engineAssetDirectory + "/Shaders/testFrag.glsl");
-    Renderer::setShader(shaderHash);
-
     float vertices[] = {
-        // positions          // colors           // texture coords
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
     };
 
-    float texCoords[] = {
-        0.0f, 0.0f, // lower-left corner
-        1.0f, 0.0f, // lower-right corner
-        0.5f, 1.0f // top-center corner
-    };
-    unsigned int indices[] = {
-        // note that we start from 0!
-        0, 1, 3, // first Triangle
-        1, 2, 3 // second Triangle
-    };
+    // unsigned int indices[] = {
+    //     // note that we start from 0!
+    //     0, 1, 3, // first Triangle
+    //     1, 2, 3 // second Triangle
+    // };
 
-    Hash texHash = Renderer::createTexture((engineAssetDirectory + "/Textures/Wood.jpg"), false);
-    Ref<Texture> tex = Renderer::getTexture(texHash);
+    Ref<Texture> tex = Renderer::createTexture((engineAssetDirectory + "/Textures/Wood.jpg"), false);
 
     VertexArray vao;
     VertexBuffer vb(vertices, sizeof(vertices));
 
-    ElementBuffer eb(indices, sizeof(indices) / sizeof(u32));
+    // ElementBuffer eb(indices, sizeof(indices) / sizeof(u32));
 
     VertexLayout vLayout;
-    vLayout.Push<float>(3);
     vLayout.Push<float>(3);
     vLayout.Push<float>(2);
 
     vao.AddBuffer(vb, vLayout);
 
-    Renderer::getCurrentShader()->setMat4("viewProj", cam.getViewProj());
+    // LIGHT
 
-    Renderer::getCurrentShader()->use();
-    tex->bind(0);
+    VertexArray lightVao;
+    VertexBuffer lvb(vertices, sizeof(vertices));
+    VertexLayout lLayout;
+    lLayout.Push<float>(3);
+    lLayout.Push<float>(2);
+    lightVao.AddBuffer(lvb, lLayout);
 
-    vao.Bind();
-    eb.Bind();
+    Ref<Shader> lightShader = Renderer::createShader((engineAssetDirectory + "/Shaders/lightVert.glsl"), (engineAssetDirectory + "/Shaders/lightFrag.glsl"));
+    lightShader->use();
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    lightShader->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+    lightShader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+    lightShader->setMat4("viewProj", cam.getViewProj());
+    lightShader->setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f)));
+
+    Renderer::renderVAO(lightVao, 36, lightShader);
+
+    //
+
+    Ref<Shader> normalShader = Renderer::createShader(engineAssetDirectory + "/Shaders/testVert.glsl", engineAssetDirectory + "/Shaders/testFrag.glsl");
+    normalShader->use();
+    normalShader->setMat4("viewProj", cam.getViewProj());
+    normalShader->setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(1.0f)));
+
+    Renderer::renderVAO(vao, 36, normalShader);
 }
 
 }

@@ -9,7 +9,7 @@ public:
     void Bind() const;
     void Unbind() const;
 
-    u32 getCount() { return m_Count; }
+    u32 getCount() const { return m_Count; }
 
 private:
     u32 m_GLId;

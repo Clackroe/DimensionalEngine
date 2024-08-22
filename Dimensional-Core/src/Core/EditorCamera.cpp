@@ -1,5 +1,6 @@
 #include "Input/Input.hpp"
 #include "Input/KeyCodes.hpp"
+#include "Log/log.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include <Core/EditorCamera.hpp>
 
@@ -17,6 +18,9 @@ EditorCamera::EditorCamera(float FOV, float AR, float nearClipPlane, float farCl
     m_NearClipPlane = nearClipPlane;
     m_FarClipPlane = farClipPlane;
 
+    m_LastMouseX = Input::getMouseX();
+    m_LastMouseY = Input::getMouseY();
+
     updateViewValues();
 }
 
@@ -29,10 +33,45 @@ void EditorCamera::Update()
     if (Input::IsKeyDown(Key::Down)) {
         m_FOV += 10 * Time::deltaTime();
     }
+    if (Input::IsKeyDown(Key::W)) {
+        m_FocalPoint += getFwdDir() * 3.0f * Time::deltaTime() * m_Distance;
+    }
+    if (Input::IsKeyDown(Key::S)) {
+        m_FocalPoint += -getFwdDir() * 3.0f * Time::deltaTime() * m_Distance;
+    }
 
-    m_FOV = glm::clamp(m_FOV, 0.0f, 180.0f);
+    if (Input::IsKeyDown(Key::A)) {
+        m_FocalPoint += -getRightDir() * 3.0f * Time::deltaTime() * m_Distance;
+    }
+    if (Input::IsKeyDown(Key::D)) {
+        m_FocalPoint += getRightDir() * 3.0f * Time::deltaTime() * m_Distance;
+    }
+    if (Input::IsKeyDown(Key::Space)) {
+        m_FocalPoint += getUpDir() * 3.0f * Time::deltaTime() * m_Distance;
+    }
+    if (Input::IsKeyDown(Key::Left_control)) {
+        m_FocalPoint += -getUpDir() * 3.0f * Time::deltaTime() * m_Distance;
+    }
+
+    float xpos = Input::getMouseX();
+    float ypos = Input::getMouseY();
+
+    float xoffset = xpos - m_LastMouseX;
+    float yoffset = m_LastMouseY - ypos;
+    m_LastMouseX = xpos;
+    m_LastMouseY = ypos;
+
+    float yawSign = getUpDir().y < 0 ? -1.0f : 1.0f;
+    m_Yaw += yawSign * xoffset * 0.03f;
+    m_Pitch -= yoffset * 0.03f;
+
+    if (m_Pitch > 89.0f)
+        m_Pitch = 89.0f;
+    if (m_Pitch < -89.0f)
+        m_Pitch = -89.0f;
 
     updateProjValues();
+    updateViewValues();
 }
 
 void EditorCamera::updateProjValues()

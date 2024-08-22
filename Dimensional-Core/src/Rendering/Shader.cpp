@@ -1,5 +1,6 @@
 #include "Log/log.hpp"
-#include <Core/Shader.hpp>
+#include "glm/gtc/type_ptr.hpp"
+#include <Rendering/Shader.hpp>
 
 #include <glad.h>
 
@@ -90,6 +91,10 @@ void Shader::use()
 void Shader::setMat4(const std::string& name, glm::mat4 value)
 {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+}
+void Shader::setVec3(const std::string& name, float x, float y, float z)
+{
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
 }
 
 void Shader::setBool(const std::string& name, bool value) const

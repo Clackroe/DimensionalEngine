@@ -36,10 +36,12 @@ private:
     float m_FOV = 45.0f, m_AspectRatio = 16.0f / 9.0f, m_NearClipPlane = 0.1f, m_FarClipPlane = 1000.0f;
 
     glm::mat4 m_ViewMtx;
-    glm::vec3 m_Pos = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_Pos = { 0.0f, 0.0f, -10.0f };
     glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
-    float m_Distance = 10.0f;
+    float m_Distance = 1.0f;
     float m_Pitch = 0.0f, m_Yaw = 0.0f;
+
+    float m_LastMouseX, m_LastMouseY;
 
     float m_ViewportW = 1200, m_ViewportH = 720;
 };
