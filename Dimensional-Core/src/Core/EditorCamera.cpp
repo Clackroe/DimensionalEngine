@@ -55,20 +55,22 @@ void EditorCamera::Update()
 
     float xpos = Input::getMouseX();
     float ypos = Input::getMouseY();
+    if (Input::IsKeyDown(Key::Left_shift)) {
 
-    float xoffset = xpos - m_LastMouseX;
-    float yoffset = m_LastMouseY - ypos;
+        float xoffset = xpos - m_LastMouseX;
+        float yoffset = m_LastMouseY - ypos;
+
+        float yawSign = getUpDir().y < 0 ? -1.0f : 1.0f;
+        m_Yaw += yawSign * xoffset * 0.03f;
+        m_Pitch -= yoffset * 0.03f;
+
+        if (m_Pitch > 89.0f)
+            m_Pitch = 89.0f;
+        if (m_Pitch < -89.0f)
+            m_Pitch = -89.0f;
+    }
     m_LastMouseX = xpos;
     m_LastMouseY = ypos;
-
-    float yawSign = getUpDir().y < 0 ? -1.0f : 1.0f;
-    m_Yaw += yawSign * xoffset * 0.03f;
-    m_Pitch -= yoffset * 0.03f;
-
-    if (m_Pitch > 89.0f)
-        m_Pitch = 89.0f;
-    if (m_Pitch < -89.0f)
-        m_Pitch = -89.0f;
 
     updateProjValues();
     updateViewValues();

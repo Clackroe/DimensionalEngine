@@ -19,6 +19,11 @@
 
 namespace Dimensional {
 
+static float ambient[3] = { 0.0f, 0.0f, 0.0f };
+static float diffuse[3] = { 0.0f, 0.0f, 0.0f };
+static float specular[3] = { 0.0f, 0.0f, 0.0f };
+static float shininess = 0.0f;
+
 Application* Application::s_Application = nullptr;
 
 // Move to Editor once created
@@ -61,9 +66,12 @@ void Application::runApplication()
         //------Update imgui Layers-------
         m_ImGuiOverlay->beginFrame();
 
-        // ImGui::Begin("Test");
-        // ImGui::Text("HELLOOOWOWOWOWO");
-        // ImGui::End();
+        ImGui::Begin("Test");
+        ImGui::SliderFloat3("Ambient", &ambient[0], 0.0f, 1.0f);
+        ImGui::SliderFloat3("Diffuse", &diffuse[0], 0.0f, 1.0f);
+        ImGui::SliderFloat3("Specular", &specular[0], 0.0f, 1.0f);
+        ImGui::SliderFloat("Shininess", &shininess, 0.0f, 500.0f);
+        ImGui::End();
         //
         // static bool t = true;
         // ImGui::ShowDemoWindow(&t);
@@ -158,12 +166,19 @@ void Application::m_Render()
     glm::vec3 p = cam.calcPos();
     lightShader->setVec3("viewPos", p.x, p.y, p.z);
     lightShader->setMat4("viewProj", cam.getViewProj());
+
+    lightShader->setVec3("material.ambient", ambient[0], ambient[1], ambient[2]);
+    lightShader->setVec3("material.diffuse", diffuse[0], diffuse[1], diffuse[2]);
+    lightShader->setVec3("material.specular", specular[0], specular[1], specular[2]);
+    lightShader->setFloat("material.shininess", shininess);
+
     lightShader->setMat4("model", glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 5.0f, 0.0f)), glm::vec3(10.0f, 0.5f, 10.0f)));
+
+    Ref<Texture> tex = Renderer::createTexture((engineAssetDirectory + "/Textures/Wood.jpg"), false);
+
     Renderer::renderVAO(lightVao, 36, lightShader);
 
     //
-
-    Ref<Texture> tex = Renderer::createTexture((engineAssetDirectory + "/Textures/Wood.jpg"), false);
 
     VertexArray vao;
     VertexBuffer vb(vertices, sizeof(vertices));
