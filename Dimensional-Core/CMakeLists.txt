@@ -35,8 +35,9 @@ set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # Glad
 add_library(glad STATIC lib/GLAD/src/glad.c)
 set_target_properties(glad PROPERTIES POSITION_INDEPENDENT_CODE ON)
-include_directories(lib/GLAD/include/GLAD)
-include_directories(lib/GLAD/include/KHR)
+include_directories(lib/GLAD/include)
+include_directories(lib/GLAD/include/glad)
+# include_directories(lib/GLAD/include)
 
 # GLM
 include_directories(lib/GLM)
@@ -49,7 +50,8 @@ file(GLOB IMGUI_SOURCES
         "lib/IMGUI/*.cpp"
         "lib/IMGUI/backends/imgui_impl_glfw.h"
         "lib/IMGUI/backends/imgui_impl_opengl3.h"
-        "lib/IMGUI/backends/imgui_impl_glfw.cpp" "lib/IMGUI/backends/imgui_impl_opengl3.cpp")
+        "lib/IMGUI/backends/imgui_impl_glfw.cpp"
+        "lib/IMGUI/backends/imgui_impl_opengl3.cpp")
 
 add_library(imgui STATIC ${IMGUI_SOURCES})
 set_target_properties(imgui PROPERTIES POSITION_INDEPENDENT_CODE ON)

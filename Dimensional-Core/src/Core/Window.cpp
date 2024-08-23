@@ -33,7 +33,7 @@ void Window::initWindow(const WindowSettings& settings)
 
     // define openGL version and profile
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     m_Window = glfwCreateWindow(settings.Width, settings.Height, settings.Title.c_str(), nullptr, nullptr);
@@ -42,6 +42,8 @@ void Window::initWindow(const WindowSettings& settings)
 
     glfwMakeContextCurrent(m_Window);
     DM_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize GLAD. Aborting");
+
+    glEnable(GL_DEPTH_TEST);
 
     glfwSetWindowUserPointer(m_Window, &m_Settings);
     initCallbacks();
@@ -78,6 +80,10 @@ void Window::initCallbacks()
             break;
         }
         EventSystem::RaiseEvent<KeyEvent>((KeyCode)key, (Mode)mode);
+    });
+
+    glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y) {
+        EventSystem::RaiseEvent<MouseEvent>(x, y);
     });
 }
 

@@ -13,5 +13,11 @@
 #include <Input/Input.hpp>
 #include <Input/KeyCodes.hpp>
 
-// --- ASSETS
+// ---- ASSETS
 #include <Core/Assets/Asset.hpp>
+
+// ---- RENDERING
+#include <Core/EditorCamera.hpp>
+#include <Rendering/Renderer.hpp>
+#include <Rendering/Shader.hpp>
+#include <Rendering/Texture.hpp>
