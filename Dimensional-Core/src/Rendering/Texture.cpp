@@ -19,7 +19,9 @@ void Texture::load(std::string path, bool retainInMemory)
 
     int w, h, c;
     u8* data = stbi_load(m_Path.c_str(), &w, &h, &c, 0);
-    DM_CORE_ASSERT(data, "Failed to load texture");
+    if (!data) {
+        DM_CORE_WARN("Failed to load texture");
+    }
 
     m_Width = w;
     m_Height = h;

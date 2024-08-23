@@ -54,8 +54,12 @@ constexpr Ref<T> CreateRef(Args&&... args)
 
 //--ASSERTIONS-- Again. Thanks TheCherno
 
+#if defined(DM_WINDOWS)
+#define DM_DEBUGBREAK() __debugbreak()
+#elif defined(DM_LINUX)
 #include <signal.h>
-#define DM_DEBUGBREAK() raise(SIGTRAP)
+#define HZ_DEBUGBREAK() raise(SIGTRAP)
+#endif
 
 #define DM_INTERNAL_ASSERT_IMPL(type, check, msg, ...) \
     {                                                  \

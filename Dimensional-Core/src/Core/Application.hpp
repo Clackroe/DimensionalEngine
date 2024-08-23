@@ -28,7 +28,11 @@ public:
     inline Window& getWindowDM() { return *m_Window; };
 
     // TEMPORARY | WILL BE AUTOMATIC/USERSET
-    std::string engineAssetDirectory = "/home/clack/dev/personal/DimensionalEngine/Dimensional-Core/src/CoreAssets";
+    //std::string engineAssetDirectory = "/home/clack/dev/personal/DimensionalEngine/Dimensional-Core/src/CoreAssets";
+    std::string fPath = __FILE__;
+    std::string engineAssetDirectory = "";
+
+
     // ---
 
 private:

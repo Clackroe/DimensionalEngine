@@ -10,12 +10,12 @@
 //
 #include <spdlog/fmt/ostr.h>
 
-#include <fmt/format.h>
+//#include <>
 #include <glm/glm.hpp>
 
 namespace Dimensional {
 
-class Log {
+class DMCORE_API Log {
 public:
     static void Init();
 
@@ -48,20 +48,20 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 }
 
 // Custom formatter for vec3
-template <>
-struct fmt::formatter<glm::vec3> {
-    // Parses format specs, but we don't care about those in this example.
-    constexpr auto parse(format_parse_context& ctx)
-    {
-        return ctx.begin();
-    }
-
-    template <typename FormatContext>
-    auto format(const glm::vec3& vec, FormatContext& ctx)
-    {
-        return format_to(ctx.out(), "({}, {}, {})", vec.x, vec.y, vec.z);
-    }
-};
+//template <>
+//struct fmt::formatter<glm::vec3> {
+//    // Parses format specs, but we don't care about those in this example.
+//    constexpr auto parse(format_parse_context& ctx)
+//    {
+//        return ctx.begin();
+//    }
+//
+//    template <typename FormatContext>
+//    auto format(const glm::vec3& vec, FormatContext& ctx)
+//    {
+//        return format_to(ctx.out(), "({}, {}, {})", vec.x, vec.y, vec.z);
+//    }
+//};
 
 // Core log macros
 #define DM_CORE_TRACE(...) Dimensional::Log::GetCoreLogger()->trace(__VA_ARGS__);

@@ -7,7 +7,7 @@
 
 namespace Dimensional {
 
-class Input {
+class DMCORE_API Input {
 public:
     Input() = default;
     ~Input() = default;

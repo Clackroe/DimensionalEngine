@@ -3,7 +3,7 @@
 #include <core.hpp>
 
 namespace Dimensional {
-class Layer {
+class DMCORE_API Layer {
 public:
     Layer(const std::string& name = "Layer - Default");
     virtual ~Layer() = default;

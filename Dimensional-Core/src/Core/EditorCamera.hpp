@@ -3,7 +3,7 @@
 #include <Core/Camera.hpp>
 
 namespace Dimensional {
-class EditorCamera : public Camera {
+class DMCORE_API EditorCamera : public Camera {
 public:
     EditorCamera() = default;
     EditorCamera(float FOV, float AR, float nearClipPlane, float farClipPlane);

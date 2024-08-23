@@ -50,7 +50,8 @@ file(GLOB IMGUI_SOURCES
         "lib/IMGUI/*.cpp"
         "lib/IMGUI/backends/imgui_impl_glfw.h"
         "lib/IMGUI/backends/imgui_impl_opengl3.h"
-        "lib/IMGUI/backends/imgui_impl_glfw.cpp" "lib/IMGUI/backends/imgui_impl_opengl3.cpp")
+        "lib/IMGUI/backends/imgui_impl_glfw.cpp"
+        "lib/IMGUI/backends/imgui_impl_opengl3.cpp")
 
 add_library(imgui STATIC ${IMGUI_SOURCES})
 set_target_properties(imgui PROPERTIES POSITION_INDEPENDENT_CODE ON)

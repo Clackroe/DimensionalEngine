@@ -32,16 +32,20 @@ static EditorCamera cam;
 
 Application::Application(const std::string& title, u32 width, u32 height)
 {
+    initializeSubSystems();
+
     // Move to Editor once created
     cam = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
     //
+    std::replace(fPath.begin(), fPath.end(), '\\', '/');
+    engineAssetDirectory = fPath.substr(0, fPath.find_last_of('/')) + "Assets";
 
+    DM_CORE_INFO("PATH: {0}", fPath.c_str())
     DM_CORE_ASSERT(!s_Application, "Application already created!! Aborting.");
     s_Application = this;
 
-    initializeSubSystems();
 
-    m_Window = CreateScope<Window>((WindowSettings) { width, height, title });
+    m_Window = CreateScope<Window>(WindowSettings { width, height, title });
 
     m_ImGuiOverlay = new ImGuiLayer();
     m_LayerStack.pushOverlay(m_ImGuiOverlay);

@@ -7,7 +7,7 @@ class uuid;
 }
 namespace Dimensional {
 
-class Asset {
+class DMCORE_API Asset {
 public:
     const Hash hash;
     const std::string name;

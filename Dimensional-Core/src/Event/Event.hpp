@@ -5,7 +5,7 @@
 
 namespace Dimensional {
 
-class Event {
+class DMCORE_API Event {
 public:
     virtual ~Event() = default;
     virtual const char* getName() const = 0;
