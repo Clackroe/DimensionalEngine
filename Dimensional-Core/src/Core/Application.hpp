@@ -27,17 +27,13 @@ public:
     static Application& getApp() { return *s_Application; }
     inline Window& getWindowDM() { return *m_Window; };
 
-    // TEMPORARY | WILL BE AUTOMATIC/USERSET
-    //std::string engineAssetDirectory = "/home/clack/dev/personal/DimensionalEngine/Dimensional-Core/src/CoreAssets";
     std::string fPath = __FILE__;
     std::string engineAssetDirectory = "";
-
 
     // ---
 
 private:
     void initializeSubSystems();
-    void m_Render();
 
 private:
     EventSystem m_EventSystem;

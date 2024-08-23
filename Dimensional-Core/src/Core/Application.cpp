@@ -48,10 +48,6 @@ void Application::runApplication()
         //------Update imgui Layers-------
         m_ImGuiOverlay->beginFrame();
 
-        //
-        // static bool t = true;
-        // ImGui::ShowDemoWindow(&t);
-
         for (Layer* layer : m_LayerStack) {
             layer->OnImGuiRender();
         }
@@ -60,7 +56,6 @@ void Application::runApplication()
 
         //------
         m_Window->update();
-        m_Render();
     }
 }
 
@@ -70,10 +65,6 @@ void Application::initializeSubSystems()
     m_EventSystem.Init();
     m_Input.Init();
     m_Renderer.Init();
-}
-
-void Application::m_Render()
-{
 }
 
 }
