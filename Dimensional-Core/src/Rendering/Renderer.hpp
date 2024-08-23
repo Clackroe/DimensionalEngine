@@ -63,8 +63,8 @@ public:
 private:
     static Renderer& m_GetRenderer() { return *s_RendererRef; }
 
-    std::unordered_map<std::string, Ref<Shader>> m_ShaderMap;
-    std::unordered_map<std::string, Ref<Texture>> m_TextureMap;
+    UMap<std::string, Ref<Shader>> m_ShaderMap;
+    UMap<std::string, Ref<Texture>> m_TextureMap;
 
     static Renderer* s_RendererRef;
 };

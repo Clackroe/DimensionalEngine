@@ -21,9 +21,6 @@ public:
     void Init();
 
 private:
-    static UMap<KeyCode, bool> s_KeyPressed;
-    static UMap<KeyCode, bool> s_KeyReleased;
-
     static Input* s_Instance;
 
     static float m_MouseX;

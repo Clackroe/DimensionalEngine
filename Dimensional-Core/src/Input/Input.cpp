@@ -1,18 +1,23 @@
+#include "Core/Application.hpp"
 #include "Event/EventSystem.hpp"
 #include <Input/Input.hpp>
 
+#include <GLFW/glfw3.h>
 namespace Dimensional {
-
-UMap<KeyCode, bool> Input::s_KeyPressed;
-UMap<KeyCode, bool> Input::s_KeyReleased;
 
 Input* Input::s_Instance = nullptr;
 
 float Input::m_MouseX = 0.0f;
 float Input::m_MouseY = 0.0f;
 
-bool Input::IsKeyDown(KeyCode key) { return s_KeyPressed[key]; };
-bool Input::IsKeyReleased(KeyCode key) { return s_KeyReleased[key]; };
+bool Input::IsKeyDown(KeyCode key)
+{
+    return glfwGetKey(Application::getApp().getWindowDM().getGLFWWindow(), (u32)key) == GLFW_PRESS;
+};
+bool Input::IsKeyReleased(KeyCode key)
+{
+    return glfwGetKey(Application::getApp().getWindowDM().getGLFWWindow(), (u32)key) == GLFW_RELEASE;
+};
 
 void Input::Init()
 {
@@ -21,19 +26,6 @@ void Input::Init()
     }
 
     s_Instance = this;
-
-    EventSystem::AddListener<KeyEvent>([](const Ref<KeyEvent>& e) {
-        Mode mode = e->getMode();
-        KeyCode key = e->getKey();
-
-        if (mode == Key::RELEASE) {
-            s_KeyReleased[key] = true;
-            s_KeyPressed[key] = false;
-        } else if (mode == Key::PRESS) {
-            s_KeyReleased[key] = false;
-            s_KeyPressed[key] = true;
-        }
-    });
 
     EventSystem::AddListener<MouseEvent>([](const Ref<MouseEvent>& e) {
         float x = e->getX();
