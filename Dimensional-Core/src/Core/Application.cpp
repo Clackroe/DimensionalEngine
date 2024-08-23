@@ -1,14 +1,7 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
-#include "Rendering/ElementBuffer.hpp"
 #include "Rendering/Renderer.hpp"
-#include "Rendering/Shader.hpp"
-#include "Rendering/Texture.hpp"
-#include "Rendering/VertexArray.hpp"
-#include "Rendering/VertexLayout.hpp"
-#include "imgui.h"
 #include <Core/Application.hpp>
-
 #include <buffer.hpp>
 
 #include <Core/Time.hpp>
@@ -19,31 +12,18 @@
 
 namespace Dimensional {
 
-static float ambient[3] = { 0.0f, 0.0f, 0.0f };
-static float diffuse[3] = { 0.0f, 0.0f, 0.0f };
-static float specular[3] = { 0.0f, 0.0f, 0.0f };
-static float shininess = 0.0f;
-
 Application* Application::s_Application = nullptr;
-
-// Move to Editor once created
-static EditorCamera cam;
-//
 
 Application::Application(const std::string& title, u32 width, u32 height)
 {
     initializeSubSystems();
 
-    // Move to Editor once created
-    cam = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
-    //
     std::replace(fPath.begin(), fPath.end(), '\\', '/');
     engineAssetDirectory = fPath.substr(0, fPath.find_last_of('/')) + "Assets";
 
     DM_CORE_INFO("PATH: {0}", fPath.c_str())
     DM_CORE_ASSERT(!s_Application, "Application already created!! Aborting.");
     s_Application = this;
-
 
     m_Window = CreateScope<Window>(WindowSettings { width, height, title });
 
@@ -60,8 +40,6 @@ void Application::runApplication()
 
         EventSystem::ProcessEvents();
 
-        cam.Update();
-
         //------Update Layers-------
         for (Layer* layer : m_LayerStack) {
             layer->OnUpdate();
@@ -70,12 +48,6 @@ void Application::runApplication()
         //------Update imgui Layers-------
         m_ImGuiOverlay->beginFrame();
 
-        ImGui::Begin("Test");
-        ImGui::SliderFloat3("Ambient", &ambient[0], 0.0f, 1.0f);
-        ImGui::SliderFloat3("Diffuse", &diffuse[0], 0.0f, 1.0f);
-        ImGui::SliderFloat3("Specular", &specular[0], 0.0f, 1.0f);
-        ImGui::SliderFloat("Shininess", &shininess, 0.0f, 500.0f);
-        ImGui::End();
         //
         // static bool t = true;
         // ImGui::ShowDemoWindow(&t);
@@ -102,105 +74,6 @@ void Application::initializeSubSystems()
 
 void Application::m_Render()
 {
-
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f
-    };
-
-    // unsigned int indices[] = {
-    //     // note that we start from 0!
-    //     0, 1, 3, // first Triangle
-    //     1, 2, 3 // second Triangle
-    // };
-
-    // LIGHT
-
-    VertexArray lightVao;
-    VertexBuffer lvb(vertices, sizeof(vertices));
-    VertexLayout lLayout;
-    lLayout.Push<float>(3);
-    lLayout.Push<float>(3);
-    lightVao.AddBuffer(lvb, lLayout);
-
-    Ref<Shader> lightShader = Renderer::createShader((engineAssetDirectory + "/Shaders/lightVert.glsl"), (engineAssetDirectory + "/Shaders/lightFrag.glsl"));
-    lightShader->use();
-    lightShader->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-    lightShader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-    lightShader->setVec3("lightPos", 1.0f, 1.0f, 1.0f);
-    glm::vec3 p = cam.calcPos();
-    lightShader->setVec3("viewPos", p.x, p.y, p.z);
-    lightShader->setMat4("viewProj", cam.getViewProj());
-
-    lightShader->setVec3("material.ambient", ambient[0], ambient[1], ambient[2]);
-    lightShader->setVec3("material.diffuse", diffuse[0], diffuse[1], diffuse[2]);
-    lightShader->setVec3("material.specular", specular[0], specular[1], specular[2]);
-    lightShader->setFloat("material.shininess", shininess);
-
-    lightShader->setMat4("model", glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 5.0f, 0.0f)), glm::vec3(10.0f, 0.5f, 10.0f)));
-
-    Ref<Texture> tex = Renderer::createTexture((engineAssetDirectory + "/Textures/Wood.jpg"), false);
-
-    Renderer::renderVAO(lightVao, 36, lightShader);
-
-    //
-
-    VertexArray vao;
-    VertexBuffer vb(vertices, sizeof(vertices));
-
-    // ElementBuffer eb(indices, sizeof(indices) / sizeof(u32));
-
-    VertexLayout vLayout;
-    vLayout.Push<float>(3);
-    vLayout.Push<float>(3);
-
-    vao.AddBuffer(vb, vLayout);
-
-    Ref<Shader> normalShader = Renderer::createShader(engineAssetDirectory + "/Shaders/testVert.glsl", engineAssetDirectory + "/Shaders/testFrag.glsl");
-    normalShader->use();
-    normalShader->setMat4("viewProj", cam.getViewProj());
-    normalShader->setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(1.0f)));
-
-    Renderer::renderVAO(vao, 36, normalShader);
 }
 
 }
