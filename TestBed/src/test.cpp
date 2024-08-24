@@ -174,14 +174,14 @@ class TestLayer : public Layer {
 
         //----
 
-        ImGui::Begin("Test");
+        ImGui::Begin("Properties");
         ImGui::SliderFloat3("Ambient", &ambient[0], 0.0f, 1.0f);
         ImGui::SliderFloat3("Diffuse", &diffuse[0], 0.0f, 1.0f);
         ImGui::SliderFloat3("Specular", &specular[0], 0.0f, 1.0f);
         ImGui::SliderFloat("Shininess", &shininess, 0.0f, 500.0f);
         ImGui::End();
 
-        ImGui::Begin("Epic Gamer");
+        ImGui::Begin("Viewport");
         u32 id = Renderer::getFrameBufferColorID();
         ImGui::Image(reinterpret_cast<ImTextureID>(id), ImVec2 { 1280, 720 }, { 0, 1 }, { 1, 0 });
         ImGui::End();
