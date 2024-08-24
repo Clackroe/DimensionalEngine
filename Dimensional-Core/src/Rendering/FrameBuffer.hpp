@@ -2,11 +2,11 @@
 #define DM_FRAMEBUFFER_H
 #include <core.hpp>
 namespace Dimensional {
-struct FrameBufferSettings {
+struct DMCORE_API FrameBufferSettings {
     u32 width, height;
 };
 
-class FrameBuffer {
+class DMCORE_API FrameBuffer {
 public:
     FrameBuffer(const FrameBufferSettings& settings);
     ~FrameBuffer();

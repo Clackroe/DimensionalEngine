@@ -3,7 +3,7 @@
 #include "Rendering/VertexBuffer.hpp"
 #include "Rendering/VertexLayout.hpp"
 namespace Dimensional {
-class VertexArray {
+class DMCORE_API VertexArray {
 public:
     VertexArray();
     ~VertexArray();

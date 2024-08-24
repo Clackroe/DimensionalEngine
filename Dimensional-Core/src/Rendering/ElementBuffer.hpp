@@ -1,7 +1,7 @@
 #ifndef DM_ELEMENTBUFFER_H
 #define DM_ELEMENTBUFFER_H
 namespace Dimensional {
-class ElementBuffer {
+class DMCORE_API ElementBuffer {
 public:
     ElementBuffer(const u32* data, u32 count);
     ~ElementBuffer();

@@ -3,24 +3,6 @@
 #include <glad.h>
 namespace Dimensional {
 
-struct vbElement {
-    u32 type;
-    u32 count;
-    u8 normalized;
-
-    static unsigned int GetSizeOfType(u32 type)
-    {
-        switch (type) {
-        case GL_FLOAT:
-            return 4;
-        case GL_UNSIGNED_INT:
-            return 4;
-        case GL_UNSIGNED_BYTE:
-            return 1;
-        }
-        return 0;
-    };
-};
 
 VertexArray::VertexArray()
 {

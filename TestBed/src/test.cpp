@@ -1,4 +1,3 @@
-#include "Rendering/FrameBuffer.hpp"
 #include <dimensional.hpp>
 
 #include <Entry.hpp>
@@ -151,7 +150,7 @@ class TestLayer : public Layer {
 
 class TestBed : public Application {
 public:
-    TestBed()
+    TestBed() : Application()
     {
 
         PushLayer(new TestLayer());
@@ -166,6 +165,8 @@ public:
 
 Application* EXT_InitApplication()
 {
-    return new TestBed();
+    Application* app = new TestBed();
+    ImGui::SetCurrentContext(app->getImGuiContext());
+    return app;
 }
 }
