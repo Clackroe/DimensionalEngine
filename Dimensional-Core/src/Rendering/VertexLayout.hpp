@@ -2,15 +2,39 @@
 #define DM_VERTEXLAYOUT_H
 namespace Dimensional {
 
-struct vbElement;
+// Forward declaration of the GL constants
+extern const u32 GL_FLOAT;
+extern const u32 GL_UNSIGNED_INT;
+extern const u32 GL_UNSIGNED_BYTE;
 
-class VertexLayout {
+struct DMCORE_API vbElement {
+	u32 type;
+	u32 count;
+	u8 normalized;
+
+	// Declare the static method
+	static u32 GetSizeOfType(u32 type);
+};
+
+class DMCORE_API VertexLayout {
 public:
     VertexLayout();
     ~VertexLayout();
-
+   
+  
     template <typename T>
     void Push(u32 count);
+
+	template <>
+	void Push<float>(u32 count);
+
+	template <>
+	void Push<u32>(u32 count);
+
+	template <>
+	void Push<u8>(unsigned int count);
+
+
 
     inline const std::vector<vbElement>& getElements() const { return m_Elements; }
     inline unsigned int getStride() const { return m_Stride; }

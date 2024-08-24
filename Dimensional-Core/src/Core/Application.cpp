@@ -27,7 +27,6 @@ Application::Application(const std::string& title, u32 width, u32 height)
     s_Application = this;
 
     m_Window = CreateScope<Window>(WindowSettings { width, height, title });
-
     m_ImGuiOverlay = new ImGuiLayer();
     m_LayerStack.pushOverlay(m_ImGuiOverlay);
 

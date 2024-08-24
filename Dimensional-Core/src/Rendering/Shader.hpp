@@ -9,7 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Dimensional {
-class Shader : public Asset {
+class DMCORE_API Shader : public Asset {
 public:
     unsigned int ID;
 

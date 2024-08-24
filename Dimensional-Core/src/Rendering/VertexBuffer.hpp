@@ -2,7 +2,7 @@
 #define DM_VERTEXBUFFER_H
 
 namespace Dimensional {
-class VertexBuffer {
+class DMCORE_API VertexBuffer {
 public:
     VertexBuffer(const void* data, u32 sizeBytes);
     ~VertexBuffer();

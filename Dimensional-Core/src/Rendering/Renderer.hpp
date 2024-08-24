@@ -11,7 +11,7 @@ class Shader;
 class Texture;
 //
 
-class Renderer {
+class DMCORE_API Renderer {
 public:
     Renderer() {};
     ~Renderer() {};

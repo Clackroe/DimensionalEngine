@@ -13,15 +13,23 @@ static float shininess = 0.0f;
 
 class TestLayer : public Layer {
 
+    FrameBufferSettings fbs = {
+        1280,
+        720,
+    };
+    FrameBuffer m_FB = FrameBuffer(fbs);
+
     virtual void OnAttatch() override
     {
         DM_INFO("TestLayer Attached!!");
 
         cam = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+        m_FB.Bind();
     }
     virtual void OnDetatch() override { }
     virtual void OnUpdate() override
     {
+        m_FB.Bind();
 
         cam.Update();
 
@@ -122,6 +130,8 @@ class TestLayer : public Layer {
         if (Input::IsKeyDown(Key::Escape)) {
             Application::getApp().stopApplication();
         }
+
+        m_FB.Unbind();
     }
     virtual void OnImGuiRender() override
     {
@@ -131,13 +141,18 @@ class TestLayer : public Layer {
         ImGui::SliderFloat3("Specular", &specular[0], 0.0f, 1.0f);
         ImGui::SliderFloat("Shininess", &shininess, 0.0f, 500.0f);
         ImGui::End();
+
+        ImGui::Begin("Epic Gamer");
+        ImGui::Image(reinterpret_cast<ImTextureID>(m_FB.m_ColorGLId), ImVec2 { 1280, 720 });
+        ImGui::End();
     }
 };
 
 class TestBed : public Application {
 public:
-    TestBed()
+    TestBed() : Application()
     {
+
         PushLayer(new TestLayer());
         Renderer::createShader((engineAssetDirectory + "/Shaders/lightVert.glsl"), (engineAssetDirectory + "/Shaders/lightFrag.glsl"));
         Renderer::createShader(engineAssetDirectory + "/Shaders/testVert.glsl", engineAssetDirectory + "/Shaders/testFrag.glsl");
@@ -150,6 +165,8 @@ public:
 
 Application* EXT_InitApplication()
 {
-    return new TestBed();
+    Application* app = new TestBed();
+    ImGui::SetCurrentContext(app->getImGuiContext());
+    return app;
 }
 }

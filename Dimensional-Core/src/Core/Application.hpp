@@ -30,6 +30,10 @@ public:
     std::string fPath = __FILE__;
     std::string engineAssetDirectory = "";
 
+    ImGuiContext* getImGuiContext() {
+      return ImGui::GetCurrentContext();
+    }
+
     // ---
 
 private:

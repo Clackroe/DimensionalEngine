@@ -5,7 +5,7 @@
 
 namespace Dimensional {
 
-class Texture : public Asset {
+class DMCORE_API Texture : public Asset {
 public:
     Texture(std::string path, bool retainInMemory);
     ~Texture();
