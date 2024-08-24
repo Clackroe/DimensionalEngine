@@ -16,7 +16,7 @@ Application* Application::s_Application = nullptr;
 
 Application::Application(const std::string& title, u32 width, u32 height)
 {
-    initializeSubSystems();
+    Log::Init(); // Logging needs to be initialized sooner than the other systems
 
     // --- To be retrieved from project config file
     std::replace(fPath.begin(), fPath.end(), '\\', '/');
@@ -31,6 +31,8 @@ Application::Application(const std::string& title, u32 width, u32 height)
     m_LayerStack.pushOverlay(m_ImGuiOverlay);
 
     DM_CORE_INFO("Platform: {0}", DM_PLATFORM);
+
+    initializeSubSystems();
 }
 
 void Application::runApplication()
@@ -61,7 +63,6 @@ void Application::runApplication()
 
 void Application::initializeSubSystems()
 {
-    Log::Init();
     m_EventSystem.Init();
     m_Input.Init();
     m_Renderer.Init();

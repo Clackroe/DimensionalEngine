@@ -1,6 +1,8 @@
 #ifndef DM_RENDERER_HPP
 #define DM_RENDERER_HPP
 
+#include "Input/Input.hpp"
+#include <Rendering/FrameBuffer.hpp>
 #include <buffer.hpp>
 #include <core.hpp>
 
@@ -10,6 +12,11 @@ namespace Dimensional {
 class Shader;
 class Texture;
 //
+
+static FrameBufferSettings fbs = {
+    1280,
+    720,
+};
 
 class DMCORE_API Renderer {
 public:
@@ -24,6 +31,7 @@ public:
         }
         s_RendererRef = this;
         DM_CORE_INFO("Renderer Initialized.")
+        m_FrameBuffer = new FrameBuffer(fbs);
     };
 
     // Factories
@@ -36,8 +44,12 @@ public:
     // Rendering
     static void renderVAO(VertexArray vao, u32 triangleCount, Ref<Shader>& shader);
     static void renderVAO(const VertexArray& vao, const ElementBuffer& eb, const Ref<Shader>& shader);
-
     //
+
+    static void beginScene();
+    static void endScene();
+
+    static u32 getFrameBufferColorID() { return m_GetRenderer().m_FrameBuffer->m_ColorGLId; };
 
     static Ref<Shader> getShader(const std::string& name)
     {
@@ -65,6 +77,8 @@ private:
 
     UMap<std::string, Ref<Shader>> m_ShaderMap;
     UMap<std::string, Ref<Texture>> m_TextureMap;
+
+    FrameBuffer* m_FrameBuffer;
 
     static Renderer* s_RendererRef;
 };

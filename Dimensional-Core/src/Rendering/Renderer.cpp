@@ -22,39 +22,36 @@ void Renderer::renderVAO(const VertexArray& vao, const ElementBuffer& eb, const 
     glDrawElements(GL_TRIANGLES, eb.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 
+void Renderer::beginScene()
+{
+    Renderer& ref = m_GetRenderer();
+    ref.m_FrameBuffer->Bind();
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+void Renderer::endScene()
+{
+    Renderer& ref = m_GetRenderer();
+    ref.m_FrameBuffer->Unbind();
+}
+
 Ref<Shader> Renderer::createShader(std::string vertexShader, std::string fragShader)
 {
     Renderer& ref = m_GetRenderer();
 
-    // Hash t = std::hash<std::string> {}(vertexShader + fragShader);
-    // auto it = ref.m_ShaderMap.find(t);
-    // if (it != ref.m_ShaderMap.end()) {
-    //     return it->second->hash;
-    // } else {
     Ref<Shader> shader = CreateRef<Shader>(vertexShader, fragShader);
-
-    // If necessary, ensure there is no hash collisions
 
     ref.m_ShaderMap[shader->name] = shader;
     return shader;
-    // }
 }
+
 Ref<Texture> Renderer::createTexture(std::string path, bool retainInMemory)
 {
     Renderer& ref = m_GetRenderer();
 
-    // Hash t = std::hash<std::string> {}(path);
-    // auto it = ref.m_TextureMap.find(t);
-    // if (it != ref.m_TextureMap.end()) {
-    //     return it->second->hash;
-    // } else {
-
     Ref<Texture> tex = CreateRef<Texture>(path, retainInMemory);
-
-    // If necessary, ensure there is no hash collisions
 
     ref.m_TextureMap[tex->name] = tex;
     return tex;
-    // }
 }
 }
