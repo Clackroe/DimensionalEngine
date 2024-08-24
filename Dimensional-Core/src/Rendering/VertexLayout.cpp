@@ -6,15 +6,15 @@ namespace Dimensional {
 
 u32 vbElement::GetSizeOfType(u32 type)
 {
-	switch (type) {
-	case GL_FLOAT:
-		return 4;
-	case GL_UNSIGNED_INT:
-		return 4;
-	case GL_UNSIGNED_BYTE:
-		return 1;
-	}
-	return 0;
+    switch (type) {
+    case GL_FLOAT:
+        return 4;
+    case GL_UNSIGNED_INT:
+        return 4;
+    case GL_UNSIGNED_BYTE:
+        return 1;
+    }
+    return 0;
 };
 
 VertexLayout::VertexLayout()

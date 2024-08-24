@@ -8,33 +8,33 @@ extern const u32 GL_UNSIGNED_INT;
 extern const u32 GL_UNSIGNED_BYTE;
 
 struct DMCORE_API vbElement {
-	u32 type;
-	u32 count;
-	u8 normalized;
+    u32 type;
+    u32 count;
+    u8 normalized;
 
-	// Declare the static method
-	static u32 GetSizeOfType(u32 type);
+    // Declare the static method
+    static u32 GetSizeOfType(u32 type);
 };
 
 class DMCORE_API VertexLayout {
 public:
     VertexLayout();
     ~VertexLayout();
-   
-  
+
     template <typename T>
     void Push(u32 count);
 
-	template <>
-	void Push<float>(u32 count);
+#ifdef DM_WINDOWS
 
-	template <>
-	void Push<u32>(u32 count);
+    template <>
+    void Push<float>(u32 count);
 
-	template <>
-	void Push<u8>(unsigned int count);
+    template <>
+    void Push<u32>(u32 count);
 
-
+    template <>
+    void Push<u8>(unsigned int count);
+#endif
 
     inline const std::vector<vbElement>& getElements() const { return m_Elements; }
     inline unsigned int getStride() const { return m_Stride; }
