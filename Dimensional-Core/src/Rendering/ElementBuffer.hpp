@@ -1,5 +1,6 @@
 #ifndef DM_ELEMENTBUFFER_H
 #define DM_ELEMENTBUFFER_H
+#include <core.hpp>
 namespace Dimensional {
 class DMCORE_API ElementBuffer {
 public:
