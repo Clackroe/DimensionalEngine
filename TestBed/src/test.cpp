@@ -1,6 +1,7 @@
 #include <dimensional.hpp>
 
 #include <Entry.hpp>
+#include <functional>
 namespace Dimensional {
 
 // Move to Editor once created
@@ -113,48 +114,92 @@ class TestLayer : public Layer {
 
         cam.Update();
 
+        // float vertices[] = {
+        //     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        //     0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        //     0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        //     0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        //     -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        //     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        //
+        //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        //     0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        //     0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        //     0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        //     -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+        //
+        //     -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+        //     -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+        //     -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+        //     -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+        //     -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+        //     -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+        //
+        //     0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+        //     0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+        //     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+        //     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+        //     0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+        //     0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+        //
+        //     -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+        //     0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+        //     0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
+        //     0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
+        //     -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
+        //     -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+        //
+        //     -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+        //     0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+        //     0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+        //     0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+        //     -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+        //     -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f
+        // };
         float vertices[] = {
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-            0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-            0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-            0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+            // Positions            // Normals          // Texture Coords
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+            0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
 
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-            -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-            -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-            0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
 
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-            0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+            0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
         };
 
         // LIGHT
@@ -219,9 +264,30 @@ class TestLayer : public Layer {
             }
         }
 
+        VertexArray vao;
+        VertexBuffer vb(vertices, sizeof(vertices));
+
+        VertexLayout vLayout;
+        vLayout.Push<float>(3);
+        vLayout.Push<float>(3);
+        vLayout.Push<float>(2);
+
+        vao.AddBuffer(vb, vLayout);
+
+        // normalShader->use();
+        glm::mat4 m = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f));
+        lightShader->setMat4("model", m);
+        lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(m))));
+
+        lightShader->setVec3("uAlbedo", 0.3f, 0.5f, 0.3f);
+        lightShader->setFloat("uMetallic", 0.1f);
+        lightShader->setFloat("uRoughness", 0.2f);
+
+        Renderer::renderVAO(vao, 36, lightShader);
+
         lightShader->setVec3("uAlbedo", 1.0f, 1.0f, 1.0f);
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
-            glm::vec3 newPos = lightPositions[i] + glm::vec3(sin(Time::getTime() * 5.0) * 5.0, 0.0, 0.0);
+            glm::vec3 newPos = lightPositions[i] + glm::vec3(sin((std::fmod(Time::getTime(), 100.0f)) * 5.0) * 1.0, 0.0, 0.0);
             lightPositions[i] = newPos;
             lightShader->setVec3("uLightPositions[" + std::to_string(i) + "]", newPos.x, newPos.y, newPos.z);
             lightShader->setVec3("uLightColors[" + std::to_string(i) + "]", lightColors[i].x, lightColors[i].y, lightColors[i].z);
@@ -234,24 +300,6 @@ class TestLayer : public Layer {
             renderSphere(lightShader);
         }
 
-        // Renderer::renderVAO(lightVao, 36, lightShader);
-
-        //
-        //
-        // VertexArray vao;
-        // VertexBuffer vb(vertices, sizeof(vertices));
-        //
-        // VertexLayout vLayout;
-        // vLayout.Push<float>(3);
-        // vLayout.Push<float>(3);
-        //
-        // vao.AddBuffer(vb, vLayout);
-        //
-        // normalShader->use();
-        // normalShader->setMat4("viewProj", cam.getViewProj());
-        // normalShader->setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(1.0f)));
-        //
-        // Renderer::renderVAO(vao, 36, normalShader);
         Renderer::endScene();
 
         if (Input::IsKeyDown(Key::Escape)) {
