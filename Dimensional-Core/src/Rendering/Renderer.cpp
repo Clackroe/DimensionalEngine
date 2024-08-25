@@ -19,7 +19,7 @@ void Renderer::renderVAO(const VertexArray& vao, const ElementBuffer& eb, const 
     shader->use();
     vao.Bind();
     eb.Bind();
-    glDrawElements(GL_TRIANGLES, eb.getCount(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLE_STRIP, eb.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 
 void Renderer::beginScene()

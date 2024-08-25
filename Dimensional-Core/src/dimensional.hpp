@@ -5,6 +5,8 @@
 #include <Core/Application.hpp>
 #include <Core/Layer.hpp>
 
+#include <Core/Time.hpp>
+
 // ---- EVENTS
 #include <Event/Event.hpp>
 #include <Event/EventSystem.hpp>

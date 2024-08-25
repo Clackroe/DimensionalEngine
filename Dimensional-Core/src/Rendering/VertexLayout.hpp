@@ -1,5 +1,6 @@
 #ifndef DM_VERTEXLAYOUT_H
 #define DM_VERTEXLAYOUT_H
+#include <core.hpp>
 namespace Dimensional {
 
 // Forward declaration of the GL constants

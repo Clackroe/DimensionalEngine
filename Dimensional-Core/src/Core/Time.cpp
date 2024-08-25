@@ -12,4 +12,10 @@ void Time::calculateDelta()
     m_DeltaTime = current - m_LastFrame;
     m_LastFrame = current;
 }
+
+float Time::getTime()
+{
+    return glfwGetTime();
+}
+
 }

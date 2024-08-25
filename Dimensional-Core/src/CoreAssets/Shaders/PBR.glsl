@@ -83,7 +83,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 void main()
 {
     vec3 N = normalize(Normal);
-    vec3 V = normalize(camPos - WorldPos);
+    vec3 V = normalize(uCameraPosition - WorldPos);
 
     vec3 Lo = vec3(0.0);
     for (int i = 0; i < 4; ++i)
@@ -96,11 +96,11 @@ void main()
         vec3 radiance = uLightColors[i] * attenuation;
 
         vec3 F0 = vec3(0.04);
-        F0 = mix(F0, albedo, metallic);
+        F0 = mix(F0, uAlbedo, uMetallic);
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-        float NDF = DistributionGGX(N, H, roughness);
-        float G = GeometrySmith(N, V, L, roughness);
+        float NDF = DistributionGGX(N, H, uRoughness);
+        float G = GeometrySmith(N, V, L, uRoughness);
         vec3 numerator = NDF * G * F;
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
         vec3 specular = numerator / denominator;
@@ -108,12 +108,12 @@ void main()
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
 
-        kD *= 1.0 - metallic;
+        kD *= 1.0 - uMetallic;
 
         float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        Lo += (kD * uAlbedo / PI + specular) * radiance * NdotL;
     }
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.03) * uAlbedo * uAO;
     vec3 color = ambient + Lo;
 
     color = color / (color + vec3(1.0));
