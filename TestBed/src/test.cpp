@@ -15,10 +15,10 @@ static bool made = false;
 static unsigned int indexCount;
 static void renderSphere(Ref<Shader> shad)
 {
-    static VertexArray* vao;
-    static ElementBuffer* eb;
+    static Ref<VertexArray> vao;
+    static Ref<ElementBuffer> eb;
     // if (!made) {
-    vao = new VertexArray();
+    vao = CreateRef<VertexArray>();
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> uv;
     std::vector<glm::vec3> normals;
@@ -75,7 +75,7 @@ static void renderSphere(Ref<Shader> shad)
         }
     }
     VertexBuffer vb(data.data(), data.size() * sizeof(float));
-    eb = new ElementBuffer(indices.data(), indexCount);
+    eb = CreateRef<ElementBuffer>(indices.data(), indexCount);
     VertexLayout lb;
     lb.Push<float>(3);
     lb.Push<float>(3);
@@ -319,6 +319,8 @@ class TestLayer : public Layer {
         ImGui::Begin("Viewport");
         u32 id = Renderer::getFrameBufferColorID();
         ImGui::Image(reinterpret_cast<ImTextureID>(id), ImVec2 { 1280, 720 }, { 0, 1 }, { 1, 0 });
+        ImGui::End();
+
         ImGui::End();
     }
 };
