@@ -1,6 +1,7 @@
 #include <dimensional.hpp>
 
 #include <Entry.hpp>
+#include <sys/select.h>
 namespace Dimensional {
 
 // Move to Editor once created
@@ -10,6 +11,77 @@ static float ambient[3] = { 0.0f, 0.0f, 0.0f };
 static float diffuse[3] = { 0.0f, 0.0f, 0.0f };
 static float specular[3] = { 0.0f, 0.0f, 0.0f };
 static float shininess = 0.0f;
+
+static bool made = false;
+static unsigned int indexCount;
+static VertexArray vao;
+// static void renderSphere(Ref<Shader> shad)
+// {
+//     if (!made) {
+//         std::vector<glm::vec3> positions;
+//         std::vector<glm::vec2> uv;
+//         std::vector<glm::vec3> normals;
+//         std::vector<unsigned int> indices;
+//
+//         const unsigned int X_SEGMENTS = 64;
+//         const unsigned int Y_SEGMENTS = 64;
+//         const float PI = 3.14159265359f;
+//         for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {
+//             for (unsigned int y = 0; y <= Y_SEGMENTS; ++y) {
+//                 float xSegment = (float)x / (float)X_SEGMENTS;
+//                 float ySegment = (float)y / (float)Y_SEGMENTS;
+//                 float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+//                 float yPos = std::cos(ySegment * PI);
+//                 float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+//
+//                 positions.push_back(glm::vec3(xPos, yPos, zPos));
+//                 uv.push_back(glm::vec2(xSegment, ySegment));
+//                 normals.push_back(glm::vec3(xPos, yPos, zPos));
+//             }
+//         }
+//
+//         bool oddRow = false;
+//         for (unsigned int y = 0; y < Y_SEGMENTS; ++y) {
+//             if (!oddRow) // even rows: y == 0, y == 2; and so on
+//             {
+//                 for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {
+//                     indices.push_back(y * (X_SEGMENTS + 1) + x);
+//                     indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+//                 }
+//             } else {
+//                 for (int x = X_SEGMENTS; x >= 0; --x) {
+//                     indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+//                     indices.push_back(y * (X_SEGMENTS + 1) + x);
+//                 }
+//             }
+//             oddRow = !oddRow;
+//         }
+//         indexCount = static_cast<unsigned int>(indices.size());
+//
+//         std::vector<float> data;
+//         for (unsigned int i = 0; i < positions.size(); ++i) {
+//             data.push_back(positions[i].x);
+//             data.push_back(positions[i].y);
+//             data.push_back(positions[i].z);
+//             if (normals.size() > 0) {
+//                 data.push_back(normals[i].x);
+//                 data.push_back(normals[i].y);
+//                 data.push_back(normals[i].z);
+//             }
+//             if (uv.size() > 0) {
+//                 data.push_back(uv[i].x);
+//                 data.push_back(uv[i].y);
+//             }
+//         }
+//         VertexBuffer vb(data.data(), sizeof(data));
+//         VertexLayout lb;
+//         lb.Push<float>(3);
+//         lb.Push<float>(3);
+//         lb.Push<float>(2);
+//         vao.AddBuffer(vb, lb);
+//     }
+//     Renderer::renderVAO(vao, indexCount, shad);
+// }
 
 class TestLayer : public Layer {
 
@@ -79,27 +151,67 @@ class TestLayer : public Layer {
         lLayout.Push<float>(3);
         lightVao.AddBuffer(lvb, lLayout);
 
-        Ref<Shader> lightShader = Renderer::getShader("lightFrag");
-        Ref<Shader> normalShader = Renderer::getShader("testFrag");
+        // Ref<Shader> lightShader = Renderer::getShader("Light");
+        Ref<Shader> lightShader = Renderer::getShader("PBR");
+        Ref<Shader> normalShader = Renderer::getShader("Test");
+
+        // uniform mat4 viewProj;
+        // uniform mat4 model;
+        // uniform mat3 normalMatrix;
+        //
+        // uniform vec3 uCameraPosition;
+        //
+        // uniform vec3 uAlbedo;
+        // uniform float uMetallic;
+        // uniform float uRoughness;
+        // uniform float uAO;
+        //
+        // // Lights
+        // uniform vec3 uLightPositions[4];
+        // uniform vec3 uLightColors[4];
+        glm::vec3 lightPositions[] = {
+            glm::vec3(-10.0f, 10.0f, 10.0f),
+            glm::vec3(10.0f, 10.0f, 10.0f),
+            glm::vec3(-10.0f, -10.0f, 10.0f),
+            glm::vec3(10.0f, -10.0f, 10.0f),
+        };
+        glm::vec3 lightColors[] = {
+            glm::vec3(300.0f, 300.0f, 300.0f),
+            glm::vec3(300.0f, 300.0f, 300.0f),
+            glm::vec3(300.0f, 300.0f, 300.0f),
+            glm::vec3(300.0f, 300.0f, 300.0f)
+        };
 
         lightShader->use();
-        lightShader->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lightShader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        lightShader->setVec3("lightPos", 1.0f, 1.0f, 1.0f);
         glm::vec3 p = cam.calcPos();
-        lightShader->setVec3("viewPos", p.x, p.y, p.z);
+
         lightShader->setMat4("viewProj", cam.getViewProj());
-
-        lightShader->setVec3("material.ambient", ambient[0], ambient[1], ambient[2]);
-        lightShader->setVec3("material.diffuse", diffuse[0], diffuse[1], diffuse[2]);
-        lightShader->setVec3("material.specular", specular[0], specular[1], specular[2]);
-        lightShader->setFloat("material.shininess", shininess);
-
         lightShader->setMat4("model", glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 5.0f, 0.0f)), glm::vec3(10.0f, 0.5f, 10.0f)));
 
-        // Ref<Texture> tex = Renderer::createTexture((engineAssetDirectory + "/Textures/Wood.jpg"), false);
+        lightShader->setVec3("uCameraPosition", p.x, p.y, p.z);
+        lightShader->setVec3("uAlbedo", 0.5f, 0.0f, 0.0f);
+        lightShader->setFloat("uAO", 1.0f);
 
-        Renderer::renderVAO(lightVao, 36, lightShader);
+        int nrRows = 7;
+        int nrColumns = 7;
+        float spacing = 2.5;
+        glm::mat4 model = glm::mat4(1.0f);
+        for (int row = 0; row < nrRows; ++row) {
+            lightShader->setFloat("uMetallic", (float)row / (float)nrRows);
+            for (int col = 0; col < nrColumns; ++col) {
+                // we clamp the roughness to 0.05 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit off
+                // on direct lighting.
+                lightShader->setFloat("uRoughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
+
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3((col - (nrColumns / 2)) * spacing, (row - (nrRows / 2)) * spacing, 0.0f));
+                lightShader->setMat4("model", model);
+                lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+                // renderSphere(lightShader);
+            }
+        }
+
+        // Renderer::renderVAO(lightVao, 36, lightShader);
 
         //
 
@@ -195,8 +307,9 @@ public:
     {
 
         PushLayer(new TestLayer());
-        Renderer::createShader((engineAssetDirectory + "/Shaders/lightVert.glsl"), (engineAssetDirectory + "/Shaders/lightFrag.glsl"));
-        Renderer::createShader(engineAssetDirectory + "/Shaders/testVert.glsl", engineAssetDirectory + "/Shaders/testFrag.glsl");
+        Renderer::createShader((engineAssetDirectory + "/Shaders/Light.glsl"));
+        // Renderer::createShader((engineAssetDirectory + "/Shaders/PBR.glsl"));
+        Renderer::createShader((engineAssetDirectory + "/Shaders/Test.glsl"));
     }
 
     ~TestBed()

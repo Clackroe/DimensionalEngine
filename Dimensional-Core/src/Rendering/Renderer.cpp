@@ -35,6 +35,16 @@ void Renderer::endScene()
     ref.m_FrameBuffer->Unbind();
 }
 
+Ref<Shader> Renderer::createShader(std::string path)
+{
+    Renderer& ref = m_GetRenderer();
+
+    Ref<Shader> shader = CreateRef<Shader>(path);
+
+    ref.m_ShaderMap[shader->name] = shader;
+    return shader;
+}
+
 Ref<Shader> Renderer::createShader(std::string vertexShader, std::string fragShader)
 {
     Renderer& ref = m_GetRenderer();

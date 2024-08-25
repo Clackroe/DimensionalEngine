@@ -36,6 +36,7 @@ public:
 
     // Factories
     static Ref<Shader> createShader(std::string vertexShader, std::string fragShader);
+    static Ref<Shader> createShader(std::string path);
     static Ref<Texture> createTexture(std::string path, bool retainInMemory);
     static void createMesh();
     static void createModel();
