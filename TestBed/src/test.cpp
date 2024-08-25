@@ -13,77 +13,90 @@ static float shininess = 0.0f;
 
 static bool made = false;
 static unsigned int indexCount;
-static VertexArray* vao;
-static ElementBuffer* eb;
 static void renderSphere(Ref<Shader> shad)
 {
-    if (!made) {
-        vao = new VertexArray();
-        std::vector<glm::vec3> positions;
-        std::vector<glm::vec2> uv;
-        std::vector<glm::vec3> normals;
-        std::vector<unsigned int> indices;
+    static VertexArray* vao;
+    static ElementBuffer* eb;
+    // if (!made) {
+    vao = new VertexArray();
+    std::vector<glm::vec3> positions;
+    std::vector<glm::vec2> uv;
+    std::vector<glm::vec3> normals;
+    std::vector<unsigned int> indices;
 
-        const unsigned int X_SEGMENTS = 64;
-        const unsigned int Y_SEGMENTS = 64;
-        const float PI = 3.14159265359f;
-        for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {
-            for (unsigned int y = 0; y <= Y_SEGMENTS; ++y) {
-                float xSegment = (float)x / (float)X_SEGMENTS;
-                float ySegment = (float)y / (float)Y_SEGMENTS;
-                float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
-                float yPos = std::cos(ySegment * PI);
-                float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+    const unsigned int X_SEGMENTS = 64;
+    const unsigned int Y_SEGMENTS = 64;
+    const float PI = 3.14159265359f;
+    for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {
+        for (unsigned int y = 0; y <= Y_SEGMENTS; ++y) {
+            float xSegment = (float)x / (float)X_SEGMENTS;
+            float ySegment = (float)y / (float)Y_SEGMENTS;
+            float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+            float yPos = std::cos(ySegment * PI);
+            float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
 
-                positions.push_back(glm::vec3(xPos, yPos, zPos));
-                uv.push_back(glm::vec2(xSegment, ySegment));
-                normals.push_back(glm::vec3(xPos, yPos, zPos));
-            }
+            positions.push_back(glm::vec3(xPos, yPos, zPos));
+            uv.push_back(glm::vec2(xSegment, ySegment));
+            normals.push_back(glm::vec3(xPos, yPos, zPos));
         }
-
-        bool oddRow = false;
-        for (unsigned int y = 0; y < Y_SEGMENTS; ++y) {
-            if (!oddRow) // even rows: y == 0, y == 2; and so on
-            {
-                for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {
-                    indices.push_back(y * (X_SEGMENTS + 1) + x);
-                    indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                }
-            } else {
-                for (int x = X_SEGMENTS; x >= 0; --x) {
-                    indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                    indices.push_back(y * (X_SEGMENTS + 1) + x);
-                }
-            }
-            oddRow = !oddRow;
-        }
-        indexCount = static_cast<unsigned int>(indices.size());
-
-        std::vector<float> data;
-        for (unsigned int i = 0; i < positions.size(); ++i) {
-            data.push_back(positions[i].x);
-            data.push_back(positions[i].y);
-            data.push_back(positions[i].z);
-            if (normals.size() > 0) {
-                data.push_back(normals[i].x);
-                data.push_back(normals[i].y);
-                data.push_back(normals[i].z);
-            }
-            if (uv.size() > 0) {
-                data.push_back(uv[i].x);
-                data.push_back(uv[i].y);
-            }
-        }
-        VertexBuffer vb(data.data(), sizeof(data));
-        eb = new ElementBuffer(indices.data(), indices.size());
-        VertexLayout lb;
-        lb.Push<float>(3);
-        lb.Push<float>(3);
-        lb.Push<float>(2);
-        vao->AddBuffer(vb, lb);
     }
+
+    bool oddRow = false;
+    for (unsigned int y = 0; y < Y_SEGMENTS; ++y) {
+        if (!oddRow) // even rows: y == 0, y == 2; and so on
+        {
+            for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {
+                indices.push_back(y * (X_SEGMENTS + 1) + x);
+                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+            }
+        } else {
+            for (int x = X_SEGMENTS; x >= 0; --x) {
+                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+                indices.push_back(y * (X_SEGMENTS + 1) + x);
+            }
+        }
+        oddRow = !oddRow;
+    }
+    indexCount = static_cast<unsigned int>(indices.size());
+
+    std::vector<float> data;
+    for (unsigned int i = 0; i < positions.size(); ++i) {
+        data.push_back(positions[i].x);
+        data.push_back(positions[i].y);
+        data.push_back(positions[i].z);
+        if (normals.size() > 0) {
+            data.push_back(normals[i].x);
+            data.push_back(normals[i].y);
+            data.push_back(normals[i].z);
+        }
+        if (uv.size() > 0) {
+            data.push_back(uv[i].x);
+            data.push_back(uv[i].y);
+        }
+    }
+    VertexBuffer vb(data.data(), data.size() * sizeof(float));
+    eb = new ElementBuffer(indices.data(), indexCount);
+    VertexLayout lb;
+    lb.Push<float>(3);
+    lb.Push<float>(3);
+    lb.Push<float>(2);
+    vao->AddBuffer(vb, lb);
+    // }
     Renderer::renderVAO(*vao, *eb, shad);
 }
+
+static glm::vec3 lightPositions[] = {
+    glm::vec3(-10.0f, 10.0f, 10.0f),
+    glm::vec3(10.0f, 10.0f, 10.0f),
+    glm::vec3(-10.0f, -10.0f, 10.0f),
+    glm::vec3(10.0f, -10.0f, 10.0f),
+};
+static glm::vec3 lightColors[] = {
+    glm::vec3(300.0f, 300.0f, 300.0f),
+    glm::vec3(300.0f, 300.0f, 300.0f),
+    glm::vec3(300.0f, 300.0f, 300.0f),
+    glm::vec3(300.0f, 300.0f, 300.0f)
+};
 
 class TestLayer : public Layer {
 
@@ -155,7 +168,7 @@ class TestLayer : public Layer {
 
         // Ref<Shader> lightShader = Renderer::getShader("Light");
         Ref<Shader> lightShader = Renderer::getShader("PBR");
-        Ref<Shader> normalShader = Renderer::getShader("Test");
+        // Ref<Shader> normalShader = Renderer::getShader("Test");
 
         // uniform mat4 viewProj;
         // uniform mat4 model;
@@ -171,18 +184,6 @@ class TestLayer : public Layer {
         // // Lights
         // uniform vec3 uLightPositions[4];
         // uniform vec3 uLightColors[4];
-        glm::vec3 lightPositions[] = {
-            glm::vec3(-10.0f, 10.0f, 10.0f),
-            glm::vec3(10.0f, 10.0f, 10.0f),
-            glm::vec3(-10.0f, -10.0f, 10.0f),
-            glm::vec3(10.0f, -10.0f, 10.0f),
-        };
-        glm::vec3 lightColors[] = {
-            glm::vec3(300.0f, 300.0f, 300.0f),
-            glm::vec3(300.0f, 300.0f, 300.0f),
-            glm::vec3(300.0f, 300.0f, 300.0f),
-            glm::vec3(300.0f, 300.0f, 300.0f)
-        };
 
         lightShader->use();
         glm::vec3 p = cam.calcPos();
@@ -199,11 +200,10 @@ class TestLayer : public Layer {
         float spacing = 2.5;
         glm::mat4 model = glm::mat4(1.0f);
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
-            glm::vec3 newPos = lightPositions[i] + glm::vec3(sin(Time::getTime() * 5.0) * 5.0, 0.0, 0.0);
-            newPos = lightPositions[i];
-            lightShader->setVec3("lightPositions[" + std::to_string(i) + "]", newPos.x, newPos.y, newPos.z);
-            lightShader->setVec3("lightColors[" + std::to_string(i) + "]", lightColors[i].x, lightColors[i].y, lightColors[i].z);
+            lightShader->setVec3("uLightPositions[" + std::to_string(i) + "]", lightPositions[i].x, lightPositions[i].y, lightPositions[i].z);
+            lightShader->setVec3("uLightColors[" + std::to_string(i) + "]", lightColors[i].x, lightColors[i].y, lightColors[i].z);
         }
+
         for (int row = 0; row < nrRows; ++row) {
             lightShader->setFloat("uMetallic", (float)row / (float)nrRows);
             for (int col = 0; col < nrColumns; ++col) {
@@ -219,24 +219,39 @@ class TestLayer : public Layer {
             }
         }
 
+        lightShader->setVec3("uAlbedo", 1.0f, 1.0f, 1.0f);
+        for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
+            glm::vec3 newPos = lightPositions[i] + glm::vec3(sin(Time::getTime() * 5.0) * 5.0, 0.0, 0.0);
+            lightPositions[i] = newPos;
+            lightShader->setVec3("uLightPositions[" + std::to_string(i) + "]", newPos.x, newPos.y, newPos.z);
+            lightShader->setVec3("uLightColors[" + std::to_string(i) + "]", lightColors[i].x, lightColors[i].y, lightColors[i].z);
+
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, newPos);
+            model = glm::scale(model, glm::vec3(0.5f));
+            lightShader->setMat4("model", model);
+            lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+            renderSphere(lightShader);
+        }
+
         // Renderer::renderVAO(lightVao, 36, lightShader);
 
         //
-
-        VertexArray vao;
-        VertexBuffer vb(vertices, sizeof(vertices));
-
-        VertexLayout vLayout;
-        vLayout.Push<float>(3);
-        vLayout.Push<float>(3);
-
-        vao.AddBuffer(vb, vLayout);
-
-        normalShader->use();
-        normalShader->setMat4("viewProj", cam.getViewProj());
-        normalShader->setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(1.0f)));
-
-        Renderer::renderVAO(vao, 36, normalShader);
+        //
+        // VertexArray vao;
+        // VertexBuffer vb(vertices, sizeof(vertices));
+        //
+        // VertexLayout vLayout;
+        // vLayout.Push<float>(3);
+        // vLayout.Push<float>(3);
+        //
+        // vao.AddBuffer(vb, vLayout);
+        //
+        // normalShader->use();
+        // normalShader->setMat4("viewProj", cam.getViewProj());
+        // normalShader->setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(1.0f)));
+        //
+        // Renderer::renderVAO(vao, 36, normalShader);
         Renderer::endScene();
 
         if (Input::IsKeyDown(Key::Escape)) {
