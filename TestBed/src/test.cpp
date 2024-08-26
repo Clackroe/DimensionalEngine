@@ -1,7 +1,6 @@
 #include <dimensional.hpp>
 
 #include <Entry.hpp>
-#include <functional>
 namespace Dimensional {
 
 // Move to Editor once created
@@ -82,21 +81,15 @@ static void renderSphere(Ref<Shader> shad)
     lb.Push<float>(3);
     lb.Push<float>(2);
     vao->AddBuffer(vb, lb);
-    // }
+
     Renderer::renderVAO(*vao, *eb, shad);
 }
 
 static glm::vec3 lightPositions[] = {
-    glm::vec3(-10.0f, 10.0f, 10.0f),
-    glm::vec3(10.0f, 10.0f, 10.0f),
-    glm::vec3(-10.0f, -10.0f, 10.0f),
-    glm::vec3(10.0f, -10.0f, 10.0f),
+    glm::vec3(0.0f, 0.0f, 10.0f),
 };
 static glm::vec3 lightColors[] = {
-    glm::vec3(300.0f, 300.0f, 300.0f),
-    glm::vec3(300.0f, 300.0f, 300.0f),
-    glm::vec3(300.0f, 300.0f, 300.0f),
-    glm::vec3(300.0f, 300.0f, 300.0f)
+    glm::vec3(150.0f, 150.0f, 150.0f),
 };
 
 class TestLayer : public Layer {
@@ -115,48 +108,6 @@ class TestLayer : public Layer {
         cam.Update();
 
         // float vertices[] = {
-        //     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        //     0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        //     0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        //     0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        //     -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        //     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        //
-        //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        //     0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        //     0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        //     0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        //     -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-        //
-        //     -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-        //     -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-        //     -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-        //     -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-        //     -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-        //     -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-        //
-        //     0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-        //     0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-        //     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-        //     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-        //     0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-        //     0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-        //
-        //     -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-        //     0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-        //     0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
-        //     0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
-        //     -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
-        //     -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-        //
-        //     -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-        //     0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-        //     0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-        //     0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-        //     -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-        //     -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f
-        // };
         float vertices[] = {
             // Positions            // Normals          // Texture Coords
             -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
@@ -212,33 +163,28 @@ class TestLayer : public Layer {
         lightVao.AddBuffer(lvb, lLayout);
 
         // Ref<Shader> lightShader = Renderer::getShader("Light");
-        Ref<Shader> lightShader = Renderer::getShader("PBR");
+        Ref<Shader> lightShader = Renderer::getShader("PBR1");
         // Ref<Shader> normalShader = Renderer::getShader("Test");
-
-        // uniform mat4 viewProj;
-        // uniform mat4 model;
-        // uniform mat3 normalMatrix;
-        //
-        // uniform vec3 uCameraPosition;
-        //
-        // uniform vec3 uAlbedo;
-        // uniform float uMetallic;
-        // uniform float uRoughness;
-        // uniform float uAO;
-        //
-        // // Lights
-        // uniform vec3 uLightPositions[4];
-        // uniform vec3 uLightColors[4];
 
         lightShader->use();
         glm::vec3 p = cam.calcPos();
 
         lightShader->setMat4("viewProj", cam.getViewProj());
-        lightShader->setMat4("model", glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 5.0f, 0.0f)), glm::vec3(10.0f, 0.5f, 10.0f)));
+        // lightShader->setMat4("model", glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 5.0f, 0.0f)), glm::vec3(10.0f, 0.5f, 10.0f)));
+
+        // Renderer::createTexture((engineAssetDirectory + "/Textures/Albedo.png"), false)->bind(0);
+        // Renderer::createTexture((engineAssetDirectory + "/Textures/Normal1.png"), false)->bind(1);
+        // Renderer::createTexture((engineAssetDirectory + "/Textures/Metallic.png"), false)->bind(2);
+        // Renderer::createTexture((engineAssetDirectory + "/Textures/Roughness.png"), false)->bind(3);
+        // Renderer::createTexture((engineAssetDirectory + "/Textures/AO.png"), false)->bind(4);
+
+        lightShader->setInt("albedoMap", 0);
+        lightShader->setInt("normalMap", 1);
+        lightShader->setInt("metallicMap", 2);
+        lightShader->setInt("roughnessMap", 3);
+        lightShader->setInt("aoMap", 4);
 
         lightShader->setVec3("uCameraPosition", p.x, p.y, p.z);
-        lightShader->setVec3("uAlbedo", 0.5f, 0.0f, 0.0f);
-        lightShader->setFloat("uAO", 1.0f);
 
         int nrRows = 7;
         int nrColumns = 7;
@@ -250,20 +196,15 @@ class TestLayer : public Layer {
         }
 
         for (int row = 0; row < nrRows; ++row) {
-            lightShader->setFloat("uMetallic", (float)row / (float)nrRows);
             for (int col = 0; col < nrColumns; ++col) {
-                // we clamp the roughness to 0.05 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit off
-                // on direct lighting.
-                lightShader->setFloat("uRoughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
-
                 model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3((col - (nrColumns / 2)) * spacing, (row - (nrRows / 2)) * spacing, 0.0f));
+                model = glm::translate(model, glm::vec3((col - ((float)nrColumns / 2)) * spacing, (row - ((float)nrRows / 2)) * spacing, 0.0f));
                 lightShader->setMat4("model", model);
                 lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
                 renderSphere(lightShader);
             }
         }
-
+        //
         VertexArray vao;
         VertexBuffer vb(vertices, sizeof(vertices));
 
@@ -278,27 +219,26 @@ class TestLayer : public Layer {
         glm::mat4 m = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f));
         lightShader->setMat4("model", m);
         lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(m))));
-
-        lightShader->setVec3("uAlbedo", 0.3f, 0.5f, 0.3f);
-        lightShader->setFloat("uMetallic", 0.1f);
-        lightShader->setFloat("uRoughness", 0.2f);
+        //
+        // lightShader->setVec3("uAlbedo", 0.3f, 0.5f, 0.3f);
+        // lightShader->setFloat("uMetallic", 0.1f);
+        // lightShader->setFloat("uRoughness", 0.2f);
 
         Renderer::renderVAO(vao, 36, lightShader);
 
-        lightShader->setVec3("uAlbedo", 1.0f, 1.0f, 1.0f);
-        for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
-            glm::vec3 newPos = lightPositions[i] + glm::vec3(sin((std::fmod(Time::getTime(), 100.0f)) * 5.0) * 1.0, 0.0, 0.0);
-            lightPositions[i] = newPos;
-            lightShader->setVec3("uLightPositions[" + std::to_string(i) + "]", newPos.x, newPos.y, newPos.z);
-            lightShader->setVec3("uLightColors[" + std::to_string(i) + "]", lightColors[i].x, lightColors[i].y, lightColors[i].z);
-
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, newPos);
-            model = glm::scale(model, glm::vec3(0.5f));
-            lightShader->setMat4("model", model);
-            lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-            renderSphere(lightShader);
-        }
+        // for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
+        //     glm::vec3 newPos = lightPositions[i]; //+ glm::vec3(sin((std::fmod(Time::getTime(), 100.0f)) * 5.0) * 1.0, 0.0, 0.0);
+        //     lightPositions[i] = newPos;
+        //     lightShader->setVec3("uLightPositions[" + std::to_string(i) + "]", newPos.x, newPos.y, newPos.z);
+        //     lightShader->setVec3("uLightColors[" + std::to_string(i) + "]", lightColors[i].x, lightColors[i].y, lightColors[i].z);
+        //
+        //     model = glm::mat4(1.0f);
+        //     model = glm::translate(model, newPos);
+        //     model = glm::scale(model, glm::vec3(0.5f));
+        //     lightShader->setMat4("model", model);
+        //     lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+        //     renderSphere(lightShader);
+        // }
 
         Renderer::endScene();
 
@@ -381,8 +321,14 @@ public:
 
         PushLayer(new TestLayer());
         Renderer::createShader((engineAssetDirectory + "/Shaders/Light.glsl"));
-        Renderer::createShader((engineAssetDirectory + "/Shaders/PBR.glsl"));
+        Renderer::createShader((engineAssetDirectory + "/Shaders/PBR1.glsl"));
         Renderer::createShader((engineAssetDirectory + "/Shaders/Test.glsl"));
+
+        Renderer::createTexture((engineAssetDirectory + "/Textures/Albedo.png"), false)->bind(0);
+        Renderer::createTexture((engineAssetDirectory + "/Textures/Normal.png"), false)->bind(1);
+        Renderer::createTexture((engineAssetDirectory + "/Textures/Metallic.png"), false)->bind(2);
+        Renderer::createTexture((engineAssetDirectory + "/Textures/Roughness.png"), false)->bind(3);
+        Renderer::createTexture((engineAssetDirectory + "/Textures/AO.png"), false)->bind(4);
     }
 
     ~TestBed()

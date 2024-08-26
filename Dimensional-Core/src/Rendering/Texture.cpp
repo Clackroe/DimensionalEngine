@@ -30,7 +30,12 @@ void Texture::load(std::string path, bool retainInMemory)
     // Internal and data Formats to notify opengl
     GLenum intFormat = 0, dataFormat = 0;
 
+    DM_CORE_INFO("Name: {0} Channels: {1}", name, m_Channels);
     switch (m_Channels) {
+    case 1:
+        intFormat = GL_R8;
+        dataFormat = GL_RED;
+        break;
     case 3:
         intFormat = GL_RGB8;
         dataFormat = GL_RGB;
@@ -40,7 +45,7 @@ void Texture::load(std::string path, bool retainInMemory)
         dataFormat = GL_RGBA;
         break;
     default:
-        DM_CORE_ASSERT(false, "Texture uses an unsupported channel." + std::to_string(m_Channels))
+        DM_CORE_ASSERT(false, "Texture (" + name + ")uses an unsupported channel." + std::to_string(m_Channels));
         stbi_image_free(data);
         return;
     }
