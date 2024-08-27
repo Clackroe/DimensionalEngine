@@ -5,6 +5,8 @@
 #include <Core/Application.hpp>
 #include <Core/Layer.hpp>
 
+#include <Core/Time.hpp>
+
 // ---- EVENTS
 #include <Event/Event.hpp>
 #include <Event/EventSystem.hpp>
@@ -19,6 +21,7 @@
 // ---- RENDERING
 #include <Core/EditorCamera.hpp>
 #include <Rendering/FrameBuffer.hpp>
+#include <Rendering/Model.hpp>
 #include <Rendering/Renderer.hpp>
 #include <Rendering/Shader.hpp>
 #include <Rendering/Texture.hpp>

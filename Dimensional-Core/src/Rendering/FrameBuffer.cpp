@@ -20,7 +20,7 @@ void FrameBuffer::Rebuild()
     // Color
     glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorGLId);
     glBindTexture(GL_TEXTURE_2D, m_ColorGLId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Settings.width, m_Settings.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Settings.width, m_Settings.height, 0, GL_RGBA, GL_FLOAT, nullptr);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

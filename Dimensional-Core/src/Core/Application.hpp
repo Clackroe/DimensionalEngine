@@ -6,6 +6,8 @@
 #include <Core/LayerStack.hpp>
 #include <Core/Window.hpp>
 
+#include <Rendering/FrameBuffer.hpp>
+
 #include <Event/EventSystem.hpp>
 
 #include <Rendering/Renderer.hpp>
@@ -30,8 +32,9 @@ public:
     std::string fPath = __FILE__;
     std::string engineAssetDirectory = "";
 
-    ImGuiContext* getImGuiContext() {
-      return ImGui::GetCurrentContext();
+    ImGuiContext* getImGuiContext()
+    {
+        return ImGui::GetCurrentContext();
     }
 
     // ---

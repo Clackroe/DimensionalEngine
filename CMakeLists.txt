@@ -8,4 +8,5 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
 add_subdirectory(Dimensional-Core)
+add_subdirectory(PortalEditor)
 add_subdirectory(TestBed)

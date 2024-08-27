@@ -21,6 +21,17 @@ include_directories(lib/STB)
 # Ensure all static libraries are compiled with -fPIC
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# ASSIMP
+add_subdirectory(lib/ASSIMP)
+include_directories(lib/ASSIMP/include)
+set(BUILD_SHARED_LIBS OFF)
+set(ASSIMP_NO_EXPORT ON)
+set(ASSIMP_INSTALL OFF)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
+set_target_properties(assimp PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 # GLFW
 set(BUILD_SHARED_LIBS OFF)           
 set(GLFW_LIBRARY_TYPE STATIC)        
@@ -69,7 +80,7 @@ set_source_files_properties(${PCH_HEADER} PROPERTIES HEADER_FILE_ONLY ON)
 
 # Shared Library
 add_library(Dimensional-Core SHARED ${SOURCES})
-target_link_libraries(Dimensional-Core glfw glad imgui spdlog)
+target_link_libraries(Dimensional-Core glfw glad imgui spdlog assimp)
 target_compile_definitions(Dimensional-Core PRIVATE MYLIB_BUILD)
 
 target_precompile_headers(Dimensional-Core PRIVATE ${PCH_HEADER})

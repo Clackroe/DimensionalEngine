@@ -2,6 +2,7 @@
 #define DM_VERTEXARRAY_H
 #include "Rendering/VertexBuffer.hpp"
 #include "Rendering/VertexLayout.hpp"
+#include <core.hpp>
 namespace Dimensional {
 class DMCORE_API VertexArray {
 public:
@@ -15,6 +16,7 @@ public:
 
 private:
     u32 m_GLId;
+    u32 m_Buffer;
 };
 }
 

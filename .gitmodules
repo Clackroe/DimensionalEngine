@@ -13,3 +13,6 @@
 [submodule "Dimensional-Core/lib/GLAD"]
 	path = Dimensional-Core/lib/GLAD
 	url = https://github.com/Clackroe/GLAD-4.5.git
+[submodule "Dimensional-Core/lib/ASSIMP"]
+	path = Dimensional-Core/lib/ASSIMP
+	url = https://github.com/assimp/assimp.git
