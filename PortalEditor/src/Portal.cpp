@@ -48,35 +48,17 @@ class PortalLayer : public Layer {
 
         lightShader->setVec3("uCameraPosition", p.x, p.y, p.z);
 
-        // int nrRows = 7;
-        // int nrColumns = 7;
-        // float spacing = 2.5;
         glm::mat4 model = glm::mat4(1.0f);
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
             lightShader->setVec3("uLightPositions[" + std::to_string(i) + "]", lightPositions[i].x, lightPositions[i].y, lightPositions[i].z);
             lightShader->setVec3("uLightColors[" + std::to_string(i) + "]", lightColors[i].x, lightColors[i].y, lightColors[i].z);
         }
-        //
-        // for (int row = 0; row < nrRows; ++row) {
-        //     for (int col = 0; col < nrColumns; ++col) {
-        //         model = glm::mat4(1.0f);
-        //         model = glm::translate(model, glm::vec3((col - ((float)nrColumns / 2)) * spacing, (row - ((float)nrRows / 2)) * spacing, 0.0f));
-        //         lightShader->setMat4("model", model);
-        //         lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-        //         Renderer::renderSphere(lightShader);
-        //     }
-        // }
-        //
 
-        glm::mat4 m = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+        glm::mat4 m = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(4.0f)), glm::vec3(0.5f));
         lightShader->setMat4("model", m);
         lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(m))));
         Renderer::renderModel(modelGun, lightShader);
-        lightShader->setMat4("model", glm::translate(m, glm::vec3(4.0f)));
-        Renderer::renderCube(lightShader);
-        //
-        // Renderer::renderCube(lightShader);
-        //
+        lightShader->setMat4("model", m);
         Renderer::endScene();
 
         if (Input::IsKeyDown(Key::Escape)) {
@@ -159,12 +141,12 @@ public:
 
         Renderer::createTexture((engineAssetDirectory + "/Textures/AO.png"), false)->bind(4);
 
-        Renderer::createTexture((engineAssetDirectory + "/Models/AK_103_Base_Color.png"), false)->bind(0);
-        Renderer::createTexture((engineAssetDirectory + "/Models/AK_103_Metallic.png"), false)->bind(1);
-        Renderer::createTexture((engineAssetDirectory + "/Models/AK_103_Normal.png"), false)->bind(2);
-        Renderer::createTexture((engineAssetDirectory + "/Models/AK_103_Roughness.png"), false)->bind(3);
+        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_BaseColor.png"), false)->bind(0);
+        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Normal.png"), false)->bind(1);
+        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Metallic.png"), false)->bind(2);
+        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Roughness.png"), false)->bind(3);
 
-        modelGun.Init((engineAssetDirectory + "/Models/test.obj"));
+        modelGun.Init((engineAssetDirectory + "/Models/bell.fbx"));
         // modelGun.Init((engineAssetDirectory + "/Models/survival-guitar-backpack/source/Survival_BackPack_2/Survival_BackPack_2.fbx"));
         // modelGun.Init((engineAssetDirectory + "/Models/survival_guitar_backpack/scene.gltf"));
     }

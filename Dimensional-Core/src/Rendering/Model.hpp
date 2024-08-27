@@ -11,7 +11,7 @@ class aiMaterial;
 
 namespace Dimensional {
 
-class Model : public Asset {
+class DMCORE_API Model : public Asset {
 public:
     Model()
         : Asset("EmptyModel") {};
