@@ -16,7 +16,7 @@ struct Vertex {
     glm::vec2 TexCoords;
 };
 
-class Mesh {
+class DMCORE_API Mesh {
 public:
     Mesh(std::vector<Vertex>& vertices, std::vector<u32>& indices, std::vector<TextureWrapper>& textures);
     ~Mesh();
