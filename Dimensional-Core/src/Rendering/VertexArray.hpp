@@ -16,6 +16,7 @@ public:
 
 private:
     u32 m_GLId;
+    u32 m_Buffer;
 };
 }
 

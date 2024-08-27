@@ -3,7 +3,6 @@
 #include <glad.h>
 namespace Dimensional {
 
-
 VertexArray::VertexArray()
 {
     glGenVertexArrays(1, &m_GLId);
@@ -11,6 +10,7 @@ VertexArray::VertexArray()
 VertexArray::~VertexArray()
 {
     glDeleteVertexArrays(1, &m_GLId);
+    glDeleteBuffers(1, &m_Buffer);
 }
 
 void VertexArray::Bind() const
@@ -24,6 +24,7 @@ void VertexArray::Unbind() const
 
 void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexLayout& vLayout)
 {
+    m_Buffer = vb.getId();
     Bind();
     vb.Bind();
     const auto& elements = vLayout.getElements();

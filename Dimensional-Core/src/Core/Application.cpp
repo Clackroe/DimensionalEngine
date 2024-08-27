@@ -4,7 +4,13 @@
 #include <Core/Application.hpp>
 #include <buffer.hpp>
 
+#include <assimp/Importer.hpp> // C++ importer interface
+#include <assimp/postprocess.h> // Post processing flags
+#include <assimp/scene.h> // Output data structure
+
 #include <Core/Time.hpp>
+
+#include <Rendering/Model.hpp>
 
 #include <Core/EditorCamera.hpp>
 
@@ -33,11 +39,18 @@ Application::Application(const std::string& title, u32 width, u32 height)
     DM_CORE_INFO("Platform: {0}", DM_PLATFORM);
 
     initializeSubSystems();
+
+    // Model testModel((engineAssetDirectory) + "/Models/test.fbx");
+    // DM_CORE_INFO("After Model Createion");
 }
+
+static float frameStartTime = 0;
+static float frameTime = 0;
 
 void Application::runApplication()
 {
     while (m_Running) {
+        frameStartTime = Time::getTime();
         Time::Update();
 
         EventSystem::ProcessEvents();
@@ -50,6 +63,9 @@ void Application::runApplication()
         //------Update imgui Layers-------
         m_ImGuiOverlay->beginFrame();
 
+        ImGui::Begin("Stats");
+        ImGui::Text("FPS: %f", 1 / Time::deltaTime());
+        ImGui::End();
         for (Layer* layer : m_LayerStack) {
             layer->OnImGuiRender();
         }
@@ -58,6 +74,7 @@ void Application::runApplication()
 
         //------
         m_Window->update();
+        frameTime = Time::getTime() - frameStartTime;
     }
 }
 
@@ -67,5 +84,4 @@ void Application::initializeSubSystems()
     m_Input.Init();
     m_Renderer.Init();
 }
-
 }

@@ -11,7 +11,6 @@ VertexBuffer::VertexBuffer(const void* data, u32 sizeBytes)
 
 VertexBuffer::~VertexBuffer()
 {
-    glDeleteBuffers(1, &m_GLId);
 }
 
 void VertexBuffer::Bind() const

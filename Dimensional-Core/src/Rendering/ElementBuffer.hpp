@@ -5,6 +5,7 @@ namespace Dimensional {
 class DMCORE_API ElementBuffer {
 public:
     ElementBuffer(const u32* data, u32 count);
+    ElementBuffer() = default;
     ~ElementBuffer();
 
     void Bind() const;
