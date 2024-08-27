@@ -16,3 +16,6 @@
 [submodule "Dimensional-Core/lib/ASSIMP"]
 	path = Dimensional-Core/lib/ASSIMP
 	url = https://github.com/assimp/assimp.git
+[submodule "Dimensional-Core/lib/ENTT"]
+	path = Dimensional-Core/lib/ENTT
+	url = https://github.com/Clackroe/EnttFork.git
