@@ -4,10 +4,6 @@
 #include <Core/Application.hpp>
 #include <buffer.hpp>
 
-#include <assimp/Importer.hpp> // C++ importer interface
-#include <assimp/postprocess.h> // Post processing flags
-#include <assimp/scene.h> // Output data structure
-
 #include <Core/Time.hpp>
 
 #include <Rendering/Model.hpp>
@@ -23,6 +19,7 @@ Application* Application::s_Application = nullptr;
 Application::Application(const std::string& title, u32 width, u32 height)
 {
     Log::Init(); // Logging needs to be initialized sooner than the other systems
+    //
 
     // --- To be retrieved from project config file
     std::replace(fPath.begin(), fPath.end(), '\\', '/');

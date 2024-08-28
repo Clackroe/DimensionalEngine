@@ -12,11 +12,10 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 # Include directories
 include_directories(src)
 
-# UUID
-include_directories(lib/UUID)
-
 # STB
 include_directories(lib/STB)
+# ENTT
+include_directories(lib/ENTT/single_include)
 
 # Ensure all static libraries are compiled with -fPIC
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
