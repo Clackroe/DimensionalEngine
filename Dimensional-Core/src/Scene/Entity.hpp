@@ -8,17 +8,21 @@
 #include <entt/entt.hpp>
 
 namespace Dimensional {
-class Entity {
+class DMCORE_API Entity {
 public:
     Entity() = default;
-    Entity(entt::entity eHandle, Scene* scene);
+    Entity(entt::entity eHandle, Scene* scene)
+        : m_Handle(eHandle)
+        , m_Scene(scene)
+    {
+    }
     Entity(const Entity& otherEntity) = default;
 
     template <typename T, typename... Args>
     T& addComponent(Args&&... args)
     {
         DM_CORE_ASSERT(!hasComponent<T>(), "Entity already has component!");
-        T& component = m_Scene->m_Registry.emplace<T>(m_Handle, ::std::forward<Args>(args)...);
+        T& component = m_Scene->m_Registry.emplace<T>(m_Handle, std::forward<Args>(args)...);
         m_Scene->onComponentAdded<T>(*this, component);
         return component;
     }
@@ -26,7 +30,7 @@ public:
     template <typename T, typename... Args>
     T& addOrReplaceComponent(Args&&... args)
     {
-        T& component = m_Scene->m_Registry.emplace_or_replace<T>(m_Handle, ::std::forward<Args>(args)...);
+        T& component = m_Scene->m_Registry.emplace_or_replace<T>(m_Handle, std::forward<Args>(args)...);
         m_Scene->onComponentAdded<T>(*this, component);
         return component;
     }

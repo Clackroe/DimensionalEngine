@@ -36,18 +36,14 @@ Application::Application(const std::string& title, u32 width, u32 height)
     DM_CORE_INFO("Platform: {0}", DM_PLATFORM);
 
     initializeSubSystems();
-
-    // Model testModel((engineAssetDirectory) + "/Models/test.fbx");
-    // DM_CORE_INFO("After Model Createion");
 }
 
-static float frameStartTime = 0;
 static float frameTime = 0;
 
 void Application::runApplication()
 {
     while (m_Running) {
-        frameStartTime = Time::getTime();
+        float frameStartTime = Time::getTime();
         Time::Update();
 
         EventSystem::ProcessEvents();

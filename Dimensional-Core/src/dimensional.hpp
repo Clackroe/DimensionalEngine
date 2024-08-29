@@ -11,6 +11,11 @@
 #include <Event/Event.hpp>
 #include <Event/EventSystem.hpp>
 
+// ---- SCENE
+#include <Scene/Components.hpp>
+#include <Scene/Entity.hpp>
+#include <Scene/Scene.hpp>
+
 // ---- INPUT
 #include <Input/Input.hpp>
 #include <Input/KeyCodes.hpp>

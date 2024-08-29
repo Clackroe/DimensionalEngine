@@ -8,7 +8,7 @@
 namespace Dimensional {
 class Entity;
 
-class Scene {
+class DMCORE_API Scene {
 public:
     Scene();
     ~Scene();

@@ -31,7 +31,9 @@ Entity Scene::createEntityWithUUID(UUID uuid, const std::string& name)
 {
     Entity e = { m_Registry.create(), this };
     e.addComponent<TransformComponent>();
-    e.addComponent<IDComponent>(uuid);
+    IDComponent id;
+    id.ID = uuid;
+    e.addComponent<IDComponent>(id);
     TagComponent tag = e.addComponent<TagComponent>();
     tag.Tag = name.empty() ? "Unamed Entity" : name;
     e.addComponent<TagComponent>(tag);
