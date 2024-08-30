@@ -108,6 +108,43 @@ void SceneHierarchy::entityTreeNode(Entity entity)
         }
     }
 }
+template <typename CType, typename CSpecificFunction>
+void SceneHierarchy::componentNode(const std::string& name, Entity entity, CSpecificFunction function, bool canBeRemoved)
+{
+    const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
+    if (entity.hasComponent<CType>()) {
+        auto& component = entity.getComponent<CType>();
+        ImVec2 availableRegion = ImGui::GetContentRegionAvail();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2 { 4, 4 });
+        float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+        ImGui::Separator();
+        bool open = ImGui::TreeNodeEx((void*)(typeid(CType).hash_code()), treeNodeFlags, "%s", name.c_str());
+        ImGui::PopStyleVar();
+
+        ImGui::SameLine(availableRegion.x - lineHeight * 0.5f);
+        if (ImGui::Button("~", ImVec2 { lineHeight, lineHeight })) {
+            ImGui::OpenPopup("Component Settings");
+        }
+        bool shouldRemoveComponent = false;
+        if (ImGui::BeginPopup("Component Settings")) {
+            if (canBeRemoved) {
+                if (ImGui::MenuItem("Remove Component")) {
+                    shouldRemoveComponent = true;
+                }
+            }
+            ImGui::EndPopup();
+        }
+        if (open) {
+            function(component);
+            ImGui::TreePop();
+        }
+
+        if (shouldRemoveComponent) {
+            entity.removeComponent<CType>();
+        }
+    }
+}
 
 void SceneHierarchy::propertiesPanel()
 {
@@ -121,14 +158,37 @@ void SceneHierarchy::propertiesPanel()
 
 void SceneHierarchy::entityComponenets(Entity entity)
 {
-    if (entity.hasComponent<TransformComponent>()) {
-        auto& component = entity.getComponent<TransformComponent>();
-        customVec3Slider("Translation", component.Position);
+    if (entity.hasComponent<TagComponent>()) {
+        auto& tag = entity.getComponent<TagComponent>().Tag;
+
+        char buffer[256];
+        std::memset(buffer, 0, sizeof(buffer));
+        std::strncpy(buffer, tag.c_str(), sizeof(buffer) - 1);
+        if (ImGui::InputText("##Tag", buffer, sizeof(buffer))) {
+            tag = std::string(buffer);
+        }
+    }
+
+    ImGui::SameLine();
+    ImGui::PushItemWidth(-1);
+
+    // if (ImGui::Button("Add Component"))
+    //     ImGui::OpenPopup("AddComponent");
+    //
+    // if (ImGui::BeginPopup("AddComponent")) {
+    //     DisplayAddComponentEntry<TextComponent>("Text Component");
+    //
+    //     ImGui::EndPopup();
+    // }
+
+    ImGui::PopItemWidth();
+
+    componentNode<TransformComponent>("Transform", entity, [](auto& component) {
+        customVec3Slider("Position", component.Position);
         glm::vec3 rotation = glm::degrees(component.Rotation);
         customVec3Slider("Rotation", rotation);
         component.Rotation = glm::radians(rotation);
-        customVec3Slider("Scale", component.Scale, 1.0f);
-    }
+        customVec3Slider("Scale", component.Scale, 1.0f); }, false);
 }
 
 void SceneHierarchy::renderImGui()
