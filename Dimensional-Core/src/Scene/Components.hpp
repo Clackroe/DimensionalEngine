@@ -6,6 +6,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <Rendering/Material.hpp>
+#include <Rendering/Model.hpp>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
@@ -18,7 +21,7 @@ struct IDComponent {
 };
 
 struct TagComponent {
-    ::std::string Tag;
+    std::string Tag;
 
     TagComponent() = default;
     TagComponent(const TagComponent&) = default;
@@ -26,11 +29,6 @@ struct TagComponent {
         : Tag(tag)
     {
     }
-};
-
-struct MeshRenderer {
-    MeshRenderer();
-    int i;
 };
 
 struct TransformComponent {
@@ -50,13 +48,31 @@ struct TransformComponent {
         glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
         return glm::translate(glm::mat4(1.0f), Position) * rotation * glm::scale(glm::mat4(1.0f), Scale);
     }
-
-    template <typename... Component>
-    struct ComponentGroup {
-    };
-
-    using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer>;
 };
+
+struct MeshRenderer {
+    MeshRenderer() = default;
+    MeshRenderer(const MeshRenderer&) = default;
+    MeshRenderer(const Ref<Model> modelIn)
+    {
+        model = modelIn;
+        mat = CreateRef<Material>();
+    }
+    MeshRenderer(const Ref<Model> modelIn, const Ref<Material> matIn)
+    {
+        model = modelIn;
+        mat = matIn;
+    }
+
+    Ref<Model> model;
+    Ref<Material> mat;
+};
+
+template <typename... Component>
+struct ComponentGroup {
+};
+
+using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer>;
 
 }
 #endif

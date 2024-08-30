@@ -8,8 +8,11 @@ namespace Dimensional {
 class DMCORE_API Texture : public Asset {
 public:
     Texture(std::string path, bool retainInMemory);
+    Texture(u32 width, u32 height);
     ~Texture();
     void bind(u32 textureSlot);
+
+    void setData(void* data, u32 sizeBytes);
 
 private:
     void load(std::string path, bool retainInMemory);

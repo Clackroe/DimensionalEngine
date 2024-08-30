@@ -1,5 +1,6 @@
 #include "Rendering/VertexBuffer.hpp"
 #include "core.hpp"
+#include <Core/Application.hpp>
 #include <Rendering/Mesh.hpp>
 #include <Rendering/Model.hpp>
 #include <Rendering/Renderer.hpp>
@@ -10,6 +11,27 @@
 namespace Dimensional {
 
 Renderer* Renderer::s_RendererRef = nullptr;
+
+void Renderer::Init()
+{
+    if (s_RendererRef) {
+        DM_CORE_WARN("Renderer Already initialized!");
+        return;
+    }
+
+    generatePrimitives();
+    s_RendererRef = this;
+    DM_CORE_INFO("Renderer Initialized.")
+    m_FrameBuffer = new FrameBuffer(fbs);
+    // TODO: IDEK but I hate this
+    m_PBRShader = createShader(Application::getApp().engineAssetDirectory + "/Shaders/PBR.glsl");
+};
+
+void Renderer::submitLight(LightData data)
+{
+    Renderer& ref = m_GetRenderer();
+    ref.m_LightData.push_back(data);
+}
 
 void Renderer::renderCube(Ref<Shader>& shader)
 {
@@ -25,35 +47,22 @@ void Renderer::renderSphere(Ref<Shader>& shader)
 
     glDrawElements(GL_TRIANGLE_STRIP, ref.sphereEb->getCount(), GL_UNSIGNED_INT, nullptr);
 }
-void Renderer::renderMesh(Mesh& mesh, Ref<Shader>& shader)
+void Renderer::renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform)
 {
-    // DM_CORE_INFO("MeshRender, Textures: {0}", mesh.textures.size())
-    for (u32 i = 0; i < mesh.textures.size(); i++) {
-        Ref<Texture> t = Renderer::getTexture(mesh.textures[i].name);
-        t->bind(i);
-        std::string type = mesh.textures[i].type;
-        if (type == "texture_albedo") {
-            shader->setInt("albedoMap", i);
-        } else if (type == "texture_normal") {
-            shader->setInt("normalMap", i);
-        } else if (type == "texture_metallic") {
-            shader->setInt("metallicMap", i);
-        } else if (type == "texture_roughness") {
-            shader->setInt("roughnessMap", i);
-        } else if (type == "texture_ao") {
-            shader->setInt("aoMap", i);
-        } else {
-            DM_CORE_WARN("Unknown Texture Type ({0}): {1}", mesh.textures[i].type, mesh.textures[i].name);
-        }
-    }
-    Renderer::renderVAO(*mesh.vao, *mesh.eb, shader);
+
+    Renderer& ref = m_GetRenderer();
+    mat->bind(ref.m_PBRShader);
+    ref.m_PBRShader->setMat4("model", transform);
+    ref.m_PBRShader->setMat3("normalMatrix", glm::inverse(glm::mat3(transform)));
+
+    Renderer::renderVAO(*mesh.vao, *mesh.eb, ref.m_PBRShader);
 }
 
-void Renderer::renderModel(Model& model, Ref<Shader>& shader)
+void Renderer::renderModel(Model& model, Ref<Material>& mat, glm::mat4 transform)
 {
     for (u32 i = 0; i < model.m_Meshes.size(); i++) {
         Mesh& mesh = model.m_Meshes[i];
-        Renderer::renderMesh(model.m_Meshes[i], shader);
+        Renderer::renderMesh(model.m_Meshes[i], mat, transform);
     }
 }
 
@@ -79,17 +88,43 @@ void Renderer::renderVAO(const VertexArray& vao, const ElementBuffer& eb, const 
     glDrawElements(GL_TRIANGLES, eb.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 
-void Renderer::beginScene()
+void Renderer::setupCameraData()
+{
+    m_PBRShader->use();
+    m_PBRShader->setMat4("viewProj", m_CameraData.viewProj);
+    m_PBRShader->setVec3("uCameraPosition", m_CameraData.uCameraPosition.x, m_CameraData.uCameraPosition.y, m_CameraData.uCameraPosition.z);
+}
+
+void Renderer::setupLightData()
+{
+    Renderer& ref = m_GetRenderer();
+
+    ref.m_PBRShader->use();
+    for (unsigned int i = 0; i < ref.m_LightData.size(); ++i) {
+        auto& light = ref.m_LightData[i];
+        auto& pos = light.pos;
+        auto& col = light.color;
+        ref.m_PBRShader->setVec3("uLightPositions[" + std::to_string(i) + "]", pos.x, pos.y, pos.z);
+        ref.m_PBRShader->setVec3("uLightColors[" + std::to_string(i) + "]", col.x, col.y, col.z);
+    }
+}
+
+void Renderer::beginScene(CameraData data)
 {
     Renderer& ref = m_GetRenderer();
     ref.m_FrameBuffer->Bind();
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    ref.m_CameraData = data;
+    ref.setupCameraData();
+    ref.setupLightData();
 }
 void Renderer::endScene()
 {
     Renderer& ref = m_GetRenderer();
     ref.m_FrameBuffer->Unbind();
+    // Flush Data
+    ref.m_LightData.erase(ref.m_LightData.begin(), ref.m_LightData.end());
 }
 
 Ref<Shader> Renderer::createShader(std::string path)

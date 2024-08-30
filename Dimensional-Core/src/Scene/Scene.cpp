@@ -1,3 +1,5 @@
+#include "Log/log.hpp"
+#include "Rendering/Mesh.hpp"
 #include "Scene/Components.hpp"
 #include <Scene/Entity.hpp>
 #include <Scene/Scene.hpp>
@@ -13,13 +15,13 @@ Scene::~Scene()
 
 void Scene::updateEditor()
 {
+
     // Render Meshes
-    // auto view = m_Registry.view<TransformComponent, MeshRenderer>();
-    // for (auto e : view) {
-    //     auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-    //
-    //
-    // }
+    auto view = m_Registry.view<TransformComponent, MeshRenderer>();
+    for (auto e : view) {
+        auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
+        Renderer::renderModel(*mesh.model, mesh.mat, transform.GetTransform());
+    }
 }
 
 Entity Scene::createEntity(const std::string& name)
@@ -29,12 +31,12 @@ Entity Scene::createEntity(const std::string& name)
 
 Entity Scene::createEntityWithUUID(UUID uuid, const std::string& name)
 {
-    Entity e = { m_Registry.create(), this };
+    Entity e = Entity(m_Registry.create(), this);
     e.addComponent<TransformComponent>();
     IDComponent id;
     id.ID = uuid;
     e.addComponent<IDComponent>(id);
-    TagComponent tag = e.addComponent<TagComponent>();
+    TagComponent tag = TagComponent();
     tag.Tag = name.empty() ? "Unamed Entity" : name;
     e.addComponent<TagComponent>(tag);
     m_EntityMap[uuid] = e;
@@ -81,6 +83,10 @@ void Scene::onComponentAdded<TransformComponent>(Entity entity, TransformCompone
 {
 }
 
+template <>
+void Scene::onComponentAdded<MeshRenderer>(Entity entity, MeshRenderer& component)
+{
+}
 template <>
 void Scene::onComponentAdded<TagComponent>(Entity entity, TagComponent& component)
 {

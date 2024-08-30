@@ -1,3 +1,6 @@
+#include "Rendering/Material.hpp"
+#include "Scene/Components.hpp"
+#include "core.hpp"
 #include <dimensional.hpp>
 
 #include <Entry.hpp>
@@ -9,7 +12,7 @@ static EditorCamera cam;
 
 static unsigned int indexCount;
 
-static Model modelGun;
+static Ref<Model> modelGun = CreateRef<Model>();
 
 static glm::vec3 lightPositions[] = {
     glm::vec3(0.0f, 0.0f, 10.0f),
@@ -18,47 +21,73 @@ static glm::vec3 lightColors[] = {
     glm::vec3(150.0f, 100.0f, 150.0f),
 };
 
+static std::vector<LightData> lights = {
+    LightData {
+        glm::vec3(0.0f, 0.0f, 10.0f),
+        glm::vec3(150.0f, 100.0f, 150.0f),
+
+    },
+    LightData {
+        glm::vec3(10.0f, 0.0f, 0.0f),
+        glm::vec3(150.0f, 100.0f, 150.0f),
+
+    },
+    LightData {
+        glm::vec3(0.0f, 10.0f, 0.0f),
+        glm::vec3(150.0f, 10.0f, 10.0f),
+
+    },
+    LightData {
+        glm::vec3(0.0f, 0.0f, 10.0f),
+        glm::vec3(50.0f, 150.0f, 50.0f),
+
+    },
+};
+
 class PortalLayer : public Layer {
+    Ref<Material> materialTest = CreateRef<Material>();
+    MaterialSettings ms;
+    Ref<Material> materialReal;
+
+    Ref<Scene> scene;
 
     virtual void OnAttatch() override
     {
+
         DM_INFO("Portal Initialized");
 
         cam = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+
+        // TEST
+        ms.Albedo = Renderer::getTexture("Bell_BaseColor");
+        ms.Normal = Renderer::getTexture("Bell_Normal");
+        ms.Metalness = Renderer::getTexture("Bell_Metallic");
+        ms.Roughness = Renderer::getTexture("Bell_Roughness");
+
+        materialReal = CreateRef<Material>(ms);
+
+        scene = CreateRef<Scene>();
+
+        auto ent1 = scene->createEntity("TestEntity");
+        ent1.addComponent<MeshRenderer>(modelGun);
+
+        auto ent2 = scene->createEntity("TestEntity1");
+        ent2.addComponent<MeshRenderer>(modelGun, materialReal);
+        auto& t = ent2.getComponent<TransformComponent>();
+        t.Position += 5.0f;
     }
     virtual void OnDetatch() override { }
     virtual void OnUpdate() override
     {
-        Renderer::beginScene();
-
         cam.Update();
-
-        Ref<Shader> lightShader = Renderer::getShader("PBR1");
-
-        lightShader->use();
         glm::vec3 p = cam.calcPos();
-
-        lightShader->setMat4("viewProj", cam.getViewProj());
-
-        lightShader->setInt("albedoMap", 0);
-        lightShader->setInt("normalMap", 1);
-        lightShader->setInt("metallicMap", 2);
-        lightShader->setInt("roughnessMap", 3);
-        lightShader->setInt("aoMap", 4);
-
-        lightShader->setVec3("uCameraPosition", p.x, p.y, p.z);
-
-        glm::mat4 model = glm::mat4(1.0f);
-        for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i) {
-            lightShader->setVec3("uLightPositions[" + std::to_string(i) + "]", lightPositions[i].x, lightPositions[i].y, lightPositions[i].z);
-            lightShader->setVec3("uLightColors[" + std::to_string(i) + "]", lightColors[i].x, lightColors[i].y, lightColors[i].z);
+        for (auto l : lights) {
+            Renderer::submitLight(l);
         }
+        Renderer::beginScene(CameraData { cam.getViewProj(), p });
 
-        glm::mat4 m = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(4.0f)), glm::vec3(0.5f));
-        lightShader->setMat4("model", m);
-        lightShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(m))));
-        Renderer::renderModel(modelGun, lightShader);
-        lightShader->setMat4("model", m);
+        scene->updateEditor();
+
         Renderer::endScene();
 
         if (Input::IsKeyDown(Key::Escape)) {
@@ -130,25 +159,15 @@ public:
     PortalApp()
         : Application()
     {
+        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_BaseColor.png"), false);
+        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Normal.png"), false);
+        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Metallic.png"), false);
+        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Roughness.png"), false);
+        Renderer::createTexture((engineAssetDirectory + "/Textures/AO.png"), false);
 
         PushLayer(new PortalLayer());
-        Renderer::createShader((engineAssetDirectory + "/Shaders/PBR1.glsl"));
 
-        // Renderer::createTexture((engineAssetDirectory + "/Textures/Albedo.png"), false)->bind(0);
-        // Renderer::createTexture((engineAssetDirectory + "/Textures/Normal.png"), false)->bind(1);
-        // Renderer::createTexture((engineAssetDirectory + "/Textures/Metallic.png"), false)->bind(2);
-        // Renderer::createTexture((engineAssetDirectory + "/Textures/Roughness.png"), false)->bind(3);
-
-        Renderer::createTexture((engineAssetDirectory + "/Textures/AO.png"), false)->bind(4);
-
-        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_BaseColor.png"), false)->bind(0);
-        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Normal.png"), false)->bind(1);
-        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Metallic.png"), false)->bind(2);
-        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Roughness.png"), false)->bind(3);
-
-        modelGun.Init((engineAssetDirectory + "/Models/bell.fbx"));
-        // modelGun.Init((engineAssetDirectory + "/Models/survival-guitar-backpack/source/Survival_BackPack_2/Survival_BackPack_2.fbx"));
-        // modelGun.Init((engineAssetDirectory + "/Models/survival_guitar_backpack/scene.gltf"));
+        modelGun->Init((engineAssetDirectory + "/Models/bell.fbx"));
     }
 
     ~PortalApp()
