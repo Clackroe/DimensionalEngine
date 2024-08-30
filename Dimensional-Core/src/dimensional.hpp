@@ -1,3 +1,5 @@
+#ifndef DM_DIMENSIONAL_H
+#define DM_DIMENSIONAL_H
 #include <core.hpp>
 
 // ---- CORE APPLICATION
@@ -30,3 +32,4 @@
 #include <Rendering/Renderer.hpp>
 #include <Rendering/Shader.hpp>
 #include <Rendering/Texture.hpp>
+#endif

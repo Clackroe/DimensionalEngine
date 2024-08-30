@@ -7,6 +7,7 @@
 
 namespace Dimensional {
 class Entity;
+class SceneHierarchy;
 
 class DMCORE_API Scene {
 public:
@@ -35,6 +36,7 @@ private:
     UMap<UUID, entt::entity> m_EntityMap;
 
     friend class Entity;
+    friend class SceneHierarchy;
 };
 
 }

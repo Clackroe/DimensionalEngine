@@ -20,6 +20,7 @@ Application::Application(const std::string& title, u32 width, u32 height)
 {
     Log::Init(); // Logging needs to be initialized sooner than the other systems
     //
+    DM_CORE_INFO("TEST");
 
     // --- To be retrieved from project config file
     std::replace(fPath.begin(), fPath.end(), '\\', '/');
