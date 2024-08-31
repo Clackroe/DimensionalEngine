@@ -172,18 +172,19 @@ void SceneHierarchy::entityComponenets(Entity entity)
     ImGui::SameLine();
     ImGui::PushItemWidth(-1);
 
-    // if (ImGui::Button("Add Component"))
-    //     ImGui::OpenPopup("AddComponent");
-    //
-    // if (ImGui::BeginPopup("AddComponent")) {
-    //     DisplayAddComponentEntry<TextComponent>("Text Component");
-    //
-    //     ImGui::EndPopup();
-    // }
+    if (ImGui::Button("Add Component"))
+        ImGui::OpenPopup("AddComponent");
+
+    if (ImGui::BeginPopup("AddComponent")) {
+        // DisplayAddComponentEntry<TextComponent>("Text Component");
+
+        ImGui::EndPopup();
+    }
 
     ImGui::PopItemWidth();
 
-    componentNode<TransformComponent>("Transform", entity, [](auto& component) {
+    componentNode<TransformComponent>(
+        "Transform", entity, [](auto& component) {
         customVec3Slider("Position", component.Position);
         glm::vec3 rotation = glm::degrees(component.Rotation);
         customVec3Slider("Rotation", rotation);

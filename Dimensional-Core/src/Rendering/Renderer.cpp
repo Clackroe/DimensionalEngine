@@ -22,7 +22,7 @@ void Renderer::Init()
     generatePrimitives();
     s_RendererRef = this;
     DM_CORE_INFO("Renderer Initialized.")
-    m_FrameBuffer = new FrameBuffer(fbs);
+    m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
     // TODO: IDEK but I hate this
     m_PBRShader = createShader(Application::getApp().engineAssetDirectory + "/Shaders/PBR.glsl");
 };

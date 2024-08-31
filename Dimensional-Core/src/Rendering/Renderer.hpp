@@ -65,7 +65,7 @@ public:
     static void endScene();
 
     // TODO: Create a better way to deal with framebuffers
-    static u32 getFrameBufferColorID() { return m_GetRenderer().m_FrameBuffer->m_ColorGLId; };
+    static Ref<FrameBuffer> getFrameBuffer() { return m_GetRenderer().m_FrameBuffer; };
     //
 
     // -----
@@ -117,7 +117,7 @@ private:
 
     Ref<Shader> m_PBRShader;
 
-    FrameBuffer* m_FrameBuffer;
+    Ref<FrameBuffer> m_FrameBuffer;
 
     static Renderer* s_RendererRef;
 };

@@ -1,3 +1,4 @@
+#include "imgui.h"
 #include <PortalEditor.hpp>
 namespace Dimensional {
 
@@ -58,7 +59,7 @@ void PortalLayer::OnAttatch()
     auto ent2 = m_ActiveScene->createEntity("TestEntity1");
     ent2.addComponent<MeshRenderer>(modelGun, materialReal);
     auto& t = ent2.getComponent<TransformComponent>();
-    t.Position += 5.0f;
+    t.Position += 2.0f;
 }
 void PortalLayer::OnDetatch() { }
 void PortalLayer::OnUpdate()
@@ -131,8 +132,14 @@ void PortalLayer::OnImGuiRender()
 
     // Viewport
     ImGui::Begin("Viewport");
-    u32 id = Renderer::getFrameBufferColorID();
-    ImGui::Image(reinterpret_cast<ImTextureID>(id), ImVec2 { 1280, 720 }, { 0, 1 }, { 1, 0 });
+    ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+    if ((viewportPanelSize.x != m_ViewPortSize.x) || (viewportPanelSize.y != m_ViewPortSize.y)) {
+        m_EditorCamera.setViewportDimensions(viewportPanelSize.x, viewportPanelSize.y);
+        m_ViewPortSize = { viewportPanelSize.x, viewportPanelSize.y };
+    }
+    Ref<FrameBuffer> buf = Renderer::getFrameBuffer();
+
+    ImGui::Image(reinterpret_cast<ImTextureID>(buf->m_ColorGLId), ImVec2 { viewportPanelSize.x, viewportPanelSize.y }, { 0, 1 }, { 1, 0 });
     ImGui::End();
     //
 

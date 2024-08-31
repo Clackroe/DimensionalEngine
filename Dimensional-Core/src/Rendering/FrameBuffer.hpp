@@ -14,6 +14,8 @@ public:
     void Bind();
     void Unbind();
 
+    void setSize(u32 width, u32 height);
+
     u32 m_GLId, m_ColorGLId, m_DepthGLId;
 
 private:

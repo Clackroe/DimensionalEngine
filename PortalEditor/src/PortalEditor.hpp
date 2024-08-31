@@ -17,6 +17,8 @@ private:
 private:
     EditorCamera m_EditorCamera;
 
+    glm::vec2 m_ViewPortSize;
+
     Ref<Scene> m_ActiveScene;
 
     // Temp
