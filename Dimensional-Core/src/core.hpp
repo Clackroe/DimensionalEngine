@@ -52,6 +52,8 @@ constexpr Ref<T> CreateRef(Args&&... args)
 
 #include <Log/log.hpp>
 
+#include <Core/Assets/AssetManager.hpp>
+
 //--ASSERTIONS-- Again. Thanks TheCherno
 
 #if defined(DM_WINDOWS)

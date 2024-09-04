@@ -2,15 +2,8 @@
 #include "Log/log.hpp"
 #include "Rendering/Renderer.hpp"
 #include <Core/Application.hpp>
-#include <buffer.hpp>
 
 #include <Core/Time.hpp>
-
-#include <Rendering/Model.hpp>
-
-#include <Core/EditorCamera.hpp>
-
-#include <glad.h>
 
 namespace Dimensional {
 

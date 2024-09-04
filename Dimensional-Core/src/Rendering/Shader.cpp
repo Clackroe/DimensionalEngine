@@ -6,7 +6,7 @@
 
 namespace Dimensional {
 Shader::Shader(const std::string& path)
-    : Asset(path)
+    : Asset(path, AssetType::ShaderType)
 {
     std::string vertexSourceCode;
     std::string fragmentSourceCode;
@@ -98,7 +98,7 @@ Shader::Shader(const std::string& path)
 }
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragPath)
-    : Asset(vertexPath + fragPath)
+    : Asset(vertexPath + fragPath, AssetType::ShaderType)
 {
     std::string vertexSourceCode;
     std::string fragmentSourceCode;

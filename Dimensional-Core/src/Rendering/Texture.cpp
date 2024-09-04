@@ -7,13 +7,13 @@
 
 namespace Dimensional {
 Texture::Texture(std::string path, bool retainInMemory)
-    : Asset(path)
+    : Asset(path, AssetType::TextureType)
 {
     m_Path = path;
     load(path, retainInMemory);
 };
 Texture::Texture(u32 width, u32 height)
-    : Asset("Blank Texture")
+    : Asset("Blank Texture", AssetType::TextureType)
     , m_Width(width)
     , m_Height(height)
 {

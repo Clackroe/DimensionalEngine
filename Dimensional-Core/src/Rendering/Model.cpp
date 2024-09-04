@@ -36,7 +36,7 @@ void Model::Init(std::string path)
 }
 
 Model::Model(std::string path)
-    : Asset(path)
+    : Asset(path, AssetType::TextureType)
 {
     loadModel(path);
 }

@@ -14,7 +14,7 @@ namespace Dimensional {
 class DMCORE_API Model : public Asset {
 public:
     Model()
-        : Asset("EmptyModel") {};
+        : Asset("EmptyModel", AssetType::ModelType) {};
     Model(std::string path);
     ~Model() = default;
 

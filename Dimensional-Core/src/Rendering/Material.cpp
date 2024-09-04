@@ -1,3 +1,4 @@
+#include "Core/Assets/Asset.hpp"
 #include <Rendering/Material.hpp>
 
 namespace Dimensional {
@@ -5,7 +6,7 @@ Ref<Texture> Material::s_WhiteTexture;
 Ref<Texture> Material::s_BlackTexture;
 
 Material::Material()
-    : Asset("Material")
+    : Asset("Material", AssetType::MaterialType)
 {
     if (!s_WhiteTexture) {
         s_WhiteTexture = CreateRef<Texture>(1, 1);
@@ -26,7 +27,7 @@ Material::Material()
 }
 
 Material::Material(MaterialSettings settings)
-    : Asset("Material")
+    : Asset("Material", AssetType::MaterialType)
 {
     if (settings.Albedo) {
 
