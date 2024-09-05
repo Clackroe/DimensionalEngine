@@ -9,11 +9,11 @@ public:
     PortalApp()
         : Application()
     {
-        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_BaseColor.png"), false);
-        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Normal.png"), false);
-        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Metallic.png"), false);
-        Renderer::createTexture((engineAssetDirectory + "/Models/Textures/Bell_Roughness.png"), false);
-        Renderer::createTexture((engineAssetDirectory + "/Textures/AO.png"), false);
+        AssetManager::loadTexture((engineAssetDirectory + "/Models/Textures/Bell_BaseColor.png"), false);
+        AssetManager::loadTexture((engineAssetDirectory + "/Models/Textures/Bell_Normal.png"), false);
+        AssetManager::loadTexture((engineAssetDirectory + "/Models/Textures/Bell_Metallic.png"), false);
+        AssetManager::loadTexture((engineAssetDirectory + "/Models/Textures/Bell_Roughness.png"), false);
+        AssetManager::loadTexture((engineAssetDirectory + "/Textures/AO.png"), false);
 
         PushLayer(new PortalLayer());
     }

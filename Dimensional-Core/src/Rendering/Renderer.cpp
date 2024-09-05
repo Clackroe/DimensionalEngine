@@ -1,3 +1,4 @@
+#include "Core/Assets/AssetManager.hpp"
 #include "Rendering/VertexBuffer.hpp"
 #include "core.hpp"
 #include <Core/Application.hpp>
@@ -24,7 +25,7 @@ void Renderer::Init()
     DM_CORE_INFO("Renderer Initialized.")
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
     // TODO: IDEK but I hate this
-    m_PBRShader = createShader(Application::getApp().engineAssetDirectory + "/Shaders/PBR.glsl");
+    m_PBRShader = AssetManager::loadShader(Application::getApp().engineAssetDirectory + "/Shaders/PBR.glsl");
 };
 
 void Renderer::submitLight(LightData data)
@@ -125,36 +126,6 @@ void Renderer::endScene()
     ref.m_FrameBuffer->Unbind();
     // Flush Data
     ref.m_LightData.erase(ref.m_LightData.begin(), ref.m_LightData.end());
-}
-
-Ref<Shader> Renderer::createShader(std::string path)
-{
-    Renderer& ref = m_GetRenderer();
-
-    Ref<Shader> shader = CreateRef<Shader>(path);
-
-    ref.m_ShaderMap[shader->name] = shader;
-    return shader;
-}
-
-Ref<Shader> Renderer::createShader(std::string vertexShader, std::string fragShader)
-{
-    Renderer& ref = m_GetRenderer();
-
-    Ref<Shader> shader = CreateRef<Shader>(vertexShader, fragShader);
-
-    ref.m_ShaderMap[shader->name] = shader;
-    return shader;
-}
-
-Ref<Texture> Renderer::createTexture(std::string path, bool retainInMemory)
-{
-    Renderer& ref = m_GetRenderer();
-
-    Ref<Texture> tex = CreateRef<Texture>(path, retainInMemory);
-
-    ref.m_TextureMap[tex->name] = tex;
-    return tex;
 }
 
 void Renderer::generateCube()

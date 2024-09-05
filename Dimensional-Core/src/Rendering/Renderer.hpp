@@ -40,14 +40,6 @@ public:
 
     void Init();
 
-    // Factories
-    static Ref<Shader> createShader(std::string vertexShader, std::string fragShader);
-    static Ref<Shader> createShader(std::string path);
-    static Ref<Texture> createTexture(std::string path, bool retainInMemory);
-    static void createMesh();
-    static void createModel();
-    //
-
     // Rendering
     static void renderVAO(VertexArray vao, u32 triangleCount, Ref<Shader>& shader);
     static void renderVAO(const VertexArray& vao, const ElementBuffer& eb, const Ref<Shader>& shader);
@@ -70,27 +62,6 @@ public:
 
     // -----
 
-    static Ref<Shader> getShader(const std::string& name)
-    {
-        auto it = m_GetRenderer().m_ShaderMap.find(name);
-        if (it != m_GetRenderer().m_ShaderMap.end()) {
-            return it->second;
-        } else {
-            DM_CORE_WARN("Texture with name \"{0}\" not found", name);
-            return nullptr;
-        }
-    }
-    static Ref<Texture> getTexture(const std::string& name)
-    {
-        auto it = m_GetRenderer().m_TextureMap.find(name);
-        if (it != m_GetRenderer().m_TextureMap.end()) {
-            return it->second;
-        } else {
-            DM_CORE_WARN("Texture with name \"{0}\" not found", name);
-            return nullptr;
-        }
-    }
-
 private:
     static Renderer& m_GetRenderer() { return *s_RendererRef; }
 
@@ -111,9 +82,6 @@ private:
     Ref<VertexArray> cubeVao;
     Ref<ElementBuffer> cubeEb;
     //
-
-    UMap<std::string, Ref<Shader>> m_ShaderMap;
-    UMap<std::string, Ref<Texture>> m_TextureMap;
 
     Ref<Shader> m_PBRShader;
 

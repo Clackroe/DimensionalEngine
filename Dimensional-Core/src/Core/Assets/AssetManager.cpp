@@ -1,4 +1,5 @@
 #include <Core/Assets/AssetManager.hpp>
+#include <Core/UUID.hpp>
 #include <Rendering/Material.hpp>
 #include <Rendering/Model.hpp>
 #include <Rendering/Shader.hpp>
@@ -22,9 +23,9 @@ Ref<Model> AssetManager::loadModel(std::string path)
     m_ModelMap[m->assetHandle] = m;
     return m;
 }
-Ref<Texture> AssetManager::loadTexture(std::string path)
+Ref<Texture> AssetManager::loadTexture(std::string path, bool retain)
 {
-    Ref<Texture> t = CreateRef<Texture>(path);
+    Ref<Texture> t = CreateRef<Texture>(path, retain);
     m_TextureMap[t->assetHandle] = t;
     return t;
 }

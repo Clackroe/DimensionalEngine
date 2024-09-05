@@ -18,6 +18,8 @@
 #include <Scene/Entity.hpp>
 #include <Scene/Scene.hpp>
 
+#include <Core/Assets/AssetManager.hpp>
+
 // ---- INPUT
 #include <Input/Input.hpp>
 #include <Input/KeyCodes.hpp>

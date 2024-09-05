@@ -1,6 +1,7 @@
 #include "assimp/material.h"
 #include <Rendering/Mesh.hpp>
 
+#include <Core/Assets/AssetManager.hpp>
 #include <Rendering/Model.hpp>
 
 #include <Rendering/Texture.hpp>
@@ -22,7 +23,7 @@ static std::vector<TextureWrapper> loadMaterialTextures(aiMaterial* mat, aiTextu
         TextureWrapper txw;
         mat->GetTexture(type, i, &str);
         DM_CORE_INFO("Texture Path: {0}", (directory + "/" + std::string(str.C_Str())));
-        Ref<Texture> t = Renderer::createTexture(directory + std::string(str.C_Str()), false);
+        Ref<Texture> t = AssetManager::loadTexture(directory + std::string(str.C_Str()), false);
         txw.name = t->name;
         txw.type = typeName;
 

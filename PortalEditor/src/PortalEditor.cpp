@@ -1,15 +1,7 @@
+#include "Core/Assets/AssetManager.hpp"
 #include "imgui.h"
 #include <PortalEditor.hpp>
 namespace Dimensional {
-
-static Ref<Model> modelGun = CreateRef<Model>();
-
-static glm::vec3 lightPositions[] = {
-    glm::vec3(0.0f, 0.0f, 10.0f),
-};
-static glm::vec3 lightColors[] = {
-    glm::vec3(150.0f, 100.0f, 150.0f),
-};
 
 static std::vector<LightData> lights = {
     LightData {
@@ -42,22 +34,23 @@ void PortalLayer::OnAttatch()
     m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 
     // TEST
-    ms.Albedo = Renderer::getTexture("Bell_BaseColor");
-    ms.Normal = Renderer::getTexture("Bell_Normal");
-    ms.Metalness = Renderer::getTexture("Bell_Metallic");
-    ms.Roughness = Renderer::getTexture("Bell_Roughness");
+    ms.Albedo = AssetManager::getTexture("Bell_BaseColor");
+    ms.Normal = AssetManager::getTexture("Bell_Normal");
+    ms.Metalness = AssetManager::getTexture("Bell_Metallic");
+    ms.Roughness = AssetManager::getTexture("Bell_Roughness");
+
+    auto model = AssetManager::loadModel(((Application::getApp().engineAssetDirectory + "/Models/bell.fbx")));
 
     materialReal = CreateRef<Material>(ms);
-    modelGun->Init((Application::getApp().engineAssetDirectory + "/Models/bell.fbx"));
 
     m_ActiveScene = CreateRef<Scene>();
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
     auto ent1 = m_ActiveScene->createEntity("TestEntity");
-    ent1.addComponent<MeshRenderer>(modelGun);
+    ent1.addComponent<MeshRenderer>(model);
 
     auto ent2 = m_ActiveScene->createEntity("TestEntity1");
-    ent2.addComponent<MeshRenderer>(modelGun, materialReal);
+    ent2.addComponent<MeshRenderer>(model, materialReal);
     auto& t = ent2.getComponent<TransformComponent>();
     t.Position += 2.0f;
 }

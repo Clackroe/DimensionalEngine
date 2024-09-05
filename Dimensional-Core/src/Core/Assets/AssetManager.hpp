@@ -1,18 +1,20 @@
 #ifndef DM_ASSETMANAGER_H
 #define DM_ASSETMANAGER_H
+// #include <Rendering/Material.hpp>
 #include <Core/UUID.hpp>
-#include <Rendering/Material.hpp>
 namespace Dimensional {
 
 class Model;
+class Material;
 class Texture;
 class Shader;
+class MaterialSettings;
 
 class AssetManager {
 public:
     static Ref<Material> loadMaterial(MaterialSettings matSettings);
     static Ref<Model> loadModel(std::string path);
-    static Ref<Texture> loadTexture(std::string path);
+    static Ref<Texture> loadTexture(std::string path, bool retain);
     static Ref<Shader> loadShader(std::string path);
     static Ref<Shader> loadShader(std::string vertexPath, std::string fragPath);
 
