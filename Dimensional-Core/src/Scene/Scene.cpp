@@ -13,14 +13,29 @@ Scene::~Scene()
 {
 }
 
+void Scene::beginScene()
+{
+    // Submit Lights
+    {
+        auto view = m_Registry.view<TransformComponent, PointLightComponent>();
+        for (auto e : view) {
+            auto [transform, light] = view.get<TransformComponent, PointLightComponent>(e);
+            LightData data = { transform.Position, light.lightColor * 255.0f };
+            Renderer::submitLight(data);
+        }
+    }
+}
+
 void Scene::updateEditor()
 {
 
-    // Render Meshes
-    auto view = m_Registry.view<TransformComponent, MeshRenderer>();
-    for (auto e : view) {
-        auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-        Renderer::renderModel(*mesh.model, mesh.mat, transform.GetTransform());
+    {
+        // Render Meshes
+        auto view = m_Registry.view<TransformComponent, MeshRenderer>();
+        for (auto e : view) {
+            auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
+            Renderer::renderModel(*mesh.model, mesh.mat, transform.GetTransform());
+        }
     }
 }
 
@@ -89,6 +104,11 @@ void Scene::onComponentAdded<MeshRenderer>(Entity entity, MeshRenderer& componen
 }
 template <>
 void Scene::onComponentAdded<TagComponent>(Entity entity, TagComponent& component)
+{
+}
+
+template <>
+void Scene::onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component)
 {
 }
 

@@ -1,29 +1,15 @@
-#include "Core/Assets/AssetManager.hpp"
+#include "Scene/Components.hpp"
 #include "imgui.h"
 #include <PortalEditor.hpp>
 namespace Dimensional {
 
-static std::vector<LightData> lights = {
-    LightData {
-        glm::vec3(0.0f, 0.0f, 10.0f),
-        glm::vec3(150.0f, 100.0f, 150.0f),
+static Ref<Model> modelGun = CreateRef<Model>();
 
-    },
-    LightData {
-        glm::vec3(10.0f, 0.0f, 0.0f),
-        glm::vec3(150.0f, 100.0f, 150.0f),
-
-    },
-    LightData {
-        glm::vec3(0.0f, 10.0f, 0.0f),
-        glm::vec3(150.0f, 10.0f, 10.0f),
-
-    },
-    LightData {
-        glm::vec3(0.0f, 0.0f, 10.0f),
-        glm::vec3(50.0f, 150.0f, 50.0f),
-
-    },
+static glm::vec3 lightPositions[] = {
+    glm::vec3(0.0f, 0.0f, 10.0f),
+};
+static glm::vec3 lightColors[] = {
+    glm::vec3(150.0f, 100.0f, 150.0f),
 };
 
 void PortalLayer::OnAttatch()
@@ -39,29 +25,31 @@ void PortalLayer::OnAttatch()
     ms.Metalness = AssetManager::getTexture("Bell_Metallic");
     ms.Roughness = AssetManager::getTexture("Bell_Roughness");
 
-    auto model = AssetManager::loadModel(((Application::getApp().engineAssetDirectory + "/Models/bell.fbx")));
-
     materialReal = CreateRef<Material>(ms);
+    modelGun->Init((Application::getApp().engineAssetDirectory + "/Models/bell.fbx"));
 
     m_ActiveScene = CreateRef<Scene>();
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
-    auto ent1 = m_ActiveScene->createEntity("TestEntity");
-    ent1.addComponent<MeshRenderer>(model);
+    auto ent1 = m_ActiveScene->createEntity("BellNoTexture");
+    ent1.addComponent<MeshRenderer>(modelGun);
 
-    auto ent2 = m_ActiveScene->createEntity("TestEntity1");
-    ent2.addComponent<MeshRenderer>(model, materialReal);
+    auto ent2 = m_ActiveScene->createEntity("TexturedBell");
+    ent2.addComponent<MeshRenderer>(modelGun, materialReal);
     auto& t = ent2.getComponent<TransformComponent>();
     t.Position += 2.0f;
+
+    auto ent3 = m_ActiveScene->createEntity("Light");
+    ent3.addComponent<PointLightComponent>();
 }
 void PortalLayer::OnDetatch() { }
 void PortalLayer::OnUpdate()
 {
     m_EditorCamera.Update();
     glm::vec3 p = m_EditorCamera.calcPos();
-    for (auto l : lights) {
-        Renderer::submitLight(l);
-    }
+
+    m_ActiveScene->beginScene();
+
     Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p });
 
     m_ActiveScene->updateEditor();

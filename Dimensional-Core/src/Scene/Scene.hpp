@@ -16,6 +16,8 @@ public:
 
     void updateEditor();
 
+    void beginScene();
+
     Entity createEntity(const std::string& name = std::string());
     Entity createEntityWithUUID(UUID uuid, const std::string& name = std::string());
 

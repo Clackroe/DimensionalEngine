@@ -8,6 +8,7 @@
 
 #include <Rendering/Material.hpp>
 #include <Rendering/Model.hpp>
+#include <Rendering/Renderer.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -68,11 +69,20 @@ struct MeshRenderer {
     Ref<Material> mat;
 };
 
+struct PointLightComponent {
+    PointLightComponent() = default;
+    PointLightComponent(const PointLightComponent&) = default;
+    PointLightComponent(glm::vec3& color)
+        : lightColor(color) {};
+
+    glm::vec3 lightColor = glm::vec3(1.0f);
+};
+
 template <typename... Component>
 struct ComponentGroup {
 };
 
-using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer>;
+using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent>;
 
 }
 #endif

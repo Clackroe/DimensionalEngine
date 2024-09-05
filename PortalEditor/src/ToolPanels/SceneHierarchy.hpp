@@ -17,7 +17,7 @@ private:
     void entityTreeNode(Entity entity);
     void propertiesPanel();
 
-    void entityComponenets(Entity entity);
+    void entityComponents(Entity entity);
 
     template <typename CType, typename CSpecificFunction>
     void componentNode(const std::string& name, Entity entity, CSpecificFunction function, bool canBeRemoved = true);

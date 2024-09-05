@@ -1,3 +1,4 @@
+#include "Scene/Components.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <ToolPanels/SceneHierarchy.hpp>
@@ -150,13 +151,13 @@ void SceneHierarchy::propertiesPanel()
 {
     ImGui::Begin("Properties");
     if (m_SelectedEntity) {
-        entityComponenets(m_SelectedEntity);
+        entityComponents(m_SelectedEntity);
     }
 
     ImGui::End();
 }
 
-void SceneHierarchy::entityComponenets(Entity entity)
+void SceneHierarchy::entityComponents(Entity entity)
 {
     if (entity.hasComponent<TagComponent>()) {
         auto& tag = entity.getComponent<TagComponent>().Tag;
@@ -190,6 +191,14 @@ void SceneHierarchy::entityComponenets(Entity entity)
         customVec3Slider("Rotation", rotation);
         component.Rotation = glm::radians(rotation);
         customVec3Slider("Scale", component.Scale, 1.0f); }, false);
+
+    if (entity.hasComponent<PointLightComponent>()) {
+        componentNode<PointLightComponent>(
+            "Point Light", entity, [](auto& component) {
+                ImGui::ColorEdit3("Color", glm::value_ptr(component.lightColor));
+            },
+            true);
+    }
 }
 
 void SceneHierarchy::renderImGui()
