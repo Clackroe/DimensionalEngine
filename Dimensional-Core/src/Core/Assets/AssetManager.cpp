@@ -17,6 +17,13 @@ Ref<Material> AssetManager::loadMaterial(MaterialSettings matSettings)
     m_MaterialMap[m->assetHandle] = m;
     return m;
 }
+Ref<Material> AssetManager::loadMaterial()
+{
+    Ref<Material> m = CreateRef<Material>();
+    m_MaterialMap[m->assetHandle] = m;
+    return m;
+}
+
 Ref<Model> AssetManager::loadModel(std::string path)
 {
     Ref<Model> m = CreateRef<Model>(path);

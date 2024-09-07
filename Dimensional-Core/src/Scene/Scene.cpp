@@ -1,6 +1,8 @@
 #include "Log/log.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Scene/Components.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include <Core/Assets/AssetManager.hpp>
 #include <Scene/Entity.hpp>
 #include <Scene/Scene.hpp>
 namespace Dimensional {
@@ -28,6 +30,17 @@ void Scene::beginScene()
 
 void Scene::updateEditor()
 {
+
+    // Render Lights | Should possibly be done in another spot.
+    {
+        auto view = m_Registry.view<TransformComponent, PointLightComponent>();
+        for (auto e : view) {
+            auto [transform, light] = view.get<TransformComponent, PointLightComponent>(e);
+
+            Ref<Material> mat = AssetManager::getMaterial("Default");
+            Renderer::renderCube(mat, transform.GetTransform());
+        }
+    }
 
     {
         // Render Meshes

@@ -46,6 +46,7 @@ public:
     static void renderSphere(Ref<Shader>& shader);
     static void renderCube(Ref<Shader>& shader);
 
+    static void renderCube(Ref<Material>& mat, glm::mat4 transform);
     static void renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform);
     static void renderModel(Model& model, Ref<Material>& mat, glm::mat4 transform);
     //

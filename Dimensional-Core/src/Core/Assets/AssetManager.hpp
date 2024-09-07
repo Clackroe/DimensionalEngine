@@ -13,6 +13,7 @@ class MaterialSettings;
 class AssetManager {
 public:
     static Ref<Material> loadMaterial(MaterialSettings matSettings);
+    static Ref<Material> loadMaterial();
     static Ref<Model> loadModel(std::string path);
     static Ref<Texture> loadTexture(std::string path, bool retain);
     static Ref<Shader> loadShader(std::string path);

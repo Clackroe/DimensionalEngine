@@ -6,7 +6,7 @@ Ref<Texture> Material::s_WhiteTexture;
 Ref<Texture> Material::s_BlackTexture;
 
 Material::Material()
-    : Asset("Material", AssetType::MaterialType)
+    : Asset("Default", AssetType::MaterialType)
 {
     if (!s_WhiteTexture) {
         s_WhiteTexture = CreateRef<Texture>(1, 1);
@@ -84,6 +84,7 @@ void Material::setTexture(MaterialTexture slot, Ref<Texture> tex)
 void Material::bind(Ref<Shader> shad)
 {
     shad->use();
+
     m_AlbedoTexture->bind(MaterialTexture::Albedo);
     m_NormalTexture->bind(MaterialTexture::Normal);
     m_MetalnessTexture->bind(MaterialTexture::Metalness);

@@ -1,6 +1,7 @@
 #include "Core/Assets/AssetManager.hpp"
 #include "Rendering/VertexBuffer.hpp"
 #include "core.hpp"
+#include "glm/matrix.hpp"
 #include <Core/Application.hpp>
 #include <Rendering/Mesh.hpp>
 #include <Rendering/Model.hpp>
@@ -21,6 +22,7 @@ void Renderer::Init()
     }
 
     generatePrimitives();
+    AssetManager::loadMaterial();
     s_RendererRef = this;
     DM_CORE_INFO("Renderer Initialized.")
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
@@ -48,13 +50,23 @@ void Renderer::renderSphere(Ref<Shader>& shader)
 
     glDrawElements(GL_TRIANGLE_STRIP, ref.sphereEb->getCount(), GL_UNSIGNED_INT, nullptr);
 }
+
+void Renderer::renderCube(Ref<Material>& mat, glm::mat4 transform)
+{
+    Renderer& ref = m_GetRenderer();
+    mat->bind(ref.m_PBRShader);
+    ref.m_PBRShader->setMat4("model", transform);
+    ref.m_PBRShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
+    Renderer::renderCube(ref.m_PBRShader);
+}
 void Renderer::renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform)
 {
 
     Renderer& ref = m_GetRenderer();
     mat->bind(ref.m_PBRShader);
+    ref.setupLightData();
     ref.m_PBRShader->setMat4("model", transform);
-    ref.m_PBRShader->setMat3("normalMatrix", glm::inverse(glm::mat3(transform)));
+    ref.m_PBRShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
 
     Renderer::renderVAO(*mesh.vao, *mesh.eb, ref.m_PBRShader);
 }

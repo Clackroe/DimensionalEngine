@@ -54,7 +54,7 @@ vec3 getNormalFromMap()
 
     vec3 N = normalize(Normal);
     vec3 T = normalize(Q1 * st2.t - Q2 * st1.t);
-    vec3 B = -normalize(cross(N, T));
+    vec3 B = normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
 
     return normalize(TBN * tangentNormal);
@@ -114,12 +114,15 @@ void main()
     F0 = mix(F0, albedo, metallic);
 
     vec3 Lo = vec3(0.0);
+    vec3 t = vec3(0.0);
     for (int i = 0; i < 4; ++i)
     {
         vec3 L = normalize(uLightPositions[i] - WorldPos);
+        t = L;
         vec3 H = normalize(V + L);
         float distance = length(uLightPositions[i] - WorldPos);
         float attenuation = 1.0 / (distance * distance);
+        // float attenuation = 1.0 / (constant + linear * distance + quadratic * (distance * distance));
         vec3 radiance = uLightColors[i] * attenuation;
 
         float NDF = DistributionGGX(N, H, roughness);
@@ -127,7 +130,7 @@ void main()
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
         vec3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // + 0.0001 to prevent divide by zero
         vec3 specular = numerator / denominator;
 
         vec3 kS = F;
@@ -149,5 +152,7 @@ void main()
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);
-    // FragColor = vec4(1.0f, 0.0, 0.0, 1.0);
+    // FragColor = vec4(uLightPositions[0], 1.0);
+    // FragColor = vec4(WorldPos * 0.1, 1.0);
+    // FragColor = vec4(normalize(Normal) * 0.5 + 0.5, 1.0); // Maps normal from [-1, 1] to [0, 1]
 }

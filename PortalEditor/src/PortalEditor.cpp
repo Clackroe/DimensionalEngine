@@ -32,15 +32,17 @@ void PortalLayer::OnAttatch()
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
     auto ent1 = m_ActiveScene->createEntity("BellNoTexture");
-    ent1.addComponent<MeshRenderer>(modelGun);
+    ent1.addComponent<MeshRenderer>(modelGun, materialReal);
 
     auto ent2 = m_ActiveScene->createEntity("TexturedBell");
-    ent2.addComponent<MeshRenderer>(modelGun, materialReal);
+    ent2.addComponent<MeshRenderer>(modelGun);
     auto& t = ent2.getComponent<TransformComponent>();
     t.Position += 2.0f;
 
     auto ent3 = m_ActiveScene->createEntity("Light");
     ent3.addComponent<PointLightComponent>();
+    auto& t1 = ent3.getComponent<TransformComponent>();
+    t1.Scale = glm::vec3(0.1f);
 }
 void PortalLayer::OnDetatch() { }
 void PortalLayer::OnUpdate()
