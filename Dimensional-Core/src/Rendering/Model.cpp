@@ -1,4 +1,5 @@
 #include "assimp/material.h"
+#include "imgui.h"
 #include <Rendering/Mesh.hpp>
 
 #include <Core/Assets/AssetManager.hpp>
@@ -69,6 +70,48 @@ void Model::processNode(aiNode* node, const aiScene* scene)
         processNode(node->mChildren[i], scene);
     }
 }
+static void ComputeTangents(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
+{
+    for (size_t i = 0; i < indices.size(); i += 3) {
+        // Get the three vertices of the triangle
+        Vertex& v0 = vertices[indices[i]];
+        Vertex& v1 = vertices[indices[i + 1]];
+        Vertex& v2 = vertices[indices[i + 2]];
+
+        // Calculate the edges of the triangle
+        glm::vec3 edge1 = v1.Position - v0.Position;
+        glm::vec3 edge2 = v2.Position - v0.Position;
+
+        // Calculate the difference in UV coordinates
+        glm::vec2 deltaUV1 = v1.TexCoords - v0.TexCoords;
+        glm::vec2 deltaUV2 = v2.TexCoords - v0.TexCoords;
+
+        // Calculate the tangent and bitangent
+        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        glm::vec3 tangent = f * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
+        glm::vec3 bitangent = f * (-deltaUV2.x * edge1 + deltaUV1.x * edge2);
+
+        // Normalize the tangents and bitangents
+        tangent = glm::normalize(tangent);
+        bitangent = glm::normalize(bitangent);
+
+        // Set the tangent and bitangent for each vertex
+        v0.Tangent += tangent;
+        v1.Tangent += tangent;
+        v2.Tangent += tangent;
+
+        v0.BiTangent += bitangent;
+        v1.BiTangent += bitangent;
+        v2.BiTangent += bitangent;
+    }
+
+    // Normalize the tangents and bitangents across all vertices
+    for (auto& vertex : vertices) {
+        vertex.Tangent = glm::normalize(vertex.Tangent);
+        vertex.BiTangent = glm::normalize(vertex.BiTangent);
+    }
+}
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
@@ -95,6 +138,22 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         } else {
             vertex.TexCoords = glm::vec2(0.0f, 0.0f);
         }
+
+        if (mesh->HasTangentsAndBitangents()) {
+            auto& tangent = mesh->mTangents[i];
+            auto& biTangent = mesh->mBitangents[i];
+
+            glm::vec3 tan = glm::vec3(tangent.x, tangent.y, tangent.z);
+            glm::vec3 bitan = glm::vec3(biTangent.x, biTangent.y, biTangent.z);
+
+            vertex.Tangent = tan;
+            vertex.BiTangent = bitan;
+
+        } else {
+            vertex.Tangent = glm::vec3(0.0f);
+            vertex.BiTangent = glm::vec3(0.0f);
+        }
+
         vertices.push_back(vertex);
     }
 
@@ -102,6 +161,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         aiFace face = mesh->mFaces[i];
         for (unsigned int j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
+    }
+    if (!mesh->HasTangentsAndBitangents()) {
+        ComputeTangents(vertices, indices);
     }
 
     DM_CORE_INFO("VERTS: {0} | IND: {1} | TEX: {2} | MAT: {3}", vertices.size(), indices.size(), textures.size(), mesh->mMaterialIndex);

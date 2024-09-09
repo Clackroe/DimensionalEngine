@@ -195,7 +195,24 @@ void SceneHierarchy::entityComponents(Entity entity)
     if (entity.hasComponent<PointLightComponent>()) {
         componentNode<PointLightComponent>(
             "Point Light", entity, [](auto& component) {
-                ImGui::ColorEdit3("Color", glm::value_ptr(component.lightColor));
+                ImGui::ColorEdit3("Color", glm::value_ptr(component.color));
+                ImGui::DragFloat("Intensity", &component.intensity, 1.0f, 0.0f);
+                ImGui::DragFloat("Constant", &component.constant, 0.5f, 1.0f, 10.0f);
+                ImGui::DragFloat("Linear", &component.linear, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Quadratic", &component.quadratic, 0.01f, 0.0f, 1.0f);
+            },
+            true);
+    }
+    if (entity.hasComponent<SpotLightComponent>()) {
+        componentNode<SpotLightComponent>(
+            "Spot Light", entity, [](auto& component) {
+                ImGui::ColorEdit3("Color", glm::value_ptr(component.color));
+                ImGui::DragFloat("Cut Off (degrees)", &component.cutOff, 1.0f, 0.0f, 90.0f);
+                ImGui::DragFloat("Outer Cut Off (degrees)", &component.outerCutOff, 1.0f, 0.0f, 90.0f);
+                ImGui::DragFloat("Intensity", &component.intensity, 1.0f, 0.0f);
+                ImGui::DragFloat("Constant", &component.constant, 0.5f, 1.0f, 10.0f);
+                ImGui::DragFloat("Linear", &component.linear, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Quadratic", &component.quadratic, 0.01f, 0.0f, 1.0f);
             },
             true);
     }

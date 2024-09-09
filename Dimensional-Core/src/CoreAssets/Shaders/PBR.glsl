@@ -1,4 +1,4 @@
-##VERTEX
+##VERTEXSHADER
 #version 430 core
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -21,7 +21,7 @@ void main()
     gl_Position = viewProj * vec4(WorldPos, 1.0);
 }
 
-##FRAG
+##FRAGSHADER
 #version 430 core
 out vec4 FragColor;
 in vec2 TexCoords;

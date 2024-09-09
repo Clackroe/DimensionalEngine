@@ -20,13 +20,6 @@ private:
     glm::vec2 m_ViewPortSize;
 
     Ref<Scene> m_ActiveScene;
-
-    // Temp
-    Ref<Material> materialTest = CreateRef<Material>();
-    MaterialSettings ms;
-    Ref<Material> materialReal;
-
-    //
 };
 }
 #endif

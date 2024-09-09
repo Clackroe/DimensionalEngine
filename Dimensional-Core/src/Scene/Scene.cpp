@@ -2,6 +2,7 @@
 #include "Rendering/Mesh.hpp"
 #include "Scene/Components.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/quaternion_geometric.hpp"
 #include <Core/Assets/AssetManager.hpp>
 #include <Scene/Entity.hpp>
 #include <Scene/Scene.hpp>
@@ -22,7 +23,38 @@ void Scene::beginScene()
         auto view = m_Registry.view<TransformComponent, PointLightComponent>();
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, PointLightComponent>(e);
-            LightData data = { transform.Position, light.lightColor * 255.0f };
+            LightData data = {
+                transform.Position,
+                transform.Rotation,
+                light.color * 255.0f,
+                0.0f,
+                0.0f,
+                light.intensity,
+                light.constant,
+                light.linear,
+                light.quadratic
+            };
+            Renderer::submitLight(data);
+        }
+    }
+    {
+        auto view = m_Registry.view<TransformComponent, SpotLightComponent>();
+        for (auto e : view) {
+            auto [transform, light] = view.get<TransformComponent, SpotLightComponent>(e);
+
+            glm::vec3 spotlightDirection = glm::rotate(glm::quat(transform.Rotation), glm::vec3(0.0f, -1.0f, 0.0f));
+
+            LightData data = {
+                transform.Position,
+                spotlightDirection,
+                light.color * 255.0f,
+                glm::cos(glm::radians(light.cutOff)),
+                glm::cos(glm::radians(light.outerCutOff)),
+                light.intensity,
+                light.constant,
+                light.linear,
+                light.quadratic
+            };
             Renderer::submitLight(data);
         }
     }
@@ -36,6 +68,16 @@ void Scene::updateEditor()
         auto view = m_Registry.view<TransformComponent, PointLightComponent>();
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, PointLightComponent>(e);
+
+            Ref<Material> mat = AssetManager::getMaterial("Default");
+            Renderer::renderCube(mat, transform.GetTransform());
+        }
+    }
+
+    {
+        auto view = m_Registry.view<TransformComponent, SpotLightComponent>();
+        for (auto e : view) {
+            auto [transform, light] = view.get<TransformComponent, SpotLightComponent>(e);
 
             Ref<Material> mat = AssetManager::getMaterial("Default");
             Renderer::renderCube(mat, transform.GetTransform());
@@ -122,6 +164,11 @@ void Scene::onComponentAdded<TagComponent>(Entity entity, TagComponent& componen
 
 template <>
 void Scene::onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component)
+{
+}
+
+template <>
+void Scene::onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component)
 {
 }
 

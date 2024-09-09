@@ -3,48 +3,79 @@
 #include <PortalEditor.hpp>
 namespace Dimensional {
 
-static Ref<Model> modelGun = CreateRef<Model>();
-
-static glm::vec3 lightPositions[] = {
-    glm::vec3(0.0f, 0.0f, 10.0f),
-};
-static glm::vec3 lightColors[] = {
-    glm::vec3(150.0f, 100.0f, 150.0f),
-};
-
 void PortalLayer::OnAttatch()
 {
-
     DM_INFO("Portal Initialized");
 
     m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 
-    // TEST
+    // TEST SCENE SETUP
+    MaterialSettings ms;
     ms.Albedo = AssetManager::getTexture("Bell_BaseColor");
     ms.Normal = AssetManager::getTexture("Bell_Normal");
     ms.Metalness = AssetManager::getTexture("Bell_Metallic");
     ms.Roughness = AssetManager::getTexture("Bell_Roughness");
 
-    materialReal = CreateRef<Material>(ms);
-    modelGun->Init((Application::getApp().engineAssetDirectory + "/Models/bell.fbx"));
+    AssetManager::loadMaterial(ms);
+    Ref<Material> mat = AssetManager::getMaterial("Material");
+
+    AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/bell.fbx");
+    Ref<Model> mod = AssetManager::getModel("bell");
+
+    AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Cube.obj");
+    Ref<Model> cube = AssetManager::getModel("Cube");
 
     m_ActiveScene = CreateRef<Scene>();
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
     auto ent1 = m_ActiveScene->createEntity("BellNoTexture");
-    ent1.addComponent<MeshRenderer>(modelGun, materialReal);
+    ent1.addComponent<MeshRenderer>(mod, mat);
+
+    {
+        auto cu = m_ActiveScene->createEntity("Cube1");
+        cu.addComponent<MeshRenderer>(cube);
+    }
+
+    {
+        auto cu = m_ActiveScene->createEntity("Cube2");
+        cu.addComponent<MeshRenderer>(cube);
+    }
 
     auto ent2 = m_ActiveScene->createEntity("TexturedBell");
-    ent2.addComponent<MeshRenderer>(modelGun);
+    ent2.addComponent<MeshRenderer>(mod, mat);
     auto& t = ent2.getComponent<TransformComponent>();
     t.Position += 2.0f;
 
-    auto ent3 = m_ActiveScene->createEntity("Light");
-    ent3.addComponent<PointLightComponent>();
-    auto& t1 = ent3.getComponent<TransformComponent>();
-    t1.Scale = glm::vec3(0.1f);
+    {
+        auto ent3 = m_ActiveScene->createEntity("SpotLight");
+        ent3.addComponent<SpotLightComponent>();
+        auto& t1 = ent3.getComponent<TransformComponent>();
+        auto& l = ent3.getComponent<SpotLightComponent>();
+        l.intensity = 15;
+        l.cutOff = 12.5;
+        l.outerCutOff = 15.0;
+        l.constant = 1;
+        l.linear = 0.09;
+        l.quadratic = 0.032;
+        t1.Scale = glm::vec3(0.1);
+    }
+
+    {
+        auto ent3 = m_ActiveScene->createEntity("PointLight");
+        ent3.addComponent<PointLightComponent>();
+        auto& t1 = ent3.getComponent<TransformComponent>();
+        auto& l = ent3.getComponent<PointLightComponent>();
+        l.intensity = 10;
+        l.constant = 1;
+        l.linear = 0.09;
+        l.quadratic = 0.032;
+        t1.Scale = glm::vec3(0.1);
+    }
+
+    //
 }
 void PortalLayer::OnDetatch() { }
+
 void PortalLayer::OnUpdate()
 {
     m_EditorCamera.Update();

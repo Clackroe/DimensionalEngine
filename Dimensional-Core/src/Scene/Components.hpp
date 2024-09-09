@@ -72,17 +72,34 @@ struct MeshRenderer {
 struct PointLightComponent {
     PointLightComponent() = default;
     PointLightComponent(const PointLightComponent&) = default;
-    PointLightComponent(glm::vec3& color)
-        : lightColor(color) {};
 
-    glm::vec3 lightColor = glm::vec3(1.0f);
+    glm::vec3 color = glm::vec3(1.0f);
+
+    float intensity;
+    float constant;
+    float linear;
+    float quadratic;
+};
+
+struct SpotLightComponent {
+    SpotLightComponent() = default;
+    SpotLightComponent(const SpotLightComponent&) = default;
+
+    glm::vec3 color = glm::vec3(1.0f);
+    float cutOff;
+    float outerCutOff;
+
+    float intensity;
+    float constant;
+    float linear;
+    float quadratic;
 };
 
 template <typename... Component>
 struct ComponentGroup {
 };
 
-using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent>;
+using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent>;
 
 }
 #endif

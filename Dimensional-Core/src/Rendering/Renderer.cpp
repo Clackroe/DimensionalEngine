@@ -27,7 +27,7 @@ void Renderer::Init()
     DM_CORE_INFO("Renderer Initialized.")
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
     // TODO: IDEK but I hate this
-    m_PBRShader = AssetManager::loadShader(Application::getApp().engineAssetDirectory + "/Shaders/PBR.glsl");
+    m_PBRShader = AssetManager::loadShader(Application::getApp().engineAssetDirectory + "/Shaders/PBRWithLighting.glsl");
 };
 
 void Renderer::submitLight(LightData data)
@@ -56,7 +56,6 @@ void Renderer::renderCube(Ref<Material>& mat, glm::mat4 transform)
     Renderer& ref = m_GetRenderer();
     mat->bind(ref.m_PBRShader);
     ref.m_PBRShader->setMat4("model", transform);
-    ref.m_PBRShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
     Renderer::renderCube(ref.m_PBRShader);
 }
 void Renderer::renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform)
@@ -66,7 +65,6 @@ void Renderer::renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform)
     mat->bind(ref.m_PBRShader);
     ref.setupLightData();
     ref.m_PBRShader->setMat4("model", transform);
-    ref.m_PBRShader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
 
     Renderer::renderVAO(*mesh.vao, *mesh.eb, ref.m_PBRShader);
 }
@@ -113,13 +111,47 @@ void Renderer::setupLightData()
     Renderer& ref = m_GetRenderer();
 
     ref.m_PBRShader->use();
-    for (unsigned int i = 0; i < ref.m_LightData.size(); ++i) {
-        auto& light = ref.m_LightData[i];
-        auto& pos = light.pos;
-        auto& col = light.color;
-        ref.m_PBRShader->setVec3("uLightPositions[" + std::to_string(i) + "]", pos.x, pos.y, pos.z);
-        ref.m_PBRShader->setVec3("uLightColors[" + std::to_string(i) + "]", col.x, col.y, col.z);
+
+    u32 numPointLights = 0;
+    u32 numSpotLights = 0;
+    /*
+     *     vec3 position;
+    vec3 direction;
+    vec3 color;
+
+    float intensity;
+    float cutOff; // Spotlight cutoff angle
+    float outerCutOff; // Spotlight outer cutoff angle
+
+    // Attenuation parameters
+    float constant;
+    float linear;
+    float quadratic;
+
+     * */
+
+    for (u32 i = 0; i < ref.m_LightData.size(); ++i) {
+        LightData& light = ref.m_LightData[i];
+
+        std::string pre;
+        if (light.cutOff == 0.0f && light.outerCutOff == 0.0f) {
+            pre = "uPointLights[" + std::to_string(numPointLights) + "]";
+            numPointLights++;
+        } else {
+            pre = "uSpotLights[" + std::to_string(numSpotLights) + "]";
+            numSpotLights++;
+        }
+        ref.m_PBRShader->setVec3(pre + ".position", light.position.x, light.position.y, light.position.z);
+        ref.m_PBRShader->setVec3(pre + ".direction", light.direction.x, light.direction.y, light.direction.z);
+        ref.m_PBRShader->setVec3(pre + ".color", light.color.x, light.color.y, light.color.z);
+        ref.m_PBRShader->setFloat(pre + ".cutOff", light.cutOff);
+        ref.m_PBRShader->setFloat(pre + ".outerCutOff", light.outerCutOff);
+        ref.m_PBRShader->setFloat(pre + ".constant", light.constant);
+        ref.m_PBRShader->setFloat(pre + ".constant", light.constant);
+        ref.m_PBRShader->setFloat(pre + ".linear", light.quadratic);
     }
+    ref.m_PBRShader->setInt("uNumPointLights", numPointLights);
+    ref.m_PBRShader->setInt("uNumSpotLights", numSpotLights);
 }
 
 void Renderer::beginScene(CameraData data)
@@ -210,8 +242,8 @@ void Renderer::generateSphere()
 
     sphereVao = CreateRef<VertexArray>();
     std::vector<glm::vec3> positions;
-    std::vector<glm::vec2> uv;
     std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> uv;
     std::vector<unsigned int> indices;
 
     const unsigned int X_SEGMENTS = 64;
@@ -270,6 +302,7 @@ void Renderer::generateSphere()
     lb.Push<float>(3);
     lb.Push<float>(3);
     lb.Push<float>(2);
+
     sphereVao->AddBuffer(vb, lb);
 };
 

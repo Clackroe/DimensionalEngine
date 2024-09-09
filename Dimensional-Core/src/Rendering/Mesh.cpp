@@ -20,6 +20,9 @@ void Mesh::setup()
     vl.Push<float>(3);
     vl.Push<float>(3);
     vl.Push<float>(2);
+    vl.Push<float>(3);
+    vl.Push<float>(3);
+
     vao->AddBuffer(vb, vl);
 }
 };

@@ -23,10 +23,39 @@ struct CameraData {
     glm::vec3 uCameraPosition;
 };
 
+// struct Light {
+//     vec3 position;
+//     vec3 direction;
+//     vec3 color;
+//
+//     float intensity;
+//     float cutOff; // Spotlight cutoff angle
+//     float outerCutOff; // Spotlight outer cutoff angle
+//
+//     // Attenuation parameters
+//     float constant;
+//     float linear;
+//     float quadratic;
+// };
+//
+
 struct LightData {
-    glm::vec3 pos;
+    glm::vec3 position;
+    glm::vec3 direction;
     glm::vec3 color;
+
+    float cutOff;
+    float outerCutOff;
+
+    float intensity;
+    float constant;
+    float linear;
+    float quadratic;
 };
+// struct LightData {
+//     glm::vec3 pos;
+//     glm::vec3 color;
+// };
 
 static FrameBufferSettings fbs = {
     1280,

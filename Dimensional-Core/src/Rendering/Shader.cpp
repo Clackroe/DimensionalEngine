@@ -29,12 +29,12 @@ Shader::Shader(const std::string& path)
             if (line.empty()) {
                 continue;
             }
-            if (line.find("##VERTEX") != std::string::npos) {
+            if (line.find("##VERTEXSHADER") != std::string::npos) {
                 isVertex = true;
                 isFrag = false;
                 continue;
             }
-            if (line.find("##FRAG") != std::string::npos) {
+            if (line.find("##FRAGSHADER") != std::string::npos) {
                 isVertex = false;
                 isFrag = true;
                 continue;

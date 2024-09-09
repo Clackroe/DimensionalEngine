@@ -10,7 +10,7 @@ Material::Material()
 {
     if (!s_WhiteTexture) {
         s_WhiteTexture = CreateRef<Texture>(1, 1);
-        u32 data = 0xffffffff;
+        u32 data = 0x808080;
         s_WhiteTexture->setData(&data, sizeof(u32));
     }
     if (!s_BlackTexture) {
@@ -20,7 +20,7 @@ Material::Material()
     }
 
     m_AlbedoTexture = s_WhiteTexture;
-    m_NormalTexture = s_WhiteTexture;
+    m_NormalTexture = nullptr;
     m_MetalnessTexture = s_BlackTexture;
     m_RoughnessTexture = s_WhiteTexture;
     m_AOTexture = s_WhiteTexture;
@@ -39,7 +39,7 @@ Material::Material(MaterialSettings settings)
     if (settings.Normal) {
         m_NormalTexture = settings.Normal;
     } else {
-        m_NormalTexture = s_WhiteTexture;
+        m_NormalTexture = nullptr;
     }
 
     if (settings.Metalness) {
@@ -86,13 +86,21 @@ void Material::bind(Ref<Shader> shad)
     shad->use();
 
     m_AlbedoTexture->bind(MaterialTexture::Albedo);
-    m_NormalTexture->bind(MaterialTexture::Normal);
+
+    if (m_NormalTexture) {
+        m_NormalTexture->bind(MaterialTexture::Normal);
+    }
     m_MetalnessTexture->bind(MaterialTexture::Metalness);
     m_RoughnessTexture->bind(MaterialTexture::Roughness);
     m_AOTexture->bind(MaterialTexture::AO);
 
     shad->setInt("albedoMap", MaterialTexture::Albedo);
     shad->setInt("normalMap", MaterialTexture::Normal);
+    if (!m_NormalTexture) {
+        shad->setBool("uShouldUseNormalMap", false);
+    } else {
+        shad->setBool("uShouldUseNormalMap", true);
+    }
     shad->setInt("metallicMap", MaterialTexture::Metalness);
     shad->setInt("roughnessMap", MaterialTexture::Roughness);
     shad->setInt("aoMap", MaterialTexture::AO);
