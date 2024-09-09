@@ -10,8 +10,7 @@ struct Vertex {
     vec2 TexCoords;
     vec3 WorldPos;
     vec3 Normal;
-    vec3 Tangent;
-    vec3 BiTangent;
+    mat3 TBN;
 };
 
 layout(location = 0) out Vertex vOutput;
@@ -26,8 +25,11 @@ void main()
     mat3 normalMatrix = transpose(inverse(mat3(model)));
     vOutput.WorldPos = vec3(model * vec4(aPos, 1.0));
     vOutput.Normal = normalMatrix * aNormal;
-    vOutput.Tangent = normalize(normalMatrix * aTangent);
-    vOutput.BiTangent = normalize(normalMatrix * aBiTangent);
+
+    vec3 T = normalize(vec3(model * vec4(aTangent,   0.0)));
+    vec3 B = normalize(vec3(model * vec4(aBiTangent, 0.0)));
+    vec3 N = normalize(vec3(model * vec4(aNormal,    0.0)));
+    vOutput.TBN = mat3(T, B, N);
 
     gl_Position = viewProj * vec4(vOutput.WorldPos, 1.0);
 }
@@ -40,8 +42,7 @@ struct Vertex {
     vec2 TexCoords;
     vec3 WorldPos;
     vec3 Normal;
-    vec3 Tangent;
-    vec3 BiTangent;
+    mat3 TBN;
 };
 
 layout(location = 0) in Vertex vInput;
@@ -87,9 +88,7 @@ vec3 getNormalFromMap()
     }
     vec3 tangentNormal = texture(normalMap, vInput.TexCoords).xyz * 2.0 - 1.0;
 
-    mat3 TBN = mat3(normalize(vInput.Tangent), normalize(vInput.BiTangent), normalize(vInput.Normal));
-
-    return normalize(TBN * tangentNormal);
+    return normalize(vInput.TBN * tangentNormal);
 }
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
