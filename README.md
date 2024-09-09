@@ -1,5 +1,9 @@
 # Welcome to Dimensional!! My attempt at a 3D Engine.
 
+# Current Capabilities
+![image](https://github.com/user-attachments/assets/b57261e1-d146-498d-80eb-a918ef313872)
+
+
 Run the following command to get started
 ```bash
 git clone https://github.com/Clackroe/DimensionalEngine.git --recursive
