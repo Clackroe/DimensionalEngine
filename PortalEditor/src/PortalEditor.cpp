@@ -28,9 +28,6 @@ void PortalLayer::OnAttatch()
     m_ActiveScene = CreateRef<Scene>();
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
-    auto ent1 = m_ActiveScene->createEntity("BellNoTexture");
-    ent1.addComponent<MeshRenderer>(mod, mat);
-
     {
         auto cu = m_ActiveScene->createEntity("Cube1");
         cu.addComponent<MeshRenderer>(cube);
@@ -47,20 +44,30 @@ void PortalLayer::OnAttatch()
         t.Scale = { 20.0f, 0.1f, 20.0f };
     }
 
-    auto ent2 = m_ActiveScene->createEntity("TexturedBell");
-    ent2.addComponent<MeshRenderer>(mod, mat);
-    auto& t = ent2.getComponent<TransformComponent>();
-    t.Position += 2.0f;
-
+    {
+        auto ent2 = m_ActiveScene->createEntity("Bell1");
+        ent2.addComponent<MeshRenderer>(mod, mat);
+        auto& t = ent2.getComponent<TransformComponent>();
+        t.Scale = { 0.5f, 0.5, 0.5 };
+        t.Position = { 0.0f, -2.5f, 3.5f };
+        t.Rotation = glm::radians(glm::vec3 { -90, 90, 30 });
+    }
+    {
+        auto ent1 = m_ActiveScene->createEntity("Bell2");
+        ent1.addComponent<MeshRenderer>(mod, mat);
+        auto& t = ent1.getComponent<TransformComponent>();
+        t.Position = { 0.0f, -2.5f, 1.0f };
+        t.Rotation = glm::radians(glm::vec3 { -90, 90, -30 });
+    }
     {
         auto ent3 = m_ActiveScene->createEntity("SpotLight");
         ent3.addComponent<SpotLightComponent>();
         auto& t1 = ent3.getComponent<TransformComponent>();
         auto& l = ent3.getComponent<SpotLightComponent>();
-        l.intensity = 15;
+        l.intensity = 0.5;
         l.cutOff = 15.5;
-        l.outerCutOff = 38.0;
-        l.constant = 10;
+        l.outerCutOff = 65.0;
+        l.constant = 6;
         l.linear = 0.09;
         l.quadratic = 0.7;
         t1.Scale = glm::vec3(0.1);
@@ -72,8 +79,8 @@ void PortalLayer::OnAttatch()
         ent3.addComponent<PointLightComponent>();
         auto& t1 = ent3.getComponent<TransformComponent>();
         auto& l = ent3.getComponent<PointLightComponent>();
-        l.intensity = 10;
-        l.constant = 10;
+        l.intensity = 0.4;
+        l.constant = 6;
         l.linear = 0.09;
         l.quadratic = 0.732;
         t1.Scale = glm::vec3(0.1);

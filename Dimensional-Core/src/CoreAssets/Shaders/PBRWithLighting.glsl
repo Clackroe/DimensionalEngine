@@ -98,11 +98,10 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     float NdotH = max(dot(N, H), 0.0);
     float NdotH2 = NdotH * NdotH;
 
-    float nom = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
+    denom = PI * denom * denom + 1e-5;
 
-    return nom / denom;
+    return a2 / denom;
 }
 // ----------------------------------------------------------------------------
 float GeometrySchlickGGX(float NdotV, float roughness)
@@ -146,39 +145,33 @@ void main()
 
     vec3 Lo = vec3(0.0);
     // Point lights contribution
+    const float epsilon = 0.001;
+
     for (int i = 0; i < uNumPointLights; ++i)
     {
-        vec3 L = normalize(uPointLights[i].position - vInput.WorldPos);
+        vec3 lightDirection = uPointLights[i].position - vInput.WorldPos;
+        float distance = length(lightDirection);
+        vec3 L = normalize(lightDirection); // Normalized light direction
         vec3 H = normalize(V + L);
-        float distance = length(uPointLights[i].position - vInput.WorldPos);
 
-        // Correct attenuation formula
         float attenuation = 1.0 / (uPointLights[i].constant +
-                    uPointLights[i].linear * distance +
-                    uPointLights[i].quadratic * (distance * distance));
+                                   uPointLights[i].linear * distance +
+                                   uPointLights[i].quadratic * (distance * distance));
 
-        // Calculate Fresnel (F), Geometry (G), and Normal Distribution (NDF)
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-        // Calculate specular component
         vec3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // Prevent division by zero
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + epsilon; // Prevent division by zero
         vec3 specular = numerator / denominator;
 
-        // kS is specular reflectance
         vec3 kS = F;
+        vec3 kD = (1.0 - kS) * (1.0 - metallic); 
 
-        // kD is the diffuse reflection component
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metallic;
-
-        // Lambertian diffuse
         float NdotL = max(dot(N, L), 0.0);
 
-        // Apply attenuation to both diffuse and specular components
-        Lo += ((kD * albedo / PI) + specular) * uPointLights[i].color * NdotL * attenuation;
+        Lo += ((kD * albedo / PI) + specular) * (uPointLights[i].color * uPointLights[i].intensity) * NdotL * attenuation;
     }
 
     // Spotlight contribution
@@ -202,12 +195,11 @@ void main()
         vec3 specular = numerator / denominator;
 
         vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metallic;
+        vec3 kD = (1.0 - kS) * (1.0 - metallic); 
 
         float NdotL = max(dot(N, L), 0.0);
         vec3 diffuse = kD * albedo / PI;
-        vec3 radiance = (diffuse + specular) * uSpotLights[i].color * NdotL;
+        vec3 radiance = (diffuse + specular) * (uSpotLights[i].color * uSpotLights[i].intensity)* NdotL;
         Lo += radiance * attenuation * intensity;
     }
 

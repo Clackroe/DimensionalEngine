@@ -146,7 +146,7 @@ void Renderer::setupLightData()
         ref.m_PBRShader->setVec3(pre + ".color", light.color.x, light.color.y, light.color.z);
         ref.m_PBRShader->setFloat(pre + ".cutOff", light.cutOff);
         ref.m_PBRShader->setFloat(pre + ".outerCutOff", light.outerCutOff);
-        ref.m_PBRShader->setFloat(pre + ".constant", light.constant);
+        ref.m_PBRShader->setFloat(pre + ".intensity", light.intensity);
         ref.m_PBRShader->setFloat(pre + ".constant", light.constant);
         ref.m_PBRShader->setFloat(pre + ".linear", light.quadratic);
     }
