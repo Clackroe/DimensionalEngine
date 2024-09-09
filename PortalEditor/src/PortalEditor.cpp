@@ -34,11 +34,17 @@ void PortalLayer::OnAttatch()
     {
         auto cu = m_ActiveScene->createEntity("Cube1");
         cu.addComponent<MeshRenderer>(cube);
+        auto& t = cu.getComponent<TransformComponent>();
+        t.Position = { 0.0f, 3.5f, 0.0f };
+        t.Scale = { 20.0f, 0.1f, 20.0f };
     }
 
     {
         auto cu = m_ActiveScene->createEntity("Cube2");
         cu.addComponent<MeshRenderer>(cube);
+        auto& t = cu.getComponent<TransformComponent>();
+        t.Position = { 0.0f, -3.5f, 0.0f };
+        t.Scale = { 20.0f, 0.1f, 20.0f };
     }
 
     auto ent2 = m_ActiveScene->createEntity("TexturedBell");
@@ -52,12 +58,13 @@ void PortalLayer::OnAttatch()
         auto& t1 = ent3.getComponent<TransformComponent>();
         auto& l = ent3.getComponent<SpotLightComponent>();
         l.intensity = 15;
-        l.cutOff = 12.5;
-        l.outerCutOff = 15.0;
-        l.constant = 1;
+        l.cutOff = 15.5;
+        l.outerCutOff = 38.0;
+        l.constant = 10;
         l.linear = 0.09;
-        l.quadratic = 0.032;
+        l.quadratic = 0.7;
         t1.Scale = glm::vec3(0.1);
+        t1.Position = { 0.0f, -1.5f, 4.0f };
     }
 
     {
@@ -66,10 +73,11 @@ void PortalLayer::OnAttatch()
         auto& t1 = ent3.getComponent<TransformComponent>();
         auto& l = ent3.getComponent<PointLightComponent>();
         l.intensity = 10;
-        l.constant = 1;
+        l.constant = 10;
         l.linear = 0.09;
-        l.quadratic = 0.032;
+        l.quadratic = 0.732;
         t1.Scale = glm::vec3(0.1);
+        t1.Position = { 0.0f, -1.5f, 0.0f };
     }
 
     //

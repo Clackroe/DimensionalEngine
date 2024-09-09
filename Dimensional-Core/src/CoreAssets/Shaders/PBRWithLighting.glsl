@@ -24,7 +24,7 @@ void main()
 
     mat3 normalMatrix = transpose(inverse(mat3(model)));
     vOutput.WorldPos = vec3(model * vec4(aPos, 1.0));
-    vOutput.Normal = normalMatrix * aNormal;
+    vOutput.Normal = normalize(normalMatrix * aNormal);
 
     vec3 T = normalize(vec3(model * vec4(aTangent,   0.0)));
     vec3 B = normalize(vec3(model * vec4(aBiTangent, 0.0)));
