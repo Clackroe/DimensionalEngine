@@ -7,11 +7,28 @@
 
 namespace Dimensional {
 Texture::Texture(std::string path, bool retainInMemory)
-    : Asset(path)
+    : Asset(path, AssetType::TextureType)
 {
     m_Path = path;
     load(path, retainInMemory);
 };
+Texture::Texture(u32 width, u32 height)
+    : Asset("Blank Texture", AssetType::TextureType)
+    , m_Width(width)
+    , m_Height(height)
+{
+    m_IntFormat = GL_RGBA8;
+    m_DataFormat = GL_RGBA;
+
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_GLId);
+    glTextureStorage2D(m_GLId, 1, m_IntFormat, m_Width, m_Height);
+
+    glTextureParameteri(m_GLId, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(m_GLId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTextureParameteri(m_GLId, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(m_GLId, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
 
 void Texture::load(std::string path, bool retainInMemory)
 {
@@ -71,6 +88,12 @@ void Texture::load(std::string path, bool retainInMemory)
         stbi_image_free(data);
     }
 }
+void Texture::setData(void* data, u32 sizeBytes)
+{
+    DM_CORE_ASSERT(sizeBytes == m_Width * m_Height * (m_DataFormat == GL_RGBA ? 4 : 3), "Data must be entire texture!")
+    glTextureSubImage2D(m_GLId, 0, 0, 0, static_cast<int>(m_Width), static_cast<int>(m_Height), m_DataFormat, GL_UNSIGNED_BYTE, data);
+}
+
 void Texture::bind(u32 textureSlot)
 {
     glBindTextureUnit(textureSlot, m_GLId);

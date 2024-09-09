@@ -2,19 +2,8 @@
 #include "Log/log.hpp"
 #include "Rendering/Renderer.hpp"
 #include <Core/Application.hpp>
-#include <buffer.hpp>
-
-#include <assimp/Importer.hpp> // C++ importer interface
-#include <assimp/postprocess.h> // Post processing flags
-#include <assimp/scene.h> // Output data structure
 
 #include <Core/Time.hpp>
-
-#include <Rendering/Model.hpp>
-
-#include <Core/EditorCamera.hpp>
-
-#include <glad.h>
 
 namespace Dimensional {
 
@@ -23,6 +12,8 @@ Application* Application::s_Application = nullptr;
 Application::Application(const std::string& title, u32 width, u32 height)
 {
     Log::Init(); // Logging needs to be initialized sooner than the other systems
+    //
+    DM_CORE_INFO("TEST");
 
     // --- To be retrieved from project config file
     std::replace(fPath.begin(), fPath.end(), '\\', '/');
@@ -39,18 +30,14 @@ Application::Application(const std::string& title, u32 width, u32 height)
     DM_CORE_INFO("Platform: {0}", DM_PLATFORM);
 
     initializeSubSystems();
-
-    // Model testModel((engineAssetDirectory) + "/Models/test.fbx");
-    // DM_CORE_INFO("After Model Createion");
 }
 
-static float frameStartTime = 0;
 static float frameTime = 0;
 
 void Application::runApplication()
 {
     while (m_Running) {
-        frameStartTime = Time::getTime();
+        float frameStartTime = Time::getTime();
         Time::Update();
 
         EventSystem::ProcessEvents();

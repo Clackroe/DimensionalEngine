@@ -12,6 +12,13 @@ FrameBuffer::~FrameBuffer()
     glDeleteFramebuffers(1, &m_GLId);
 }
 
+void FrameBuffer::setSize(u32 width, u32 height)
+{
+    m_Settings.width = width;
+    m_Settings.height = height;
+    Rebuild();
+}
+
 void FrameBuffer::Rebuild()
 {
     glCreateFramebuffers(1, &m_GLId);

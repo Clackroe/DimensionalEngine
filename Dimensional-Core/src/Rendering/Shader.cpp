@@ -6,7 +6,7 @@
 
 namespace Dimensional {
 Shader::Shader(const std::string& path)
-    : Asset(path)
+    : Asset(path, AssetType::ShaderType)
 {
     std::string vertexSourceCode;
     std::string fragmentSourceCode;
@@ -29,12 +29,12 @@ Shader::Shader(const std::string& path)
             if (line.empty()) {
                 continue;
             }
-            if (line.find("##VERTEX") != std::string::npos) {
+            if (line.find("##VERTEXSHADER") != std::string::npos) {
                 isVertex = true;
                 isFrag = false;
                 continue;
             }
-            if (line.find("##FRAG") != std::string::npos) {
+            if (line.find("##FRAGSHADER") != std::string::npos) {
                 isVertex = false;
                 isFrag = true;
                 continue;
@@ -98,7 +98,7 @@ Shader::Shader(const std::string& path)
 }
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragPath)
-    : Asset(vertexPath + fragPath)
+    : Asset(vertexPath + fragPath, AssetType::ShaderType)
 {
     std::string vertexSourceCode;
     std::string fragmentSourceCode;

@@ -1,3 +1,5 @@
+#ifndef DM_DIMENSIONAL_H
+#define DM_DIMENSIONAL_H
 #include <core.hpp>
 
 // ---- CORE APPLICATION
@@ -10,6 +12,13 @@
 // ---- EVENTS
 #include <Event/Event.hpp>
 #include <Event/EventSystem.hpp>
+
+// ---- SCENE
+#include <Scene/Components.hpp>
+#include <Scene/Entity.hpp>
+#include <Scene/Scene.hpp>
+
+#include <Core/Assets/AssetManager.hpp>
 
 // ---- INPUT
 #include <Input/Input.hpp>
@@ -25,3 +34,4 @@
 #include <Rendering/Renderer.hpp>
 #include <Rendering/Shader.hpp>
 #include <Rendering/Texture.hpp>
+#endif
