@@ -21,11 +21,16 @@ void Renderer::Init()
         return;
     }
 
-    generatePrimitives();
-    AssetManager::loadMaterial();
     s_RendererRef = this;
+    generatePrimitives();
     DM_CORE_INFO("Renderer Initialized.")
+
+    AssetManager::loadMaterial();
+    AssetManager::loadTexture(Application::getApp().engineAssetDirectory + "/Textures/hdrmap.hdr", false);
+    AssetManager::loadShader(Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMap.glsl");
+
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
+
     // TODO: IDEK but I hate this
     m_PBRShader = AssetManager::loadShader(Application::getApp().engineAssetDirectory + "/Shaders/PBRWithLighting.glsl");
 };

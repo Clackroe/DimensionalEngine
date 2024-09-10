@@ -60,6 +60,7 @@ struct LightData {
 static FrameBufferSettings fbs = {
     1280,
     720,
+    { RGBA16F, Depth }
 };
 
 class DMCORE_API Renderer {

@@ -1,3 +1,5 @@
+#include "Core/Assets/AssetManager.hpp"
+#include "Input/KeyCodes.hpp"
 #include "Scene/Components.hpp"
 #include "imgui.h"
 #include <PortalEditor.hpp>
@@ -100,6 +102,16 @@ void PortalLayer::OnUpdate()
 
     Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p });
 
+    Ref<Shader> testShad = AssetManager::getShader("EquirectToCubeMap");
+    auto tex = AssetManager::getTexture("hdrmap");
+    tex->bind(0);
+    testShad->use();
+    testShad->setInt("uEquirectMap", 0);
+    testShad->setMat4("viewProj", m_EditorCamera.getViewProj());
+    testShad->setVec3("uCameraPosition", m_EditorCamera.calcPos().x, m_EditorCamera.calcPos().y, m_EditorCamera.calcPos().z);
+
+    Renderer::renderCube(testShad);
+
     m_ActiveScene->updateEditor();
 
     Renderer::endScene();
@@ -168,7 +180,7 @@ void PortalLayer::OnImGuiRender()
     }
     Ref<FrameBuffer> buf = Renderer::getFrameBuffer();
 
-    ImGui::Image(reinterpret_cast<ImTextureID>(buf->m_ColorGLId), ImVec2 { viewportPanelSize.x, viewportPanelSize.y }, { 0, 1 }, { 1, 0 });
+    ImGui::Image(reinterpret_cast<ImTextureID>(buf->getAttachmentID(0)), ImVec2 { viewportPanelSize.x, viewportPanelSize.y }, { 0, 1 }, { 1, 0 });
     ImGui::End();
     //
 

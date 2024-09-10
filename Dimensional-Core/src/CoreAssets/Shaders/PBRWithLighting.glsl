@@ -26,9 +26,9 @@ void main()
     vOutput.WorldPos = vec3(model * vec4(aPos, 1.0));
     vOutput.Normal = normalize(normalMatrix * aNormal);
 
-    vec3 T = normalize(vec3(model * vec4(aTangent,   0.0)));
+    vec3 T = normalize(vec3(model * vec4(aTangent, 0.0)));
     vec3 B = normalize(vec3(model * vec4(aBiTangent, 0.0)));
-    vec3 N = normalize(vec3(model * vec4(aNormal,    0.0)));
+    vec3 N = normalize(vec3(model * vec4(aNormal, 0.0)));
     vOutput.TBN = mat3(T, B, N);
 
     gl_Position = viewProj * vec4(vOutput.WorldPos, 1.0);
@@ -36,7 +36,9 @@ void main()
 
 ##FRAGSHADER
 #version 430 core
-out vec4 FragColor;
+
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 attachment1;
 
 struct Vertex {
     vec2 TexCoords;
@@ -155,8 +157,8 @@ void main()
         vec3 H = normalize(V + L);
 
         float attenuation = 1.0 / (uPointLights[i].constant +
-                                   uPointLights[i].linear * distance +
-                                   uPointLights[i].quadratic * (distance * distance));
+                    uPointLights[i].linear * distance +
+                    uPointLights[i].quadratic * (distance * distance));
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
@@ -167,7 +169,7 @@ void main()
         vec3 specular = numerator / denominator;
 
         vec3 kS = F;
-        vec3 kD = (1.0 - kS) * (1.0 - metallic); 
+        vec3 kD = (1.0 - kS) * (1.0 - metallic);
 
         float NdotL = max(dot(N, L), 0.0);
 
@@ -195,11 +197,11 @@ void main()
         vec3 specular = numerator / denominator;
 
         vec3 kS = F;
-        vec3 kD = (1.0 - kS) * (1.0 - metallic); 
+        vec3 kD = (1.0 - kS) * (1.0 - metallic);
 
         float NdotL = max(dot(N, L), 0.0);
         vec3 diffuse = kD * albedo / PI;
-        vec3 radiance = (diffuse + specular) * (uSpotLights[i].color * uSpotLights[i].intensity)* NdotL;
+        vec3 radiance = (diffuse + specular) * (uSpotLights[i].color * uSpotLights[i].intensity) * NdotL;
         Lo += radiance * attenuation * intensity;
     }
 
@@ -213,6 +215,7 @@ void main()
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);
+    // attachment1 = vec4(N, 1.0);
     // FragColor = vec4(N, 1.0);
     // FragColor = vec4(vInput.Tangent, 1.0);
     // FragColor = vec4(uPointLights[0].position, 1.0);
