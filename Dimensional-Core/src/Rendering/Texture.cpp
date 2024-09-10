@@ -30,7 +30,7 @@ Texture::Texture(u32 width, u32 height)
     glTextureParameteri(m_GLId, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
-void Texture::load(std::string path, bool retainInMemory)
+void Texture::load(std::string path, bool retainInMemory, bool hdr)
 {
     stbi_set_flip_vertically_on_load(1);
 
@@ -50,15 +50,16 @@ void Texture::load(std::string path, bool retainInMemory)
     DM_CORE_INFO("Name: {0} Channels: {1}", name, m_Channels);
     switch (m_Channels) {
     case 1:
-        intFormat = GL_R8;
+
+        intFormat = hdr ? GL_R16F : GL_R8;
         dataFormat = GL_RED;
         break;
     case 3:
-        intFormat = GL_RGB8;
+        intFormat = hdr ? GL_RGB16F : GL_RGB8;
         dataFormat = GL_RGB;
         break;
     case 4:
-        intFormat = GL_RGBA8;
+        intFormat = hdr ? GL_RGBA16F : GL_RGBA8;
         dataFormat = GL_RGBA;
         break;
     default:

@@ -15,7 +15,7 @@ public:
     void setData(void* data, u32 sizeBytes);
 
 private:
-    void load(std::string path, bool retainInMemory);
+    void load(std::string path, bool retainInMemory, bool hdr = false);
 
     std::string m_Path;
 
