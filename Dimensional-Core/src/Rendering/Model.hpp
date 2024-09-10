@@ -5,7 +5,7 @@
 #include <core.hpp>
 
 class aiMesh;
-class aiScene;
+struct aiScene;
 class aiNode;
 class aiMaterial;
 

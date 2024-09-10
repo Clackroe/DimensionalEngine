@@ -14,7 +14,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 namespace Dimensional {
-struct IDComponent {
+struct DMCORE_API IDComponent {
     UUID ID;
 
     IDComponent() = default;
@@ -32,7 +32,7 @@ struct TagComponent {
     }
 };
 
-struct TransformComponent {
+struct DMCORE_API TransformComponent {
     glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
     glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
     glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
@@ -51,7 +51,7 @@ struct TransformComponent {
     }
 };
 
-struct MeshRenderer {
+struct DMCORE_API MeshRenderer {
     MeshRenderer() = default;
     MeshRenderer(const MeshRenderer&) = default;
     MeshRenderer(const Ref<Model> modelIn)
@@ -69,7 +69,7 @@ struct MeshRenderer {
     Ref<Material> mat;
 };
 
-struct PointLightComponent {
+struct DMCORE_API PointLightComponent {
     PointLightComponent() = default;
     PointLightComponent(const PointLightComponent&) = default;
 
@@ -81,7 +81,7 @@ struct PointLightComponent {
     float quadratic;
 };
 
-struct SpotLightComponent {
+struct DMCORE_API SpotLightComponent {
     SpotLightComponent() = default;
     SpotLightComponent(const SpotLightComponent&) = default;
 

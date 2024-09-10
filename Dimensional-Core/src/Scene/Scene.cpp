@@ -1,6 +1,6 @@
 #include "Log/log.hpp"
 #include "Rendering/Mesh.hpp"
-#include "Scene/Components.hpp"
+#include <Scene/Components.hpp>
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
 #include <Core/Assets/AssetManager.hpp>
@@ -147,12 +147,10 @@ template <>
 void Scene::onComponentAdded<IDComponent>(Entity entity, IDComponent& component)
 {
 }
-
 template <>
 void Scene::onComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
 {
 }
-
 template <>
 void Scene::onComponentAdded<MeshRenderer>(Entity entity, MeshRenderer& component)
 {
@@ -161,12 +159,10 @@ template <>
 void Scene::onComponentAdded<TagComponent>(Entity entity, TagComponent& component)
 {
 }
-
 template <>
 void Scene::onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component)
 {
 }
-
 template <>
 void Scene::onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component)
 {

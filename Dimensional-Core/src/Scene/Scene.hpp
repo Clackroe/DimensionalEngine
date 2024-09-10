@@ -32,6 +32,20 @@ public:
 private:
     template <typename T>
     void onComponentAdded(Entity entity, T& component);
+#ifdef DM_WINDOWS
+    template <>
+    void onComponentAdded<IDComponent>(Entity entity, IDComponent& component);
+    template <>
+    void onComponentAdded<TransformComponent>(Entity entity, TransformComponent& component);
+    template <>
+    void onComponentAdded<MeshRenderer>(Entity entity, MeshRenderer& component);
+    template <>
+    void onComponentAdded<TagComponent>(Entity entity, TagComponent& component);
+    template <>
+    void onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component);
+    template <>
+    void onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component);
+#endif
 
     entt::registry m_Registry;
 
