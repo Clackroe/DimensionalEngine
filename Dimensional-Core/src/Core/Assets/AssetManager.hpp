@@ -10,7 +10,7 @@ class Texture;
 class Shader;
 class MaterialSettings;
 
-class AssetManager {
+class DMCORE_API AssetManager {
 public:
     static Ref<Material> loadMaterial(MaterialSettings matSettings);
     static Ref<Material> loadMaterial();
