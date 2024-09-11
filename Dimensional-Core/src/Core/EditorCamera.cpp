@@ -1,6 +1,4 @@
-#include "Input/Input.hpp"
-#include "Input/KeyCodes.hpp"
-#include "Log/log.hpp"
+#include "Input/Input.hpp" #include "Input/KeyCodes.hpp" #include "Log/log.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include <Core/EditorCamera.hpp>
 

@@ -2,6 +2,7 @@
 #define DM_RENDERER_HPP
 
 #include "Input/Input.hpp"
+#include "Rendering/CubeMap.hpp"
 #include "Rendering/ElementBuffer.hpp"
 #include <Core/Camera.hpp>
 #include <Rendering/FrameBuffer.hpp>
@@ -21,6 +22,9 @@ class Model;
 struct CameraData {
     glm::mat4 viewProj;
     glm::vec3 uCameraPosition;
+
+    glm::mat4 view;
+    glm::mat4 proj;
 };
 
 // struct Light {
@@ -117,6 +121,9 @@ private:
     Ref<Shader> m_PBRShader;
 
     Ref<FrameBuffer> m_FrameBuffer;
+
+    Ref<CubeMap> m_IBLMap;
+    Ref<Shader> m_IBLShader;
 
     static Renderer* s_RendererRef;
 };

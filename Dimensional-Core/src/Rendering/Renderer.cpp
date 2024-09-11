@@ -1,4 +1,5 @@
 #include "Core/Assets/AssetManager.hpp"
+#include "Rendering/CubeMap.hpp"
 #include "Rendering/VertexBuffer.hpp"
 #include "core.hpp"
 #include "glm/matrix.hpp"
@@ -26,8 +27,12 @@ void Renderer::Init()
     DM_CORE_INFO("Renderer Initialized.")
 
     AssetManager::loadMaterial();
-    AssetManager::loadTexture(Application::getApp().engineAssetDirectory + "/Textures/hdrmap.hdr", false);
-    AssetManager::loadShader(Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMap.glsl");
+    // AssetManager::loadTexture();
+
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMap.glsl"));
+
+    m_IBLMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmap.hdr", 1024, 1024);
+    m_IBLShader = AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMap.glsl"));
 
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
@@ -172,6 +177,13 @@ void Renderer::beginScene(CameraData data)
 void Renderer::endScene()
 {
     Renderer& ref = m_GetRenderer();
+    glDepthFunc(GL_LEQUAL);
+    ref.m_IBLShader->use();
+    ref.m_IBLShader->setInt("environmentMap", 0);
+    ref.m_IBLShader->setMat4("view", ref.m_CameraData.view);
+    ref.m_IBLShader->setMat4("projection", ref.m_CameraData.proj);
+    ref.m_IBLMap->bind(0);
+    Renderer::renderCube(ref.m_IBLShader);
     ref.m_FrameBuffer->Unbind();
     // Flush Data
     ref.m_LightData.erase(ref.m_LightData.begin(), ref.m_LightData.end());

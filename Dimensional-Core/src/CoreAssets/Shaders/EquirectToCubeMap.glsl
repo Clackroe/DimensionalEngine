@@ -4,11 +4,13 @@ layout(location = 0) in vec3 aPosition;
 
 out vec3 localPosition;
 
-uniform mat4 viewProj;
+uniform mat4 uProj;
+uniform mat4 uView;
 
 void main() {
     localPosition = aPosition;
-    gl_Position = viewProj * vec4(aPosition, 1.0);
+    gl_Position = uProj * uView * vec4(aPosition, 1.0);
+    // gl_Position = viewProj *vec4(aPosition, 1.0);
 }
 
 ##FRAGSHADER

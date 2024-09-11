@@ -29,7 +29,7 @@ struct DMCORE_API FrameBufferSettings {
 
     std::vector<FramebufferAttachmentSettings> attachmentsList;
 
-    FrameBufferSettings(u32 w, u32 h, std::initializer_list<FramebufferAttachmentSettings> attachments)
+    FrameBufferSettings(u32 w, u32 h, std::initializer_list<FramebufferAttachmentSettings> attachments, bool cube = false)
         : width(w)
         , height(h)
         , attachmentsList(attachments)
