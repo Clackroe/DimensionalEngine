@@ -1,5 +1,6 @@
 #include "Core/Assets/AssetManager.hpp"
 #include "Rendering/CubeMap.hpp"
+#include "Rendering/IBLMap.hpp"
 #include "Rendering/VertexBuffer.hpp"
 #include "core.hpp"
 #include "glm/matrix.hpp"
@@ -14,6 +15,9 @@
 namespace Dimensional {
 
 Renderer* Renderer::s_RendererRef = nullptr;
+
+static Ref<CubeMap> tCube = nullptr;
+static Ref<IBLMap> tIBL = nullptr;
 
 void Renderer::Init()
 {
@@ -30,9 +34,15 @@ void Renderer::Init()
     // AssetManager::loadTexture();
 
     AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMap.glsl"));
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMapConv.glsl"));
 
-    m_IBLMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmap.hdr", 1024, 1024);
-    m_IBLShader = AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMap.glsl"));
+    m_CubeMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmap.hdr", 2048, 2048);
+    m_IBLMap = CreateRef<IBLMap>(m_CubeMap);
+
+    tCube = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmap2.hdr", 2048, 2048);
+    tIBL = CreateRef<IBLMap>(tCube);
+
+    m_CubeMapShader = AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMap.glsl"));
 
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
@@ -121,7 +131,12 @@ void Renderer::setupLightData()
     Renderer& ref = m_GetRenderer();
 
     ref.m_PBRShader->use();
-
+    ref.m_PBRShader->setInt("uIrradianceMap", 9);
+    if (Input::IsKeyDown(Key::Q)) {
+        tIBL->bind(9);
+    } else {
+        m_IBLMap->bind(9);
+    }
     u32 numPointLights = 0;
     u32 numSpotLights = 0;
     /*
@@ -178,12 +193,12 @@ void Renderer::endScene()
 {
     Renderer& ref = m_GetRenderer();
     glDepthFunc(GL_LEQUAL);
-    ref.m_IBLShader->use();
-    ref.m_IBLShader->setInt("environmentMap", 0);
-    ref.m_IBLShader->setMat4("view", ref.m_CameraData.view);
-    ref.m_IBLShader->setMat4("projection", ref.m_CameraData.proj);
-    ref.m_IBLMap->bind(0);
-    Renderer::renderCube(ref.m_IBLShader);
+    ref.m_CubeMapShader->use();
+    ref.m_CubeMapShader->setInt("environmentMap", 0);
+    ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
+    ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
+    ref.m_CubeMap->bind(0);
+    Renderer::renderCube(ref.m_CubeMapShader);
     ref.m_FrameBuffer->Unbind();
     // Flush Data
     ref.m_LightData.erase(ref.m_LightData.begin(), ref.m_LightData.end());

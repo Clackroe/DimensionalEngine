@@ -1,5 +1,5 @@
 ##VERTEXSHADER
-#version 330 core
+#version 430 core
 layout(location = 0) in vec3 aPosition;
 
 out vec3 localPosition;
@@ -14,7 +14,7 @@ void main() {
 }
 
 ##FRAGSHADER
-#version 330 core
+#version 430 core
 
 out vec4 FragColor;
 in vec3 localPosition;

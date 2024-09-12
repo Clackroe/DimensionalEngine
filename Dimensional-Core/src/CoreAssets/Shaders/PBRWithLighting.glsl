@@ -77,6 +77,8 @@ uniform Light uSpotLights[50];
 uniform int uNumPointLights;
 uniform int uNumSpotLights;
 
+uniform samplerCube uIrradianceMap;
+
 uniform bool uShouldUseNormalMap;
 
 uniform vec3 uCameraPosition;
@@ -205,7 +207,13 @@ void main()
         Lo += radiance * attenuation * intensity;
     }
 
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    // Calculate ambient lighting from scene IBLMaps
+    vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+    vec3 irradiance = texture(uIrradianceMap, N).rgb;
+    vec3 diff = irradiance * albedo;
+    vec3 ambient = (kD * diff) * ao;
 
     vec3 color = ambient + Lo;
 

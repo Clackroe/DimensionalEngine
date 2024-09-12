@@ -24,6 +24,8 @@ private:
     void renderToCubeMap();
 
     static u32 s_CaptureFBO, s_DepthId;
+
+    friend class IBLMap;
 };
 }
 #endif
