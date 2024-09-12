@@ -5,9 +5,11 @@
 #include <glad.h>
 
 namespace Dimensional {
-Shader::Shader(const std::string& path)
+Shader::Shader(const std::string& path, enum ShaderType type)
     : Asset(path, AssetType::ShaderType)
 {
+    m_Type = type;
+
     std::string vertexSourceCode;
     std::string fragmentSourceCode;
 
@@ -55,51 +57,15 @@ Shader::Shader(const std::string& path)
     }
     const char* vShaderProg = vertexSourceCode.c_str();
     const char* fShaderProg = fragmentSourceCode.c_str();
-
-    unsigned int vShader, fShader;
-    int result;
-    char infoLog[512];
-
-    vShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vShader, 1, &vShaderProg, NULL);
-    glCompileShader(vShader);
-
-    glGetShaderiv(vShader, GL_COMPILE_STATUS, &result);
-    if (!result) {
-        glGetShaderInfoLog(vShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
-    };
-
-    fShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fShader, 1, &fShaderProg, NULL);
-    glCompileShader(fShader);
-    glGetShaderiv(fShader, GL_COMPILE_STATUS, &result);
-    if (!result) {
-        glGetShaderInfoLog(fShader, 512, NULL, infoLog);
-        DM_CORE_WARN("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n {0}", infoLog)
-    };
-
-    ID = glCreateProgram();
-    glAttachShader(ID, vShader);
-    glAttachShader(ID, fShader);
-    glLinkProgram(ID);
-
-    glGetProgramiv(ID, GL_LINK_STATUS, &result);
-    if (!result) {
-        glGetProgramInfoLog(ID, 512, NULL, infoLog);
-        DM_CORE_ERROR("ERROR LINKING SHADER: {0}", infoLog);
-    }
-
-    // load();
-
-    glDeleteShader(vShader);
-    glDeleteShader(fShader);
+    u32 vertexID = compile(vShaderProg, VERTEX);
+    u32 fragID = compile(fShaderProg, FRAGMENT);
+    link({ vertexID, fragID });
 }
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragPath)
     : Asset(vertexPath + fragPath, AssetType::ShaderType)
 {
+    m_Type = RENDER;
     std::string vertexSourceCode;
     std::string fragmentSourceCode;
     std::ifstream vShaderFile;
@@ -125,59 +91,14 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragPath)
     }
     const char* vShaderProg = vertexSourceCode.c_str();
     const char* fShaderProg = fragmentSourceCode.c_str();
-
-    unsigned int vShader, fShader;
-    int result;
-    char infoLog[512];
-
-    vShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vShader, 1, &vShaderProg, NULL);
-    glCompileShader(vShader);
-
-    glGetShaderiv(vShader, GL_COMPILE_STATUS, &result);
-    if (!result) {
-        glGetShaderInfoLog(vShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
-    };
-
-    fShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fShader, 1, &fShaderProg, NULL);
-    glCompileShader(fShader);
-    glGetShaderiv(fShader, GL_COMPILE_STATUS, &result);
-    if (!result) {
-        glGetShaderInfoLog(fShader, 512, NULL, infoLog);
-        DM_CORE_WARN("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n {0}", infoLog)
-    };
-
-    ID = glCreateProgram();
-    glAttachShader(ID, vShader);
-    glAttachShader(ID, fShader);
-    glLinkProgram(ID);
-
-    glGetProgramiv(ID, GL_LINK_STATUS, &result);
-    if (!result) {
-        glGetProgramInfoLog(ID, 512, NULL, infoLog);
-        DM_CORE_ERROR("ERROR LINKING SHADER: {0}", infoLog);
-    }
-
-    // load();
-
-    glDeleteShader(vShader);
-    glDeleteShader(fShader);
-}
-
-void Shader::load()
-{
-
-    // glm::mat4 projection = Camera::getProjection();
-    // setMat4("projection", projection);
+    u32 vertexID = compile(vShaderProg, VERTEX);
+    u32 fragID = compile(fShaderProg, FRAGMENT);
+    link({ vertexID, fragID });
 }
 
 void Shader::use()
 {
     glUseProgram(ID);
-    load();
 }
 
 void Shader::setMat4(const std::string& name, glm::mat4 value)
@@ -205,6 +126,70 @@ void Shader::setInt(const std::string& name, int value) const
 void Shader::setFloat(const std::string& name, float value) const
 {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::link(std::vector<u32> programs)
+{
+    int result;
+    char infoLog[512];
+
+    ID = glCreateProgram();
+    for (u32& prog : programs) {
+        glAttachShader(ID, prog);
+    }
+    glLinkProgram(ID);
+
+    glGetProgramiv(ID, GL_LINK_STATUS, &result);
+    if (!result) {
+        glGetProgramInfoLog(ID, 512, NULL, infoLog);
+        DM_CORE_ERROR("ERROR LINKING SHADER: {0}", infoLog);
+    }
+
+    for (u32& prog : programs) {
+        glDeleteShader(prog);
+    }
+}
+
+void Shader::dispatchCompute(u32 width, u32 height, u32 depth)
+{
+    if (m_Type != COMPUTE) {
+        DM_CORE_WARN("Attempted to dispatch a compute shader on a non-compute shader");
+        return;
+    }
+    use();
+    glDispatchCompute(width, height, depth);
+}
+
+u32 Shader::compile(const char* shaderProg, enum ShaderType type)
+{
+    u32 shader;
+    int result;
+    char infoLog[512];
+
+    switch (type) {
+    case (COMPUTE):
+        shader = glCreateShader(GL_COMPUTE_SHADER);
+        break;
+    case (VERTEX):
+        shader = glCreateShader(GL_VERTEX_SHADER);
+        break;
+    case (FRAGMENT):
+        shader = glCreateShader(GL_FRAGMENT_SHADER);
+        break;
+    default:
+        DM_CORE_ERROR("Unkown ShaderType attempted to compule.");
+        break;
+    }
+
+    glShaderSource(shader, 1, &shaderProg, NULL);
+    glCompileShader(shader);
+
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+    if (!result) {
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        DM_CORE_WARN("VERTEX SHADER COMPILATION_FAILED {0}\n", infoLog);
+    };
+    return shader;
 }
 
 }
