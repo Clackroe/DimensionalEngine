@@ -1,7 +1,7 @@
 # Dimensional Engine | 3D Game Engine
 This game engine is being developed by myself. I am using it as a way to further my knowledge of low level programming, memory management, inter-working systems, general Engine development, and game Rendering.
 
-## What is unique?
+## What's unique?
 Currently, nothing is too unique about anything I am doing in this repository. However, I would like for it to eventually support a unique system of utilizing 2D sprites in a 3D world. I want to develop a system that can:
 - Generate a mesh from a 2D sprite
 - Automatically generate a pbr material for the sprite to support being lit "realistically"
