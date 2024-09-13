@@ -15,11 +15,6 @@ public:
         AssetManager::loadTexture((engineAssetDirectory + "/Models/Textures/Bell_Roughness.png"), false);
         AssetManager::loadTexture((engineAssetDirectory + "/Textures/AO.png"), false);
 
-        AssetManager::loadTexture((engineAssetDirectory + "/Textures/TestPBR/base.png"), false);
-        AssetManager::loadTexture((engineAssetDirectory + "/Textures/TestPBR/normal.png"), false);
-        AssetManager::loadTexture((engineAssetDirectory + "/Textures/TestPBR/metal.png"), false);
-        AssetManager::loadTexture((engineAssetDirectory + "/Textures/TestPBR/rough.png"), false);
-
         AssetManager::loadTexture((engineAssetDirectory + "/Models/Sword/swordAlbedo.jpg"), false);
         AssetManager::loadTexture((engineAssetDirectory + "/Models/Sword/swordNormal.jpg"), false);
         AssetManager::loadTexture((engineAssetDirectory + "/Models/Sword/swordRough.jpg"), false);

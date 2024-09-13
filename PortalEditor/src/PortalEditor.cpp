@@ -3,6 +3,7 @@
 #include "Scene/Components.hpp"
 #include "imgui.h"
 #include <PortalEditor.hpp>
+#include <fstream>
 namespace Dimensional {
 
 void PortalLayer::OnAttatch()
@@ -10,6 +11,10 @@ void PortalLayer::OnAttatch()
     DM_INFO("Portal Initialized");
 
     m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+    m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
+    m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
+
+    // m_EditorCamera.setPos(glm::vec3 { 0.0f, 8.5f, 13.0f }, 1.0);
 
     // TEST SCENE SETUP TODO: Implement Automatic material generation
     // TODO: Implement Scene Serializeaion and Deserialization
@@ -18,34 +23,23 @@ void PortalLayer::OnAttatch()
     ms.Normal = AssetManager::getTexture("Bell_Normal");
     ms.Metalness = AssetManager::getTexture("Bell_Metallic");
     ms.Roughness = AssetManager::getTexture("Bell_Roughness");
-
-    AssetManager::loadMaterial(ms);
-    Ref<Material> mat = AssetManager::getMaterial("Material");
-
-    MaterialSettings anotherMaterial;
-    anotherMaterial.Albedo = AssetManager::getTexture("base");
-    anotherMaterial.Normal = AssetManager::getTexture("normal");
-    anotherMaterial.Metalness = AssetManager::getTexture("metal");
-    anotherMaterial.Roughness = AssetManager::getTexture("rough");
-
-    Ref<Material> silverMat = AssetManager::loadMaterial(anotherMaterial);
-
-    MaterialSettings swordMat;
-    swordMat.Albedo = AssetManager::getTexture("swordAlbedo");
-    swordMat.Normal = AssetManager::getTexture("swordNormal");
-    // swordMat.Metalness = AssetManager::getTexture("metal");
-    swordMat.Roughness = AssetManager::getTexture("swordRough");
-
-    Ref<Material> swordMatReal = AssetManager::loadMaterial(swordMat);
-
+    Ref<Material> bellMaterial = AssetManager::loadMaterial(ms);
     AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/bell.fbx");
-    Ref<Model> mod = AssetManager::getModel("bell");
+    Ref<Model> bellModel = AssetManager::getModel("bell");
 
-    AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Sword/sword.fbx");
-    Ref<Model> sword = AssetManager::getModel("sword");
+    MaterialSettings swordMatSettings;
+    swordMatSettings.Albedo = AssetManager::getTexture("swordAlbedo");
+    swordMatSettings.Normal = AssetManager::getTexture("swordNormal");
+    swordMatSettings.Roughness = AssetManager::getTexture("swordRough");
+    Ref<Material> swordMat = AssetManager::loadMaterial(swordMatSettings);
+    Ref<Model> sword = AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Sword/sword.fbx");
 
+    // Primatives
+    // TODO: Move to renderer and integrate into core engine
     AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Cube.obj");
     Ref<Model> cube = AssetManager::getModel("Cube");
+
+    Ref<Model> materialBall = AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/materialBall.obj");
 
     AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Sphere.obj");
     Ref<Model> sphere = AssetManager::getModel("Sphere");
@@ -53,25 +47,76 @@ void PortalLayer::OnAttatch()
     m_ActiveScene = CreateRef<Scene>();
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
+    float inc = 2.5f;
+    std::vector<std::string> mats = { "SilverMat", "CobbleMat", "RustPanel", "GoldScuff", "MetalBeat" };
+    glm::vec2 pos = glm::vec2(mats.size() * -inc / 2, 0.0f);
+    for (int i = 0; i < mats.size(); i++) {
+        MaterialSettings curMatSettings;
+        curMatSettings.Albedo = AssetManager::loadTexture((Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/base.png"), false);
+        curMatSettings.Normal = AssetManager::loadTexture((Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/normal.png"), false);
+        curMatSettings.Metalness = AssetManager::loadTexture((Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/metal.png"), false);
+        curMatSettings.Roughness = AssetManager::loadTexture((Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/rough.png"), false);
+        auto aoPath = Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/ao.png";
+        if (std::ifstream(aoPath.c_str()).good()) {
+            curMatSettings.AO = AssetManager::loadTexture((aoPath), false);
+        }
+        Ref<Material> curMat = AssetManager::loadMaterial(curMatSettings);
+
+        {
+            auto cu = m_ActiveScene->createEntity("MaterialBall" + mats[i]);
+            cu.addComponent<MeshRenderer>(materialBall, curMat);
+            auto& t = cu.getComponent<TransformComponent>();
+            t.Position = { pos.x, 2.0f, pos.y };
+            t.Scale = { 0.1f, 0.1f, 0.1f };
+        }
+
+        {
+
+            auto cu = m_ActiveScene->createEntity("Sphere" + mats[i]);
+            cu.addComponent<MeshRenderer>(sphere, curMat);
+            auto& t = cu.getComponent<TransformComponent>();
+            t.Position = { pos.x, 4.0f, pos.y };
+            t.Scale = { 1.0f, 1.0f, 1.0f };
+        }
+        {
+
+            auto cu = m_ActiveScene->createEntity("Cube" + mats[i]);
+            cu.addComponent<MeshRenderer>(cube, curMat);
+            auto& t = cu.getComponent<TransformComponent>();
+            t.Position = { pos.x, 0.0f, pos.y };
+            t.Scale = { 1.0f, 1.0f, 1.0f };
+        }
+        if (i % 2 == 0) {
+            auto ent3 = m_ActiveScene->createEntity("SpotLight" + mats[i]);
+            ent3.addComponent<SpotLightComponent>();
+            auto& t1 = ent3.getComponent<TransformComponent>();
+            auto& l = ent3.getComponent<SpotLightComponent>();
+            l.color = (glm::vec3 { 0.5f, 0.5f, 0.5f });
+
+            l.intensity = 0.1;
+            l.cutOff = 15.5;
+            l.outerCutOff = 75.0;
+            l.constant = 8;
+            l.linear = 0.09;
+            l.quadratic = 0.7;
+            t1.Scale = glm::vec3(0.1);
+            t1.Rotation = glm::radians(glm::vec3 { 45.0, 0.0, 0.0 });
+            t1.Position = { pos.x, 6.0f, 4.0f };
+        }
+
+        pos.x += inc;
+    }
     {
 
         auto cu = m_ActiveScene->createEntity("Sword");
-        cu.addComponent<MeshRenderer>(sword, swordMatReal);
+        cu.addComponent<MeshRenderer>(sword, swordMat);
         auto& t = cu.getComponent<TransformComponent>();
-        t.Position = { 0.0f, 0.0f, 0.0f };
+        t.Position = { 0.0f, 0.0f, 6.0f };
         t.Scale = { 0.1f, 0.1f, 0.1f };
     }
-    {
-
-        auto cu = m_ActiveScene->createEntity("Cube1");
-        cu.addComponent<MeshRenderer>(sphere, silverMat);
-        auto& t = cu.getComponent<TransformComponent>();
-        t.Position = { -3.0f, 0.0f, 3.0f };
-        t.Scale = { 1.0f, 1.0f, 1.0f };
-    }
 
     {
-        auto cu = m_ActiveScene->createEntity("Cube2");
+        auto cu = m_ActiveScene->createEntity("Ground");
         cu.addComponent<MeshRenderer>(cube);
         auto& t = cu.getComponent<TransformComponent>();
         t.Position = { 0.0f, -3.5f, 0.0f };
@@ -79,33 +124,19 @@ void PortalLayer::OnAttatch()
     }
 
     {
-        auto ent2 = m_ActiveScene->createEntity("Bell1");
-        ent2.addComponent<MeshRenderer>(mod, mat);
+        auto ent2 = m_ActiveScene->createEntity("BellSmall");
+        ent2.addComponent<MeshRenderer>(bellModel, bellMaterial);
         auto& t = ent2.getComponent<TransformComponent>();
         t.Scale = { 0.5f, 0.5, 0.5 };
         t.Position = { 0.0f, -2.5f, 3.5f };
         t.Rotation = glm::radians(glm::vec3 { -90, 90, 30 });
     }
     {
-        auto ent1 = m_ActiveScene->createEntity("Bell2");
-        ent1.addComponent<MeshRenderer>(mod, mat);
+        auto ent1 = m_ActiveScene->createEntity("Bell");
+        ent1.addComponent<MeshRenderer>(bellModel, bellMaterial);
         auto& t = ent1.getComponent<TransformComponent>();
         t.Position = { 0.0f, -2.5f, 1.0f };
         t.Rotation = glm::radians(glm::vec3 { -90, 90, -30 });
-    }
-    {
-        auto ent3 = m_ActiveScene->createEntity("SpotLight");
-        ent3.addComponent<SpotLightComponent>();
-        auto& t1 = ent3.getComponent<TransformComponent>();
-        auto& l = ent3.getComponent<SpotLightComponent>();
-        l.intensity = 0.5;
-        l.cutOff = 15.5;
-        l.outerCutOff = 65.0;
-        l.constant = 6;
-        l.linear = 0.09;
-        l.quadratic = 0.7;
-        t1.Scale = glm::vec3(0.1);
-        t1.Position = { 0.0f, -1.5f, 4.0f };
     }
 
     {
@@ -113,12 +144,12 @@ void PortalLayer::OnAttatch()
         ent3.addComponent<PointLightComponent>();
         auto& t1 = ent3.getComponent<TransformComponent>();
         auto& l = ent3.getComponent<PointLightComponent>();
-        l.intensity = 0.4;
-        l.constant = 6;
+        l.intensity = 0.1;
+        l.constant = 8;
         l.linear = 0.09;
-        l.quadratic = 0.732;
+        l.quadratic = 0.332;
         t1.Scale = glm::vec3(0.1);
-        t1.Position = { 0.0f, -1.5f, 0.0f };
+        t1.Position = { 0.0f, -1.5f, 13.0f };
     }
 
     //
@@ -128,7 +159,7 @@ void PortalLayer::OnDetatch() { }
 void PortalLayer::OnUpdate()
 {
     m_EditorCamera.Update();
-    glm::vec3 p = m_EditorCamera.calcPos();
+    glm::vec3 p = m_EditorCamera.getPosition();
 
     m_ActiveScene->beginScene();
 

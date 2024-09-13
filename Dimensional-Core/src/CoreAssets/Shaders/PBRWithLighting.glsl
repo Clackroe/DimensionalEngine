@@ -227,7 +227,7 @@ void main()
     const float MAX_REF_LOD = 4.0;
     vec3 prefilterColor = textureLod(uIBLMap, R, roughness * MAX_REF_LOD).rgb;
     vec2 envBRDF = texture(uBRDFLut, vec2(clamp(dot(N, V), 0.0, 1.0), roughness)).rg;
-    vec3 specular = prefilterColor * (F); // * max(envBRDF.r, 0.01) + max(envBRDF.g, 0.01));
+    vec3 specular = prefilterColor * (F); // max(envBRDF.r, 0.01) + max(envBRDF.g, 0.01));
 
     vec3 ambient = (kD * diff + specular) * ao;
 

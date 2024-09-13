@@ -39,7 +39,7 @@ void Renderer::Init()
     AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/IBLMapPreComp.glsl"), COMPUTE);
     AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/BRDFComp.glsl"), COMPUTE);
 
-    m_CubeMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmapNight.hdr", 512, 512);
+    m_CubeMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmapNight.hdr", 2048, 2048);
     m_IrMap = CreateRef<IrMap>(m_CubeMap);
 
     m_IBLMap = CreateRef<IBLMap>(m_CubeMap);

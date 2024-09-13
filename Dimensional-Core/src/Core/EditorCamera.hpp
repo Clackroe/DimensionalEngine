@@ -11,36 +11,57 @@ public:
 
     void Update();
 
-    inline float getDistance() const { return m_Distance; };
-    inline void setDistance(float dist) { m_Distance = dist; };
-
-    inline void setViewportDimensions(float width, float height)
+    inline float getFOV() const { return m_FOV; }
+    inline void setFOV(float fov)
     {
-        m_ViewportH = height;
-        m_ViewportW = width;
+        m_FOV = fov;
         updateProjValues();
     }
 
-    const glm::mat4 getViewMtx() { return m_ViewMtx; };
+    void setViewportDimensions(float width, float height)
+    {
+        m_ViewportW = width;
+        m_ViewportH = height;
+        m_AspectRatio = width / height;
+        updateProjValues();
+    }
+
+    const glm::mat4& getViewMtx() { return m_ViewMtx; }
     glm::mat4 getViewProj() { return getProjection() * m_ViewMtx; }
 
-    glm::vec3 getUpDir() const;
-    glm::vec3 getRightDir() const;
-    glm::vec3 getFwdDir() const;
-    glm::quat getOrientation() const;
-    glm::vec3 calcPos() const;
+    glm::vec3 getUpDir() const { return m_Orientation * glm::vec3(0.0f, 1.0f, 0.0f); }
+    glm::vec3 getRightDir() const { return m_Orientation * glm::vec3(1.0f, 0.0f, 0.0f); }
+    glm::vec3 getFwdDir() const { return m_Orientation * glm::vec3(0.0f, 0.0f, -1.0f); }
+
+    void setPosition(const glm::vec3& position)
+    {
+        m_Position = position;
+        updateViewValues();
+    }
+    void setRotation(const glm::quat& rotation)
+    {
+        m_Orientation = rotation;
+        updateViewValues();
+    }
+    void setRotationEuler(const glm::vec3& eulerAngles);
+
+    const glm::vec3& getPosition() const { return m_Position; }
+    const glm::quat& getRotation() const { return m_Orientation; }
 
 private:
     void updateProjValues();
     void updateViewValues();
 
+    void handleMovement(float deltaTime);
+    void handleRotation(float deltaTime);
+
     float m_FOV = 45.0f, m_AspectRatio = 16.0f / 9.0f, m_NearClipPlane = 0.1f, m_FarClipPlane = 1000.0f;
 
     glm::mat4 m_ViewMtx;
-    glm::vec3 m_Pos = { 0.0f, 0.0f, -1.0f };
-    glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
-    float m_Distance = 1.0f;
-    float m_Pitch = 0.0f, m_Yaw = 0.0f;
+    glm::vec3 m_Position = glm::vec3(0.0f, 0.0f, 5.0f);
+    glm::quat m_Orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    float m_Pitch = 0.0f, m_Yaw = 0.0f, m_Roll = 0.0f;
 
     float m_LastMouseX, m_LastMouseY;
 
