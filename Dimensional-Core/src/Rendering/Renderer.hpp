@@ -3,6 +3,7 @@
 
 #include "Input/Input.hpp"
 #include "Rendering/CubeMap.hpp"
+#include "Rendering/IBLMap.hpp"
 #include "Rendering/IrMap.hpp"
 
 #include "Rendering/ElementBuffer.hpp"
@@ -83,6 +84,7 @@ public:
     static void renderCube(Ref<Shader>& shader);
 
     static void renderCube(Ref<Material>& mat, glm::mat4 transform);
+    static void renderSphere(Ref<Material>& mat, glm::mat4 transform);
     static void renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform);
     static void renderModel(Model& model, Ref<Material>& mat, glm::mat4 transform);
     //
@@ -95,6 +97,7 @@ public:
 
     // TODO: Create a better way to deal with framebuffers
     static Ref<FrameBuffer> getFrameBuffer() { return m_GetRenderer().m_FrameBuffer; };
+    static Ref<IBLMap> getIBL() { return m_GetRenderer().m_IBLMap; }
     //
 
     // -----
@@ -124,7 +127,10 @@ private:
 
     Ref<FrameBuffer> m_FrameBuffer;
 
-    Ref<IrMap> m_IBLMap;
+    Ref<IrMap> m_IrMap;
+
+    Ref<IBLMap> m_IBLMap;
+
     Ref<CubeMap> m_CubeMap;
     Ref<Shader> m_CubeMapShader;
 

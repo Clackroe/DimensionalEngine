@@ -1,5 +1,5 @@
-#ifndef DM_IBL_MAP
-#define DM_IBL_MAP
+#ifndef DM_IR_MAP
+#define DM_IR_MAP
 
 #include <Rendering/CubeMap.hpp>
 #include <Rendering/FrameBuffer.hpp>

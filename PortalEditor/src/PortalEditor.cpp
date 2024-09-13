@@ -11,7 +11,8 @@ void PortalLayer::OnAttatch()
 
     m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 
-    // TEST SCENE SETUP
+    // TEST SCENE SETUP TODO: Implement Automatic material generation
+    // TODO: Implement Scene Serializeaion and Deserialization
     MaterialSettings ms;
     ms.Albedo = AssetManager::getTexture("Bell_BaseColor");
     ms.Normal = AssetManager::getTexture("Bell_Normal");
@@ -21,21 +22,52 @@ void PortalLayer::OnAttatch()
     AssetManager::loadMaterial(ms);
     Ref<Material> mat = AssetManager::getMaterial("Material");
 
+    MaterialSettings anotherMaterial;
+    anotherMaterial.Albedo = AssetManager::getTexture("base");
+    anotherMaterial.Normal = AssetManager::getTexture("normal");
+    anotherMaterial.Metalness = AssetManager::getTexture("metal");
+    anotherMaterial.Roughness = AssetManager::getTexture("rough");
+
+    Ref<Material> silverMat = AssetManager::loadMaterial(anotherMaterial);
+
+    MaterialSettings swordMat;
+    swordMat.Albedo = AssetManager::getTexture("swordAlbedo");
+    swordMat.Normal = AssetManager::getTexture("swordNormal");
+    // swordMat.Metalness = AssetManager::getTexture("metal");
+    swordMat.Roughness = AssetManager::getTexture("swordRough");
+
+    Ref<Material> swordMatReal = AssetManager::loadMaterial(swordMat);
+
     AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/bell.fbx");
     Ref<Model> mod = AssetManager::getModel("bell");
 
+    AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Sword/sword.fbx");
+    Ref<Model> sword = AssetManager::getModel("sword");
+
     AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Cube.obj");
     Ref<Model> cube = AssetManager::getModel("Cube");
+
+    AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Sphere.obj");
+    Ref<Model> sphere = AssetManager::getModel("Sphere");
 
     m_ActiveScene = CreateRef<Scene>();
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
     {
-        auto cu = m_ActiveScene->createEntity("Cube1");
-        cu.addComponent<MeshRenderer>(cube);
+
+        auto cu = m_ActiveScene->createEntity("Sword");
+        cu.addComponent<MeshRenderer>(sword, swordMatReal);
         auto& t = cu.getComponent<TransformComponent>();
-        t.Position = { 0.0f, 3.5f, 0.0f };
-        t.Scale = { 20.0f, 0.1f, 20.0f };
+        t.Position = { 0.0f, 0.0f, 0.0f };
+        t.Scale = { 0.1f, 0.1f, 0.1f };
+    }
+    {
+
+        auto cu = m_ActiveScene->createEntity("Cube1");
+        cu.addComponent<MeshRenderer>(sphere, silverMat);
+        auto& t = cu.getComponent<TransformComponent>();
+        t.Position = { -3.0f, 0.0f, 3.0f };
+        t.Scale = { 1.0f, 1.0f, 1.0f };
     }
 
     {
@@ -170,6 +202,11 @@ void PortalLayer::OnImGuiRender()
     }
 
     m_HierarchyPanel.renderImGui();
+
+    // ImGui::Begin("BRDF");
+    // ImGui::Image(reinterpret_cast<ImTextureID>(Renderer::getIBL()->getBRDFID()), ImVec2 { 512, 512 }, { 0, 1 }, { 1, 0 });
+    //
+    // ImGui::End();
 
     // Viewport
     ImGui::Begin("Viewport");

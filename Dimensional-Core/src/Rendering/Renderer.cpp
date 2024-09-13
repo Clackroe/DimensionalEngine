@@ -16,9 +16,6 @@ namespace Dimensional {
 
 Renderer* Renderer::s_RendererRef = nullptr;
 
-static Ref<CubeMap> tCube = nullptr;
-static Ref<IrMap> tIBL = nullptr;
-
 void Renderer::Init()
 {
     if (s_RendererRef) {
@@ -36,13 +33,16 @@ void Renderer::Init()
     AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMap.glsl"));
     AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMapComp.glsl"), COMPUTE);
     AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMapConv.glsl"));
+
     AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMapConvComp.glsl"), COMPUTE);
 
-    m_CubeMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmap.hdr", 2048, 2048);
-    m_IBLMap = CreateRef<IrMap>(m_CubeMap);
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/IBLMapPreComp.glsl"), COMPUTE);
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/BRDFComp.glsl"), COMPUTE);
 
-    tCube = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmap2.hdr", 2048, 2048);
-    tIBL = CreateRef<IrMap>(tCube);
+    m_CubeMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmapNight.hdr", 512, 512);
+    m_IrMap = CreateRef<IrMap>(m_CubeMap);
+
+    m_IBLMap = CreateRef<IBLMap>(m_CubeMap);
 
     m_CubeMapShader = AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMap.glsl"));
 
@@ -80,6 +80,14 @@ void Renderer::renderCube(Ref<Material>& mat, glm::mat4 transform)
     ref.m_PBRShader->setMat4("model", transform);
     Renderer::renderCube(ref.m_PBRShader);
 }
+void Renderer::renderSphere(Ref<Material>& mat, glm::mat4 transform)
+{
+    Renderer& ref = m_GetRenderer();
+    mat->bind(ref.m_PBRShader);
+    ref.m_PBRShader->setMat4("model", transform);
+    Renderer::renderSphere(ref.m_PBRShader);
+}
+
 void Renderer::renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform)
 {
 
@@ -115,6 +123,7 @@ void Renderer::renderVAO(VertexArray vao, u32 triangleCount, Ref<Shader>& shader
 void Renderer::renderVAO(const VertexArray& vao, const ElementBuffer& eb, const Ref<Shader>& shader)
 {
     shader->use();
+    // Input texture as a cubemap sampler
     vao.Bind();
     eb.Bind();
 
@@ -133,12 +142,14 @@ void Renderer::setupLightData()
     Renderer& ref = m_GetRenderer();
 
     ref.m_PBRShader->use();
+    ref.m_PBRShader->setInt("uBRDFLut", 7);
+    ref.m_PBRShader->setInt("uIBLMap", 8);
     ref.m_PBRShader->setInt("uIrradianceMap", 9);
-    if (Input::IsKeyDown(Key::Q)) {
-        tIBL->bind(9);
-    } else {
-        m_IBLMap->bind(9);
-    }
+
+    m_IBLMap->bind(8, 7);
+
+    m_IrMap->bind(9);
+
     u32 numPointLights = 0;
     u32 numSpotLights = 0;
     /*
@@ -200,8 +211,8 @@ void Renderer::endScene()
     ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
     ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
 
-    ref.m_CubeMap->bind(0);
-    // ref.m_IBLMap->bind(0);
+    // ref.m_CubeMap->bind(0);
+    ref.m_IBLMap->bind(0, 1);
 
     Renderer::renderCube(ref.m_CubeMapShader);
     ref.m_FrameBuffer->Unbind();

@@ -25,6 +25,7 @@ private:
     void renderToCubeMap();
 
     friend class IrMap;
+    friend class IBLMap;
 };
 }
 #endif
