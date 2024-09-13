@@ -2,6 +2,10 @@
 #define DM_RENDERER_HPP
 
 #include "Input/Input.hpp"
+#include "Rendering/CubeMap.hpp"
+#include "Rendering/IBLMap.hpp"
+#include "Rendering/IrMap.hpp"
+
 #include "Rendering/ElementBuffer.hpp"
 #include <Core/Camera.hpp>
 #include <Rendering/FrameBuffer.hpp>
@@ -21,6 +25,9 @@ class Model;
 struct CameraData {
     glm::mat4 viewProj;
     glm::vec3 uCameraPosition;
+
+    glm::mat4 view;
+    glm::mat4 proj;
 };
 
 // struct Light {
@@ -60,6 +67,7 @@ struct LightData {
 static FrameBufferSettings fbs = {
     1280,
     720,
+    { RGBA16F, Depth }
 };
 
 class DMCORE_API Renderer {
@@ -76,6 +84,7 @@ public:
     static void renderCube(Ref<Shader>& shader);
 
     static void renderCube(Ref<Material>& mat, glm::mat4 transform);
+    static void renderSphere(Ref<Material>& mat, glm::mat4 transform);
     static void renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform);
     static void renderModel(Model& model, Ref<Material>& mat, glm::mat4 transform);
     //
@@ -88,6 +97,7 @@ public:
 
     // TODO: Create a better way to deal with framebuffers
     static Ref<FrameBuffer> getFrameBuffer() { return m_GetRenderer().m_FrameBuffer; };
+    static Ref<IBLMap> getIBL() { return m_GetRenderer().m_IBLMap; }
     //
 
     // -----
@@ -116,6 +126,13 @@ private:
     Ref<Shader> m_PBRShader;
 
     Ref<FrameBuffer> m_FrameBuffer;
+
+    Ref<IrMap> m_IrMap;
+
+    Ref<IBLMap> m_IBLMap;
+
+    Ref<CubeMap> m_CubeMap;
+    Ref<Shader> m_CubeMapShader;
 
     static Renderer* s_RendererRef;
 };

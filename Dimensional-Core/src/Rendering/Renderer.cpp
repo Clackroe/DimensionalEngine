@@ -1,4 +1,6 @@
 #include "Core/Assets/AssetManager.hpp"
+#include "Rendering/CubeMap.hpp"
+#include "Rendering/IrMap.hpp"
 #include "Rendering/VertexBuffer.hpp"
 #include "core.hpp"
 #include "glm/matrix.hpp"
@@ -21,11 +23,31 @@ void Renderer::Init()
         return;
     }
 
-    generatePrimitives();
-    AssetManager::loadMaterial();
     s_RendererRef = this;
+    generatePrimitives();
     DM_CORE_INFO("Renderer Initialized.")
+
+    AssetManager::loadMaterial();
+    // AssetManager::loadTexture();
+
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMap.glsl"));
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMapComp.glsl"), COMPUTE);
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMapConv.glsl"));
+
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMapConvComp.glsl"), COMPUTE);
+
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/IBLMapPreComp.glsl"), COMPUTE);
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/BRDFComp.glsl"), COMPUTE);
+
+    m_CubeMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmapNight.hdr", 2048, 2048);
+    m_IrMap = CreateRef<IrMap>(m_CubeMap);
+
+    m_IBLMap = CreateRef<IBLMap>(m_CubeMap);
+
+    m_CubeMapShader = AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMap.glsl"));
+
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
+
     // TODO: IDEK but I hate this
     m_PBRShader = AssetManager::loadShader(Application::getApp().engineAssetDirectory + "/Shaders/PBRWithLighting.glsl");
 };
@@ -58,6 +80,14 @@ void Renderer::renderCube(Ref<Material>& mat, glm::mat4 transform)
     ref.m_PBRShader->setMat4("model", transform);
     Renderer::renderCube(ref.m_PBRShader);
 }
+void Renderer::renderSphere(Ref<Material>& mat, glm::mat4 transform)
+{
+    Renderer& ref = m_GetRenderer();
+    mat->bind(ref.m_PBRShader);
+    ref.m_PBRShader->setMat4("model", transform);
+    Renderer::renderSphere(ref.m_PBRShader);
+}
+
 void Renderer::renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform)
 {
 
@@ -93,6 +123,7 @@ void Renderer::renderVAO(VertexArray vao, u32 triangleCount, Ref<Shader>& shader
 void Renderer::renderVAO(const VertexArray& vao, const ElementBuffer& eb, const Ref<Shader>& shader)
 {
     shader->use();
+    // Input texture as a cubemap sampler
     vao.Bind();
     eb.Bind();
 
@@ -111,6 +142,13 @@ void Renderer::setupLightData()
     Renderer& ref = m_GetRenderer();
 
     ref.m_PBRShader->use();
+    ref.m_PBRShader->setInt("uBRDFLut", 7);
+    ref.m_PBRShader->setInt("uIBLMap", 8);
+    ref.m_PBRShader->setInt("uIrradianceMap", 9);
+
+    m_IBLMap->bind(8, 7);
+
+    m_IrMap->bind(9);
 
     u32 numPointLights = 0;
     u32 numSpotLights = 0;
@@ -167,6 +205,16 @@ void Renderer::beginScene(CameraData data)
 void Renderer::endScene()
 {
     Renderer& ref = m_GetRenderer();
+    glDepthFunc(GL_LEQUAL);
+    ref.m_CubeMapShader->use();
+    ref.m_CubeMapShader->setInt("environmentMap", 0);
+    ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
+    ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
+
+    // ref.m_CubeMap->bind(0);
+    ref.m_IBLMap->bind(0, 1);
+
+    Renderer::renderCube(ref.m_CubeMapShader);
     ref.m_FrameBuffer->Unbind();
     // Flush Data
     ref.m_LightData.erase(ref.m_LightData.begin(), ref.m_LightData.end());

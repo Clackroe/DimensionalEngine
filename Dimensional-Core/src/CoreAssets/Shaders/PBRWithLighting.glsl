@@ -26,9 +26,10 @@ void main()
     vOutput.WorldPos = vec3(model * vec4(aPos, 1.0));
     vOutput.Normal = normalize(normalMatrix * aNormal);
 
-    vec3 T = normalize(vec3(model * vec4(aTangent,   0.0)));
+    vec3 T = normalize(vec3(model * vec4(aTangent, 0.0)));
     vec3 B = normalize(vec3(model * vec4(aBiTangent, 0.0)));
-    vec3 N = normalize(vec3(model * vec4(aNormal,    0.0)));
+    vec3 N = normalize(vec3(model * vec4(aNormal, 0.0)));
+    T = normalize(cross(N, B));
     vOutput.TBN = mat3(T, B, N);
 
     gl_Position = viewProj * vec4(vOutput.WorldPos, 1.0);
@@ -36,7 +37,9 @@ void main()
 
 ##FRAGSHADER
 #version 430 core
-out vec4 FragColor;
+
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 attachment1;
 
 struct Vertex {
     vec2 TexCoords;
@@ -75,6 +78,10 @@ uniform Light uSpotLights[50];
 uniform int uNumPointLights;
 uniform int uNumSpotLights;
 
+uniform samplerCube uIrradianceMap;
+uniform sampler2D uBRDFLut;
+uniform samplerCube uIBLMap;
+
 uniform bool uShouldUseNormalMap;
 
 uniform vec3 uCameraPosition;
@@ -84,7 +91,7 @@ const float PI = 3.14159265359;
 vec3 getNormalFromMap()
 {
     if (!uShouldUseNormalMap) {
-        return vInput.Normal;
+        return normalize(vInput.Normal);
     }
     vec3 tangentNormal = texture(normalMap, vInput.TexCoords).xyz * 2.0 - 1.0;
 
@@ -130,6 +137,11 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 // ----------------------------------------------------------------------------
+vec3 fresnelSchlickWithRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+// ----------------------------------------------------------------------------
 void main()
 {
     vec3 albedo = pow(texture(albedoMap, vInput.TexCoords).rgb, vec3(2.2));
@@ -139,14 +151,14 @@ void main()
 
     vec3 N = getNormalFromMap();
     vec3 V = normalize(uCameraPosition - vInput.WorldPos);
+    vec3 R = normalize(reflect(-V, N));
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
-    vec3 Lo = vec3(0.0);
+    const float epsilon = 0.000001;
     // Point lights contribution
-    const float epsilon = 0.001;
-
+    vec3 Lo = vec3(0.0);
     for (int i = 0; i < uNumPointLights; ++i)
     {
         vec3 lightDirection = uPointLights[i].position - vInput.WorldPos;
@@ -155,8 +167,8 @@ void main()
         vec3 H = normalize(V + L);
 
         float attenuation = 1.0 / (uPointLights[i].constant +
-                                   uPointLights[i].linear * distance +
-                                   uPointLights[i].quadratic * (distance * distance));
+                    uPointLights[i].linear * distance +
+                    uPointLights[i].quadratic * (distance * distance));
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
@@ -167,7 +179,7 @@ void main()
         vec3 specular = numerator / denominator;
 
         vec3 kS = F;
-        vec3 kD = (1.0 - kS) * (1.0 - metallic); 
+        vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
 
         float NdotL = max(dot(N, L), 0.0);
 
@@ -191,28 +203,45 @@ void main()
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
         vec3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + epsilon;
         vec3 specular = numerator / denominator;
 
         vec3 kS = F;
-        vec3 kD = (1.0 - kS) * (1.0 - metallic); 
+        vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
 
         float NdotL = max(dot(N, L), 0.0);
         vec3 diffuse = kD * albedo / PI;
-        vec3 radiance = (diffuse + specular) * (uSpotLights[i].color * uSpotLights[i].intensity)* NdotL;
+        vec3 radiance = (diffuse + specular) * (uSpotLights[i].color * uSpotLights[i].intensity) * NdotL;
         Lo += radiance * attenuation * intensity;
     }
 
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    // Calculate ambient lighting from scene IBLMaps
+    vec3 F = fresnelSchlickWithRoughness(max(dot(N, V), 0.0), F0, roughness);
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+
+    vec3 irradiance = texture(uIrradianceMap, N).rgb;
+    vec3 diff = irradiance * albedo;
+
+    const float MAX_REF_LOD = 4.0;
+    vec3 prefilterColor = textureLod(uIBLMap, R, roughness * MAX_REF_LOD).rgb;
+    vec2 envBRDF = texture(uBRDFLut, vec2(clamp(dot(N, V), 0.0, 1.0), roughness)).rg;
+    vec3 specular = prefilterColor * (F); // max(envBRDF.r, 0.01) + max(envBRDF.g, 0.01));
+
+    vec3 ambient = (kD * diff + specular) * ao;
 
     vec3 color = ambient + Lo;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
-    // gamma correct
+    // // gamma correct
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);
+    // FragColor = vec4(envBRDF, 0.0, 1.0);
+    // FragColor = vec4(N * 0.5 + 0.5, 1.0);
+    // attachment1 = vec4(N, 1.0);
     // FragColor = vec4(N, 1.0);
     // FragColor = vec4(vInput.Tangent, 1.0);
     // FragColor = vec4(uPointLights[0].position, 1.0);

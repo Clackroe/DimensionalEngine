@@ -29,6 +29,7 @@
 
 // ---- RENDERING
 #include <Core/EditorCamera.hpp>
+#include <Rendering/CubeMap.hpp>
 #include <Rendering/FrameBuffer.hpp>
 #include <Rendering/Model.hpp>
 #include <Rendering/Renderer.hpp>

@@ -26,91 +26,78 @@ EditorCamera::EditorCamera(float FOV, float AR, float nearClipPlane, float farCl
 
 void EditorCamera::Update()
 {
+    float deltaTime = Time::deltaTime();
+
+    handleMovement(deltaTime);
+    handleRotation(deltaTime);
+
     updateViewValues();
-    if (Input::IsKeyDown(Key::Up)) {
-        m_FOV -= 10 * Time::deltaTime();
-    }
-    if (Input::IsKeyDown(Key::Down)) {
-        m_FOV += 10 * Time::deltaTime();
-    }
+}
+
+void EditorCamera::handleMovement(float deltaTime)
+{
+    float cameraSpeed = 10.0f * deltaTime; // Adjust speed as necessary
+
+    glm::vec3 forward = getFwdDir();
+    glm::vec3 right = getRightDir();
+    glm::vec3 up = getUpDir();
+
     if (Input::IsKeyDown(Key::W)) {
-        m_FocalPoint += getFwdDir() * 3.0f * Time::deltaTime() * m_Distance;
+        m_Position += forward * cameraSpeed;
     }
     if (Input::IsKeyDown(Key::S)) {
-        m_FocalPoint += -getFwdDir() * 3.0f * Time::deltaTime() * m_Distance;
+        m_Position -= forward * cameraSpeed;
     }
-
     if (Input::IsKeyDown(Key::A)) {
-        m_FocalPoint += -getRightDir() * 3.0f * Time::deltaTime() * m_Distance;
+        m_Position -= right * cameraSpeed;
     }
     if (Input::IsKeyDown(Key::D)) {
-        m_FocalPoint += getRightDir() * 3.0f * Time::deltaTime() * m_Distance;
+        m_Position += right * cameraSpeed;
     }
-    if (Input::IsKeyDown(Key::Space)) {
-        m_FocalPoint += getUpDir() * 3.0f * Time::deltaTime() * m_Distance;
+    if (Input::IsKeyDown(Key::Q)) {
+        m_Position -= up * cameraSpeed;
     }
-    if (Input::IsKeyDown(Key::Left_control)) {
-        m_FocalPoint += -getUpDir() * 3.0f * Time::deltaTime() * m_Distance;
+    if (Input::IsKeyDown(Key::E)) {
+        m_Position += up * cameraSpeed;
     }
+}
 
-    float xpos = Input::getMouseX();
-    float ypos = Input::getMouseY();
+void EditorCamera::handleRotation(float deltaTime)
+{
+    float sensitivity = 0.7f;
+
+    float xPos, yPos;
+    xPos = Input::getMouseX();
+    yPos = Input::getMouseY();
+
     if (Input::IsKeyDown(Key::Left_shift)) {
 
-        float xoffset = xpos - m_LastMouseX;
-        float yoffset = m_LastMouseY - ypos;
+        float deltaX = xPos - m_LastMouseX;
+        float deltaY = yPos - m_LastMouseY;
 
-        float yawSign = getUpDir().y < 0 ? -1.0f : 1.0f;
-        m_Yaw += yawSign * xoffset * 0.03f;
-        m_Pitch -= yoffset * 0.03f;
+        m_Yaw -= deltaX * sensitivity;
+        m_Pitch -= deltaY * sensitivity;
 
-        if (m_Pitch > 89.0f)
-            m_Pitch = 89.0f;
-        if (m_Pitch < -89.0f)
-            m_Pitch = -89.0f;
+        m_Pitch = glm::clamp(m_Pitch, -89.0f, 89.0f);
+
+        glm::quat pitchQuat = glm::angleAxis(glm::radians(m_Pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::quat yawQuat = glm::angleAxis(glm::radians(m_Yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        m_Orientation = yawQuat * pitchQuat;
     }
-    m_LastMouseX = xpos;
-    m_LastMouseY = ypos;
 
-    updateProjValues();
-    updateViewValues();
+    m_LastMouseX = xPos;
+    m_LastMouseY = yPos;
 }
 
 void EditorCamera::updateProjValues()
 {
-    m_AspectRatio = m_ViewportW / m_ViewportH;
     m_Projection = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClipPlane, m_FarClipPlane);
 }
 
 void EditorCamera::updateViewValues()
 {
-    m_Pos = calcPos();
-
-    glm::quat orientation = getOrientation();
-    m_ViewMtx = glm::translate(glm::mat4(1.0f), m_Pos) * glm::toMat4(orientation);
-    m_ViewMtx = glm::inverse(m_ViewMtx);
-}
-
-glm::vec3 EditorCamera::getUpDir() const
-{
-    return glm::rotate(getOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
-}
-
-glm::vec3 EditorCamera::getRightDir() const
-{
-    return glm::rotate(getOrientation(), glm::vec3(1.0f, 0.0f, 0.0f));
-}
-glm::vec3 EditorCamera::getFwdDir() const
-{
-    return glm::rotate(getOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
-}
-glm::quat EditorCamera::getOrientation() const
-{
-    return glm::quat(glm::vec3(-m_Pitch, -m_Yaw, 0.0f));
-}
-glm::vec3 EditorCamera::calcPos() const
-{
-    return m_FocalPoint - getFwdDir() * m_Distance;
+    m_ViewMtx = glm::lookAt(m_Position, m_Position + getFwdDir(), getUpDir());
 }
 
 }
