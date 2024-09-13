@@ -1,6 +1,6 @@
 #include "Core/Assets/AssetManager.hpp"
 #include "Rendering/CubeMap.hpp"
-#include "Rendering/IBLMap.hpp"
+#include "Rendering/IrMap.hpp"
 #include "Rendering/VertexBuffer.hpp"
 #include "core.hpp"
 #include "glm/matrix.hpp"
@@ -17,7 +17,7 @@ namespace Dimensional {
 Renderer* Renderer::s_RendererRef = nullptr;
 
 static Ref<CubeMap> tCube = nullptr;
-static Ref<IBLMap> tIBL = nullptr;
+static Ref<IrMap> tIBL = nullptr;
 
 void Renderer::Init()
 {
@@ -34,13 +34,15 @@ void Renderer::Init()
     // AssetManager::loadTexture();
 
     AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMap.glsl"));
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMapComp.glsl"), COMPUTE);
     AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMapConv.glsl"));
+    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMapConvComp.glsl"), COMPUTE);
 
     m_CubeMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmap.hdr", 2048, 2048);
-    m_IBLMap = CreateRef<IBLMap>(m_CubeMap);
+    m_IBLMap = CreateRef<IrMap>(m_CubeMap);
 
     tCube = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmap2.hdr", 2048, 2048);
-    tIBL = CreateRef<IBLMap>(tCube);
+    tIBL = CreateRef<IrMap>(tCube);
 
     m_CubeMapShader = AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMap.glsl"));
 
@@ -197,7 +199,10 @@ void Renderer::endScene()
     ref.m_CubeMapShader->setInt("environmentMap", 0);
     ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
     ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
+
     ref.m_CubeMap->bind(0);
+    // ref.m_IBLMap->bind(0);
+
     Renderer::renderCube(ref.m_CubeMapShader);
     ref.m_FrameBuffer->Unbind();
     // Flush Data

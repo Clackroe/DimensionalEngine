@@ -36,9 +36,9 @@ Ref<Texture> AssetManager::loadTexture(std::string path, bool retain)
     m_TextureMap[t->assetHandle] = t;
     return t;
 }
-Ref<Shader> AssetManager::loadShader(std::string path)
+Ref<Shader> AssetManager::loadShader(std::string path, enum ShaderType type)
 {
-    Ref<Shader> s = CreateRef<Shader>(path);
+    Ref<Shader> s = CreateRef<Shader>(path, type);
     m_ShaderMap[s->assetHandle] = s;
     return s;
 }

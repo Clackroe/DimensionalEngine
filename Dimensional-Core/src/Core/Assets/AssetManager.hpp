@@ -1,6 +1,7 @@
 #ifndef DM_ASSETMANAGER_H
 #define DM_ASSETMANAGER_H
 // #include <Rendering/Material.hpp>
+#include "Rendering/Shader.hpp"
 #include <Core/UUID.hpp>
 namespace Dimensional {
 
@@ -16,7 +17,7 @@ public:
     static Ref<Material> loadMaterial();
     static Ref<Model> loadModel(std::string path);
     static Ref<Texture> loadTexture(std::string path, bool retain);
-    static Ref<Shader> loadShader(std::string path);
+    static Ref<Shader> loadShader(std::string path, enum ShaderType type = RENDER);
     static Ref<Shader> loadShader(std::string vertexPath, std::string fragPath);
 
     static Ref<Material> getMaterial(UUID id) { return m_MaterialMap[id]; }

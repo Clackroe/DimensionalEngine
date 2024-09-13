@@ -10,6 +10,26 @@ Shader::Shader(const std::string& path, enum ShaderType type)
 {
     m_Type = type;
 
+    // TODO: Cleanup this function and factor out the file reading code
+    if (m_Type == COMPUTE) {
+        std::string computeSourceCode;
+        std::ifstream file;
+        file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        try {
+            file.open(path);
+            std::stringstream stream;
+
+            stream << file.rdbuf();
+            file.close();
+            computeSourceCode = stream.str();
+        } catch (std::ifstream::failure err) {
+            DM_CORE_ERROR("ERROR WITH READING THE SHADER FILES: {0}", err.what());
+        }
+        u32 computeID = compile(computeSourceCode.c_str(), COMPUTE);
+        link({ computeID });
+        return;
+    }
+
     std::string vertexSourceCode;
     std::string fragmentSourceCode;
 
@@ -158,6 +178,7 @@ void Shader::dispatchCompute(u32 width, u32 height, u32 depth)
     }
     use();
     glDispatchCompute(width, height, depth);
+    glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 u32 Shader::compile(const char* shaderProg, enum ShaderType type)
@@ -187,9 +208,8 @@ u32 Shader::compile(const char* shaderProg, enum ShaderType type)
     glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
     if (!result) {
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        DM_CORE_WARN("VERTEX SHADER COMPILATION_FAILED {0}\n", infoLog);
+        DM_CORE_WARN("SHADER COMPILATION_FAILED {0}\n", infoLog);
     };
     return shader;
 }
-
 }

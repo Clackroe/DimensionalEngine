@@ -3,7 +3,7 @@
 
 #include "Input/Input.hpp"
 #include "Rendering/CubeMap.hpp"
-#include "Rendering/IBLMap.hpp"
+#include "Rendering/IrMap.hpp"
 
 #include "Rendering/ElementBuffer.hpp"
 #include <Core/Camera.hpp>
@@ -124,7 +124,7 @@ private:
 
     Ref<FrameBuffer> m_FrameBuffer;
 
-    Ref<IBLMap> m_IBLMap;
+    Ref<IrMap> m_IBLMap;
     Ref<CubeMap> m_CubeMap;
     Ref<Shader> m_CubeMapShader;
 

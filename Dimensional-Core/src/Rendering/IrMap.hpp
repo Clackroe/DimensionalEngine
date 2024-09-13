@@ -7,9 +7,9 @@
 #include <core.hpp>
 namespace Dimensional {
 
-class DMCORE_API IBLMap {
+class DMCORE_API IrMap {
 public:
-    IBLMap(Ref<CubeMap> map);
+    IrMap(Ref<CubeMap> map);
 
     void bind(u32 slot);
 

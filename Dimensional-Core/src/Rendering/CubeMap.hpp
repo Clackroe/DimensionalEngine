@@ -11,6 +11,7 @@ public:
     CubeMap(std::string path, u32 w = 512, u32 h = 512);
 
     void bind(u32 slot);
+    u32 getID() const { return m_GLId; };
 
 private:
     u32 m_GLId;
@@ -23,9 +24,7 @@ private:
     void createMainTexture();
     void renderToCubeMap();
 
-    static u32 s_CaptureFBO, s_DepthId;
-
-    friend class IBLMap;
+    friend class IrMap;
 };
 }
 #endif
