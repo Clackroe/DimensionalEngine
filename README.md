@@ -1,6 +1,8 @@
 # Dimensional Engine | 3D Game Engine
 This game engine is being developed by myself. I am using it as a way to further my knowledge of low level programming, memory management, inter-working systems, general Engine development, and game Rendering.
 
+[Getting Started](#getting-started)
+
 ## What's unique?
 Currently, nothing is too unique about anything I am doing in this repository. However, I would like for it to eventually support a unique system of utilizing 2D sprites in a 3D world. I want to develop a system that can:
 - Generate a mesh from a 2D sprite
@@ -49,17 +51,16 @@ Dimensional Engine is currently split into two parts.
 
 Eventually there will be another executable, the Application Build, that will be similar to to the editor, but optimized for runtime speed as opposed to development. 
 
-## Getting Started
-Run the following command to get started
+# Getting Started
+Make sure you have [Git Large File Storage](https://git-lfs.com/) installed. If you don't, you will be unable to get the assets needed for the engine.
+
+Run the following command to get the source code
 ```bash
 git clone https://github.com/Clackroe/DimensionalEngine.git --recursive
 ```
 
-# Development
-This project is being developed from scratch (minus a couple of low level libraries) on Linux in Neovim support for Windows is planned to be maintained.
-
-# Build System
-
+# Building
+This project uses CMake. Ensure you have both CMake and Make for linux or Visual Studio for Windows.
 ## Linux
 ```bash
 mkdir build
