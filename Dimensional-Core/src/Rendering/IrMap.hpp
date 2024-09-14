@@ -7,7 +7,7 @@
 #include <core.hpp>
 namespace Dimensional {
 
-class DMCORE_API IrMap {
+class IrMap {
 public:
     IrMap(Ref<CubeMap> map);
 

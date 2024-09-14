@@ -7,7 +7,7 @@
 #include <core.hpp>
 namespace Dimensional {
 
-class DMCORE_API IBLMap {
+class IBLMap {
 public:
     IBLMap(Ref<CubeMap> map);
 
