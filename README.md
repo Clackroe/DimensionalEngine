@@ -22,11 +22,6 @@ While the engine is still under development, my goal is to support a built in, s
 - Built-in PBR material generation with realistic lighting for sprites.
 - Editor tools for quick material customization.
 
-Currently, nothing is too unique about anything I am doing in this repository. However, I would like for it to eventually support a unique system of utilizing 2D sprites in a 3D world. I want to develop a system that can:
-- Generate a mesh from a 2D sprite
-- Automatically generate a PBR material for the sprite to support being lit "realistically"
-- Provide a tool to modify and customize the material simply and efficiently in-editor
-
 I have always liked the look of games that incorporate 2D sprites/characters into a 3D world. As far as I know, there is not an engine that supports integrating these sprites into a PBR renderer directly. Of course it is possible in other engines, but I would like to provide tools to quickly and easily support this out of the box.
 
 # General Architecture
@@ -158,6 +153,10 @@ git clone https://github.com/Clackroe/DimensionalEngine.git --recursive
 ```
 
 # Building
+At this time, only Linux and Windows are supported. 
+
+***NOTE***: Windows Support may be further behind Linux, as I am developing this on Linux. I will do my best to bring the Windows support up to date on every major development.
+
 This project uses CMake. Ensure you have both CMake and Make for linux or Visual Studio for Windows.
 ## Linux
 ```bash
@@ -169,6 +168,10 @@ make
 
 ## Windows
 Use Visual Studio CMake integration.
+
+## Usage
+- Ensure Portal.exe is your build and launch target.
+- Feel free to mess around in PortalLayer.cpp!
 
 ## Resources Used For Learning
 [Learn OpenGL Book | Online Text Book](https://learnopengl.com/)
