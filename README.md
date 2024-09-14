@@ -3,7 +3,7 @@
 [Dimensional API Examples](#dimensional-api)
 
 # Dimensional Engine | 3D Game Engine
-This game engine is being developed by myself. I am using it as a way to further my knowledge of low level programming, memory management, inter-working systems, general Engine development, and game Rendering.
+This game engine is being developed by myself, primarily from scratch. (Minus some [Libraries](#libraries)) I am using it as a way to further my knowledge of low level programming, memory management, inter-working systems, general Engine development, and game Rendering.
 
 ## What's unique?
 Currently, nothing is too unique about anything I am doing in this repository. However, I would like for it to eventually support a unique system of utilizing 2D sprites in a 3D world. I want to develop a system that can:
@@ -50,7 +50,7 @@ Eventually there will be another executable, the Application Build, that will be
 - Custom Event System
   - Easily add event listeners to Core and/or Custom events
   - Functions provided to the listeners are executed at the end of each frame.
-- Custom Input System
+- Custom [Input](#input) System
   - Input Events can be listened to and executed through Dimensional's event system
   - OR queried in the game loop using IsKeyDown. (This part is implemented with the window Library, [GLFW](https://www.glfw.org/) behind the scenes)
  
@@ -106,6 +106,9 @@ Eventually there will be another executable, the Application Build, that will be
         t1.Scale = glm::vec3(0.1);
         t1.Position = { 0.0f, -1.5f, 13.0f };
 ```
+
+## Libraries
+
 
 # Getting Started
 Make sure you have [Git Large File Storage](https://git-lfs.com/) installed. If you don't, you will be unable to get the assets needed for the engine.
