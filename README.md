@@ -60,7 +60,7 @@ Eventually there will be another executable, the Application Build, that will be
   - Implemented behind the scenes with [ENTT](https://github.com/skypjack/entt)
 - Custom Event System
   - Easily add event listeners to Core and/or Custom events
-  - Functions provided to the listeners are executed at the end of each frame.
+  - Functions provided to the listeners are executed at the beginning of each frame.
 - Custom [Input](#input) System
   - Input Events can be listened to and executed through Dimensional's event system
   - OR queried in the game loop using IsKeyDown. (This part is implemented with the window Library, [GLFW](https://www.glfw.org/) behind the scenes)
