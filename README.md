@@ -1,17 +1,33 @@
-[Getting Started](#getting-started)
-
-[Dimensional API Examples](#dimensional-api)
-
 # Dimensional Engine | 3D Game Engine
-This game engine is being developed by myself, primarily from scratch. (Minus some [Libraries](#libraries)) I am using it as a way to further my knowledge of low level programming, memory management, inter-working systems, general Engine development, and game Rendering.
+
+- [What's Unique?](#whats-unique)
+- [General Architecture](#general-architecture)
+- [Current Capabilities](#current-capabilities)
+- [Feature Progress](#feature-progress)
+- [Sneak Peak](#sneak-peak)
+- [Dimensional API](#dimensional-api)
+  - [Input](#input)
+  - [Scene](#scene)
+- [Libraries](#libraries)
+- [Getting Started](#getting-started)
+  - [Building](#building)
+- [Resources Used for Learning](#resources-used-for-learning)
+
+---
+This game engine is being developed by myself, primarily from scratch in terms of rendering. (Minus some [Libraries](#libraries)) I am using it as a way to further my knowledge of low level programming, memory management, inter-working systems, general Engine development, and game Rendering.
 
 ## What's unique?
+While the engine is still under development, my goal is to support a built in, seamless, system for integrating 2D sprites into a 3D world with PBR rendering. This will enable:
+- Automated mesh generation from 2D sprites.
+- Built-in PBR material generation with realistic lighting for sprites.
+- Editor tools for quick material customization.
+
 Currently, nothing is too unique about anything I am doing in this repository. However, I would like for it to eventually support a unique system of utilizing 2D sprites in a 3D world. I want to develop a system that can:
 - Generate a mesh from a 2D sprite
 - Automatically generate a PBR material for the sprite to support being lit "realistically"
 - Provide a tool to modify and customize the material simply and efficiently in-editor
 
-I have always liked the look of games that incoorporate 2D sprites/characters into a 3D world. As far as I know, there is not an engine that supports integrating these sprites into a PBR renderer directly. Of course it is possible in other engines, but I would like to provide tools to quickly and easily support this out of the box.
+I have always liked the look of games that incorporate 2D sprites/characters into a 3D world. As far as I know, there is not an engine that supports integrating these sprites into a PBR renderer directly. Of course it is possible in other engines, but I would like to provide tools to quickly and easily support this out of the box.
 
 # General Architecture
 Dimensional Engine is currently split into two parts. 
@@ -69,11 +85,10 @@ Eventually there will be another executable, the Application Build, that will be
 | Shadow Mapping                | Planned             | Add support for shadow mapping with point, spot, and directional lights.                |
 ## Sneak Peak
 ![2024-09-13_16-29_1](https://github.com/user-attachments/assets/69815ff6-9ace-48c0-adb4-b2343bcc1330)
-*PBR Rendering*
+**PBR Rendering**: This image demonstrates the engine's capability to handle HDR environment maps and materials with normal and roughness maps.
 ![2024-09-13_16-41](https://github.com/user-attachments/assets/3383a065-49fc-4f1b-8a56-a0d54ab9d036)
-*Point and SpotLights*
+**Point and SpotLights**: Showcasing the ability to customize light properties in real-time.
 ![2024-09-13_16-49_1](https://github.com/user-attachments/assets/3164d96e-617f-4ff5-ab99-911903847f1c)
-*Entity Properties Panel*
 
 # Dimensional API
 ## Input
@@ -109,6 +124,30 @@ Eventually there will be another executable, the Application Build, that will be
 
 ## Libraries
 
+- [**ASSIMP**](https://github.com/assimp/assimp)  
+  Portable library to import 3D models into Dimensional's Format.
+
+- [**ENTT**](https://github.com/skypjack/entt)  
+  A fast and reliable entity-component system.
+  
+- [**GLAD**](https://github.com/Dav1dde/glad)  
+  For loading OpenGL GPU Driver functions.
+
+- [**GLFW**](https://github.com/glfw/glfw)  
+   Provides a simple API for creating windows, contexts, and handling input.
+
+- [**GLM**](https://github.com/g-truc/glm)  
+  OpenGL compliant linear algebra math library.
+
+- [**IMGUI**](https://github.com/ocornut/imgui)  
+  For creating a functional, fast, and easy to use editor.
+
+- [**STB Image**](https://github.com/nothings/stb)  
+  For loading images into memory.
+
+- [**spdlog**](https://github.com/gabime/spdlog)  
+  Used behind the scenes for formatted Dimensional Logging.
+
 
 # Getting Started
 Make sure you have [Git Large File Storage](https://git-lfs.com/) installed. If you don't, you will be unable to get the assets needed for the engine.
@@ -130,3 +169,14 @@ make
 
 ## Windows
 Use Visual Studio CMake integration.
+
+## Resources Used For Learning
+[Learn OpenGL Book | Online Text Book](https://learnopengl.com/)
+
+[Game Engine Architecture - Jason Gregory | Text Book](https://www.gameenginebook.com/)
+
+[Yan Chernikov (The Cherno) | YouTube](https://www.youtube.com/@TheCherno)
+
+[OGLDEV | YouTube](https://www.youtube.com/@OGLDEV)
+
+Thank you to all of the people and resources listed above! I have learned so much from all of you.
