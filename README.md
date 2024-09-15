@@ -1,5 +1,7 @@
 # Dimensional Engine | 3D Game Engine
 
+[Showcase Video](https://youtu.be/qoZyaPVTCOg?si=3PGdKyhAwCXKbFEp)
+
 - [What's Unique?](#whats-unique)
 - [General Architecture](#general-architecture)
 - [Current Capabilities](#current-capabilities)
