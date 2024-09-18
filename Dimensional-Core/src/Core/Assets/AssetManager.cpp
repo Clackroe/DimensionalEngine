@@ -14,38 +14,38 @@ UMap<UUID, Ref<Shader>> AssetManager::m_ShaderMap;
 Ref<Material> AssetManager::loadMaterial(MaterialSettings matSettings)
 {
     Ref<Material> m = CreateRef<Material>(matSettings);
-    m_MaterialMap[m->assetHandle] = m;
+    m_MaterialMap[m->handle] = m;
     return m;
 }
 Ref<Material> AssetManager::loadMaterial()
 {
     Ref<Material> m = CreateRef<Material>();
-    m_MaterialMap[m->assetHandle] = m;
+    m_MaterialMap[m->handle] = m;
     return m;
 }
 
 Ref<Model> AssetManager::loadModel(std::string path)
 {
     Ref<Model> m = CreateRef<Model>(path);
-    m_ModelMap[m->assetHandle] = m;
+    m_ModelMap[m->handle] = m;
     return m;
 }
 Ref<Texture> AssetManager::loadTexture(std::string path, bool retain)
 {
     Ref<Texture> t = CreateRef<Texture>(path, retain);
-    m_TextureMap[t->assetHandle] = t;
+    m_TextureMap[t->handle] = t;
     return t;
 }
 Ref<Shader> AssetManager::loadShader(std::string path, enum ShaderType type)
 {
     Ref<Shader> s = CreateRef<Shader>(path, type);
-    m_ShaderMap[s->assetHandle] = s;
+    m_ShaderMap[s->handle] = s;
     return s;
 }
 Ref<Shader> AssetManager::loadShader(std::string vertexPath, std::string fragPath)
 {
     Ref<Shader> s = CreateRef<Shader>(vertexPath, fragPath);
-    m_ShaderMap[s->assetHandle] = s;
+    m_ShaderMap[s->handle] = s;
     return s;
 }
 

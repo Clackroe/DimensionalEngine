@@ -6,6 +6,7 @@
 #include <entt/entt.hpp>
 
 namespace Dimensional {
+class SceneSerializer;
 class Entity;
 class SceneHierarchy;
 
@@ -52,6 +53,7 @@ private:
     UMap<UUID, entt::entity> m_EntityMap;
 
     friend class Entity;
+    friend class SceneSerializer;
     friend class SceneHierarchy;
 };
 

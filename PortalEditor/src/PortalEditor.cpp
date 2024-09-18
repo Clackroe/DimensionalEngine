@@ -3,11 +3,13 @@
 #include "Scene/Components.hpp"
 #include "imgui.h"
 #include <PortalEditor.hpp>
-#include <fstream>
+#include <Scene/SceneSerializer.hpp>
+
 namespace Dimensional {
 
 void PortalLayer::OnAttatch()
 {
+
     DM_INFO("Portal Initialized");
 
     m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
@@ -164,16 +166,6 @@ void PortalLayer::OnUpdate()
     m_ActiveScene->beginScene();
 
     Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
-
-    // Ref<Shader> testShad = AssetManager::getShader("EquirectToCubeMap");
-    // auto tex = AssetManager::getTexture("hdrmap");
-    // tex->bind(0);
-    // testShad->use();
-    // testShad->setInt("uEquirectMap", 0);
-    // testShad->setMat4("viewProj", m_EditorCamera.getViewProj());
-    // testShad->setVec3("uCameraPosition", m_EditorCamera.calcPos().x, m_EditorCamera.calcPos().y, m_EditorCamera.calcPos().z);
-    //
-    // Renderer::renderCube(testShad);
 
     m_ActiveScene->updateEditor();
 

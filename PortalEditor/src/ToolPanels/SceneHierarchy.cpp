@@ -1,4 +1,5 @@
 #include "Scene/Components.hpp"
+#include "Scene/SceneSerializer.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <ToolPanels/SceneHierarchy.hpp>
@@ -220,7 +221,13 @@ void SceneHierarchy::entityComponents(Entity entity)
 
 void SceneHierarchy::renderImGui()
 {
+
     ImGui::Begin("Hierarchy");
+
+    if (ImGui::Button("SaveTest")) {
+        SceneSerializer::Serialize("Assets/TestScene.yml", m_SceneContext);
+    }
+
     if (m_SceneContext) {
         for (auto entity : m_SceneContext->m_Registry.view<entt::entity>()) {
             Entity e = { entity, m_SceneContext.get() };

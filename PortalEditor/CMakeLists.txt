@@ -13,14 +13,23 @@ file(GLOB_RECURSE APP_SOURCES "src/*.cpp")
 include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/src)
 include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/lib/GLM)
 include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/lib/ENTT/single_include)
+include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/lib/YAML/include)
 include_directories(src)
 
 # Executable
 add_executable(Portal ${APP_SOURCES})
 target_link_libraries(Portal Dimensional-Core)
 
-add_custom_command(TARGET Portal POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${PROJECT_SOURCE_DIR}/Assets" ${CMAKE_BINARY_DIR}/Assets
-    COMMENT "Copying ${PROJECT_SOURCE_DIR} to ${CMAKE_BINARY_DIR}/Assets"
-)
+if(WIN32)
+    add_custom_command(TARGET Portal POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/Assets" ${CMAKE_BINARY_DIR}/Assets
+        COMMENT "Copying ${PROJECT_SOURCE_DIR}/Assets to ${CMAKE_BINARY_DIR}/Assets"
+    )
+else()
+    add_custom_command(TARGET Portal POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+        "${PROJECT_SOURCE_DIR}/Assets" ${CMAKE_BINARY_DIR}/Assets
+        COMMENT "Creating symlink from ${PROJECT_SOURCE_DIR}/Assets to ${CMAKE_BINARY_DIR}/Assets"
+    )
+endif()

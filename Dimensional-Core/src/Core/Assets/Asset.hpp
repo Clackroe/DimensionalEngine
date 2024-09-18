@@ -12,16 +12,17 @@ enum AssetType {
     ShaderType = 3,
 };
 
+using AssetHandle = UUID;
+
 class DMCORE_API Asset {
 public:
     const std::string name;
-    const UUID assetHandle;
+    const AssetHandle handle;
     const AssetType type;
     const std::string path;
 
     Asset(const std::string& path, AssetType t)
         : name(generateName(path))
-        , assetHandle(UUID())
         , type(t)
         , path(path)
     {
