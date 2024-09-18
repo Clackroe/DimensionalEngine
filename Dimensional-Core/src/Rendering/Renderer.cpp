@@ -30,26 +30,26 @@ void Renderer::Init()
     AssetManager::loadMaterial();
     // AssetManager::loadTexture();
 
-    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMap.glsl"));
-    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/EquirectToCubeMapComp.glsl"), COMPUTE);
-    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMapConv.glsl"));
+    AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMap.glsl"));
+    AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMapComp.glsl"), COMPUTE);
+    AssetManager::loadShader(("Assets/Shaders/CubeMapConv.glsl"));
 
-    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMapConvComp.glsl"), COMPUTE);
+    AssetManager::loadShader(("Assets/Shaders/CubeMapConvComp.glsl"), COMPUTE);
 
-    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/IBLMapPreComp.glsl"), COMPUTE);
-    AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/BRDFComp.glsl"), COMPUTE);
+    AssetManager::loadShader(("Assets/Shaders/IBLMapPreComp.glsl"), COMPUTE);
+    AssetManager::loadShader(("Assets/Shaders/BRDFComp.glsl"), COMPUTE);
 
-    m_CubeMap = CreateRef<CubeMap>(Application::getApp().engineAssetDirectory + "/Textures/hdrmapNight.hdr", 2048, 2048);
+    m_CubeMap = CreateRef<CubeMap>("Assets/Textures/hdrmapNight.hdr", 2048, 2048);
     m_IrMap = CreateRef<IrMap>(m_CubeMap);
 
     m_IBLMap = CreateRef<IBLMap>(m_CubeMap);
 
-    m_CubeMapShader = AssetManager::loadShader((Application::getApp().engineAssetDirectory + "/Shaders/CubeMap.glsl"));
+    m_CubeMapShader = AssetManager::loadShader(("Assets/Shaders/CubeMap.glsl"));
 
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
     // TODO: IDEK but I hate this
-    m_PBRShader = AssetManager::loadShader(Application::getApp().engineAssetDirectory + "/Shaders/PBRWithLighting.glsl");
+    m_PBRShader = AssetManager::loadShader("Assets/Shaders/PBRWithLighting.glsl");
 };
 
 void Renderer::submitLight(LightData data)

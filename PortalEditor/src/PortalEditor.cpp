@@ -24,7 +24,7 @@ void PortalLayer::OnAttatch()
     ms.Metalness = AssetManager::getTexture("Bell_Metallic");
     ms.Roughness = AssetManager::getTexture("Bell_Roughness");
     Ref<Material> bellMaterial = AssetManager::loadMaterial(ms);
-    AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/bell.fbx");
+    AssetManager::loadModel("Assets/Models/bell.fbx");
     Ref<Model> bellModel = AssetManager::getModel("bell");
 
     MaterialSettings swordMatSettings;
@@ -32,16 +32,16 @@ void PortalLayer::OnAttatch()
     swordMatSettings.Normal = AssetManager::getTexture("swordNormal");
     swordMatSettings.Roughness = AssetManager::getTexture("swordRough");
     Ref<Material> swordMat = AssetManager::loadMaterial(swordMatSettings);
-    Ref<Model> sword = AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Sword/sword.fbx");
+    Ref<Model> sword = AssetManager::loadModel("Assets/Models/Sword/sword.fbx");
 
     // Primatives
     // TODO: Move to renderer and integrate into core engine
-    AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Cube.obj");
+    AssetManager::loadModel("Assets/Models/Cube.obj");
     Ref<Model> cube = AssetManager::getModel("Cube");
 
-    Ref<Model> materialBall = AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/materialBall.obj");
+    Ref<Model> materialBall = AssetManager::loadModel("Assets/Models/materialBall.obj");
 
-    AssetManager::loadModel(Application::getApp().engineAssetDirectory + "/Models/Sphere.obj");
+    AssetManager::loadModel("Assets/Models/Sphere.obj");
     Ref<Model> sphere = AssetManager::getModel("Sphere");
 
     m_ActiveScene = CreateRef<Scene>();
@@ -52,11 +52,11 @@ void PortalLayer::OnAttatch()
     glm::vec2 pos = glm::vec2(mats.size() * -inc / 2, 0.0f);
     for (int i = 0; i < mats.size(); i++) {
         MaterialSettings curMatSettings;
-        curMatSettings.Albedo = AssetManager::loadTexture((Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/base.png"), false);
-        curMatSettings.Normal = AssetManager::loadTexture((Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/normal.png"), false);
-        curMatSettings.Metalness = AssetManager::loadTexture((Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/metal.png"), false);
-        curMatSettings.Roughness = AssetManager::loadTexture((Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/rough.png"), false);
-        auto aoPath = Application::getApp().engineAssetDirectory + "/Textures/" + mats[i] + "/ao.png";
+        curMatSettings.Albedo = AssetManager::loadTexture(("Assets/Textures/" + mats[i] + "/base.png"), false);
+        curMatSettings.Normal = AssetManager::loadTexture(("Assets/Textures/" + mats[i] + "/normal.png"), false);
+        curMatSettings.Metalness = AssetManager::loadTexture(("Assets/Textures/" + mats[i] + "/metal.png"), false);
+        curMatSettings.Roughness = AssetManager::loadTexture(("Assets/Textures/" + mats[i] + "/rough.png"), false);
+        auto aoPath = "Assets/Textures/" + mats[i] + "/ao.png";
         if (std::ifstream(aoPath.c_str()).good()) {
             curMatSettings.AO = AssetManager::loadTexture((aoPath), false);
         }

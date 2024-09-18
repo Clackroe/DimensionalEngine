@@ -15,11 +15,6 @@ Application::Application(const std::string& title, u32 width, u32 height)
     //
     DM_CORE_INFO("TEST");
 
-    // --- To be retrieved from project config file
-    std::replace(fPath.begin(), fPath.end(), '\\', '/');
-    engineAssetDirectory = fPath.substr(0, fPath.find_last_of('/')) + "Assets";
-    // ---
-
     DM_CORE_ASSERT(!s_Application, "Application already created!! Aborting.");
     s_Application = this;
 

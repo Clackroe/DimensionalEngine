@@ -18,3 +18,9 @@ include_directories(src)
 # Executable
 add_executable(Portal ${APP_SOURCES})
 target_link_libraries(Portal Dimensional-Core)
+
+add_custom_command(TARGET Portal POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${PROJECT_SOURCE_DIR}/Assets" ${CMAKE_BINARY_DIR}/Assets
+    COMMENT "Copying ${PROJECT_SOURCE_DIR} to ${CMAKE_BINARY_DIR}/Assets"
+)

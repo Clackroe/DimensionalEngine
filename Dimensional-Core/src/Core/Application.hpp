@@ -29,9 +29,6 @@ public:
     static Application& getApp() { return *s_Application; }
     inline Window& getWindowDM() { return *m_Window; };
 
-    std::string fPath = __FILE__;
-    std::string engineAssetDirectory = "";
-
     ImGuiContext* getImGuiContext()
     {
         return ImGui::GetCurrentContext();
