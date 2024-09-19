@@ -1,6 +1,6 @@
 #ifndef DM_MESH_H
 #define DM_MESH_H
-#include "Core/Assets/Asset.hpp"
+#include "Assets/Asset.hpp"
 #include <Rendering/Renderer.hpp>
 #include <Rendering/Texture.hpp>
 #include <buffer.hpp>

@@ -1,4 +1,4 @@
-#include <Core/Assets/AssetManager.hpp>
+#include <Assets/AssetManager.hpp>
 #include <Core/UUID.hpp>
 #include <Rendering/Material.hpp>
 #include <Rendering/Model.hpp>

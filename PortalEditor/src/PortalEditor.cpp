@@ -1,4 +1,4 @@
-#include "Core/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Input/KeyCodes.hpp"
 #include "Scene/Components.hpp"
 #include "imgui.h"

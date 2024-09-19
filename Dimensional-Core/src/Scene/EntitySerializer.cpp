@@ -1,5 +1,5 @@
 #include "Scene/EntitySerializer.hpp"
-#include "Core/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Scene/Components.hpp"
 #include "Scene/Entity.hpp"
 #include "yaml-cpp/emitter.h"

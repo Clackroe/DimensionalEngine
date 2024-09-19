@@ -1,4 +1,4 @@
-#include "Core/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Log/log.hpp"
 #include <Rendering/IBLMap.hpp>
 #include <Rendering/Renderer.hpp>

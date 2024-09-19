@@ -2,7 +2,7 @@
 // #include "imgui.h"
 #include <Rendering/Mesh.hpp>
 
-#include <Core/Assets/AssetManager.hpp>
+#include <Assets/AssetManager.hpp>
 #include <Rendering/Model.hpp>
 
 #include <Rendering/Texture.hpp>

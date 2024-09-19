@@ -1,4 +1,4 @@
-#include "Core/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Rendering/CubeMap.hpp"
 #include "Rendering/IrMap.hpp"
 #include "Rendering/VertexBuffer.hpp"

@@ -3,7 +3,7 @@
 
 #include <core.hpp>
 
-#include "Core/Assets/Asset.hpp"
+#include "Assets/Asset.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

@@ -1,4 +1,4 @@
-#include "Core/Assets/Asset.hpp"
+#include "Assets/Asset.hpp"
 #include <Rendering/Material.hpp>
 
 namespace Dimensional {
@@ -77,6 +77,9 @@ Ref<Texture> Material::getTexture(MaterialTexture slot)
         break;
     case (MaterialTexture::AO):
         return m_AOTexture;
+        break;
+    default:
+        DM_CORE_ERROR("ERROR");
         break;
     }
 }

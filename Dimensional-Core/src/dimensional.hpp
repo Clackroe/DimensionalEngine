@@ -18,14 +18,14 @@
 #include <Scene/Entity.hpp>
 #include <Scene/Scene.hpp>
 
-#include <Core/Assets/AssetManager.hpp>
+#include <Assets/AssetManager.hpp>
 
 // ---- INPUT
 #include <Input/Input.hpp>
 #include <Input/KeyCodes.hpp>
 
 // ---- ASSETS
-#include <Core/Assets/Asset.hpp>
+#include <Assets/Asset.hpp>
 
 // ---- RENDERING
 #include <Core/EditorCamera.hpp>

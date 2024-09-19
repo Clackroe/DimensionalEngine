@@ -1,6 +1,6 @@
 #ifndef DM_MATERIAL_H
 #define DM_MATERIAL_H
-#include "Core/Assets/Asset.hpp"
+#include "Assets/Asset.hpp"
 #include <Rendering/Shader.hpp>
 #include <Rendering/Texture.hpp>
 namespace Dimensional {

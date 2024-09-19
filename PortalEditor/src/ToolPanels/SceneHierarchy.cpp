@@ -1,4 +1,4 @@
-#include "Core/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Rendering/Material.hpp"
 #include "Scene/Components.hpp"
 #include "Scene/Scene.hpp"

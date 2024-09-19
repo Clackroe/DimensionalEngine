@@ -1,6 +1,6 @@
 #ifndef DM_TEXTURE_H
 #define DM_TEXTURE_H
-#include <Core/Assets/Asset.hpp>
+#include <Assets/Asset.hpp>
 #include <core.hpp>
 
 namespace Dimensional {

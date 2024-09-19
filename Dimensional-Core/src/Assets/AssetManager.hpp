@@ -1,7 +1,7 @@
 #ifndef DM_ASSETMANAGER_H
 #define DM_ASSETMANAGER_H
 // #include <Rendering/Material.hpp>
-#include "Core/Assets/Asset.hpp"
+#include "Assets/Asset.hpp"
 #include "Rendering/Shader.hpp"
 #include <Core/UUID.hpp>
 namespace Dimensional {
