@@ -1,4 +1,7 @@
+#include "Core/Assets/AssetManager.hpp"
+#include "Rendering/Material.hpp"
 #include "Scene/Components.hpp"
+#include "Scene/Scene.hpp"
 #include "Scene/SceneSerializer.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -72,6 +75,25 @@ static void customVec3Slider(const std::string& label, glm::vec3& values, float 
 
     ImGui::PopID();
 }
+
+static std::string assetChooser(AssetType type, std::string current)
+{
+    auto assets = AssetManager::getAllAssetNames(type);
+    if (ImGui::Button(current.c_str())) {
+        ImGui::OpenPopup("Choose Asset");
+    }
+    bool shouldRemoveComponent = false;
+    if (ImGui::BeginPopup("Choose Asset")) {
+        for (auto n : assets) {
+            if (ImGui::MenuItem(n.c_str())) {
+                return n;
+            }
+        }
+        ImGui::EndPopup();
+    }
+    return "";
+}
+
 SceneHierarchy::SceneHierarchy(Ref<Scene> scene)
     : m_SceneContext(scene)
 {
@@ -214,6 +236,26 @@ void SceneHierarchy::entityComponents(Entity entity)
                 ImGui::DragFloat("Constant", &component.constant, 0.5f, 1.0f, 10.0f);
                 ImGui::DragFloat("Linear", &component.linear, 0.01f, 0.0f, 1.0f);
                 ImGui::DragFloat("Quadratic", &component.quadratic, 0.01f, 0.0f, 1.0f);
+            },
+            true);
+    }
+    if (entity.hasComponent<MeshRenderer>()) {
+        componentNode<MeshRenderer>(
+            "Model Renderer", entity, [](MeshRenderer& component) {
+                auto newName = assetChooser(ModelType, component.model->name);
+                if (newName != "") {
+                    component.model = AssetManager::getModel(newName);
+                }
+                ImGui::BeginListBox("Materials");
+                for (auto& m : component.model->getMeshes()) {
+                    auto material = m.material;
+
+                    auto newAlbedo = assetChooser(TextureType, material->getTexture(Albedo)->name);
+                    if (newAlbedo != "") {
+                        material->setTexture(Albedo, AssetManager::getTexture(newAlbedo));
+                    }
+                }
+                ImGui::EndListBox();
             },
             true);
     }

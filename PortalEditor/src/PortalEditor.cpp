@@ -8,7 +8,50 @@
 namespace Dimensional {
 
 // TODO: Move to managed system
-static std::string scenePath = "Assets/TestScene.dmsn";
+static std::string scenePath = "Assets/TestScene.dims";
+
+// TODO Move to ContentBrowser / AssetWatcher
+static void loadAllAssets()
+{
+    namespace fs = std::filesystem;
+
+    try {
+        for (const auto& entry : fs::recursive_directory_iterator("Assets")) {
+            if (entry.is_directory()) {
+            } else if (entry.is_regular_file()) {
+                auto ext = entry.path().extension().string();
+                auto path = entry.path().string();
+                if (ext == ".fbx") {
+                    AssetManager::loadModel(path);
+                    continue;
+                }
+                if (ext == ".FBX") {
+                    AssetManager::loadModel(path);
+                    continue;
+                }
+                if (ext == ".obj") {
+                    AssetManager::loadModel(path);
+                    continue;
+                }
+                if (ext == ".png") {
+                    AssetManager::loadTexture(path, false);
+                    continue;
+                }
+                if (ext == ".jpg") {
+                    AssetManager::loadTexture(path, false);
+                    continue;
+                }
+
+            } else {
+                DM_CORE_WARN("STRANGE FILE? {0}", entry.path().string());
+            }
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "General exception: " << e.what() << std::endl;
+    }
+}
 
 void PortalLayer::OnAttatch()
 {
@@ -20,6 +63,8 @@ void PortalLayer::OnAttatch()
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
     m_ActiveScene = CreateRef<Scene>();
+
+    loadAllAssets();
 }
 void PortalLayer::OnDetatch() { }
 

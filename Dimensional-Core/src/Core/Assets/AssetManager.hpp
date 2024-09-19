@@ -1,6 +1,7 @@
 #ifndef DM_ASSETMANAGER_H
 #define DM_ASSETMANAGER_H
 // #include <Rendering/Material.hpp>
+#include "Core/Assets/Asset.hpp"
 #include "Rendering/Shader.hpp"
 #include <Core/UUID.hpp>
 namespace Dimensional {
@@ -13,7 +14,8 @@ class MaterialSettings;
 
 class DMCORE_API AssetManager {
 public:
-    static Ref<Material> loadMaterial(MaterialSettings matSettings);
+    static Ref<Material> loadMaterial(MaterialSettings matSettings, std::string name);
+    static Ref<Material> loadMaterial(std::string name);
     static Ref<Material> loadMaterial();
     static Ref<Model> loadModel(std::string path);
     static Ref<Texture> loadTexture(std::string path, bool retain);
@@ -29,6 +31,13 @@ public:
     static Ref<Model> getModel(std::string name);
     static Ref<Texture> getTexture(std::string name);
     static Ref<Shader> getShader(std::string name);
+
+    static Ref<Material> getMaterialByPath(std::string path);
+    static Ref<Model> getModelByPath(std::string path);
+    static Ref<Texture> getTextureByPath(std::string path);
+    static Ref<Shader> getShaderByPath(std::string path);
+
+    static std::vector<std::string> getAllAssetNames(AssetType type);
 
 private:
     static UMap<UUID, Ref<Material>> m_MaterialMap;

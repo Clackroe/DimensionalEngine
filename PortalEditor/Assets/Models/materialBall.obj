@@ -3,7 +3,7 @@
 # verts: 23613 uv-s: 24672
 mtllib export3dcoat.mtl
 
-g temp:pCylinder7
+g MaterialBall
 
 v 4.289924 -7.713802 -1.393880
 v 3.649227 -7.713802 -2.651319

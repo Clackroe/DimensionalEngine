@@ -20,15 +20,17 @@ struct MaterialSettings {
     Ref<Texture> Roughness;
     Ref<Texture> AO;
 };
+
 class DMCORE_API Material : public Asset {
 public:
     Material();
-    Material(MaterialSettings settings);
+    Material(MaterialSettings settings, std::string name);
     ~Material() = default;
 
     void bind(Ref<Shader> shad);
 
     void setTexture(MaterialTexture slot, Ref<Texture> tex);
+    Ref<Texture> getTexture(MaterialTexture slot);
 
 private:
     // For now, all meshes will utilize the same shader. This will be changed in the future most likely

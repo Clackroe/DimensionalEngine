@@ -85,8 +85,8 @@ public:
 
     static void renderCube(Ref<Material>& mat, glm::mat4 transform);
     static void renderSphere(Ref<Material>& mat, glm::mat4 transform);
-    static void renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform);
-    static void renderModel(Model& model, Ref<Material>& mat, glm::mat4 transform);
+    static void renderMesh(Mesh& mesh, glm::mat4 transform);
+    static void renderModel(Model& model, glm::mat4 transform);
     //
     static void submitLight(LightData data);
 

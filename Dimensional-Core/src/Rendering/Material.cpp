@@ -26,8 +26,8 @@ Material::Material()
     m_AOTexture = s_WhiteTexture;
 }
 
-Material::Material(MaterialSettings settings)
-    : Asset("Material", AssetType::MaterialType)
+Material::Material(MaterialSettings settings, std::string name)
+    : Asset(name, AssetType::MaterialType)
 {
     if (settings.Albedo) {
 
@@ -60,6 +60,27 @@ Material::Material(MaterialSettings settings)
         m_AOTexture = s_WhiteTexture;
     }
 }
+Ref<Texture> Material::getTexture(MaterialTexture slot)
+{
+    switch (slot) {
+    case (MaterialTexture::Albedo):
+        return m_AlbedoTexture;
+        break;
+    case (MaterialTexture::Normal):
+        return m_NormalTexture;
+        break;
+    case (MaterialTexture::Metalness):
+        return m_MetalnessTexture;
+        break;
+    case (MaterialTexture::Roughness):
+        return m_RoughnessTexture;
+        break;
+    case (MaterialTexture::AO):
+        return m_AOTexture;
+        break;
+    }
+}
+
 void Material::setTexture(MaterialTexture slot, Ref<Texture> tex)
 {
     switch (slot) {

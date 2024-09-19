@@ -57,16 +57,9 @@ struct DMCORE_API MeshRenderer {
     MeshRenderer(const Ref<Model> modelIn)
     {
         model = modelIn;
-        mat = CreateRef<Material>();
-    }
-    MeshRenderer(const Ref<Model> modelIn, const Ref<Material> matIn)
-    {
-        model = modelIn;
-        mat = matIn;
     }
 
     Ref<Model> model;
-    Ref<Material> mat;
 };
 
 struct DMCORE_API PointLightComponent {

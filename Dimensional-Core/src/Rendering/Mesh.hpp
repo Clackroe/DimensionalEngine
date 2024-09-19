@@ -6,10 +6,7 @@
 #include <buffer.hpp>
 #include <core.hpp>
 namespace Dimensional {
-struct TextureWrapper {
-    std::string name;
-    std::string type;
-};
+
 struct Vertex {
     glm::vec3 Position;
     glm::vec3 Normal;
@@ -20,12 +17,12 @@ struct Vertex {
 
 class DMCORE_API Mesh {
 public:
-    Mesh(std::vector<Vertex>& vertices, std::vector<u32>& indices, std::vector<TextureWrapper>& textures);
+    Mesh(std::vector<Vertex>& vertices, std::vector<u32>& indices, Ref<Material> material);
     ~Mesh();
 
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
-    std::vector<TextureWrapper> textures;
+    Ref<Material> material;
 
 private:
     Ref<VertexArray> vao;

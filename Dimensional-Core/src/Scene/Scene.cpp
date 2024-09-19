@@ -89,7 +89,7 @@ void Scene::updateEditor()
         auto view = m_Registry.view<TransformComponent, MeshRenderer>();
         for (auto e : view) {
             auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-            Renderer::renderModel(*mesh.model, mesh.mat, transform.GetTransform());
+            Renderer::renderModel(*mesh.model, transform.GetTransform());
         }
     }
 }

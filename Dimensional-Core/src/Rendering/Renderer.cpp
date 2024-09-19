@@ -88,10 +88,11 @@ void Renderer::renderSphere(Ref<Material>& mat, glm::mat4 transform)
     Renderer::renderSphere(ref.m_PBRShader);
 }
 
-void Renderer::renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform)
+void Renderer::renderMesh(Mesh& mesh, glm::mat4 transform)
 {
 
     Renderer& ref = m_GetRenderer();
+    auto& mat = mesh.material;
     mat->bind(ref.m_PBRShader);
     ref.setupLightData();
     ref.m_PBRShader->setMat4("model", transform);
@@ -99,11 +100,11 @@ void Renderer::renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform)
     Renderer::renderVAO(*mesh.vao, *mesh.eb, ref.m_PBRShader);
 }
 
-void Renderer::renderModel(Model& model, Ref<Material>& mat, glm::mat4 transform)
+void Renderer::renderModel(Model& model, glm::mat4 transform)
 {
     for (u32 i = 0; i < model.m_Meshes.size(); i++) {
         Mesh& mesh = model.m_Meshes[i];
-        Renderer::renderMesh(model.m_Meshes[i], mat, transform);
+        Renderer::renderMesh(model.m_Meshes[i], transform);
     }
 }
 

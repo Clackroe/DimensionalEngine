@@ -1,11 +1,11 @@
 #include <Rendering/Mesh.hpp>
 
 namespace Dimensional {
-Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<u32>& indices, std::vector<TextureWrapper>& textures)
+Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<u32>& indices, Ref<Material> material)
 {
     this->vertices = vertices;
     this->indices = indices;
-    this->textures = textures;
+    this->material = material;
     setup();
 }
 

@@ -19,7 +19,7 @@ void Model::Init(std::string path)
 }
 
 Model::Model(std::string path)
-    : Asset(path, AssetType::TextureType)
+    : Asset(path, AssetType::ModelType)
 {
     loadModel(path);
 }
@@ -100,17 +100,18 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             indices.push_back(face.mIndices[j]);
     }
 
+    Ref<Material> outMaterial;
     if (mesh->mMaterialIndex >= 0) {
-
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        std::string matName = name + "_" + material->GetName().C_Str();
 
-        DM_CORE_INFO("MAT: {0}", scene->mNumMaterials);
-        for (int i = 0; i < scene->mNumMaterials; i++) {
-            DM_CORE_INFO("MATS: {0}", scene->mMaterials[i]->GetName().C_Str());
+        auto mat = AssetManager::getMaterial(matName);
+        if (mat) {
+            outMaterial = mat;
         }
+        outMaterial = AssetManager::loadMaterial(matName);
     }
 
-    std::vector<TextureWrapper> temp;
-    return Mesh(vertices, indices, temp);
+    return Mesh(vertices, indices, outMaterial);
 }
 }
