@@ -8,6 +8,7 @@ namespace Dimensional {
 class SceneSerializer {
 public:
     static void Serialize(std::filesystem::path savePath, const Ref<Scene> scene);
+    static void Deserialize(std::filesystem::path file, Ref<Scene>& scene);
 
 private:
 };

@@ -7,6 +7,9 @@
 
 namespace Dimensional {
 
+// TODO: Move to managed system
+static std::string scenePath = "Assets/TestScene.dmsn";
+
 void PortalLayer::OnAttatch()
 {
 
@@ -16,145 +19,7 @@ void PortalLayer::OnAttatch()
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
-    // m_EditorCamera.setPos(glm::vec3 { 0.0f, 8.5f, 13.0f }, 1.0);
-
-    // TEST SCENE SETUP TODO: Implement Automatic material generation
-    // TODO: Implement Scene Serializeaion and Deserialization
-    MaterialSettings ms;
-    ms.Albedo = AssetManager::getTexture("Bell_BaseColor");
-    ms.Normal = AssetManager::getTexture("Bell_Normal");
-    ms.Metalness = AssetManager::getTexture("Bell_Metallic");
-    ms.Roughness = AssetManager::getTexture("Bell_Roughness");
-    Ref<Material> bellMaterial = AssetManager::loadMaterial(ms);
-    AssetManager::loadModel("Assets/Models/bell.fbx");
-    Ref<Model> bellModel = AssetManager::getModel("bell");
-
-    MaterialSettings swordMatSettings;
-    swordMatSettings.Albedo = AssetManager::getTexture("swordAlbedo");
-    swordMatSettings.Normal = AssetManager::getTexture("swordNormal");
-    swordMatSettings.Roughness = AssetManager::getTexture("swordRough");
-    Ref<Material> swordMat = AssetManager::loadMaterial(swordMatSettings);
-    Ref<Model> sword = AssetManager::loadModel("Assets/Models/Sword/sword.fbx");
-
-    // Primatives
-    // TODO: Move to renderer and integrate into core engine
-    AssetManager::loadModel("Assets/Models/Cube.obj");
-    Ref<Model> cube = AssetManager::getModel("Cube");
-
-    Ref<Model> materialBall = AssetManager::loadModel("Assets/Models/materialBall.obj");
-
-    AssetManager::loadModel("Assets/Models/Sphere.obj");
-    Ref<Model> sphere = AssetManager::getModel("Sphere");
-
     m_ActiveScene = CreateRef<Scene>();
-    m_HierarchyPanel.setSceneContext(m_ActiveScene);
-
-    float inc = 2.5f;
-    std::vector<std::string> mats = { "SilverMat", "CobbleMat", "RustPanel", "GoldScuff", "MetalBeat" };
-    glm::vec2 pos = glm::vec2(mats.size() * -inc / 2, 0.0f);
-    for (int i = 0; i < mats.size(); i++) {
-        MaterialSettings curMatSettings;
-        curMatSettings.Albedo = AssetManager::loadTexture(("Assets/Textures/" + mats[i] + "/base.png"), false);
-        curMatSettings.Normal = AssetManager::loadTexture(("Assets/Textures/" + mats[i] + "/normal.png"), false);
-        curMatSettings.Metalness = AssetManager::loadTexture(("Assets/Textures/" + mats[i] + "/metal.png"), false);
-        curMatSettings.Roughness = AssetManager::loadTexture(("Assets/Textures/" + mats[i] + "/rough.png"), false);
-        auto aoPath = "Assets/Textures/" + mats[i] + "/ao.png";
-        if (std::ifstream(aoPath.c_str()).good()) {
-            curMatSettings.AO = AssetManager::loadTexture((aoPath), false);
-        }
-        Ref<Material> curMat = AssetManager::loadMaterial(curMatSettings);
-
-        {
-            auto cu = m_ActiveScene->createEntity("MaterialBall" + mats[i]);
-            cu.addComponent<MeshRenderer>(materialBall, curMat);
-            auto& t = cu.getComponent<TransformComponent>();
-            t.Position = { pos.x, 2.0f, pos.y };
-            t.Scale = { 0.1f, 0.1f, 0.1f };
-        }
-
-        {
-
-            auto cu = m_ActiveScene->createEntity("Sphere" + mats[i]);
-            cu.addComponent<MeshRenderer>(sphere, curMat);
-            auto& t = cu.getComponent<TransformComponent>();
-            t.Position = { pos.x, 4.0f, pos.y };
-            t.Scale = { 1.0f, 1.0f, 1.0f };
-        }
-        {
-
-            auto cu = m_ActiveScene->createEntity("Cube" + mats[i]);
-            cu.addComponent<MeshRenderer>(cube, curMat);
-            auto& t = cu.getComponent<TransformComponent>();
-            t.Position = { pos.x, 0.0f, pos.y };
-            t.Scale = { 1.0f, 1.0f, 1.0f };
-        }
-        if (i % 2 == 0) {
-            auto ent3 = m_ActiveScene->createEntity("SpotLight" + mats[i]);
-            ent3.addComponent<SpotLightComponent>();
-            auto& t1 = ent3.getComponent<TransformComponent>();
-            auto& l = ent3.getComponent<SpotLightComponent>();
-            l.color = (glm::vec3 { 0.5f, 0.5f, 0.5f });
-
-            l.intensity = 0.1;
-            l.cutOff = 15.5;
-            l.outerCutOff = 75.0;
-            l.constant = 8;
-            l.linear = 0.09;
-            l.quadratic = 0.7;
-            t1.Scale = glm::vec3(0.1);
-            t1.Rotation = glm::radians(glm::vec3 { 45.0, 0.0, 0.0 });
-            t1.Position = { pos.x, 6.0f, 4.0f };
-        }
-
-        pos.x += inc;
-    }
-    {
-
-        auto cu = m_ActiveScene->createEntity("Sword");
-        cu.addComponent<MeshRenderer>(sword, swordMat);
-        auto& t = cu.getComponent<TransformComponent>();
-        t.Position = { 0.0f, 0.0f, 6.0f };
-        t.Scale = { 0.1f, 0.1f, 0.1f };
-    }
-
-    {
-        auto cu = m_ActiveScene->createEntity("Ground");
-        cu.addComponent<MeshRenderer>(cube);
-        auto& t = cu.getComponent<TransformComponent>();
-        t.Position = { 0.0f, -3.5f, 0.0f };
-        t.Scale = { 20.0f, 0.1f, 20.0f };
-    }
-
-    {
-        auto ent2 = m_ActiveScene->createEntity("BellSmall");
-        ent2.addComponent<MeshRenderer>(bellModel, bellMaterial);
-        auto& t = ent2.getComponent<TransformComponent>();
-        t.Scale = { 0.5f, 0.5, 0.5 };
-        t.Position = { 0.0f, -2.5f, 3.5f };
-        t.Rotation = glm::radians(glm::vec3 { -90, 90, 30 });
-    }
-    {
-        auto ent1 = m_ActiveScene->createEntity("Bell");
-        ent1.addComponent<MeshRenderer>(bellModel, bellMaterial);
-        auto& t = ent1.getComponent<TransformComponent>();
-        t.Position = { 0.0f, -2.5f, 1.0f };
-        t.Rotation = glm::radians(glm::vec3 { -90, 90, -30 });
-    }
-
-    {
-        auto ent3 = m_ActiveScene->createEntity("PointLight");
-        ent3.addComponent<PointLightComponent>();
-        auto& t1 = ent3.getComponent<TransformComponent>();
-        auto& l = ent3.getComponent<PointLightComponent>();
-        l.intensity = 0.1;
-        l.constant = 8;
-        l.linear = 0.09;
-        l.quadratic = 0.332;
-        t1.Scale = glm::vec3(0.1);
-        t1.Position = { 0.0f, -1.5f, 13.0f };
-    }
-
-    //
 }
 void PortalLayer::OnDetatch() { }
 
@@ -163,13 +28,15 @@ void PortalLayer::OnUpdate()
     m_EditorCamera.Update();
     glm::vec3 p = m_EditorCamera.getPosition();
 
-    m_ActiveScene->beginScene();
+    if (m_ActiveScene) {
+        m_ActiveScene->beginScene();
 
-    Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
+        Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
 
-    m_ActiveScene->updateEditor();
+        m_ActiveScene->updateEditor();
 
-    Renderer::endScene();
+        Renderer::endScene();
+    }
 
     if (Input::IsKeyDown(Key::Escape)) {
         Application::getApp().stopApplication();
@@ -184,8 +51,6 @@ void PortalLayer::OnImGuiRender()
     bool opt_fullscreen = opt_fullscreen_persistant;
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-    // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-    // because it would be confusing to have two docking targets within each others.
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
     if (opt_fullscreen) {
         ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -198,17 +63,11 @@ void PortalLayer::OnImGuiRender()
         window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
     }
 
-    // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
     if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
         window_flags |= ImGuiWindowFlags_NoBackground;
 
-    // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-    // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-    // all active windows docked into it will lose their parent and become undocked.
-    // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-    // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("DockSpace Demo", &useDocking, window_flags);
+    ImGui::Begin("DockSpace", &useDocking, window_flags);
     ImGui::PopStyleVar();
 
     if (opt_fullscreen)
@@ -226,10 +85,19 @@ void PortalLayer::OnImGuiRender()
 
     m_HierarchyPanel.renderImGui();
 
-    // ImGui::Begin("BRDF");
-    // ImGui::Image(reinterpret_cast<ImTextureID>(Renderer::getIBL()->getBRDFID()), ImVec2 { 512, 512 }, { 0, 1 }, { 1, 0 });
-    //
-    // ImGui::End();
+    // TEST SCENE SAVING
+    ImGui::Begin("Test Saving");
+    if (ImGui::Button("Save")) {
+        SceneSerializer::Serialize(scenePath, m_ActiveScene);
+    }
+    if (ImGui::Button("Load")) {
+        Ref<Scene> nScene = CreateRef<Scene>();
+        SceneSerializer::Deserialize(scenePath, nScene);
+        m_ActiveScene = nScene;
+        m_HierarchyPanel.setSceneContext(m_ActiveScene);
+    }
+
+    ImGui::End();
 
     // Viewport
     ImGui::Begin("Viewport");

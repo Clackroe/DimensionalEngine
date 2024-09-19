@@ -1,11 +1,70 @@
 #include "Scene/EntitySerializer.hpp"
+#include "Core/Assets/AssetManager.hpp"
 #include "Scene/Components.hpp"
 #include "Scene/Entity.hpp"
 #include "yaml-cpp/emitter.h"
 #include "yaml-cpp/emittermanip.h"
 #include <yaml-cpp/yaml.h>
 
+namespace YAML {
+YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& v)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq << v.x << v.y << v.z << YAML::EndSeq;
+    return out;
+}
+
+template <>
+struct convert<glm::vec3> {
+    static Node encode(const glm::vec3& rhs)
+    {
+        Node node;
+        node.push_back(rhs.x);
+        node.push_back(rhs.y);
+        node.push_back(rhs.z);
+        return node;
+    }
+
+    static bool decode(const Node& node, glm::vec3& rhs)
+    {
+        if (!node.IsSequence() || node.size() != 3)
+            return false;
+
+        return convert<float>::decode(node[0], rhs.x)
+            && convert<float>::decode(node[1], rhs.y)
+            && convert<float>::decode(node[2], rhs.z);
+    }
+};
+
+template <>
+struct convert<Dimensional::UUID> {
+    static Node encode(const Dimensional::UUID& uuid)
+    {
+        Node node;
+        node.push_back(static_cast<u64>(uuid));
+        return node;
+    }
+
+    static bool decode(const Node& node, Dimensional::UUID& uuid)
+    {
+        u64 tmp = 0;
+        bool success = convert<u64>::decode(node, tmp);
+        if (success)
+            uuid = tmp;
+        return success;
+    }
+};
+}
+
 namespace Dimensional {
+
+template <typename T>
+inline T SetValue(T& value, const YAML::Node& node)
+{
+    if (node)
+        value = node.as<T>(value);
+    return value;
+}
 
 void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
 {
@@ -88,6 +147,71 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
         out << YAML::EndMap;
     }
     out << YAML::EndMap;
+}
+
+UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
+{
+
+    UUID id;
+    auto entityIdSection = node["Entity"];
+    SetValue(id, entityIdSection);
+    Entity loadedEntity = scene->createEntityWithUUID(id);
+
+    std::string name;
+    auto tagComp = node["TagComponent"];
+    if (tagComp) {
+        SetValue(name, tagComp["Tag"]);
+        auto& tc = loadedEntity.getComponent<TagComponent>();
+        tc.Tag = name;
+    }
+
+    auto transComp = node["TransformComponent"];
+    if (transComp) {
+
+        auto& tc = loadedEntity.addOrReplaceComponent<TransformComponent>();
+        SetValue(tc.Position, transComp["Position"]);
+        SetValue(tc.Rotation, transComp["Rotation"]);
+        SetValue(tc.Scale, transComp["Scale"]);
+    }
+
+    auto meshComp = node["MeshRenderer"];
+    if (meshComp) {
+        std::string path;
+        SetValue(path, meshComp["path"]);
+
+        auto model = AssetManager::loadModel(path);
+        loadedEntity.addComponent<MeshRenderer>(model);
+    }
+
+    auto pointComp = node["PointLightComponent"];
+    if (pointComp) {
+
+        auto& pComp = loadedEntity.addComponent<PointLightComponent>();
+
+        SetValue(pComp.color, pointComp["Color"]);
+        SetValue(pComp.intensity, pointComp["Intensity"]);
+        SetValue(pComp.constant, pointComp["Constant"]);
+        SetValue(pComp.linear, pointComp["Linear"]);
+        SetValue(pComp.quadratic, pointComp["Quadratic"]);
+    }
+
+    auto spotComp = node["SpotLightComponent"];
+    if (spotComp) {
+
+        auto& sComp = loadedEntity.addComponent<SpotLightComponent>();
+
+        SetValue(sComp.color, spotComp["Color"]);
+
+        SetValue(sComp.cutOff, spotComp["CutOff"]);
+        SetValue(sComp.outerCutOff, spotComp["OuterCutOff"]);
+
+        SetValue(sComp.intensity, spotComp["Intensity"]);
+        SetValue(sComp.constant, spotComp["Constant"]);
+        SetValue(sComp.linear, spotComp["Linear"]);
+        SetValue(sComp.quadratic, spotComp["Quadratic"]);
+    }
+
+    return loadedEntity.getID();
 }
 
 }

@@ -224,10 +224,6 @@ void SceneHierarchy::renderImGui()
 
     ImGui::Begin("Hierarchy");
 
-    if (ImGui::Button("SaveTest")) {
-        SceneSerializer::Serialize("Assets/TestScene.yml", m_SceneContext);
-    }
-
     if (m_SceneContext) {
         for (auto entity : m_SceneContext->m_Registry.view<entt::entity>()) {
             Entity e = { entity, m_SceneContext.get() };

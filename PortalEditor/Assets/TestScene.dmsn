@@ -1,0 +1,277 @@
+Scene: Untitled Dimension
+Entities:
+  - Entity: 2790731684268540904
+    IDComponent:
+      ID: 2790731684268540904
+    TagComponent:
+      Tag: PointLight
+    TransformComponent:
+      Position: [0, -1.5, 13]
+      Rotation: [0, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    PointLightComponent:
+      Color: [1, 1, 1]
+      Intensity: 0.100000001
+      Constant: 8
+      Linear: 0.0900000036
+      Quadratic: 0.331999987
+  - Entity: 12594327612107163511
+    IDComponent:
+      ID: 12594327612107163511
+    TagComponent:
+      Tag: Bell
+    TransformComponent:
+      Position: [0, -2.5, 1]
+      Rotation: [-1.57079637, 1.57079637, -0.52359879]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/bell.fbx
+  - Entity: 14438378719433477581
+    IDComponent:
+      ID: 14438378719433477581
+    TagComponent:
+      Tag: BellSmall
+    TransformComponent:
+      Position: [0, -2.5, 3.5]
+      Rotation: [-1.57079637, 1.57079637, 0.52359879]
+      Scale: [0.5, 0.5, 0.5]
+    MeshRenderer:
+      path: Assets/Models/bell.fbx
+  - Entity: 4748833129517705960
+    IDComponent:
+      ID: 4748833129517705960
+    TagComponent:
+      Tag: Ground
+    TransformComponent:
+      Position: [0, -3.5, 0]
+      Rotation: [0, 0, 0]
+      Scale: [20, 0.100000001, 20]
+    MeshRenderer:
+      path: Assets/Models/Cube.obj
+  - Entity: 11267329292399514337
+    IDComponent:
+      ID: 11267329292399514337
+    TagComponent:
+      Tag: Sword
+    TransformComponent:
+      Position: [0, 0, 6]
+      Rotation: [0, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    MeshRenderer:
+      path: Assets/Models/Sword/sword.fbx
+  - Entity: 2060236345566072355
+    IDComponent:
+      ID: 2060236345566072355
+    TagComponent:
+      Tag: SpotLightMetalBeat
+    TransformComponent:
+      Position: [3.75, 6, 4]
+      Rotation: [0.785398185, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    SpotLightComponent:
+      Color: [0.5, 0.5, 0.5]
+      CutOff: 15.5
+      OuterCutOff: 75
+      Intensity: 0.100000001
+      Constant: 8
+      Linear: 0.0900000036
+      Quadratic: 0.699999988
+  - Entity: 1930214362739908805
+    IDComponent:
+      ID: 1930214362739908805
+    TagComponent:
+      Tag: CubeMetalBeat
+    TransformComponent:
+      Position: [3.75, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Cube.obj
+  - Entity: 17022540326197088083
+    IDComponent:
+      ID: 17022540326197088083
+    TagComponent:
+      Tag: SphereMetalBeat
+    TransformComponent:
+      Position: [3.75, 4, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Sphere.obj
+  - Entity: 7263060682742240748
+    IDComponent:
+      ID: 7263060682742240748
+    TagComponent:
+      Tag: MaterialBallMetalBeat
+    TransformComponent:
+      Position: [3.75, 2, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    MeshRenderer:
+      path: Assets/Models/materialBall.obj
+  - Entity: 15127447181040086063
+    IDComponent:
+      ID: 15127447181040086063
+    TagComponent:
+      Tag: CubeGoldScuff
+    TransformComponent:
+      Position: [1.25, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Cube.obj
+  - Entity: 8766469974436234959
+    IDComponent:
+      ID: 8766469974436234959
+    TagComponent:
+      Tag: SphereGoldScuff
+    TransformComponent:
+      Position: [1.25, 4, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Sphere.obj
+  - Entity: 17466390009662713494
+    IDComponent:
+      ID: 17466390009662713494
+    TagComponent:
+      Tag: MaterialBallGoldScuff
+    TransformComponent:
+      Position: [1.25, 2, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    MeshRenderer:
+      path: Assets/Models/materialBall.obj
+  - Entity: 3218506385006972954
+    IDComponent:
+      ID: 3218506385006972954
+    TagComponent:
+      Tag: SpotLightRustPanel
+    TransformComponent:
+      Position: [-1.25, 6, 4]
+      Rotation: [0.785398185, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    SpotLightComponent:
+      Color: [0.5, 0.5, 0.5]
+      CutOff: 15.5
+      OuterCutOff: 75
+      Intensity: 0.100000001
+      Constant: 8
+      Linear: 0.0900000036
+      Quadratic: 0.699999988
+  - Entity: 13946042425055009010
+    IDComponent:
+      ID: 13946042425055009010
+    TagComponent:
+      Tag: CubeRustPanel
+    TransformComponent:
+      Position: [-1.25, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Cube.obj
+  - Entity: 3974187217086706857
+    IDComponent:
+      ID: 3974187217086706857
+    TagComponent:
+      Tag: SphereRustPanel
+    TransformComponent:
+      Position: [-1.25, 4, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Sphere.obj
+  - Entity: 9514405943976941140
+    IDComponent:
+      ID: 9514405943976941140
+    TagComponent:
+      Tag: MaterialBallRustPanel
+    TransformComponent:
+      Position: [-1.25, 2, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    MeshRenderer:
+      path: Assets/Models/materialBall.obj
+  - Entity: 10158691013697470440
+    IDComponent:
+      ID: 10158691013697470440
+    TagComponent:
+      Tag: CubeCobbleMat
+    TransformComponent:
+      Position: [-3.75, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Cube.obj
+  - Entity: 4463805697936952082
+    IDComponent:
+      ID: 4463805697936952082
+    TagComponent:
+      Tag: SphereCobbleMat
+    TransformComponent:
+      Position: [-3.75, 4, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Sphere.obj
+  - Entity: 3076829109874473968
+    IDComponent:
+      ID: 3076829109874473968
+    TagComponent:
+      Tag: MaterialBallCobbleMat
+    TransformComponent:
+      Position: [-3.75, 2, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    MeshRenderer:
+      path: Assets/Models/materialBall.obj
+  - Entity: 1290793975691479152
+    IDComponent:
+      ID: 1290793975691479152
+    TagComponent:
+      Tag: SpotLightSilverMat
+    TransformComponent:
+      Position: [-6.25, 6, 4]
+      Rotation: [0.785398185, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    SpotLightComponent:
+      Color: [0.5, 0.5, 0.5]
+      CutOff: 15.5
+      OuterCutOff: 75
+      Intensity: 0.100000001
+      Constant: 8
+      Linear: 0.0900000036
+      Quadratic: 0.699999988
+  - Entity: 16875563025889389682
+    IDComponent:
+      ID: 16875563025889389682
+    TagComponent:
+      Tag: CubeSilverMat
+    TransformComponent:
+      Position: [-6.25, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Cube.obj
+  - Entity: 5703156373226558238
+    IDComponent:
+      ID: 5703156373226558238
+    TagComponent:
+      Tag: SphereSilverMat
+    TransformComponent:
+      Position: [-6.25, 4, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MeshRenderer:
+      path: Assets/Models/Sphere.obj
+  - Entity: 15299571986538089832
+    IDComponent:
+      ID: 15299571986538089832
+    TagComponent:
+      Tag: MaterialBallSilverMat
+    TransformComponent:
+      Position: [-6.25, 2, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.100000001, 0.100000001, 0.100000001]
+    MeshRenderer:
+      path: Assets/Models/materialBall.obj

@@ -13,25 +13,6 @@
 
 namespace Dimensional {
 
-// Static in the cpp file to avoid includeing assimp in the main app.
-// aiTextureType cannot be forward declared in the header.
-static std::vector<TextureWrapper> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, std::string directory)
-{
-    std::vector<TextureWrapper> textures;
-
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
-        aiString str;
-        TextureWrapper txw;
-        mat->GetTexture(type, i, &str);
-        DM_CORE_INFO("Texture Path: {0}", (directory + "/" + std::string(str.C_Str())));
-        Ref<Texture> t = AssetManager::loadTexture(directory + std::string(str.C_Str()), false);
-        txw.name = t->name;
-        txw.type = typeName;
-
-        textures.push_back(txw);
-    }
-    return textures;
-}
 void Model::Init(std::string path)
 {
     loadModel(path);
@@ -53,7 +34,6 @@ void Model::loadModel(std::string path)
         return;
     }
     m_Directory = path.substr(0, path.find_last_of('/'));
-    DM_CORE_INFO("DIR: {0}", m_Directory);
 
     processNode(scene->mRootNode, scene);
 }
@@ -70,54 +50,11 @@ void Model::processNode(aiNode* node, const aiScene* scene)
         processNode(node->mChildren[i], scene);
     }
 }
-// static void ComputeTangents(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
-// {
-//     for (size_t i = 0; i < indices.size(); i += 3) {
-//         // Get the three vertices of the triangle
-//         Vertex& v0 = vertices[indices[i]];
-//         Vertex& v1 = vertices[indices[i + 1]];
-//         Vertex& v2 = vertices[indices[i + 2]];
-//
-//         // Calculate the edges of the triangle
-//         glm::vec3 edge1 = v1.Position - v0.Position;
-//         glm::vec3 edge2 = v2.Position - v0.Position;
-//
-//         // Calculate the difference in UV coordinates
-//         glm::vec2 deltaUV1 = v1.TexCoords - v0.TexCoords;
-//         glm::vec2 deltaUV2 = v2.TexCoords - v0.TexCoords;
-//
-//         // Calculate the tangent and bitangent
-//         float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-//
-//         glm::vec3 tangent = f * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
-//         glm::vec3 bitangent = f * (-deltaUV2.x * edge1 + deltaUV1.x * edge2);
-//
-//         // Normalize the tangents and bitangents
-//         tangent = glm::normalize(tangent);
-//         bitangent = glm::normalize(bitangent);
-//
-//         // Set the tangent and bitangent for each vertex
-//         v0.Tangent += tangent;
-//         v1.Tangent += tangent;
-//         v2.Tangent += tangent;
-//
-//         v0.BiTangent += bitangent;
-//         v1.BiTangent += bitangent;
-//         v2.BiTangent += bitangent;
-//     }
-//
-//     // Normalize the tangents and bitangents across all vertices
-//     for (auto& vertex : vertices) {
-//         vertex.Tangent = glm::normalize(vertex.Tangent);
-//         vertex.BiTangent = glm::normalize(vertex.BiTangent);
-//     }
-// }
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
-    std::vector<TextureWrapper> textures;
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
         auto& vert = mesh->mVertices[i];
@@ -163,43 +100,17 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             indices.push_back(face.mIndices[j]);
     }
 
-    DM_CORE_INFO("VERTS: {0} | IND: {1} | TEX: {2} | MAT: {3}", vertices.size(), indices.size(), textures.size(), mesh->mMaterialIndex);
-
     if (mesh->mMaterialIndex >= 0) {
 
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
         DM_CORE_INFO("MAT: {0}", scene->mNumMaterials);
         for (int i = 0; i < scene->mNumMaterials; i++) {
-            DM_CORE_INFO("MATS: {0}", std::to_string(scene->mMaterials[i]->mProperties[0]->mType));
+            DM_CORE_INFO("MATS: {0}", scene->mMaterials[i]->GetName().C_Str());
         }
-
-        /*
-         *
-        uniform sampler2D uAlbedoMap;
-        uniform sampler2D uNormalMap;
-        uniform sampler2D uMetallicMap;
-        uniform sampler2D uRoughnessMap;
-        uniform sampler2D uAOMap;
-
-            */
-
-        std::vector<TextureWrapper> albedoMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_albedo", m_Directory);
-        textures.insert(textures.end(), albedoMaps.begin(), albedoMaps.end());
-
-        std::vector<TextureWrapper> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", m_Directory);
-        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-
-        std::vector<TextureWrapper> metallicMaps = loadMaterialTextures(material, aiTextureType_METALNESS, "texture_metallic", m_Directory);
-        textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
-
-        std::vector<TextureWrapper> roughnessMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness", m_Directory);
-        textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
-
-        std::vector<TextureWrapper> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao", m_Directory);
-        textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
     }
 
-    return Mesh(vertices, indices, textures);
+    std::vector<TextureWrapper> temp;
+    return Mesh(vertices, indices, temp);
 }
 }

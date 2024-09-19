@@ -10,6 +10,7 @@ namespace Dimensional {
 class EntitySerialzer {
 public:
     static void Serialize(YAML::Emitter& out, Entity entity);
+    static UUID Deserialize(const YAML::Node& node, Ref<Scene>& scene);
 
 private:
 };

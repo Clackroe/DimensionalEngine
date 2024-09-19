@@ -47,7 +47,6 @@ void Texture::load(std::string path, bool retainInMemory, bool hdr)
     // Internal and data Formats to notify opengl
     GLenum intFormat = 0, dataFormat = 0;
 
-    DM_CORE_INFO("Name: {0} Channels: {1}", name, m_Channels);
     switch (m_Channels) {
     case 1:
 

@@ -2,6 +2,7 @@
 #include "Scene/Entity.hpp"
 #include "yaml-cpp/emitter.h"
 #include "yaml-cpp/emittermanip.h"
+#include "yaml-cpp/node/parse.h"
 #include <Scene/EntitySerializer.hpp>
 #include <Scene/SceneSerializer.hpp>
 #include <fstream>
@@ -32,6 +33,26 @@ void SceneSerializer::Serialize(std::filesystem::path savePath, const Ref<Scene>
 
     std::ofstream fout(savePath.c_str());
     fout << out.c_str();
+}
+
+void SceneSerializer::Deserialize(std::filesystem::path file, Ref<Scene>& scene)
+{
+    DM_INFO("Before Load");
+    YAML::Node sceneNode = YAML::LoadFile(file);
+    DM_INFO("After Load");
+
+    if (!sceneNode["Scene"]) {
+        DM_CORE_ASSERT("Unable to Load Scene {0}", file.string());
+    }
+
+    auto sceneName = sceneNode["Scene"].as<std::string>();
+
+    auto entities = sceneNode["Entities"];
+    if (entities) {
+        for (const auto& e : entities) {
+            EntitySerialzer::Deserialize(e, scene);
+        }
+    }
 }
 
 }
