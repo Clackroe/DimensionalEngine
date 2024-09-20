@@ -5,27 +5,38 @@
 
 namespace Dimensional {
 
+enum class ImageFormat {
+    NONE = 0,
+    R8,
+    RGB8,
+    RGBA8,
+    RGBA32f
+};
+
+struct TextureLoadSettings {
+    u32 width, height, channels;
+    ImageFormat format = ImageFormat::RGBA8;
+    bool generateMipmaps = true;
+};
+
 class DMCORE_API Texture : public Asset {
 public:
-    Texture(std::string path, bool retainInMemory);
-    Texture(u32 width, u32 height);
+    Texture(TextureLoadSettings settings, void* data, u32 sizeBytes);
     ~Texture();
+
     void bind(u32 textureSlot);
 
     void setData(void* data, u32 sizeBytes);
-
     u32 getID() const { return m_GLId; };
 
+    virtual AssetType getAssetType() const { return AssetType::TEXTURE; }
+
 private:
-    void load(std::string path, bool retainInMemory, bool hdr = false);
-
-    std::string m_Path;
-
-    u32 m_Width, m_Height, m_Channels;
+    void load(void* data, u32 sizeBytes);
     u32 m_GLId;
-    u32 m_IntFormat, m_DataFormat;
 
-    std::vector<u8> m_TextureData;
+    u32 m_InternalDataFormat, m_DataFormat;
+    TextureLoadSettings m_Settings;
 };
 }
 

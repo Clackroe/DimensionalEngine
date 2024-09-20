@@ -38,3 +38,5 @@ const AssetMetaData& AssetManager::getMetaData(AssetHandle handle) const
 
 bool AssetManager::isAssetLoaded(AssetHandle handle) { return m_LoadedAssets.find(handle) != m_LoadedAssets.end(); }
 bool AssetManager::isAssetRegistered(AssetHandle handle) { return m_Registry.find(handle) != m_Registry.end(); }
+
+}

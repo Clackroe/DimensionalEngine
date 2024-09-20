@@ -10,19 +10,9 @@ using AssetHandle = UUID;
 
 class DMCORE_API Asset {
 public:
-    const AssetHandle handle;
+    AssetHandle handle;
 
-    Asset()
-        : handle(UUID())
-    {
-    }
-
-    ~Asset() = default;
-
-    AssetType getType() const;
-    const std::string& getSourcePath() const;
-
-private:
+    virtual AssetType getAssetType() const = 0;
 };
 
 }

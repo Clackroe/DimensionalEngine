@@ -4,31 +4,26 @@
 #include <Rendering/Mesh.hpp>
 #include <core.hpp>
 
-class aiMesh;
-struct aiScene;
-class aiNode;
-class aiMaterial;
-
 namespace Dimensional {
+
+struct ModelLoadSettings {
+    std::vector<Mesh> meshes;
+};
 
 class DMCORE_API Model : public Asset {
 public:
-    Model()
-        : Asset("EmptyModel", AssetType::ModelType) {};
-    Model(std::string path);
+    Model(ModelLoadSettings settings);
     ~Model() = default;
-
-    void Init(std::string path);
 
     inline std::vector<Mesh>& getMeshes() { return m_Meshes; };
 
 private:
-    std::vector<Mesh> m_Meshes;
-    std::string m_Directory;
+    void load();
 
-    void loadModel(std::string path);
-    void processNode(aiNode* node, const aiScene* scene);
-    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+    std::vector<Mesh> m_Meshes;
+    std::vector<AssetHandle> m_MaterialHandles;
+
+    ModelLoadSettings m_Settings;
 
     friend class Renderer;
 };

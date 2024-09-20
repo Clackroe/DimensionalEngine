@@ -6,7 +6,7 @@
 namespace Dimensional {
 class AssetImporter {
 public:
-    Ref<Asset> importAsset(const AssetMetaData& data);
+    static Ref<Asset> importAsset(const AssetMetaData& data);
 };
 }
 
