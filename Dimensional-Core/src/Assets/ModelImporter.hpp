@@ -1,5 +1,5 @@
-#ifndef DM_TEXTURE_IMPORTER
-#define DM_TEXTURE_IMPORTER
+#ifndef DM_MODEL_IMPORTER
+#define DM_MODEL_IMPORTER
 #include "Assets/AssetMeta.hpp"
 #include "Rendering/Model.hpp"
 #include <core.hpp>

@@ -27,29 +27,28 @@ void Renderer::Init()
     generatePrimitives();
     DM_CORE_INFO("Renderer Initialized.")
 
-    AssetManager::loadMaterial();
-    // AssetManager::loadTexture();
-
-    AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMap.glsl"));
-    AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMapComp.glsl"), COMPUTE);
-    AssetManager::loadShader(("Assets/Shaders/CubeMapConv.glsl"));
-
-    AssetManager::loadShader(("Assets/Shaders/CubeMapConvComp.glsl"), COMPUTE);
-
-    AssetManager::loadShader(("Assets/Shaders/IBLMapPreComp.glsl"), COMPUTE);
-    AssetManager::loadShader(("Assets/Shaders/BRDFComp.glsl"), COMPUTE);
-
-    m_CubeMap = CreateRef<CubeMap>("Assets/Textures/hdrmapNight.hdr", 512, 512);
-    m_IrMap = CreateRef<IrMap>(m_CubeMap);
-
-    m_IBLMap = CreateRef<IBLMap>(m_CubeMap);
-
-    m_CubeMapShader = AssetManager::loadShader(("Assets/Shaders/CubeMap.glsl"));
-
+    // AssetManager::loadMaterial();
+    // // AssetManager::loadTexture();
+    //
+    // AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMap.glsl"));
+    // AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMapComp.glsl"), COMPUTE);
+    // AssetManager::loadShader(("Assets/Shaders/CubeMapConv.glsl"));
+    //
+    // AssetManager::loadShader(("Assets/Shaders/CubeMapConvComp.glsl"), COMPUTE);
+    //
+    // AssetManager::loadShader(("Assets/Shaders/IBLMapPreComp.glsl"), COMPUTE);
+    // AssetManager::loadShader(("Assets/Shaders/BRDFComp.glsl"), COMPUTE);
+    //
+    // m_CubeMap = CreateRef<CubeMap>("Assets/Textures/hdrmapNight.hdr", 512, 512);
+    // m_IrMap = CreateRef<IrMap>(m_CubeMap);
+    //
+    // m_IBLMap = CreateRef<IBLMap>(m_CubeMap);
+    //
+    // m_CubeMapShader = AssetManager::loadShader(("Assets/Shaders/CubeMap.glsl"));
+    //
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
-    // TODO: IDEK but I hate this
-    m_PBRShader = AssetManager::loadShader("Assets/Shaders/PBRWithLighting.glsl");
+    m_PBRShader = CreateRef<Shader>("Assets/Shaders/PBRWithLighting.glsl");
 };
 
 void Renderer::submitLight(LightData data)
@@ -92,8 +91,8 @@ void Renderer::renderMesh(Mesh& mesh, glm::mat4 transform)
 {
 
     Renderer& ref = m_GetRenderer();
-    auto& mat = mesh.material;
-    mat->bind(ref.m_PBRShader);
+    // auto& mat = mesh.material;
+    // mat->bind(ref.m_PBRShader);
     ref.setupLightData();
     ref.m_PBRShader->setMat4("model", transform);
 
@@ -102,10 +101,10 @@ void Renderer::renderMesh(Mesh& mesh, glm::mat4 transform)
 
 void Renderer::renderModel(Model& model, glm::mat4 transform)
 {
-    for (u32 i = 0; i < model.m_Meshes.size(); i++) {
-        Mesh& mesh = model.m_Meshes[i];
-        Renderer::renderMesh(model.m_Meshes[i], transform);
-    }
+    // for (u32 i = 0; i < model.m_Meshes.size(); i++) {
+    //     Mesh& mesh = model.m_Meshes[i];
+    //     Renderer::renderMesh(model.m_Meshes[i], transform);
+    // }
 }
 
 void Renderer::generatePrimitives()

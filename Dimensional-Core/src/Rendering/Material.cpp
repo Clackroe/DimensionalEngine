@@ -6,17 +6,16 @@ Ref<Texture> Material::s_WhiteTexture;
 Ref<Texture> Material::s_BlackTexture;
 
 Material::Material()
-    : Asset("Default", AssetType::MaterialType)
 {
     if (!s_WhiteTexture) {
-        s_WhiteTexture = CreateRef<Texture>(1, 1);
+        // s_WhiteTexture = CreateRef<Texture>(1, 1);
         u32 data = 0x808080;
-        s_WhiteTexture->setData(&data, sizeof(u32));
+        // s_WhiteTexture->setData(&data, sizeof(u32));
     }
     if (!s_BlackTexture) {
-        s_BlackTexture = CreateRef<Texture>(1, 1);
+        // s_BlackTexture = CreateRef<Texture>(1, 1);
         u32 data = 0x00000000;
-        s_BlackTexture->setData(&data, sizeof(u32));
+        // s_BlackTexture->setData(&data, sizeof(u32));
     }
 
     m_AlbedoTexture = s_WhiteTexture;
@@ -27,7 +26,6 @@ Material::Material()
 }
 
 Material::Material(MaterialSettings settings, std::string name)
-    : Asset(name, AssetType::MaterialType)
 {
     if (settings.Albedo) {
 

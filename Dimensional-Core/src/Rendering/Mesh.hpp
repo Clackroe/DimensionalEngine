@@ -1,8 +1,5 @@
 #ifndef DM_MESH_H
 #define DM_MESH_H
-#include "Assets/Asset.hpp"
-#include <Rendering/Renderer.hpp>
-#include <Rendering/Texture.hpp>
 #include <buffer.hpp>
 #include <core.hpp>
 namespace Dimensional {
@@ -17,12 +14,11 @@ struct Vertex {
 
 class DMCORE_API Mesh {
 public:
-    Mesh(std::vector<Vertex>& vertices, std::vector<u32>& indices, Ref<Material> material);
+    Mesh(std::vector<Vertex>& vertices, std::vector<u32>& indices);
     ~Mesh();
 
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
-    Ref<Material> material;
 
 private:
     Ref<VertexArray> vao;

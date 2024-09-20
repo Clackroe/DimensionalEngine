@@ -21,7 +21,7 @@ void IrMap::build()
 {
 
     if (!s_ConvShader) {
-        s_ConvShader = AssetManager::getShader("CubeMapConvComp");
+        // s_ConvShader = AssetManager::getShader("CubeMapConvComp");
     }
     createMainTexture();
     renderToCubeMap();

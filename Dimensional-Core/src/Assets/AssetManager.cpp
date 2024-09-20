@@ -4,7 +4,22 @@
 
 namespace Dimensional {
 
-Ref<Asset> AssetManager::getAsset(AssetHandle handle)
+static UMap<std::string, AssetType> s_ExtensionToType = {
+    { ".png", AssetType::TEXTURE },
+    { ".jpg", AssetType::TEXTURE },
+    { ".jpeg", AssetType::TEXTURE },
+    { ".PNG", AssetType::TEXTURE },
+    { ".JPG", AssetType::TEXTURE },
+    { ".JPEG", AssetType::TEXTURE },
+    { ".obj", AssetType::MODELSOURCE },
+    { ".gltf", AssetType::MODELSOURCE },
+    { ".fbx", AssetType::MODELSOURCE },
+    { ".FBX", AssetType::MODELSOURCE },
+    { ".glsl", AssetType::SHADER }
+};
+
+Ref<Asset>
+AssetManager::getAsset(AssetHandle handle)
 {
     // if it is valid registered asset
     // if not, return invalid
@@ -24,6 +39,27 @@ Ref<Asset> AssetManager::getAsset(AssetHandle handle)
         }
     }
     return outAsset;
+}
+
+AssetHandle AssetManager::registerAsset(std::filesystem::path path)
+{
+    AssetHandle handle;
+    AssetMetaData meta;
+    meta.sourcePath = path;
+    meta.type = s_ExtensionToType[path.extension()];
+    if (meta.type == AssetType::NONE) {
+        DM_CORE_WARN("UNABLE TO RECOGNIZE FILE EXTENSION")
+    }
+
+    Ref<Asset> asset = AssetImporter::importAsset(meta);
+    if (asset) {
+        asset->handle = handle;
+        m_LoadedAssets[handle] = asset;
+        m_Registry[handle] = meta;
+        return handle;
+        // TODO: Save Asset Registry
+    }
+    return 0;
 }
 
 const AssetMetaData& AssetManager::getMetaData(AssetHandle handle) const

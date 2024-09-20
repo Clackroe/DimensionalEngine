@@ -8,6 +8,7 @@ namespace Dimensional {
 
 struct ModelLoadSettings {
     std::vector<Mesh> meshes;
+    std::vector<AssetHandle> matHandles;
 };
 
 class DMCORE_API Model : public Asset {
@@ -17,6 +18,8 @@ public:
 
     inline std::vector<Mesh>& getMeshes() { return m_Meshes; };
 
+    virtual AssetType getAssetType() const override { return AssetType::MODEL; }
+
 private:
     void load();
 
@@ -24,8 +27,6 @@ private:
     std::vector<AssetHandle> m_MaterialHandles;
 
     ModelLoadSettings m_Settings;
-
-    friend class Renderer;
 };
 
 }

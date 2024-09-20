@@ -22,15 +22,16 @@ public:
     Ref<Asset> getAsset(AssetHandle handle);
     const AssetMetaData& getMetaData(AssetHandle handle) const;
 
+    AssetHandle registerAsset(std::filesystem::path path);
+
     bool isAssetLoaded(AssetHandle handle);
     bool isAssetRegistered(AssetHandle handle);
-
-private:
-    AssetManager();
-    ~AssetManager();
-
     AssetCache m_LoadedAssets;
     AssetRegistry m_Registry;
+
+private:
+    AssetManager() = default;
+    ~AssetManager() = default;
 };
 }
 

@@ -6,7 +6,6 @@
 
 namespace Dimensional {
 Shader::Shader(const std::string& path, enum ShaderType type)
-    : Asset(path, AssetType::ShaderType)
 {
     m_Type = type;
 
@@ -72,40 +71,6 @@ Shader::Shader(const std::string& path, enum ShaderType type)
             DM_CORE_WARN("WARNING: POSSIBLE MISFORMATTED SHADERFILE")
         }
 
-    } catch (std::ifstream::failure err) {
-        DM_CORE_ERROR("ERROR WITH READING THE SHADER FILES: {0}", err.what());
-    }
-    const char* vShaderProg = vertexSourceCode.c_str();
-    const char* fShaderProg = fragmentSourceCode.c_str();
-    u32 vertexID = compile(vShaderProg, VERTEX);
-    u32 fragID = compile(fShaderProg, FRAGMENT);
-    link({ vertexID, fragID });
-}
-
-Shader::Shader(const std::string& vertexPath, const std::string& fragPath)
-    : Asset(vertexPath + fragPath, AssetType::ShaderType)
-{
-    m_Type = RENDER;
-    std::string vertexSourceCode;
-    std::string fragmentSourceCode;
-    std::ifstream vShaderFile;
-    std::ifstream fShaderFile;
-
-    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try {
-        vShaderFile.open(vertexPath);
-        fShaderFile.open(fragPath);
-        std::stringstream vShaderStream, fShaderStream;
-
-        vShaderStream << vShaderFile.rdbuf();
-        fShaderStream << fShaderFile.rdbuf();
-
-        vShaderFile.close();
-        fShaderFile.close();
-
-        vertexSourceCode = vShaderStream.str();
-        fragmentSourceCode = fShaderStream.str();
     } catch (std::ifstream::failure err) {
         DM_CORE_ERROR("ERROR WITH READING THE SHADER FILES: {0}", err.what());
     }

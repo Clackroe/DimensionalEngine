@@ -1,3 +1,4 @@
+#include "Log/log.hpp"
 #include "Rendering/Texture.hpp"
 #include <Assets/TextureImporter.hpp>
 #include <stb_image.hpp>
@@ -23,16 +24,20 @@ Ref<Texture> TextureImporter::loadAssetFromPath(std::filesystem::path path)
     switch (c) {
     case (1):
         format = ImageFormat::R8;
+        break;
     case (3):
         format = ImageFormat::RGB8;
+        break;
     case (4):
         format = ImageFormat::RGBA8;
+        break;
     }
 
     TextureLoadSettings loadSettings;
     loadSettings.width = w;
     loadSettings.height = h;
     loadSettings.channels = c;
+    loadSettings.format = format;
 
     loadSettings.generateMipmaps = true;
 

@@ -11,12 +11,16 @@ static u32 imageFormatToInternalFormat(ImageFormat format)
     switch (format) {
     case (ImageFormat::R8):
         return GL_R8;
+        break;
     case (ImageFormat::RGB8):
         return GL_RGB8;
+        break;
     case (ImageFormat::RGBA8):
         return GL_RGBA8;
+        break;
     case (ImageFormat::RGBA32f):
         return GL_RGBA32F;
+        break;
     default:
         DM_CORE_ASSERT(false, "Tried to get an image with NONE format type");
     }
@@ -28,12 +32,16 @@ static u32 imageFormatToDataFormat(ImageFormat format)
     switch (format) {
     case (ImageFormat::R8):
         return GL_RED;
+        break;
     case (ImageFormat::RGB8):
         return GL_RGB;
+        break;
     case (ImageFormat::RGBA8):
         return GL_RGBA;
+        break;
     case (ImageFormat::RGBA32f):
         return GL_RGBA;
+        break;
     default:
         DM_CORE_ASSERT(false, "Tried to get an image with NONE format type");
     }

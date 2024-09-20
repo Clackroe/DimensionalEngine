@@ -1,9 +1,10 @@
-#include "Assets/AssetManager.hpp"
-#include "Input/KeyCodes.hpp"
-#include "Scene/Components.hpp"
 #include "imgui.h"
+#include <Assets/AssetManager.hpp>
+#include <Input/KeyCodes.hpp>
 #include <PortalEditor.hpp>
+#include <Scene/Components.hpp>
 #include <Scene/SceneSerializer.hpp>
+#include <memory>
 
 namespace Dimensional {
 
@@ -15,43 +16,45 @@ static void loadAllAssets()
 {
     namespace fs = std::filesystem;
 
-    try {
-        for (const auto& entry : fs::recursive_directory_iterator("Assets")) {
-            if (entry.is_directory()) {
-            } else if (entry.is_regular_file()) {
-                auto ext = entry.path().extension().string();
-                auto path = entry.path().string();
-                if (ext == ".fbx") {
-                    AssetManager::loadModel(path);
-                    continue;
-                }
-                if (ext == ".FBX") {
-                    AssetManager::loadModel(path);
-                    continue;
-                }
-                if (ext == ".obj") {
-                    AssetManager::loadModel(path);
-                    continue;
-                }
-                if (ext == ".png") {
-                    AssetManager::loadTexture(path, false);
-                    continue;
-                }
-                if (ext == ".jpg") {
-                    AssetManager::loadTexture(path, false);
-                    continue;
-                }
-
-            } else {
-                DM_CORE_WARN("STRANGE FILE? {0}", entry.path().string());
-            }
-        }
-    } catch (const fs::filesystem_error& e) {
-        std::cerr << "Filesystem error: " << e.what() << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "General exception: " << e.what() << std::endl;
-    }
+    // try {
+    //     for (const auto& entry : fs::recursive_directory_iterator("Assets")) {
+    //         if (entry.is_directory()) {
+    //         } else if (entry.is_regular_file()) {
+    //             auto ext = entry.path().extension().string();
+    //             auto path = entry.path().string();
+    //             if (ext == ".fbx") {
+    //                 AssetManager::loadModel(path);
+    //                 continue;
+    //             }
+    //             if (ext == ".FBX") {
+    //                 AssetManager::loadModel(path);
+    //                 continue;
+    //             }
+    //             if (ext == ".obj") {
+    //                 AssetManager::loadModel(path);
+    //                 continue;
+    //             }
+    //             if (ext == ".png") {
+    //                 AssetManager::loadTexture(path, false);
+    //                 continue;
+    //             }
+    //             if (ext == ".jpg") {
+    //                 AssetManager::loadTexture(path, false);
+    //                 continue;
+    //             }
+    //
+    //         } else {
+    //             DM_CORE_WARN("STRANGE FILE? {0}", entry.path().string());
+    //         }
+    //     }
+    // } catch (const fs::filesystem_error& e) {
+    //     std::cerr << "Filesystem error: " << e.what() << std::endl;
+    // } catch (const std::exception& e) {
+    //     std::cerr << "General exception: " << e.what() << std::endl;
+    // }
 }
+
+static AssetHandle s_TestHandle = 0;
 
 void PortalLayer::OnAttatch()
 {
@@ -62,9 +65,14 @@ void PortalLayer::OnAttatch()
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
-    m_ActiveScene = CreateRef<Scene>();
+    DM_INFO("BEFORE");
+    AssetManager::getInstance().registerAsset("Assets/Textures/Albedo.png");
+    s_TestHandle = AssetManager::getInstance().registerAsset("Assets/Textures/Normal.png");
+    DM_INFO("AFTER");
 
-    loadAllAssets();
+    // m_ActiveScene = CreateRef<Scene>();
+    //
+    // loadAllAssets();
 }
 void PortalLayer::OnDetatch() { }
 
@@ -73,15 +81,24 @@ void PortalLayer::OnUpdate()
     m_EditorCamera.Update();
     glm::vec3 p = m_EditorCamera.getPosition();
 
-    if (m_ActiveScene) {
-        m_ActiveScene->beginScene();
+    for (auto& [handle, meta] : AssetManager::getInstance().m_Registry) {
+        DM_CORE_WARN("Handle: {0}, Path: {1}", (u32)handle, meta.sourcePath)
 
-        Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
-
-        m_ActiveScene->updateEditor();
-
-        Renderer::endScene();
+        DM_CORE_WARN("GLID {0}", std::static_pointer_cast<Texture>(AssetManager::getInstance().getAsset(s_TestHandle))->getID());
     }
+
+    DM_CORE_INFO("\n")
+
+    //
+    // if (m_ActiveScene) {
+    //     m_ActiveScene->beginScene();
+    //
+    //     Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
+    //
+    //     m_ActiveScene->updateEditor();
+    //
+    //     Renderer::endScene();
+    // }
 
     if (Input::IsKeyDown(Key::Escape)) {
         Application::getApp().stopApplication();

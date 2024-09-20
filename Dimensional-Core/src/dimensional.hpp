@@ -26,6 +26,7 @@
 
 // ---- ASSETS
 #include <Assets/Asset.hpp>
+#include <Assets/AssetManager.hpp>
 
 // ---- RENDERING
 #include <Core/EditorCamera.hpp>

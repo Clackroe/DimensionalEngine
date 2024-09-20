@@ -20,10 +20,10 @@ void IBLMap::build()
 {
 
     if (!s_PreComp) {
-        s_PreComp = AssetManager::getShader("IBLMapPreComp");
+        // s_PreComp = AssetManager::getShader("IBLMapPreComp");
     }
     if (!s_BRDFComp) {
-        s_BRDFComp = AssetManager::getShader("BRDFComp");
+        // s_BRDFComp = AssetManager::getShader("BRDFComp");
     }
 
     createMainTexture();
