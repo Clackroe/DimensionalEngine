@@ -1,4 +1,7 @@
 #include "Assets/AssetMeta.hpp"
+#include "Rendering/Material.hpp"
+#include "Rendering/Model.hpp"
+#include "Rendering/Texture.hpp"
 #include <Assets/AssetImporter.hpp>
 #include <Assets/AssetManager.hpp>
 #include <Assets/AssetRegistrySerializer.hpp>
@@ -32,18 +35,23 @@ Ref<T> AssetManager::getAsset(AssetHandle handle)
     // Check if it needs load
     Ref<Asset> outAsset = nullptr;
     if (isAssetLoaded(handle)) {
-        DM_CORE_INFO("RETURNING ASSET");
         outAsset = m_LoadedAssets.at(handle);
     } else {
         // load/return i
         const AssetMetaData& data = getMetaData(handle);
         outAsset = AssetImporter::importAsset(data);
+        m_LoadedAssets[handle] = outAsset;
         if (!outAsset) {
             DM_CORE_WARN("ASSETMANAGER | Asset {0} Load Failed from path {1}", (u64)handle, data.sourcePath);
         }
     }
     return std::static_pointer_cast<T>(outAsset);
 }
+// Notify compiler of use outside of lib
+template Ref<Texture> AssetManager::getAsset<Texture>(AssetHandle handle);
+template Ref<Model> AssetManager::getAsset<Model>(AssetHandle handle);
+template Ref<ModelSource> AssetManager::getAsset<ModelSource>(AssetHandle handle);
+template Ref<Material> AssetManager::getAsset<Material>(AssetHandle handle);
 
 AssetHandle AssetManager::registerAsset(std::filesystem::path path)
 {
@@ -80,7 +88,13 @@ const AssetMetaData& AssetManager::getMetaData(AssetHandle handle) const
     return it->second;
 }
 
-bool AssetManager::isAssetLoaded(AssetHandle handle) { return m_LoadedAssets.find(handle) != m_LoadedAssets.end(); }
-bool AssetManager::isAssetRegistered(AssetHandle handle) { return m_Registry.find(handle) != m_Registry.end(); }
+bool AssetManager::isAssetLoaded(AssetHandle handle)
+{
+    return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
+}
+bool AssetManager::isAssetRegistered(AssetHandle handle)
+{
+    return m_Registry.find(handle) != m_Registry.end();
+}
 
 }

@@ -3,6 +3,8 @@
 
 #include "Assets/Asset.hpp"
 #include "Assets/AssetMeta.hpp"
+#include "Assets/TextureImporter.hpp"
+#include "Rendering/Texture.hpp"
 #include <core.hpp>
 #include <imgui.h>
 
@@ -24,6 +26,8 @@ public:
         : m_RootPath(rootPath)
         , m_CurrentPath(rootPath)
     {
+        m_FileIcon = TextureImporter::loadAssetFromPath("Assets/Resources/File.png");
+        m_FolderIcon = TextureImporter::loadAssetFromPath("Assets/Resources/Folder.png");
         refreshAssets();
     }
 
@@ -36,6 +40,8 @@ private:
     UMap<std::string, BrowserItem> m_Items;
 
     BrowsingMode m_Mode;
+    Ref<Texture> m_FileIcon;
+    Ref<Texture> m_FolderIcon;
 
     void refreshAssets();
 };

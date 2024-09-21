@@ -54,12 +54,12 @@ struct DMCORE_API TransformComponent {
 struct DMCORE_API MeshRenderer {
     MeshRenderer() = default;
     MeshRenderer(const MeshRenderer&) = default;
-    MeshRenderer(const Ref<Model> modelIn)
+    MeshRenderer(AssetHandle handle)
     {
-        model = modelIn;
+        model = handle;
     }
 
-    Ref<Model> model;
+    AssetHandle model = 0;
 };
 
 struct DMCORE_API PointLightComponent {

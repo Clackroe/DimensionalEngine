@@ -1,6 +1,7 @@
 #ifndef DM_MATERIAL_H
 #define DM_MATERIAL_H
 #include "Assets/Asset.hpp"
+#include "Assets/AssetMeta.hpp"
 #include <Rendering/Shader.hpp>
 #include <Rendering/Texture.hpp>
 namespace Dimensional {
@@ -31,6 +32,8 @@ public:
 
     void setTexture(MaterialTexture slot, Ref<Texture> tex);
     Ref<Texture> getTexture(MaterialTexture slot);
+
+    virtual AssetType getAssetType() const override { return AssetType::MATERIAL; };
 
 private:
     // For now, all meshes will utilize the same shader. This will be changed in the future most likely

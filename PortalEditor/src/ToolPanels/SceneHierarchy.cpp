@@ -200,6 +200,9 @@ void SceneHierarchy::entityComponents(Entity entity)
         ImGui::OpenPopup("AddComponent");
 
     if (ImGui::BeginPopup("AddComponent")) {
+        if (ImGui::Button("Mesh")) {
+            entity.addComponent<MeshRenderer>();
+        }
         // DisplayAddComponentEntry<TextComponent>("Text Component");
 
         ImGui::EndPopup();
@@ -239,26 +242,27 @@ void SceneHierarchy::entityComponents(Entity entity)
             },
             true);
     }
-    // if (entity.hasComponent<MeshRenderer>()) {
-    //     componentNode<MeshRenderer>(
-    //         "Model Renderer", entity, [](MeshRenderer& component) {
-    //             auto newName = assetChooser(ModelType, component.model->name);
-    //             if (newName != "") {
-    //                 component.model = AssetManager::getModel(newName);
-    //             }
-    //             ImGui::BeginListBox("Materials");
-    //             for (auto& m : component.model->getMeshes()) {
-    //                 auto material = m.material;
-    //
-    //                 auto newAlbedo = assetChooser(TextureType, material->getTexture(Albedo)->name);
-    //                 if (newAlbedo != "") {
-    //                     material->setTexture(Albedo, AssetManager::getTexture(newAlbedo));
-    //                 }
-    //             }
-    //             ImGui::EndListBox();
-    //         },
-    //         true);
-    // }
+    if (entity.hasComponent<MeshRenderer>()) {
+        componentNode<MeshRenderer>(
+            "Model Renderer", entity, [](MeshRenderer& component) {
+                ImGui::InputScalar("ID: ", ImGuiDataType_U64, &component.model);
+                // auto newName = assetChooser(ModelType, component.model->name);
+                // if (newName != "") {
+                //     component.model = AssetManager::getModel(newName);
+                // }
+                // ImGui::BeginListBox("Materials");
+                // for (auto& m : component.model->getMeshes()) {
+                //     auto material = m.material;
+                //
+                //     auto newAlbedo = assetChooser(TextureType, material->getTexture(Albedo)->name);
+                //     if (newAlbedo != "") {
+                //         material->setTexture(Albedo, AssetManager::getTexture(newAlbedo));
+                //     }
+                // }
+                // ImGui::EndListBox();
+            },
+            true);
+    }
 }
 
 void SceneHierarchy::renderImGui()
@@ -272,17 +276,16 @@ void SceneHierarchy::renderImGui()
             entityTreeNode(e);
         };
 
+        // Right-click on blank space
+        if (ImGui::BeginPopupContextWindow(0, 1)) {
+            if (ImGui::MenuItem("Create Empty Entity"))
+                m_SceneContext->createEntity("Empty Entity");
+
+            ImGui::EndPopup();
+        }
         if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
             m_SelectedEntity = {};
         }
-
-        // Right-click on blank space
-        // if (ImGui::BeginPopupContextWindow(0, 1)) {
-        //     if (ImGui::MenuItem("Create Empty Entity"))
-        //         m_SceneContext->createEntity("Empty Entity");
-        //
-        //     ImGui::EndPopup();
-        // }
     }
     ImGui::End();
 

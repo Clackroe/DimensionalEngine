@@ -179,8 +179,7 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
         std::string path;
         SetValue(path, meshComp["path"]);
 
-        // auto model = AssetManager::loadModel(path);
-        // loadedEntity.addComponent<MeshRenderer>(model);
+        loadedEntity.addComponent<MeshRenderer>(0);
     }
 
     auto pointComp = node["PointLightComponent"];

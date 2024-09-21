@@ -49,6 +49,8 @@ void Renderer::Init()
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
     m_PBRShader = CreateRef<Shader>("Assets/Shaders/PBRWithLighting.glsl");
+
+    m_TempMaterial = CreateRef<Material>();
 };
 
 void Renderer::submitLight(LightData data)
@@ -92,19 +94,18 @@ void Renderer::renderMesh(Mesh& mesh, glm::mat4 transform)
 
     Renderer& ref = m_GetRenderer();
     // auto& mat = mesh.material;
-    // mat->bind(ref.m_PBRShader);
+    ref.m_TempMaterial->bind(ref.m_PBRShader);
     ref.setupLightData();
     ref.m_PBRShader->setMat4("model", transform);
-
     Renderer::renderVAO(*mesh.vao, *mesh.eb, ref.m_PBRShader);
 }
 
 void Renderer::renderModel(Model& model, glm::mat4 transform)
 {
-    // for (u32 i = 0; i < model.m_Meshes.size(); i++) {
-    //     Mesh& mesh = model.m_Meshes[i];
-    //     Renderer::renderMesh(model.m_Meshes[i], transform);
-    // }
+    auto& meshes = model.getMeshes();
+    for (u32 i = 0; i < meshes.size(); i++) {
+        Renderer::renderMesh(meshes[i], transform);
+    }
 }
 
 void Renderer::generatePrimitives()
@@ -146,9 +147,9 @@ void Renderer::setupLightData()
     ref.m_PBRShader->setInt("uIBLMap", 8);
     ref.m_PBRShader->setInt("uIrradianceMap", 9);
 
-    m_IBLMap->bind(8, 7);
-
-    m_IrMap->bind(9);
+    // m_IBLMap->bind(8, 7);
+    //
+    // m_IrMap->bind(9);
 
     u32 numPointLights = 0;
     u32 numSpotLights = 0;
@@ -206,15 +207,15 @@ void Renderer::endScene()
 {
     Renderer& ref = m_GetRenderer();
     glDepthFunc(GL_LEQUAL);
-    ref.m_CubeMapShader->use();
-    ref.m_CubeMapShader->setInt("environmentMap", 0);
-    ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
-    ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
+    // ref.m_CubeMapShader->use();
+    // ref.m_CubeMapShader->setInt("environmentMap", 0);
+    // ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
+    // ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
+    //
+    // // ref.m_CubeMap->bind(0);
+    // ref.m_IBLMap->bind(0, 1);
 
-    // ref.m_CubeMap->bind(0);
-    ref.m_IBLMap->bind(0, 1);
-
-    Renderer::renderCube(ref.m_CubeMapShader);
+    // Renderer::renderCube(ref.m_CubeMapShader);
     ref.m_FrameBuffer->Unbind();
     // Flush Data
     ref.m_LightData.erase(ref.m_LightData.begin(), ref.m_LightData.end());

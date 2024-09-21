@@ -89,7 +89,12 @@ void Scene::updateEditor()
         auto view = m_Registry.view<TransformComponent, MeshRenderer>();
         for (auto e : view) {
             auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-            Renderer::renderModel(*mesh.model, transform.GetTransform());
+            Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
+            if (!mod) {
+                // DM_CORE_WARN("Attempted to render a null Model {0} ", (u64)mesh.model);
+                continue;
+            }
+            Renderer::renderModel(*mod, transform.GetTransform());
         }
     }
 }

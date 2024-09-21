@@ -32,4 +32,9 @@ else()
         "${PROJECT_SOURCE_DIR}/Assets" ${CMAKE_BINARY_DIR}/Assets
         COMMENT "Creating symlink from ${PROJECT_SOURCE_DIR}/Assets to ${CMAKE_BINARY_DIR}/Assets"
     )
+    add_custom_command(TARGET Portal POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+        "${PROJECT_SOURCE_DIR}/Assets" ${PROJECT_SOURCE_DIR}/../Assets
+    )
+
 endif()

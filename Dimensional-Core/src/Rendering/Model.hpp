@@ -1,9 +1,9 @@
 #ifndef DM_MODEL_H
 #define DM_MODEL_H
-#include "Rendering/ModelSource.hpp"
 #include <Assets/Asset.hpp>
 #include <Assets/AssetManager.hpp>
 #include <Rendering/Mesh.hpp>
+#include <Rendering/ModelSource.hpp>
 #include <core.hpp>
 
 namespace Dimensional {
@@ -18,7 +18,17 @@ public:
     Model(ModelLoadSettings settings);
     ~Model() = default;
 
-    inline const std::vector<Mesh>& getMeshes() { return AssetManager::getInstance().getAsset<ModelSource>(m_ModelSource)->getMeshes(); };
+    std::vector<Mesh>& getMeshes()
+    {
+        static std::vector<Mesh> emptyMeshes;
+
+        Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(m_ModelSource);
+        if (source) {
+            return source->getMeshes();
+        } else {
+            return emptyMeshes;
+        }
+    };
 
     inline AssetHandle getSource() const { return m_ModelSource; }
     inline void setSource(AssetHandle handle) { m_ModelSource = handle; }

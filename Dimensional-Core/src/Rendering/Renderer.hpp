@@ -134,6 +134,10 @@ private:
     Ref<CubeMap> m_CubeMap;
     Ref<Shader> m_CubeMapShader;
 
+    // TEMP
+    Ref<Material> m_TempMaterial;
+    //
+
     static Renderer* s_RendererRef;
 };
 }

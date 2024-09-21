@@ -1,4 +1,5 @@
 #include "Assets/Asset.hpp"
+#include "Rendering/Texture.hpp"
 #include <Rendering/Material.hpp>
 
 namespace Dimensional {
@@ -8,14 +9,20 @@ Ref<Texture> Material::s_BlackTexture;
 Material::Material()
 {
     if (!s_WhiteTexture) {
-        // s_WhiteTexture = CreateRef<Texture>(1, 1);
         u32 data = 0x808080;
-        // s_WhiteTexture->setData(&data, sizeof(u32));
+        TextureLoadSettings t;
+        t.width = 1;
+        t.height = 1;
+        t.channels = 4;
+        s_WhiteTexture = CreateRef<Texture>(t, &data, sizeof(u32));
     }
     if (!s_BlackTexture) {
-        // s_BlackTexture = CreateRef<Texture>(1, 1);
         u32 data = 0x00000000;
-        // s_BlackTexture->setData(&data, sizeof(u32));
+        TextureLoadSettings t;
+        t.width = 1;
+        t.height = 1;
+        t.channels = 4;
+        s_BlackTexture = CreateRef<Texture>(t, &data, sizeof(u32));
     }
 
     m_AlbedoTexture = s_WhiteTexture;

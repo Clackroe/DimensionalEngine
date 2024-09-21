@@ -1,6 +1,7 @@
 #include "Assets/ModelSerializer.hpp"
 #include "Rendering/Model.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
+#include "core.hpp"
 #include "imgui.h"
 #include <Assets/AssetManager.hpp>
 #include <Assets/AssetRegistrySerializer.hpp>
@@ -33,10 +34,11 @@ void PortalLayer::OnAttatch()
     // AssetManager::getInstance().registerAsset("Assets/Textures/Albedo.png");
     // AssetManager::getInstance().registerAsset("Assets/Textures/Normal.png");
     // AssetManager::getInstance().registerAsset("Assets/Models/PLANE.fbx");
-    AssetManager::getInstance().registerAsset("Assets/testModel.dmod");
+    // AssetManager::getInstance().registerAsset("Assets/testModel.dmod");
     // AssetManager::getInstance().getAsset((AssetHandle)8329971878272805013);
 
-    // m_ActiveScene = CreateRef<Scene>();
+    m_ActiveScene = CreateRef<Scene>();
+    m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
     s_Browser = CreateRef<ContentBrowser>("Assets");
 

@@ -16,8 +16,8 @@ public:
     ModelSource(ModelSourceLoadSettings settings);
     ~ModelSource() = default;
 
-    inline const std::vector<Mesh>& getMeshes() const { return m_Settings.meshes; };
-    inline const std::vector<std::string>& getMaterialNames() const { return m_Settings.materialNames; };
+    std::vector<Mesh>& getMeshes() { return m_Settings.meshes; };
+    const std::vector<std::string>& getMaterialNames() const { return m_Settings.materialNames; };
 
     virtual AssetType getAssetType() const override { return AssetType::MODELSOURCE; }
 
