@@ -3,13 +3,14 @@
 
 #include "Assets/Asset.hpp"
 #include "Assets/AssetMeta.hpp"
-#include "Rendering/Shader.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 namespace Dimensional {
 
+class AssetRegistrySerializer;
+
 using AssetCache = UMap<AssetHandle, Ref<Asset>>;
-using AssetRegistry = UMap<AssetHandle, AssetMetaData>;
+using AssetRegistry = std::map<AssetHandle, AssetMetaData>;
 
 class DMCORE_API AssetManager {
 public:
@@ -19,19 +20,28 @@ public:
         return manager;
     };
 
-    Ref<Asset> getAsset(AssetHandle handle);
+    template <typename T>
+    Ref<T> getAsset(AssetHandle handle);
     const AssetMetaData& getMetaData(AssetHandle handle) const;
 
     AssetHandle registerAsset(std::filesystem::path path);
 
     bool isAssetLoaded(AssetHandle handle);
     bool isAssetRegistered(AssetHandle handle);
-    AssetCache m_LoadedAssets;
-    AssetRegistry m_Registry;
 
 private:
     AssetManager() = default;
     ~AssetManager() = default;
+
+    AssetCache m_LoadedAssets;
+    AssetRegistry m_Registry;
+
+    //
+    friend class PortalLayer;
+    //
+
+    friend class ContentBrowser;
+    friend class AssetRegistrySerializer;
 };
 }
 

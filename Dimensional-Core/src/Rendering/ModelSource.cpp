@@ -12,7 +12,6 @@ ModelSource::ModelSource(ModelSourceLoadSettings settings)
 
 void ModelSource::load()
 {
-    m_Meshes = m_Settings.meshes;
 }
 
 }

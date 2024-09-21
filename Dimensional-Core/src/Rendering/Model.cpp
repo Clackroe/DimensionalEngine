@@ -12,7 +12,7 @@ Model::Model(ModelLoadSettings settings)
 
 void Model::load()
 {
-    m_Meshes = m_Settings.meshes;
+    m_ModelSource = m_Settings.modelSource;
     m_MaterialHandles = m_Settings.matHandles;
 }
 

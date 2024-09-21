@@ -1,77 +1,45 @@
+#include "Assets/ModelSerializer.hpp"
+#include "Rendering/Model.hpp"
+#include "ToolPanels/ContentBrowser.hpp"
 #include "imgui.h"
 #include <Assets/AssetManager.hpp>
+#include <Assets/AssetRegistrySerializer.hpp>
 #include <Input/KeyCodes.hpp>
 #include <PortalEditor.hpp>
 #include <Scene/Components.hpp>
 #include <Scene/SceneSerializer.hpp>
-#include <memory>
+#include <string>
 
 namespace Dimensional {
 
 // TODO: Move to managed system
 static std::string scenePath = "Assets/TestScene.dims";
 
-// TODO Move to ContentBrowser / AssetWatcher
-static void loadAllAssets()
-{
-    namespace fs = std::filesystem;
-
-    // try {
-    //     for (const auto& entry : fs::recursive_directory_iterator("Assets")) {
-    //         if (entry.is_directory()) {
-    //         } else if (entry.is_regular_file()) {
-    //             auto ext = entry.path().extension().string();
-    //             auto path = entry.path().string();
-    //             if (ext == ".fbx") {
-    //                 AssetManager::loadModel(path);
-    //                 continue;
-    //             }
-    //             if (ext == ".FBX") {
-    //                 AssetManager::loadModel(path);
-    //                 continue;
-    //             }
-    //             if (ext == ".obj") {
-    //                 AssetManager::loadModel(path);
-    //                 continue;
-    //             }
-    //             if (ext == ".png") {
-    //                 AssetManager::loadTexture(path, false);
-    //                 continue;
-    //             }
-    //             if (ext == ".jpg") {
-    //                 AssetManager::loadTexture(path, false);
-    //                 continue;
-    //             }
-    //
-    //         } else {
-    //             DM_CORE_WARN("STRANGE FILE? {0}", entry.path().string());
-    //         }
-    //     }
-    // } catch (const fs::filesystem_error& e) {
-    //     std::cerr << "Filesystem error: " << e.what() << std::endl;
-    // } catch (const std::exception& e) {
-    //     std::cerr << "General exception: " << e.what() << std::endl;
-    // }
-}
-
-static AssetHandle s_TestHandle = 0;
+static Ref<ContentBrowser> s_Browser;
 
 void PortalLayer::OnAttatch()
 {
 
     DM_INFO("Portal Initialized");
 
+    AssetManager& manager = AssetManager::getInstance();
+
+    AssetRegistrySerializer::Deserialize("Assets/Registry.dreg", manager);
+
     m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
-    DM_INFO("BEFORE");
-    AssetManager::getInstance().registerAsset("Assets/Textures/Albedo.png");
-    s_TestHandle = AssetManager::getInstance().registerAsset("Assets/Textures/Normal.png");
-    DM_INFO("AFTER");
+    // AssetManager::getInstance().registerAsset("Assets/Textures/Albedo.png");
+    // AssetManager::getInstance().registerAsset("Assets/Textures/Normal.png");
+    // AssetManager::getInstance().registerAsset("Assets/Models/PLANE.fbx");
+    AssetManager::getInstance().registerAsset("Assets/testModel.dmod");
+    // AssetManager::getInstance().getAsset((AssetHandle)8329971878272805013);
 
     // m_ActiveScene = CreateRef<Scene>();
-    //
+
+    s_Browser = CreateRef<ContentBrowser>("Assets");
+
     // loadAllAssets();
 }
 void PortalLayer::OnDetatch() { }
@@ -81,24 +49,15 @@ void PortalLayer::OnUpdate()
     m_EditorCamera.Update();
     glm::vec3 p = m_EditorCamera.getPosition();
 
-    for (auto& [handle, meta] : AssetManager::getInstance().m_Registry) {
-        DM_CORE_WARN("Handle: {0}, Path: {1}", (u32)handle, meta.sourcePath)
+    if (m_ActiveScene) {
+        m_ActiveScene->beginScene();
 
-        DM_CORE_WARN("GLID {0}", std::static_pointer_cast<Texture>(AssetManager::getInstance().getAsset(s_TestHandle))->getID());
+        Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
+
+        m_ActiveScene->updateEditor();
+
+        Renderer::endScene();
     }
-
-    DM_CORE_INFO("\n")
-
-    //
-    // if (m_ActiveScene) {
-    //     m_ActiveScene->beginScene();
-    //
-    //     Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
-    //
-    //     m_ActiveScene->updateEditor();
-    //
-    //     Renderer::endScene();
-    // }
 
     if (Input::IsKeyDown(Key::Escape)) {
         Application::getApp().stopApplication();
@@ -160,6 +119,23 @@ void PortalLayer::OnImGuiRender()
     }
 
     ImGui::End();
+
+    s_Browser->renderImGui();
+
+    // TEST ASSETMANAGER
+    ImGui::Begin("Asset Registry");
+    AssetManager& manager = AssetManager::getInstance();
+    ImGui::BeginListBox("##Reg");
+    for (auto& [h, meta] : manager.m_Registry) {
+        ImGui::Text("%s", std::to_string((u64)h).c_str());
+        ImGui::Text("%s", meta.sourcePath.c_str());
+        ImGui::Text("%s", Asset::assetTypeToString(meta.type).c_str());
+        ImGui::Separator();
+    }
+    ImGui::EndListBox();
+
+    ImGui::End();
+    //
 
     // Viewport
     ImGui::Begin("Viewport");

@@ -1,4 +1,5 @@
 #include "Assets/ModelImporter.hpp"
+#include "Assets/ModelSerializer.hpp"
 
 namespace Dimensional {
 
@@ -9,7 +10,7 @@ Ref<Model> ModelImporter::importModel(AssetMetaData meta)
 
 Ref<Model> ModelImporter::loadModelFromPath(std::filesystem::path path)
 {
-    return nullptr;
+    return ModelSerializer::Deserialize(path);
 }
 
 }

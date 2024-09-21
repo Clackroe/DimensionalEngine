@@ -2,7 +2,7 @@
 #define DM_ASSETMETA_HPP
 #include <core.hpp>
 namespace Dimensional {
-enum class AssetType {
+enum class AssetType : u32 {
     NONE = 0,
     TEXTURE = 1,
     MATERIAL = 2,

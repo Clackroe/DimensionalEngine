@@ -89,7 +89,6 @@ Ref<ModelSource> ModelSourceImporter::loadModelSourceFromPath(std::filesystem::p
     }
 
     ModelSourceLoadSettings settings;
-
     processNode(scene->mRootNode, scene, settings.meshes);
 
     Ref<ModelSource> out = CreateRef<ModelSource>(settings);

@@ -1,6 +1,8 @@
 #include "Assets/AssetMeta.hpp"
 #include <Assets/AssetImporter.hpp>
 #include <Assets/AssetManager.hpp>
+#include <Assets/AssetRegistrySerializer.hpp>
+#include <memory>
 
 namespace Dimensional {
 
@@ -15,11 +17,12 @@ static UMap<std::string, AssetType> s_ExtensionToType = {
     { ".gltf", AssetType::MODELSOURCE },
     { ".fbx", AssetType::MODELSOURCE },
     { ".FBX", AssetType::MODELSOURCE },
+    { ".dmod", AssetType::MODEL },
     { ".glsl", AssetType::SHADER }
 };
 
-Ref<Asset>
-AssetManager::getAsset(AssetHandle handle)
+template <typename T>
+Ref<T> AssetManager::getAsset(AssetHandle handle)
 {
     // if it is valid registered asset
     // if not, return invalid
@@ -29,6 +32,7 @@ AssetManager::getAsset(AssetHandle handle)
     // Check if it needs load
     Ref<Asset> outAsset = nullptr;
     if (isAssetLoaded(handle)) {
+        DM_CORE_INFO("RETURNING ASSET");
         outAsset = m_LoadedAssets.at(handle);
     } else {
         // load/return i
@@ -38,7 +42,7 @@ AssetManager::getAsset(AssetHandle handle)
             DM_CORE_WARN("ASSETMANAGER | Asset {0} Load Failed from path {1}", (u64)handle, data.sourcePath);
         }
     }
-    return outAsset;
+    return std::static_pointer_cast<T>(outAsset);
 }
 
 AssetHandle AssetManager::registerAsset(std::filesystem::path path)
@@ -46,9 +50,13 @@ AssetHandle AssetManager::registerAsset(std::filesystem::path path)
     AssetHandle handle;
     AssetMetaData meta;
     meta.sourcePath = path;
-    meta.type = s_ExtensionToType[path.extension()];
-    if (meta.type == AssetType::NONE) {
-        DM_CORE_WARN("UNABLE TO RECOGNIZE FILE EXTENSION")
+    auto it = s_ExtensionToType.find(path.extension());
+    if (it != s_ExtensionToType.end() && it->second != AssetType::NONE) {
+        auto t = it->second;
+        meta.type = t;
+    } else {
+        DM_CORE_WARN("UNABLE TO RECOGNIZE FILE EXTENSION \"{}\"", path.extension().string())
+        return 0;
     }
 
     Ref<Asset> asset = AssetImporter::importAsset(meta);
@@ -56,8 +64,8 @@ AssetHandle AssetManager::registerAsset(std::filesystem::path path)
         asset->handle = handle;
         m_LoadedAssets[handle] = asset;
         m_Registry[handle] = meta;
+        AssetRegistrySerializer::Serialize("Assets/Registry.dreg", AssetManager::getInstance());
         return handle;
-        // TODO: Save Asset Registry
     }
     return 0;
 }
