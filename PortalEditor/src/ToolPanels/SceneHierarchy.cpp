@@ -77,24 +77,6 @@ static void customVec3Slider(const std::string& label, glm::vec3& values, float 
     ImGui::PopID();
 }
 
-// static std::string assetChooser(AssetType type, std::string current)
-// {
-//     auto assets = AssetManager::getAllAssetNames(type);
-//     if (ImGui::Button(current.c_str())) {
-//         ImGui::OpenPopup("Choose Asset");
-//     }
-//     bool shouldRemoveComponent = false;
-//     if (ImGui::BeginPopup("Choose Asset")) {
-//         for (auto n : assets) {
-//             if (ImGui::MenuItem(n.c_str())) {
-//                 return n;
-//             }
-//         }
-//         ImGui::EndPopup();
-//     }
-//     return "";
-// }
-
 SceneHierarchy::SceneHierarchy(Ref<Scene> scene)
     : m_SceneContext(scene)
 {
