@@ -7,7 +7,7 @@
 namespace Dimensional {
 class AssetRegistrySerializer {
 public:
-    static void Serialize(std::filesystem::path savePath, const AssetManager& manager);
+    static void Serialize(std::filesystem::path savePath, AssetManager& manager);
     static void Deserialize(std::filesystem::path file, AssetManager& manager);
 };
 }

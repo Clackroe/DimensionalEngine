@@ -29,12 +29,16 @@ public:
     bool isAssetLoaded(AssetHandle handle);
     bool isAssetRegistered(AssetHandle handle);
 
+    void refresh();
+
 private:
     AssetManager() = default;
     ~AssetManager() = default;
 
     AssetCache m_LoadedAssets;
     AssetRegistry m_Registry;
+
+    UMap<std::string, AssetHandle> m_PathToHandle;
 
     //
     friend class PortalLayer;

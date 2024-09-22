@@ -128,6 +128,7 @@ void Material::bind(Ref<Shader> shad)
     if (metal) {
         metal->bind(MaterialTexture::Metalness);
     } else {
+        // s_WhiteTexture->bind(MaterialTexture::Metalness);
         s_BlackTexture->bind(MaterialTexture::Metalness);
     }
 

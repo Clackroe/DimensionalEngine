@@ -1,4 +1,6 @@
 #include "Assets/AssetManager.hpp"
+#include "Assets/AssetMeta.hpp"
+#include "Log/log.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelSource.hpp"
 #include "Scene/Components.hpp"
@@ -75,6 +77,25 @@ static void customVec3Slider(const std::string& label, glm::vec3& values, float 
     ImGui::Columns(1);
 
     ImGui::PopID();
+}
+
+namespace Utils {
+    static void assetDragDrop(AssetHandle& handle, AssetType typeOfAsset, const std::string& label)
+    {
+        ImGui::Text("%s", label.c_str());
+        ImGui::BeginDragDropTarget();
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ASSET")) {
+            AssetHandle droppedHandle = *(AssetHandle*)payload->Data;
+            AssetType assetsType = AssetManager::getInstance().getMetaData(droppedHandle).type;
+
+            if (typeOfAsset == assetsType) {
+                handle = droppedHandle;
+            } else {
+                DM_CORE_WARN("Wrong AssetType {0} {1}", Asset::assetTypeToString(typeOfAsset), Asset::assetTypeToString(assetsType))
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
 }
 
 SceneHierarchy::SceneHierarchy(Ref<Scene> scene)
@@ -230,14 +251,10 @@ void SceneHierarchy::entityComponents(Entity entity)
             "Model Renderer", entity, [](MeshRenderer& component) {
                 Ref<Model> model = AssetManager::getInstance().getAsset<Model>(component.model);
 
-                // ImGui::InputScalar("ID: ", ImGuiDataType_U64, &component.model);
-                ImGui::Text("Model!!");
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ASSET")) {
-                    AssetHandle handle = *(AssetHandle*)payload->Data;
-                    component.model = handle;
-                }
+                Utils::assetDragDrop(component.model, AssetType::MODEL, AssetManager::getInstance().getMetaData(component.model).sourcePath);
 
                 if (model) {
+
                     auto mats = model->getMaterials();
 
                     for (auto& m : mats) {

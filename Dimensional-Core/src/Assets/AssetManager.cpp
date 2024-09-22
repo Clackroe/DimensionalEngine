@@ -1,4 +1,5 @@
 #include "Assets/AssetMeta.hpp"
+#include "Log/log.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Texture.hpp"
@@ -41,6 +42,7 @@ Ref<T> AssetManager::getAsset(AssetHandle handle)
         // load/return i
         const AssetMetaData& data = getMetaData(handle);
         outAsset = AssetImporter::importAsset(data);
+        outAsset->handle = m_PathToHandle[data.sourcePath];
         if (!outAsset) {
             DM_CORE_WARN("ASSETMANAGER | Asset {0} Load Failed from path {1}", (u64)handle, data.sourcePath);
             return nullptr;
@@ -54,10 +56,15 @@ template Ref<Texture> AssetManager::getAsset<Texture>(AssetHandle handle);
 template Ref<Model> AssetManager::getAsset<Model>(AssetHandle handle);
 template Ref<ModelSource> AssetManager::getAsset<ModelSource>(AssetHandle handle);
 template Ref<Material> AssetManager::getAsset<Material>(AssetHandle handle);
-// template Ref<Shader> AssetManager::getAsset<Material>(AssetHandle handle);
+// template Ref<Shader> AssetManager::getAsset<Shader>(AssetHandle handle);
 
 AssetHandle AssetManager::registerAsset(std::filesystem::path path)
 {
+    if (m_PathToHandle.contains(path)) {
+        AssetHandle handle = m_PathToHandle[path];
+        return handle;
+    }
+
     AssetHandle handle;
     AssetMetaData meta;
     meta.sourcePath = path;
@@ -70,15 +77,15 @@ AssetHandle AssetManager::registerAsset(std::filesystem::path path)
         return 0;
     }
 
-    Ref<Asset> asset = AssetImporter::importAsset(meta);
-    if (asset) {
-        asset->handle = handle;
-        m_LoadedAssets[handle] = asset;
-        m_Registry[handle] = meta;
-        AssetRegistrySerializer::Serialize("Assets/Registry.dreg", AssetManager::getInstance());
-        return handle;
-    }
-    return 0;
+    // Ref<Asset> asset = AssetImporter::importAsset(meta);
+    // if (asset) {
+    // asset->handle = handle;
+    // m_LoadedAssets[handle] = asset;
+    m_Registry[handle] = meta;
+    AssetRegistrySerializer::Serialize("Assets/Registry.dreg", AssetManager::getInstance());
+    return handle;
+    // }
+    // return 0;
 }
 
 const AssetMetaData& AssetManager::getMetaData(AssetHandle handle) const
@@ -99,5 +106,13 @@ bool AssetManager::isAssetRegistered(AssetHandle handle)
 {
     return m_Registry.find(handle) != m_Registry.end();
 }
+
+void AssetManager::refresh()
+{
+    m_PathToHandle.clear();
+    for (auto [handle, meta] : m_Registry) {
+        m_PathToHandle[meta.sourcePath] = handle;
+    }
+};
 
 }

@@ -4,8 +4,9 @@
 #include "yaml-cpp/emittermanip.h"
 #include <yaml-cpp/yaml.h>
 namespace Dimensional {
-void AssetRegistrySerializer::Serialize(std::filesystem::path savePath, const AssetManager& manager)
+void AssetRegistrySerializer::Serialize(std::filesystem::path savePath, AssetManager& manager)
 {
+    manager.refresh();
     YAML::Emitter out;
 
     out << YAML::BeginMap;
@@ -43,5 +44,7 @@ void AssetRegistrySerializer::Deserialize(std::filesystem::path file, AssetManag
         data.sourcePath = path;
         manager.m_Registry[handle] = data;
     }
+
+    manager.refresh();
 }
 }
