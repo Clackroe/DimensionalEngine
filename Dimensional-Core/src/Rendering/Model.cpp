@@ -12,8 +12,6 @@ Model::Model(ModelLoadSettings settings)
 
 void Model::load()
 {
-    m_ModelSource = m_Settings.modelSource;
-    m_MaterialHandles = m_Settings.matHandles;
 }
 
 }

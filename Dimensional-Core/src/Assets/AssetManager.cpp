@@ -21,7 +21,8 @@ static UMap<std::string, AssetType> s_ExtensionToType = {
     { ".fbx", AssetType::MODELSOURCE },
     { ".FBX", AssetType::MODELSOURCE },
     { ".dmod", AssetType::MODEL },
-    { ".glsl", AssetType::SHADER }
+    { ".glsl", AssetType::SHADER },
+    { ".dmat", AssetType::MATERIAL }
 };
 
 template <typename T>
@@ -40,10 +41,11 @@ Ref<T> AssetManager::getAsset(AssetHandle handle)
         // load/return i
         const AssetMetaData& data = getMetaData(handle);
         outAsset = AssetImporter::importAsset(data);
-        m_LoadedAssets[handle] = outAsset;
         if (!outAsset) {
             DM_CORE_WARN("ASSETMANAGER | Asset {0} Load Failed from path {1}", (u64)handle, data.sourcePath);
+            return nullptr;
         }
+        m_LoadedAssets[handle] = outAsset;
     }
     return std::static_pointer_cast<T>(outAsset);
 }
@@ -52,6 +54,7 @@ template Ref<Texture> AssetManager::getAsset<Texture>(AssetHandle handle);
 template Ref<Model> AssetManager::getAsset<Model>(AssetHandle handle);
 template Ref<ModelSource> AssetManager::getAsset<ModelSource>(AssetHandle handle);
 template Ref<Material> AssetManager::getAsset<Material>(AssetHandle handle);
+// template Ref<Shader> AssetManager::getAsset<Material>(AssetHandle handle);
 
 AssetHandle AssetManager::registerAsset(std::filesystem::path path)
 {

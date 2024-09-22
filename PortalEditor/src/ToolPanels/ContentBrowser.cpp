@@ -1,3 +1,6 @@
+#include "Assets/AssetMeta.hpp"
+#include "Assets/ModelSerializer.hpp"
+#include "Rendering/Model.hpp"
 #include "imgui.h"
 #include <Assets/AssetManager.hpp>
 #include <ToolPanels/ContentBrowser.hpp>
@@ -69,6 +72,12 @@ void ContentBrowser::renderImGui()
             if (m_Mode == BrowsingMode::Asset) {
                 if (m_Items.contains(p.path().string())) {
                     ImGui::ImageButton((ImTextureID)m_FileIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 });
+
+                    if (ImGui::BeginDragDropSource()) {
+                        auto handle = m_Items[p.path().string()].handle;
+                        ImGui::SetDragDropPayload("CONTENT_BROWSER_ASSET", &handle, sizeof(handle));
+                        ImGui::EndDragDropSource();
+                    }
                 } else {
                     continue;
                 }
@@ -78,6 +87,16 @@ void ContentBrowser::renderImGui()
                     if (ImGui::MenuItem("Import")) {
                         AssetManager::getInstance().registerAsset(p.path());
                         refreshAssets();
+                    }
+                    if (m_Items[p.path().string()].type == AssetType::MODELSOURCE) {
+                        if (ImGui::MenuItem("Generate Model")) {
+                            ModelLoadSettings set;
+                            set.modelSource = m_Items[p.path().string()].handle;
+                            auto pp = p.path().parent_path() / (p.path().stem().string() + ".dmod");
+                            ModelSerializer::Serialize(pp, CreateRef<Model>(set));
+                            AssetManager::getInstance().registerAsset(pp);
+                            refreshAssets();
+                        }
                     }
 
                     ImGui::EndPopup();

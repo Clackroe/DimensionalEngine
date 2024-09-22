@@ -15,37 +15,34 @@ enum MaterialTexture {
 };
 
 struct MaterialSettings {
-    Ref<Texture> Albedo;
-    Ref<Texture> Normal;
-    Ref<Texture> Metalness;
-    Ref<Texture> Roughness;
-    Ref<Texture> AO;
+    AssetHandle Albedo = 0;
+    AssetHandle Normal = 0;
+    AssetHandle Metalness = 0;
+    AssetHandle Roughness = 0;
+    AssetHandle AO = 0;
 };
 
 class DMCORE_API Material : public Asset {
 public:
     Material();
-    Material(MaterialSettings settings, std::string name);
+    Material(MaterialSettings settings);
     ~Material() = default;
 
     void bind(Ref<Shader> shad);
 
-    void setTexture(MaterialTexture slot, Ref<Texture> tex);
-    Ref<Texture> getTexture(MaterialTexture slot);
+    void setTexture(MaterialTexture slot, AssetHandle textureHandle);
+
+    AssetHandle getTexture(MaterialTexture slot);
 
     virtual AssetType getAssetType() const override { return AssetType::MATERIAL; };
 
 private:
     // For now, all meshes will utilize the same shader. This will be changed in the future most likely
 
-    Ref<Texture> m_AlbedoTexture; // 0
-    Ref<Texture> m_NormalTexture; // 1
-    Ref<Texture> m_MetalnessTexture; // 2
-    Ref<Texture> m_RoughnessTexture; // 3
-    Ref<Texture> m_AOTexture; // 4
-
     static Ref<Texture> s_WhiteTexture;
     static Ref<Texture> s_BlackTexture;
+
+    MaterialSettings m_Settings;
 };
 }
 #endif

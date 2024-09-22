@@ -1,5 +1,6 @@
 #include "Assets/AssetManager.hpp"
 #include "Rendering/Material.hpp"
+#include "Rendering/ModelSource.hpp"
 #include "Scene/Components.hpp"
 #include "Scene/Scene.hpp"
 #include "Scene/SceneSerializer.hpp"
@@ -245,21 +246,30 @@ void SceneHierarchy::entityComponents(Entity entity)
     if (entity.hasComponent<MeshRenderer>()) {
         componentNode<MeshRenderer>(
             "Model Renderer", entity, [](MeshRenderer& component) {
-                ImGui::InputScalar("ID: ", ImGuiDataType_U64, &component.model);
-                // auto newName = assetChooser(ModelType, component.model->name);
-                // if (newName != "") {
-                //     component.model = AssetManager::getModel(newName);
-                // }
-                // ImGui::BeginListBox("Materials");
-                // for (auto& m : component.model->getMeshes()) {
-                //     auto material = m.material;
-                //
-                //     auto newAlbedo = assetChooser(TextureType, material->getTexture(Albedo)->name);
-                //     if (newAlbedo != "") {
-                //         material->setTexture(Albedo, AssetManager::getTexture(newAlbedo));
-                //     }
-                // }
-                // ImGui::EndListBox();
+                Ref<Model> model = AssetManager::getInstance().getAsset<Model>(component.model);
+
+                // ImGui::InputScalar("ID: ", ImGuiDataType_U64, &component.model);
+                ImGui::Text("Model!!");
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ASSET")) {
+                    AssetHandle handle = *(AssetHandle*)payload->Data;
+                    component.model = handle;
+                }
+
+                if (model) {
+                    auto mats = model->getMaterials();
+
+                    for (auto& m : mats) {
+
+                        Ref<Material> mat1 = AssetManager::getInstance().getAsset<Material>(m);
+                        ImGui::BeginListBox("Mesh");
+                        u64 id = mat1->getTexture(MaterialTexture::Albedo);
+                        ImGui::InputScalar("Albedo: ", ImGuiDataType_U64, &id);
+
+                        mat1->setTexture(MaterialTexture::Albedo, id);
+                    }
+
+                    ImGui::EndListBox();
+                }
             },
             true);
     }

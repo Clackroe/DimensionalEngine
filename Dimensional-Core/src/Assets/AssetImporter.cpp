@@ -1,5 +1,5 @@
-
 #include "Assets/AssetMeta.hpp"
+#include "Assets/MaterialImporter.hpp"
 #include "Assets/ModelImporter.hpp"
 #include "Assets/ModelSourceImporter.hpp"
 #include "Assets/TextureImporter.hpp"
@@ -19,8 +19,13 @@ Ref<Asset> AssetImporter::importAsset(const AssetMetaData& data)
     case (AssetType::MODEL):
         out = ModelImporter::importModel(data);
         break;
+    case (AssetType::MATERIAL):
+        out = MaterialImporter::importModel(data);
+        break;
+
     default:
-        DM_CORE_ASSERT(false, "Attempted to import texture of unimplemented type");
+        DM_CORE_WARN("Attempted to import texture of unimplemented type");
+        break;
     }
     return out;
 }

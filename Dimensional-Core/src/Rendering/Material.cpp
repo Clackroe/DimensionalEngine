@@ -1,5 +1,7 @@
 #include "Assets/Asset.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Rendering/Texture.hpp"
+#include "Scene/Scene.hpp"
 #include <Rendering/Material.hpp>
 
 namespace Dimensional {
@@ -24,64 +26,58 @@ Material::Material()
         t.channels = 4;
         s_BlackTexture = CreateRef<Texture>(t, &data, sizeof(u32));
     }
-
-    m_AlbedoTexture = s_WhiteTexture;
-    m_NormalTexture = nullptr;
-    m_MetalnessTexture = s_BlackTexture;
-    m_RoughnessTexture = s_WhiteTexture;
-    m_AOTexture = s_WhiteTexture;
 }
 
-Material::Material(MaterialSettings settings, std::string name)
+Material::Material(MaterialSettings settings)
 {
     if (settings.Albedo) {
 
-        m_AlbedoTexture = settings.Albedo;
+        m_Settings.Albedo = settings.Albedo;
     } else {
-        m_AlbedoTexture = s_WhiteTexture;
+        m_Settings.Albedo = 0;
     }
 
     if (settings.Normal) {
-        m_NormalTexture = settings.Normal;
+        m_Settings.Normal = settings.Normal;
     } else {
-        m_NormalTexture = nullptr;
+        m_Settings.Normal = 0;
     }
 
     if (settings.Metalness) {
-        m_MetalnessTexture = settings.Metalness;
+        m_Settings.Metalness = settings.Metalness;
     } else {
-        m_MetalnessTexture = s_BlackTexture;
+        m_Settings.Metalness = 0;
     }
 
     if (settings.Roughness) {
-        m_RoughnessTexture = settings.Roughness;
+        m_Settings.Roughness = settings.Roughness;
     } else {
-        m_RoughnessTexture = s_WhiteTexture;
+        m_Settings.Roughness = 0;
     }
 
     if (settings.AO) {
-        m_AOTexture = settings.AO;
+        m_Settings.AO = settings.AO;
     } else {
-        m_AOTexture = s_WhiteTexture;
+        m_Settings.AO = 0;
     }
 }
-Ref<Texture> Material::getTexture(MaterialTexture slot)
+AssetHandle Material::getTexture(MaterialTexture slot)
 {
     switch (slot) {
     case (MaterialTexture::Albedo):
-        return m_AlbedoTexture;
+        return m_Settings.Albedo;
         break;
     case (MaterialTexture::Normal):
-        return m_NormalTexture;
+        return m_Settings.Normal;
         break;
     case (MaterialTexture::Metalness):
-        return m_MetalnessTexture;
+        return m_Settings.Metalness;
         break;
     case (MaterialTexture::Roughness):
-        return m_RoughnessTexture;
+        return m_Settings.Roughness;
         break;
     case (MaterialTexture::AO):
-        return m_AOTexture;
+        return m_Settings.AO;
         break;
     default:
         DM_CORE_ERROR("ERROR");
@@ -89,23 +85,23 @@ Ref<Texture> Material::getTexture(MaterialTexture slot)
     }
 }
 
-void Material::setTexture(MaterialTexture slot, Ref<Texture> tex)
+void Material::setTexture(MaterialTexture slot, AssetHandle textureHandle)
 {
     switch (slot) {
     case (MaterialTexture::Albedo):
-        m_AlbedoTexture = tex;
+        m_Settings.Albedo = textureHandle;
         break;
     case (MaterialTexture::Normal):
-        m_NormalTexture = tex;
+        m_Settings.Normal = textureHandle;
         break;
     case (MaterialTexture::Metalness):
-        m_MetalnessTexture = tex;
+        m_Settings.Metalness = textureHandle;
         break;
     case (MaterialTexture::Roughness):
-        m_RoughnessTexture = tex;
+        m_Settings.Roughness = textureHandle;
         break;
     case (MaterialTexture::AO):
-        m_AOTexture = tex;
+        m_Settings.AO = textureHandle;
         break;
     }
 }
@@ -114,18 +110,44 @@ void Material::bind(Ref<Shader> shad)
 {
     shad->use();
 
-    m_AlbedoTexture->bind(MaterialTexture::Albedo);
+    AssetManager& manager = AssetManager::getInstance();
 
-    if (m_NormalTexture) {
-        m_NormalTexture->bind(MaterialTexture::Normal);
+    auto alb = manager.getAsset<Texture>(m_Settings.Albedo);
+    if (alb) {
+        alb->bind(MaterialTexture::Albedo);
+    } else {
+        s_WhiteTexture->bind(MaterialTexture::Albedo);
     }
-    m_MetalnessTexture->bind(MaterialTexture::Metalness);
-    m_RoughnessTexture->bind(MaterialTexture::Roughness);
-    m_AOTexture->bind(MaterialTexture::AO);
+
+    if (m_Settings.Normal) {
+        auto norm = manager.getAsset<Texture>(m_Settings.Normal);
+        norm->bind(MaterialTexture::Normal);
+    }
+
+    auto metal = manager.getAsset<Texture>(m_Settings.Metalness);
+    if (metal) {
+        metal->bind(MaterialTexture::Metalness);
+    } else {
+        s_BlackTexture->bind(MaterialTexture::Metalness);
+    }
+
+    auto rough = manager.getAsset<Texture>(m_Settings.Roughness);
+    if (rough) {
+        rough->bind(MaterialTexture::Roughness);
+    } else {
+        s_WhiteTexture->bind(MaterialTexture::Roughness);
+    }
+
+    auto ao = manager.getAsset<Texture>(m_Settings.AO);
+    if (ao) {
+        ao->bind(MaterialTexture::AO);
+    } else {
+        s_WhiteTexture->bind(MaterialTexture::AO);
+    }
 
     shad->setInt("albedoMap", MaterialTexture::Albedo);
     shad->setInt("normalMap", MaterialTexture::Normal);
-    if (!m_NormalTexture) {
+    if (!m_Settings.Normal) {
         shad->setBool("uShouldUseNormalMap", false);
     } else {
         shad->setBool("uShouldUseNormalMap", true);

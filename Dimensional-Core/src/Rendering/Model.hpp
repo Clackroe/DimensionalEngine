@@ -10,7 +10,6 @@ namespace Dimensional {
 
 struct ModelLoadSettings {
     AssetHandle modelSource = 0;
-    std::vector<AssetHandle> matHandles;
 };
 
 class DMCORE_API Model : public Asset {
@@ -22,7 +21,7 @@ public:
     {
         static std::vector<Mesh> emptyMeshes;
 
-        Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(m_ModelSource);
+        Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(getSource());
         if (source) {
             return source->getMeshes();
         } else {
@@ -30,16 +29,26 @@ public:
         }
     };
 
-    inline AssetHandle getSource() const { return m_ModelSource; }
-    inline void setSource(AssetHandle handle) { m_ModelSource = handle; }
+    std::vector<AssetHandle>& getMaterials()
+    {
+        static std::vector<AssetHandle> emptyAssets;
+
+        Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(getSource());
+        if (source) {
+            return source->getMaterialHandles();
+        } else {
+            return emptyAssets;
+        }
+    }
+
+    inline AssetHandle getSource() { return m_Settings.modelSource; }
+    inline void setSource(AssetHandle handle) { m_Settings.modelSource = handle; }
 
     virtual AssetType getAssetType() const override { return AssetType::MODEL; }
 
 private:
     void load();
 
-    AssetHandle m_ModelSource;
-    std::vector<AssetHandle> m_MaterialHandles;
     ModelLoadSettings m_Settings;
 };
 
