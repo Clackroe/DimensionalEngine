@@ -208,6 +208,13 @@ void SceneHierarchy::entityComponents(Entity entity)
         if (ImGui::Button("Mesh")) {
             entity.addComponent<MeshRenderer>();
         }
+        if (ImGui::Button("Point Light")) {
+            entity.addComponent<PointLightComponent>();
+        }
+        if (ImGui::Button("Spot Light")) {
+            entity.addComponent<SpotLightComponent>();
+        }
+
         // DisplayAddComponentEntry<TextComponent>("Text Component");
 
         ImGui::EndPopup();

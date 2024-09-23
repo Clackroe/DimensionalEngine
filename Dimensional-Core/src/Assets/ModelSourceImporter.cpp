@@ -142,9 +142,13 @@ static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle,
 
         DM_CORE_WARN("Loading Material | Name: {0}, Path: {1}", name, outPath.string());
 
-        MaterialSerializer::Serialize(outPath, material);
-        AssetHandle materialHandle;
-        handle = AssetManager::getInstance().registerAsset(outPath);
+        if (!AssetManager::getInstance().isAssetRegistered(outPath)) {
+            MaterialSerializer::Serialize(outPath, material);
+            AssetHandle materialHandle;
+            handle = AssetManager::getInstance().registerAsset(outPath);
+        } else {
+            handle = AssetManager::getInstance().getAssetHandleFromPath(outPath);
+        }
     }
 
     return Mesh(vertices, indices);

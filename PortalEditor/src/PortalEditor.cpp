@@ -29,7 +29,9 @@ void PortalLayer::OnAttatch()
 
     AssetManager& manager = AssetManager::getInstance();
 
-    AssetRegistrySerializer::Deserialize("Assets/Registry.dreg", manager);
+    if (std::filesystem::exists("Assets/Registry.dreg")) {
+        AssetRegistrySerializer::Deserialize("Assets/Registry.dreg", manager);
+    }
 
     m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
@@ -118,7 +120,6 @@ void PortalLayer::OnImGuiRender()
         SceneSerializer::Serialize(scenePath, m_ActiveScene);
     }
     if (ImGui::Button("Load")) {
-
         Ref<Scene> nScene = CreateRef<Scene>();
         SceneSerializer::Deserialize(scenePath, nScene);
         m_ActiveScene = nScene;

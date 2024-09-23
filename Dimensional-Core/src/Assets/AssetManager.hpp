@@ -26,10 +26,13 @@ public:
 
     std::vector<AssetHandle> getAssetHandles(AssetType type);
 
+    AssetHandle getAssetHandleFromPath(std::string path);
+
     AssetHandle registerAsset(std::filesystem::path path);
 
     bool isAssetLoaded(AssetHandle handle);
     bool isAssetRegistered(AssetHandle handle);
+    bool isAssetRegistered(std::string path);
 
     void refresh();
 

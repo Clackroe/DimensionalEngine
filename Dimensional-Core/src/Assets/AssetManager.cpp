@@ -119,6 +119,24 @@ bool AssetManager::isAssetRegistered(AssetHandle handle)
     return m_Registry.find(handle) != m_Registry.end();
 }
 
+AssetHandle AssetManager::getAssetHandleFromPath(std::string path)
+{
+
+    auto it = m_PathToHandle.find(path);
+    if (it != m_PathToHandle.end()) {
+        return it->second;
+    }
+    return 0;
+}
+bool AssetManager::isAssetRegistered(std::string path)
+{
+    auto it = m_PathToHandle.find(path);
+    if (it == m_PathToHandle.end()) {
+        return false;
+    }
+    return m_Registry.find(it->second) != m_Registry.end();
+}
+
 void AssetManager::refresh()
 {
     m_PathToHandle.clear();
