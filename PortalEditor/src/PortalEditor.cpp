@@ -1,6 +1,8 @@
+#include "Assets/Asset.hpp"
 #include "Assets/ModelSerializer.hpp"
 #include "Rendering/Model.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
+#include "ToolPanels/MaterialsPanel.hpp"
 #include "core.hpp"
 #include "imgui.h"
 #include <Assets/AssetManager.hpp>
@@ -17,6 +19,7 @@ namespace Dimensional {
 static std::string scenePath = "Assets/TestScene.dims";
 
 static Ref<ContentBrowser> s_Browser;
+static Ref<MaterialsPanel> s_MatPanel;
 
 void PortalLayer::OnAttatch()
 {
@@ -41,6 +44,7 @@ void PortalLayer::OnAttatch()
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
     s_Browser = CreateRef<ContentBrowser>("Assets");
+    s_MatPanel = CreateRef<MaterialsPanel>();
 
     // loadAllAssets();
 }
@@ -123,6 +127,7 @@ void PortalLayer::OnImGuiRender()
     ImGui::End();
 
     s_Browser->renderImGui();
+    s_MatPanel->renderImGui();
 
     // TEST ASSETMANAGER
     ImGui::Begin("Asset Registry");

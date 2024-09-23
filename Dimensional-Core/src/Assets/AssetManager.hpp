@@ -24,6 +24,8 @@ public:
     Ref<T> getAsset(AssetHandle handle);
     const AssetMetaData& getMetaData(AssetHandle handle) const;
 
+    std::vector<AssetHandle> getAssetHandles(AssetType type);
+
     AssetHandle registerAsset(std::filesystem::path path);
 
     bool isAssetLoaded(AssetHandle handle);

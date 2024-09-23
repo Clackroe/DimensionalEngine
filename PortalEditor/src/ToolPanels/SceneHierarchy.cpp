@@ -83,18 +83,19 @@ namespace Utils {
     static void assetDragDrop(AssetHandle& handle, AssetType typeOfAsset, const std::string& label)
     {
         ImGui::Text("%s", label.c_str());
-        ImGui::BeginDragDropTarget();
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ASSET")) {
-            AssetHandle droppedHandle = *(AssetHandle*)payload->Data;
-            AssetType assetsType = AssetManager::getInstance().getMetaData(droppedHandle).type;
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ASSET")) {
+                AssetHandle droppedHandle = *(AssetHandle*)payload->Data;
+                AssetType assetsType = AssetManager::getInstance().getMetaData(droppedHandle).type;
 
-            if (typeOfAsset == assetsType) {
-                handle = droppedHandle;
-            } else {
-                DM_CORE_WARN("Wrong AssetType {0} {1}", Asset::assetTypeToString(typeOfAsset), Asset::assetTypeToString(assetsType))
+                if (typeOfAsset == assetsType) {
+                    handle = droppedHandle;
+                } else {
+                    DM_CORE_WARN("Wrong AssetType {0} {1}", Asset::assetTypeToString(typeOfAsset), Asset::assetTypeToString(assetsType))
+                }
             }
+            ImGui::EndDragDropTarget();
         }
-        ImGui::EndDragDropTarget();
     }
 }
 
@@ -253,22 +254,22 @@ void SceneHierarchy::entityComponents(Entity entity)
 
                 Utils::assetDragDrop(component.model, AssetType::MODEL, AssetManager::getInstance().getMetaData(component.model).sourcePath);
 
-                if (model) {
-
-                    auto mats = model->getMaterials();
-
-                    for (auto& m : mats) {
-
-                        Ref<Material> mat1 = AssetManager::getInstance().getAsset<Material>(m);
-                        ImGui::BeginListBox("Mesh");
-                        u64 id = mat1->getTexture(MaterialTexture::Albedo);
-                        ImGui::InputScalar("Albedo: ", ImGuiDataType_U64, &id);
-
-                        mat1->setTexture(MaterialTexture::Albedo, id);
-                    }
-
-                    ImGui::EndListBox();
-                }
+                // if (model) {
+                //
+                //     auto mats = model->getMaterials();
+                //
+                //     for (auto& m : mats) {
+                //
+                //         Ref<Material> mat1 = AssetManager::getInstance().getAsset<Material>(m);
+                //         ImGui::BeginListBox("Mesh");
+                //         u64 id = mat1->getTexture(MaterialTexture::Albedo);
+                //         ImGui::InputScalar("Albedo: ", ImGuiDataType_U64, &id);
+                //
+                //         mat1->setTexture(MaterialTexture::Albedo, id);
+                //     }
+                //
+                //     ImGui::EndListBox();
+                // }
             },
             true);
     }

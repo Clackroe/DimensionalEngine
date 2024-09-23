@@ -88,7 +88,19 @@ AssetHandle AssetManager::registerAsset(std::filesystem::path path)
     // return 0;
 }
 
-const AssetMetaData& AssetManager::getMetaData(AssetHandle handle) const
+std::vector<AssetHandle> AssetManager::getAssetHandles(AssetType type)
+{
+    std::vector<AssetHandle> out;
+    for (auto [handle, meta] : m_Registry) {
+        if (meta.type == type) {
+            out.emplace_back(handle);
+        }
+    }
+    return out;
+}
+
+const AssetMetaData&
+AssetManager::getMetaData(AssetHandle handle) const
 {
     static AssetMetaData s_NullData;
     auto it = m_Registry.find(handle);
