@@ -36,6 +36,8 @@ public:
 
     virtual AssetType getAssetType() const override { return AssetType::MATERIAL; };
 
+    MaterialSettings& getSettings() { return m_Settings; };
+
 private:
     // For now, all meshes will utilize the same shader. This will be changed in the future most likely
 

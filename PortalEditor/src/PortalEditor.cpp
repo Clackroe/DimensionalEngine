@@ -1,4 +1,5 @@
 #include "Assets/Asset.hpp"
+#include "Assets/MaterialSerializer.hpp"
 #include "Assets/ModelSerializer.hpp"
 #include "Rendering/Model.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
@@ -34,19 +35,11 @@ void PortalLayer::OnAttatch()
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
-    // AssetManager::getInstance().registerAsset("Assets/Textures/Albedo.png");
-    // AssetManager::getInstance().registerAsset("Assets/Textures/Normal.png");
-    // AssetManager::getInstance().registerAsset("Assets/Models/PLANE.fbx");
-    // AssetManager::getInstance().registerAsset("Assets/testModel.dmod");
-    // AssetManager::getInstance().getAsset((AssetHandle)8329971878272805013);
-
     m_ActiveScene = CreateRef<Scene>();
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
     s_Browser = CreateRef<ContentBrowser>("Assets");
     s_MatPanel = CreateRef<MaterialsPanel>();
-
-    // loadAllAssets();
 }
 void PortalLayer::OnDetatch() { }
 
@@ -115,9 +108,17 @@ void PortalLayer::OnImGuiRender()
     // TEST SCENE SAVING
     ImGui::Begin("Test Saving");
     if (ImGui::Button("Save")) {
+        auto matHandles = AssetManager::getInstance().getAssetHandles(AssetType::MATERIAL);
+        for (auto handle : matHandles) {
+            auto meta = AssetManager::getInstance().getMetaData(handle);
+            auto mat = AssetManager::getInstance().getAsset<Material>(handle);
+            MaterialSerializer::Serialize(meta.sourcePath, mat->getSettings());
+        }
+
         SceneSerializer::Serialize(scenePath, m_ActiveScene);
     }
     if (ImGui::Button("Load")) {
+
         Ref<Scene> nScene = CreateRef<Scene>();
         SceneSerializer::Deserialize(scenePath, nScene);
         m_ActiveScene = nScene;

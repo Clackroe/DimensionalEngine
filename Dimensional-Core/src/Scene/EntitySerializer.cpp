@@ -110,7 +110,7 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
         out << YAML::Key << "MeshRenderer";
         out << YAML::BeginMap;
 
-        // out << YAML::Key << "path" << YAML::Value << comp.model->path;
+        out << YAML::Key << "modelHandle" << YAML::Value << (u64)comp.model;
 
         out << YAML::EndMap;
     }
@@ -176,10 +176,9 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
 
     auto meshComp = node["MeshRenderer"];
     if (meshComp) {
-        std::string path;
-        SetValue(path, meshComp["path"]);
-
-        loadedEntity.addComponent<MeshRenderer>(0);
+        AssetHandle handle;
+        SetValue(handle, meshComp["modelHandle"]);
+        loadedEntity.addComponent<MeshRenderer>(handle);
     }
 
     auto pointComp = node["PointLightComponent"];
