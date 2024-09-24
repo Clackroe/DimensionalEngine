@@ -1,7 +1,5 @@
 #include "Assets/Asset.hpp"
 #include "Assets/MaterialSerializer.hpp"
-#include "Assets/ModelSerializer.hpp"
-#include "Rendering/Model.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
 #include "ToolPanels/MaterialsPanel.hpp"
 #include "core.hpp"
@@ -133,15 +131,25 @@ void PortalLayer::OnImGuiRender()
 
     // TEST ASSETMANAGER
     ImGui::Begin("Asset Registry");
+    ImVec2 availableSize = ImGui::GetContentRegionAvail();
+    float listBoxHeight = availableSize.y - ImGui::GetFrameHeightWithSpacing();
     AssetManager& manager = AssetManager::getInstance();
-    ImGui::BeginListBox("##Reg");
-    for (auto& [h, meta] : manager.m_Registry) {
-        ImGui::Text("%s", std::to_string((u64)h).c_str());
-        ImGui::Text("%s", meta.sourcePath.c_str());
-        ImGui::Text("%s", Asset::assetTypeToString(meta.type).c_str());
-        ImGui::Separator();
+    if (ImGui::BeginListBox("##RegistryListBox", ImVec2(-FLT_MIN, listBoxHeight))) {
+        for (auto& [h, meta] : manager.m_Registry) {
+            std::string handleStr = std::to_string(static_cast<uint64_t>(h));
+            std::string typeStr = Asset::assetTypeToString(meta.type);
+
+            if (!meta.sourcePath.empty() && !typeStr.empty()) {
+                ImGui::Text("Handle: %s", handleStr.c_str());
+                ImGui::Text("Path: %s", meta.sourcePath.c_str());
+                ImGui::Text("Type: %s", typeStr.c_str());
+                ImGui::Separator();
+            } else {
+                DM_WARN("Invalid metadata encountered for handle %s", handleStr.c_str());
+            }
+        }
+        ImGui::EndListBox();
     }
-    ImGui::EndListBox();
 
     ImGui::End();
     //
