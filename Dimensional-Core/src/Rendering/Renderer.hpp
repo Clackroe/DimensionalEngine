@@ -88,6 +88,9 @@ public:
     static void renderMesh(Mesh& mesh, Ref<Material> material, glm::mat4 transform);
     static void renderModel(Model& model, glm::mat4 transform);
     //
+    static void renderModel(Model& model, glm::mat4 transform, std::vector<AssetHandle>& materialOverride);
+
+    //
     static void submitLight(LightData data);
 
     //

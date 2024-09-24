@@ -27,25 +27,6 @@ void Renderer::Init()
     generatePrimitives();
     DM_CORE_INFO("Renderer Initialized.")
 
-    // AssetManager::loadMaterial();
-    // // AssetManager::loadTexture();
-    //
-    // AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMap.glsl"));
-    // AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMapComp.glsl"), COMPUTE);
-    // AssetManager::loadShader(("Assets/Shaders/CubeMapConv.glsl"));
-    //
-    // AssetManager::loadShader(("Assets/Shaders/CubeMapConvComp.glsl"), COMPUTE);
-    //
-    // AssetManager::loadShader(("Assets/Shaders/IBLMapPreComp.glsl"), COMPUTE);
-    // AssetManager::loadShader(("Assets/Shaders/BRDFComp.glsl"), COMPUTE);
-    //
-    // m_CubeMap = CreateRef<CubeMap>("Assets/Textures/hdrmapNight.hdr", 512, 512);
-    // m_IrMap = CreateRef<IrMap>(m_CubeMap);
-    //
-    // m_IBLMap = CreateRef<IBLMap>(m_CubeMap);
-    //
-    // m_CubeMapShader = AssetManager::loadShader(("Assets/Shaders/CubeMap.glsl"));
-    //
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
     m_PBRShader = CreateRef<Shader>("Assets/Shaders/PBRWithLighting.glsl");
@@ -105,6 +86,21 @@ void Renderer::renderModel(Model& model, glm::mat4 transform)
     auto& meshes = model.getMeshes();
     for (u32 i = 0; i < meshes.size(); i++) {
         Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(model.getMaterials()[i]);
+        Renderer::renderMesh(meshes[i], mat, transform);
+    }
+}
+
+// Move to Scene Renderer Once we have one or something.
+// I dont like having this be so tightly related to the COmponentes.
+void Renderer::renderModel(Model& model, glm::mat4 transform, std::vector<AssetHandle>& materialOverride)
+{
+    auto& meshes = model.getMeshes();
+    for (u32 i = 0; i < meshes.size(); i++) {
+        AssetHandle id = materialOverride[i];
+        if ((u64)id == 0) {
+            id = model.getMaterials()[i];
+        }
+        Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(id);
         Renderer::renderMesh(meshes[i], mat, transform);
     }
 }

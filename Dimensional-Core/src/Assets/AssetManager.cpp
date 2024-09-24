@@ -49,7 +49,13 @@ Ref<T> AssetManager::getAsset(AssetHandle handle)
         }
         m_LoadedAssets[handle] = outAsset;
     }
-    return std::static_pointer_cast<T>(outAsset);
+    auto castedAsset = std::dynamic_pointer_cast<T>(outAsset);
+    if (!castedAsset) {
+        DM_CORE_WARN("ASSETMANAGER | Attempted to cast Asset {0}, of type {1}, to the wrong type.", (u64)handle, Asset::assetTypeToString(m_Registry[handle].type));
+        return nullptr;
+    }
+
+    return castedAsset;
 }
 // Notify compiler of use outside of lib
 template Ref<Texture> AssetManager::getAsset<Texture>(AssetHandle handle);
@@ -76,16 +82,9 @@ AssetHandle AssetManager::registerAsset(std::filesystem::path path)
         DM_CORE_WARN("UNABLE TO RECOGNIZE FILE EXTENSION \"{}\"", path.extension().string())
         return 0;
     }
-
-    // Ref<Asset> asset = AssetImporter::importAsset(meta);
-    // if (asset) {
-    // asset->handle = handle;
-    // m_LoadedAssets[handle] = asset;
     m_Registry[handle] = meta;
     AssetRegistrySerializer::Serialize("Assets/Registry.dreg", AssetManager::getInstance());
     return handle;
-    // }
-    // return 0;
 }
 
 std::vector<AssetHandle> AssetManager::getAssetHandles(AssetType type)

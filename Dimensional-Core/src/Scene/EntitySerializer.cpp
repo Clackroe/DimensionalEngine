@@ -176,7 +176,7 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
 
     auto meshComp = node["MeshRenderer"];
     if (meshComp) {
-        AssetHandle handle;
+        AssetHandle handle = 0;
         SetValue(handle, meshComp["modelHandle"]);
         loadedEntity.addComponent<MeshRenderer>(handle);
     }

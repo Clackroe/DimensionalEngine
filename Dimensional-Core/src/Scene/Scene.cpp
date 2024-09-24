@@ -91,10 +91,9 @@ void Scene::updateEditor()
             auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
             Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
             if (!mod) {
-                // DM_CORE_WARN("Attempted to render a null Model {0} ", (u64)mesh.model);
                 continue;
             }
-            Renderer::renderModel(*mod, transform.GetTransform());
+            Renderer::renderModel(*mod, transform.GetTransform(), mesh.materialOverrides);
         }
     }
 }

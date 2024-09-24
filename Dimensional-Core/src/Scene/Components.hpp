@@ -1,5 +1,6 @@
 #ifndef DM_COMPONENTS_H
 #define DM_COMPONENTS_H
+#include "Assets/AssetManager.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 
@@ -56,10 +57,34 @@ struct DMCORE_API MeshRenderer {
     MeshRenderer(const MeshRenderer&) = default;
     MeshRenderer(AssetHandle handle)
     {
-        model = handle;
+        setModelHandle(handle);
+    }
+
+    void setModelHandle(AssetHandle newHandle)
+    {
+        if (model == newHandle) {
+            return;
+        }
+        model = newHandle;
+        Ref<Model> modelObj = AssetManager::getInstance().getAsset<Model>(model);
+        if (!modelObj) {
+            model = 0;
+            return;
+        }
+        Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(modelObj->getSource());
+        if (source) {
+            materialOverrides.clear();
+            for (u32 i = 0; i < source->getMaterialHandles().size(); i++) {
+                materialOverrides.push_back(0);
+            }
+            return;
+        }
+        model = 0;
+        return;
     }
 
     AssetHandle model = 0;
+    std::vector<AssetHandle> materialOverrides;
 };
 
 struct DMCORE_API PointLightComponent {
