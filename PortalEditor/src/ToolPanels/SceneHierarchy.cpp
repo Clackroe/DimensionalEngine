@@ -262,6 +262,8 @@ void SceneHierarchy::entityComponents(Entity entity)
                 ImGui::Text("Environment Map:");
                 Utils::assetDragDrop(component.envMap, AssetType::ENVIRONMENTMAP,
                     std::filesystem::path(AssetManager::getInstance().getMetaData(component.envMap).sourcePath).stem());
+
+                ImGui::DragFloat("Linear", &component.lod, 0.01f, 0.0f, 4.0f);
             },
             true);
     }

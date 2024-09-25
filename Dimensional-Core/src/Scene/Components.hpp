@@ -92,6 +92,7 @@ struct DMCORE_API SkyLight {
     SkyLight(const SkyLight&) = default;
 
     AssetHandle envMap = 0;
+    float lod = 1.0;
 };
 
 struct DMCORE_API PointLightComponent {

@@ -14,6 +14,7 @@ namespace Dimensional {
 //    - Resolution: 1024
 
 static u32 s_Resolution = 1024;
+// static u32 s_Resolution = 3072;
 
 Ref<EnvironmentMap> EnvironmentMapImporter::importEnvironment(AssetMetaData meta)
 {

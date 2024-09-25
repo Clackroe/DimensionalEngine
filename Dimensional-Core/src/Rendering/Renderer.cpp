@@ -46,7 +46,7 @@ void Renderer::submitLight(LightData data)
 void Renderer::submitEnvironment(EnvironmentData data)
 {
     Renderer& ref = m_GetRenderer();
-    ref.m_CurrentEnvironmentMap = data.envMap;
+    ref.m_CurrentEnvironmentMap = data;
 }
 
 void Renderer::renderCube(Ref<Shader>& shader)
@@ -157,8 +157,8 @@ void Renderer::setupLightData()
     ref.m_PBRShader->setInt("uIBLMap", 8);
     ref.m_PBRShader->setInt("uIrradianceMap", 9);
 
-    if (m_CurrentEnvironmentMap) {
-        m_CurrentEnvironmentMap->bind();
+    if (m_CurrentEnvironmentMap.envMap) {
+        m_CurrentEnvironmentMap.envMap->bind();
     }
 
     u32 numPointLights = 0;
@@ -208,8 +208,9 @@ void Renderer::endScene()
     ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
     ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
 
-    if (ref.m_CurrentEnvironmentMap) {
-        ref.m_CurrentEnvironmentMap->bind();
+    if (ref.m_CurrentEnvironmentMap.envMap) {
+        ref.m_CurrentEnvironmentMap.envMap->bind();
+        ref.m_CubeMapShader->setFloat("uLod", ref.m_CurrentEnvironmentMap.lod);
     }
 
     // // ref.m_CubeMap->bind(0);

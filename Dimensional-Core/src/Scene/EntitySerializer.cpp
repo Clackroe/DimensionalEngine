@@ -127,6 +127,7 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
         out << YAML::Key << "SkyLight";
         out << YAML::BeginMap;
         out << YAML::Key << "environmentMap" << YAML::Value << (u64)comp.envMap;
+        out << YAML::Key << "environmentLOD" << YAML::Value << comp.lod;
         out << YAML::EndMap;
     }
 
@@ -205,6 +206,7 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
     if (skyLight) {
         auto& skComp = loadedEntity.addComponent<SkyLight>();
         SetValue(skComp.envMap, skyLight["environmentMap"]);
+        SetValue(skComp.lod, skyLight["environmentLOD"]);
     }
 
     auto pointComp = node["PointLightComponent"];

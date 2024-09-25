@@ -67,7 +67,7 @@ void Scene::beginScene()
             auto envData = view.get<SkyLight>(l);
             Ref<EnvironmentMap> map = AssetManager::getInstance().getAsset<EnvironmentMap>(envData.envMap);
             if (map) {
-                Renderer::submitEnvironment({ map });
+                Renderer::submitEnvironment({ map, envData.lod });
                 return;
             }
         }

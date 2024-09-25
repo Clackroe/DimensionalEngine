@@ -54,6 +54,7 @@ struct LightData {
 
 struct EnvironmentData {
     Ref<EnvironmentMap> envMap;
+    float lod = 1.0f;
 };
 
 class DMCORE_API Renderer {
@@ -100,7 +101,7 @@ private:
     void setupLightData();
     std::vector<LightData> m_LightData;
 
-    Ref<EnvironmentMap> m_CurrentEnvironmentMap;
+    EnvironmentData m_CurrentEnvironmentMap;
 
     void generatePrimitives();
     void generateSphere();
