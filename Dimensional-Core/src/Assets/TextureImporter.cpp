@@ -23,13 +23,13 @@ Ref<Texture> TextureImporter::loadAssetFromPath(std::filesystem::path path, bool
     ImageFormat format;
     switch (c) {
     case (1):
-        format = ImageFormat::R8;
+        format = hdr ? ImageFormat::R32 : ImageFormat::R8;
         break;
     case (3):
-        format = ImageFormat::RGB8;
+        format = hdr ? ImageFormat::RGB32 : ImageFormat::RGB8;
         break;
     case (4):
-        format = hdr ? ImageFormat::RGBA16f : ImageFormat::RGBA8;
+        format = hdr ? ImageFormat::RGBA32 : ImageFormat::RGBA8;
         break;
     }
 

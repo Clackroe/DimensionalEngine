@@ -12,17 +12,28 @@ static u32 imageFormatToInternalFormat(ImageFormat format)
     case (ImageFormat::R8):
         return GL_R8;
         break;
+    case (ImageFormat::R16):
+        return GL_R16F;
+        break;
+    case (ImageFormat::R32):
+        return GL_R32F;
+        break;
     case (ImageFormat::RGB8):
         return GL_RGB8;
+        break;
+    case (ImageFormat::RGB16):
+        return GL_RGB16F;
+        break;
+    case (ImageFormat::RGB32):
+        return GL_RGB32F;
         break;
     case (ImageFormat::RGBA8):
         return GL_RGBA8;
         break;
-    case (ImageFormat::RGBA16f):
+    case (ImageFormat::RGBA16):
         return GL_RGBA16F;
         break;
-
-    case (ImageFormat::RGBA32f):
+    case (ImageFormat::RGBA32):
         return GL_RGBA32F;
         break;
     default:
@@ -35,18 +46,18 @@ static u32 imageFormatToDataFormat(ImageFormat format)
 {
     switch (format) {
     case (ImageFormat::R8):
+    case (ImageFormat::R16):
+    case (ImageFormat::R32):
         return GL_RED;
         break;
     case (ImageFormat::RGB8):
+    case (ImageFormat::RGB16):
+    case (ImageFormat::RGB32):
         return GL_RGB;
         break;
     case (ImageFormat::RGBA8):
-        return GL_RGBA;
-        break;
-    case (ImageFormat::RGBA16f):
-        return GL_RGBA;
-        break;
-    case (ImageFormat::RGBA32f):
+    case (ImageFormat::RGBA16):
+    case (ImageFormat::RGBA32):
         return GL_RGBA;
         break;
     default:

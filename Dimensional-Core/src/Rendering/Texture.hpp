@@ -8,10 +8,14 @@ namespace Dimensional {
 enum class ImageFormat {
     NONE = 0,
     R8,
+    R16,
+    R32,
     RGB8,
+    RGB16,
+    RGB32,
     RGBA8,
-    RGBA16f,
-    RGBA32f
+    RGBA16,
+    RGBA32
 };
 
 struct TextureLoadSettings {

@@ -27,6 +27,11 @@ void Renderer::Init()
     generatePrimitives();
     DM_CORE_INFO("Renderer Initialized.")
 
+    FrameBufferSettings fbs = {
+        1920,
+        1080,
+        { RGBA32F, Depth }
+    };
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
     m_PBRShader = CreateRef<Shader>("Assets/Shaders/PBRWithLighting.glsl");
