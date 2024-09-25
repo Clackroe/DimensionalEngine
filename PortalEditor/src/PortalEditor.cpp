@@ -3,8 +3,8 @@
 #include "ToolPanels/ContentBrowser.hpp"
 #include "ToolPanels/MaterialsPanel.hpp"
 #include "core.hpp"
+#include <dimensional.hpp>
 #include "imgui.h"
-#include <Assets/AssetManager.hpp>
 #include <Assets/AssetRegistrySerializer.hpp>
 #include <Input/KeyCodes.hpp>
 #include <PortalEditor.hpp>

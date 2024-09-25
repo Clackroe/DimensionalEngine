@@ -11,7 +11,7 @@ struct EnvironmentMapLoadSettings {
     Ref<IBLMap> irradianceMap;
     Ref<IrMap> radianceMap;
 };
-class EnvironmentMap : public Asset {
+class DMCORE_API EnvironmentMap : public Asset {
 public:
     EnvironmentMap(EnvironmentMapLoadSettings settings);
     ~EnvironmentMap() = default;

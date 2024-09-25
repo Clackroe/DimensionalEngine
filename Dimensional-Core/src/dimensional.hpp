@@ -31,6 +31,7 @@
 #include <Rendering/CubeMap.hpp>
 #include <Rendering/FrameBuffer.hpp>
 #include <Rendering/Model.hpp>
+#include <Rendering/Material.hpp>
 #include <Rendering/ModelSource.hpp>
 #include <Rendering/Renderer.hpp>
 #include <Rendering/Shader.hpp>

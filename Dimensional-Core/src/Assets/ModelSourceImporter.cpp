@@ -137,17 +137,17 @@ static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle,
         loadMaterialTextures(mat, scene, material, modelPath);
 
         // Register new MaterialAsset
-        std::string name = std::string(modelPath.stem().c_str()) + "_" + mat->GetName().C_Str() + ".dmat";
+        std::string name = modelPath.stem().string() + "_" + mat->GetName().C_Str() + ".dmat";
         std::filesystem::path outPath = modelPath.parent_path() / name;
 
         DM_CORE_WARN("Loading Material | Name: {0}, Path: {1}", name, outPath.string());
 
-        if (!AssetManager::getInstance().isAssetRegistered(outPath)) {
+        if (!AssetManager::getInstance().isAssetRegistered(outPath.string())) {
             MaterialSerializer::Serialize(outPath, material);
             AssetHandle materialHandle;
             handle = AssetManager::getInstance().registerAsset(outPath);
         } else {
-            handle = AssetManager::getInstance().getAssetHandleFromPath(outPath);
+            handle = AssetManager::getInstance().getAssetHandleFromPath(outPath.string());
         }
     }
 
@@ -178,7 +178,7 @@ Ref<ModelSource> ModelSourceImporter::loadModelSourceFromPath(std::filesystem::p
     Assimp::Importer import;
 
     // TODO: aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices | aiProcess_GenSmoothNormals
-    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
+    const aiScene* scene = import.ReadFile(path.string(), aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         DM_CORE_ERROR("ASSIMP: {0}", import.GetErrorString());

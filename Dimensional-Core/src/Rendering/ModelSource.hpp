@@ -6,7 +6,7 @@
 
 namespace Dimensional {
 
-struct ModelSourceLoadSettings {
+struct DMCORE_API ModelSourceLoadSettings {
     std::vector<Mesh> meshes;
     std::vector<AssetHandle> meshMaterialHandles;
 };

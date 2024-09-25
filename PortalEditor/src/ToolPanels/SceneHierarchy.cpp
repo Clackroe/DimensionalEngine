@@ -261,7 +261,7 @@ void SceneHierarchy::entityComponents(Entity entity)
             "Sky Light", entity, [](auto& component) {
                 ImGui::Text("Environment Map:");
                 Utils::assetDragDrop(component.envMap, AssetType::ENVIRONMENTMAP,
-                    std::filesystem::path(AssetManager::getInstance().getMetaData(component.envMap).sourcePath).stem());
+                    std::filesystem::path(AssetManager::getInstance().getMetaData(component.envMap).sourcePath).stem().string());
 
                 ImGui::DragFloat("Linear", &component.lod, 0.01f, 0.0f, 4.0f);
             },
@@ -273,8 +273,9 @@ void SceneHierarchy::entityComponents(Entity entity)
             "Model Renderer", entity, [](MeshRenderer& component) {
                 AssetHandle modelID = component.model;
                 ImGui::Text("Model:");
+                const std::string& p = AssetManager::getInstance().getMetaData(modelID).sourcePath;
                 Utils::assetDragDrop(modelID, AssetType::MODEL,
-                    std::filesystem::path(AssetManager::getInstance().getMetaData(modelID).sourcePath).stem());
+                    std::filesystem::path(p).stem().string());
                 if (modelID != component.model) {
                     component.setModelHandle(modelID);
                 }
@@ -315,7 +316,7 @@ void SceneHierarchy::entityComponents(Entity entity)
                                                                                          ? source->getMaterialHandles()[i]
                                                                                          : component.materialOverrides[i])
                                                           .sourcePath)
-                                    .stem());
+                                    .stem().string());
 
                             if (matID != component.materialOverrides[i]) {
                                 component.materialOverrides[i] = matID;

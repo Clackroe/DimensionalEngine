@@ -5,7 +5,7 @@
 #include <core.hpp>
 
 namespace Dimensional {
-class AssetRegistrySerializer {
+class DMCORE_API AssetRegistrySerializer {
 public:
     static void Serialize(std::filesystem::path savePath, AssetManager& manager);
     static void Deserialize(std::filesystem::path file, AssetManager& manager);

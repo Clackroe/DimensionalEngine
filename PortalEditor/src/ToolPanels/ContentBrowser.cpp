@@ -61,10 +61,10 @@ void ContentBrowser::renderImGui()
     ImGui::Columns(numCols, nullptr, false);
     for (auto& p : files) {
 
-        ImGui::PushID(p.path().c_str());
+        ImGui::PushID(p.path().string().c_str());
 
         if (p.is_directory()) {
-            if (ImGui::ImageButton((ImTextureID)m_FolderIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 })) {
+            if (ImGui::ImageButton((ImTextureID)m_FolderIcon->getID(), ImVec2(iconSize, iconSize), {0, 1}, {1, 0})) {
                 m_CurrentPath /= p.path().filename();
                 refreshAssets();
             }
@@ -79,10 +79,12 @@ void ContentBrowser::renderImGui()
                         ImGui::EndDragDropSource();
                     }
                 } else {
+                    ImGui::PopID();
                     continue;
                 }
             } else {
                 ImGui::Image((ImTextureID)m_FileIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 });
+
                 if (ImGui::BeginPopupContextItem("FileContext")) {
                     if (ImGui::MenuItem("Import")) {
                         AssetManager::getInstance().registerAsset(p.path());

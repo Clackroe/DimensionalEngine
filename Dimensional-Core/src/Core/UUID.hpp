@@ -3,7 +3,7 @@
 #include <core.hpp>
 
 namespace Dimensional {
-class UUID {
+class DMCORE_API UUID {
 public:
     UUID();
     UUID(u64 id);

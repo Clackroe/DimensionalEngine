@@ -6,7 +6,7 @@
 #include <core.hpp>
 
 namespace Dimensional {
-class EnvironmentMapImporter {
+class DMCORE_API EnvironmentMapImporter {
 public:
     static Ref<EnvironmentMap> importEnvironment(AssetMetaData meta);
     static Ref<EnvironmentMap> loadAssetFromPath(std::filesystem::path path);

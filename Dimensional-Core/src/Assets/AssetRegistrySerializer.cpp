@@ -24,12 +24,12 @@ void AssetRegistrySerializer::Serialize(std::filesystem::path savePath, AssetMan
 
     std::ofstream fout(savePath.c_str());
     fout << out.c_str();
-    DM_CORE_INFO("Saving registry to {}", savePath.c_str());
+    DM_CORE_INFO("Saving registry to {}", savePath.string());
 }
 void AssetRegistrySerializer::Deserialize(std::filesystem::path file, AssetManager& manager)
 {
 
-    YAML::Node rootNode = YAML::LoadFile(file);
+    YAML::Node rootNode = YAML::LoadFile(file.string());
 
     if (!rootNode["AssetRegistry"]) {
         DM_CORE_ASSERT("Unable to Load Asset Registry");

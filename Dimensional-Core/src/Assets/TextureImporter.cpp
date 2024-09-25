@@ -14,7 +14,7 @@ Ref<Texture> TextureImporter::loadAssetFromPath(std::filesystem::path path, bool
     stbi_set_flip_vertically_on_load(1);
 
     int w, h, c;
-    u8* data = stbi_load(path.c_str(), &w, &h, &c, 0);
+    u8* data = stbi_load(path.string().c_str(), &w, &h, &c, 0);
     if (!data) {
         DM_CORE_WARN("Failed to load texture");
         return nullptr;

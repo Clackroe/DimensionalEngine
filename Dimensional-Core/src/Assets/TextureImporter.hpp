@@ -5,7 +5,7 @@
 #include <core.hpp>
 namespace Dimensional {
 
-class TextureImporter {
+class DMCORE_API TextureImporter {
 public:
     static Ref<Texture> importTexture(AssetMetaData meta);
     static Ref<Texture> loadAssetFromPath(std::filesystem::path path, bool hdr = false);

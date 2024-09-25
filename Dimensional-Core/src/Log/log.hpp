@@ -47,21 +47,6 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
     return os << glm::to_string(quaternion);
 }
 
-// Custom formatter for vec3
-//template <>
-//struct fmt::formatter<glm::vec3> {
-//    // Parses format specs, but we don't care about those in this example.
-//    constexpr auto parse(format_parse_context& ctx)
-//    {
-//        return ctx.begin();
-//    }
-//
-//    template <typename FormatContext>
-//    auto format(const glm::vec3& vec, FormatContext& ctx)
-//    {
-//        return format_to(ctx.out(), "({}, {}, {})", vec.x, vec.y, vec.z);
-//    }
-//};
 
 // Core log macros
 #define DM_CORE_TRACE(...) Dimensional::Log::GetCoreLogger()->trace(__VA_ARGS__);

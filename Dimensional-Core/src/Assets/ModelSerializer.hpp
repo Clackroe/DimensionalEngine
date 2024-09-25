@@ -5,7 +5,7 @@
 #include <core.hpp>
 
 namespace Dimensional {
-class ModelSerializer {
+class DMCORE_API ModelSerializer {
 public:
     static void Serialize(std::filesystem::path savePath, Ref<Model> model);
 

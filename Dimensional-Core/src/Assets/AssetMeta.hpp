@@ -12,7 +12,7 @@ enum class AssetType : u32 {
     ENVIRONMENTMAP = 6
 };
 
-struct AssetMetaData {
+struct DMCORE_API AssetMetaData {
     std::string sourcePath = "NONE";
     AssetType type = AssetType::NONE;
 };

@@ -26,7 +26,7 @@ void MaterialSerializer::Serialize(std::filesystem::path savePath, MaterialSetti
 void MaterialSerializer::Deserialize(std::filesystem::path file, MaterialSettings& settings)
 {
 
-    YAML::Node rootNode = YAML::LoadFile(file);
+    YAML::Node rootNode = YAML::LoadFile(file.string());
 
     auto mat = rootNode["Material"];
 

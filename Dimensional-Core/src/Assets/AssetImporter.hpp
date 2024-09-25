@@ -4,7 +4,7 @@
 #include <core.hpp>
 
 namespace Dimensional {
-class AssetImporter {
+class DMCORE_API AssetImporter {
 public:
     static Ref<Asset> importAsset(const AssetMetaData& data);
 };

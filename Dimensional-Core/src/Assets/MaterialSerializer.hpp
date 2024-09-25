@@ -6,7 +6,7 @@
 #include <core.hpp>
 
 namespace Dimensional {
-class MaterialSerializer {
+class DMCORE_API MaterialSerializer {
 public:
     static void Serialize(std::filesystem::path savePath, MaterialSettings& material);
 

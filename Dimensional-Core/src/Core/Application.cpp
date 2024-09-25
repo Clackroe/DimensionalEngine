@@ -45,6 +45,10 @@ void Application::runApplication()
         //------Update imgui Layers-------
         m_ImGuiOverlay->beginFrame();
 
+        ImGui::Begin("Stats");
+        ImGui::Text("FPS: %f", 1 / Time::deltaTime());
+        ImGui::End();
+
         for (Layer* layer : m_LayerStack) {
             layer->OnImGuiRender();
         }

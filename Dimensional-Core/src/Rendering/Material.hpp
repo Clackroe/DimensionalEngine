@@ -14,7 +14,7 @@ enum MaterialTexture {
     AO = 4
 };
 
-struct MaterialSettings {
+struct DMCORE_API MaterialSettings {
     AssetHandle Albedo = 0;
     AssetHandle Normal = 0;
     AssetHandle Metalness = 0;

@@ -24,7 +24,7 @@ Ref<Model> ModelSerializer::Deserialize(std::filesystem::path file)
 {
     ModelLoadSettings set;
 
-    YAML::Node rootNode = YAML::LoadFile(file);
+    YAML::Node rootNode = YAML::LoadFile(file.string());
 
     auto settings = rootNode["Model"];
 

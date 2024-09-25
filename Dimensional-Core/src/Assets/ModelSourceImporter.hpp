@@ -5,7 +5,7 @@
 #include <core.hpp>
 namespace Dimensional {
 
-class ModelSourceImporter {
+class DMCORE_API ModelSourceImporter {
 public:
     static Ref<ModelSource> importModelSource(AssetMetaData meta);
     static Ref<ModelSource> loadModelSourceFromPath(std::filesystem::path path);

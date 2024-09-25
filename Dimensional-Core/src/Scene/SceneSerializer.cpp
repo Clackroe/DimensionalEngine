@@ -38,7 +38,7 @@ void SceneSerializer::Serialize(std::filesystem::path savePath, const Ref<Scene>
 void SceneSerializer::Deserialize(std::filesystem::path file, Ref<Scene>& scene)
 {
     DM_INFO("Before Load");
-    YAML::Node sceneNode = YAML::LoadFile(file);
+    YAML::Node sceneNode = YAML::LoadFile(file.string());
     DM_INFO("After Load");
 
     if (!sceneNode["Scene"]) {
