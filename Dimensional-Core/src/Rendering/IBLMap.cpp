@@ -1,4 +1,4 @@
-#include "Core/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Log/log.hpp"
 #include <Rendering/IBLMap.hpp>
 #include <Rendering/Renderer.hpp>
@@ -20,10 +20,10 @@ void IBLMap::build()
 {
 
     if (!s_PreComp) {
-        s_PreComp = AssetManager::getShader("IBLMapPreComp");
+        s_PreComp = CreateRef<Shader>("Assets/Shaders/IBLMapPreComp.glsl", ShaderType::COMPUTE);
     }
     if (!s_BRDFComp) {
-        s_BRDFComp = AssetManager::getShader("BRDFComp");
+        s_BRDFComp = CreateRef<Shader>("Assets/Shaders/BRDFComp.glsl", ShaderType::COMPUTE);
     }
 
     createMainTexture();

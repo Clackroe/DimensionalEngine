@@ -1,4 +1,4 @@
-#include "Core/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Log/log.hpp"
 #include <Rendering/IrMap.hpp>
 #include <Rendering/Renderer.hpp>
@@ -19,9 +19,8 @@ IrMap::IrMap(Ref<CubeMap> ref)
 
 void IrMap::build()
 {
-
     if (!s_ConvShader) {
-        s_ConvShader = AssetManager::getShader("CubeMapConvComp");
+        s_ConvShader = CreateRef<Shader>("Assets/Shaders/CubeMapConvComp.glsl", ShaderType::COMPUTE);
     }
     createMainTexture();
     renderToCubeMap();

@@ -2,6 +2,7 @@
 #define DM_COREH
 
 #include <algorithm>
+#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -10,6 +11,7 @@
 #include <utility>
 
 #include <array>
+#include <map>
 #include <queue>
 #include <sstream>
 #include <string>

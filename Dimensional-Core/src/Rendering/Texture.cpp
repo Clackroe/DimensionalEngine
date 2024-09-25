@@ -1,4 +1,3 @@
-#include "Log/log.hpp"
 #include "core.hpp"
 #include <Rendering/Texture.hpp>
 
@@ -6,93 +5,95 @@
 #include <stb_image.hpp>
 
 namespace Dimensional {
-Texture::Texture(std::string path, bool retainInMemory)
-    : Asset(path, AssetType::TextureType)
+
+static u32 imageFormatToInternalFormat(ImageFormat format)
 {
-    m_Path = path;
-    load(path, retainInMemory);
-};
-Texture::Texture(u32 width, u32 height)
-    : Asset("Blank Texture", AssetType::TextureType)
-    , m_Width(width)
-    , m_Height(height)
-{
-    m_IntFormat = GL_RGBA8;
-    m_DataFormat = GL_RGBA;
-
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_GLId);
-    glTextureStorage2D(m_GLId, 1, m_IntFormat, m_Width, m_Height);
-
-    glTextureParameteri(m_GLId, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(m_GLId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTextureParameteri(m_GLId, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTextureParameteri(m_GLId, GL_TEXTURE_WRAP_T, GL_REPEAT);
-}
-
-void Texture::load(std::string path, bool retainInMemory, bool hdr)
-{
-    stbi_set_flip_vertically_on_load(1);
-
-    int w, h, c;
-    u8* data = stbi_load(m_Path.c_str(), &w, &h, &c, 0);
-    if (!data) {
-        DM_CORE_WARN("Failed to load texture");
-    }
-
-    m_Width = w;
-    m_Height = h;
-    m_Channels = c;
-
-    // Internal and data Formats to notify opengl
-    GLenum intFormat = 0, dataFormat = 0;
-
-    DM_CORE_INFO("Name: {0} Channels: {1}", name, m_Channels);
-    switch (m_Channels) {
-    case 1:
-
-        intFormat = hdr ? GL_R16F : GL_R8;
-        dataFormat = GL_RED;
+    switch (format) {
+    case (ImageFormat::R8):
+        return GL_R8;
         break;
-    case 3:
-        intFormat = hdr ? GL_RGB16F : GL_RGB8;
-        dataFormat = GL_RGB;
+    case (ImageFormat::R16):
+        return GL_R16F;
         break;
-    case 4:
-        intFormat = hdr ? GL_RGBA16F : GL_RGBA8;
-        dataFormat = GL_RGBA;
+    case (ImageFormat::R32):
+        return GL_R32F;
+        break;
+    case (ImageFormat::RGB8):
+        return GL_RGB8;
+        break;
+    case (ImageFormat::RGB16):
+        return GL_RGB16F;
+        break;
+    case (ImageFormat::RGB32):
+        return GL_RGB32F;
+        break;
+    case (ImageFormat::RGBA8):
+        return GL_RGBA8;
+        break;
+    case (ImageFormat::RGBA16):
+        return GL_RGBA16F;
+        break;
+    case (ImageFormat::RGBA32):
+        return GL_RGBA32F;
         break;
     default:
-        DM_CORE_ASSERT(false, "Texture (" + name + ")uses an unsupported channel." + std::to_string(m_Channels));
-        stbi_image_free(data);
-        return;
+        DM_CORE_ASSERT(false, "Tried to get an image with NONE format type");
     }
-    m_IntFormat = intFormat;
-    m_DataFormat = dataFormat;
+    return 0;
+}
+
+static u32 imageFormatToDataFormat(ImageFormat format)
+{
+    switch (format) {
+    case (ImageFormat::R8):
+    case (ImageFormat::R16):
+    case (ImageFormat::R32):
+        return GL_RED;
+        break;
+    case (ImageFormat::RGB8):
+    case (ImageFormat::RGB16):
+    case (ImageFormat::RGB32):
+        return GL_RGB;
+        break;
+    case (ImageFormat::RGBA8):
+    case (ImageFormat::RGBA16):
+    case (ImageFormat::RGBA32):
+        return GL_RGBA;
+        break;
+    default:
+        DM_CORE_ASSERT(false, "Tried to get an image with NONE format type");
+    }
+    return 0;
+}
+
+Texture::Texture(TextureLoadSettings settings, void* data, u32 sizeBytes)
+{
+    m_Settings = settings;
+    load(data, sizeBytes);
+}
+
+void Texture::load(void* data, u32 sizeBytes)
+{
+
+    m_InternalDataFormat = imageFormatToInternalFormat(m_Settings.format);
+    m_DataFormat = imageFormatToDataFormat(m_Settings.format);
 
     glCreateTextures(GL_TEXTURE_2D, 1, &m_GLId);
-    glTextureStorage2D(m_GLId, 1, m_IntFormat, m_Width, m_Height);
+    glTextureStorage2D(m_GLId, 1, m_InternalDataFormat, m_Settings.width, m_Settings.height);
 
-    //
+    // TODO: Make These A Parameter to be Chosen
     glTextureParameteri(m_GLId, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTextureParameteri(m_GLId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTextureParameteri(m_GLId, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTextureParameteri(m_GLId, GL_TEXTURE_WRAP_T, GL_REPEAT);
     //
 
-    glTextureSubImage2D(m_GLId, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
-
-    if (retainInMemory) {
-        m_TextureData.resize(m_Height * m_Width * m_Channels);
-        std::memcpy(m_TextureData.data(), data, m_Height * m_Width * m_Channels * sizeof(u8));
-    } else {
-        stbi_image_free(data);
-    }
+    setData(data, sizeBytes);
 }
 void Texture::setData(void* data, u32 sizeBytes)
 {
-    DM_CORE_ASSERT(sizeBytes == m_Width * m_Height * (m_DataFormat == GL_RGBA ? 4 : 3), "Data must be entire texture!")
-    glTextureSubImage2D(m_GLId, 0, 0, 0, static_cast<int>(m_Width), static_cast<int>(m_Height), m_DataFormat, GL_UNSIGNED_BYTE, data);
+    DM_CORE_ASSERT(sizeBytes == m_Settings.width * m_Settings.height * m_Settings.channels, "Data must be entire texture!")
+    glTextureSubImage2D(m_GLId, 0, 0, 0, m_Settings.width, m_Settings.height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 }
 
 void Texture::bind(u32 textureSlot)

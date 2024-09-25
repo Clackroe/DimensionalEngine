@@ -3,6 +3,7 @@
 
 #include "Input/Input.hpp"
 #include "Rendering/CubeMap.hpp"
+#include "Rendering/EnvironmentMap.hpp"
 #include "Rendering/IBLMap.hpp"
 #include "Rendering/IrMap.hpp"
 
@@ -22,6 +23,13 @@ class Mesh;
 class Model;
 //
 
+enum class TextureSlots : u32 {
+    // 0 - 5 Material Use
+    BRDFLUT = 7,
+    IBLMAP = 8,
+    RADIANCE = 9
+};
+
 struct CameraData {
     glm::mat4 viewProj;
     glm::vec3 uCameraPosition;
@@ -29,22 +37,6 @@ struct CameraData {
     glm::mat4 view;
     glm::mat4 proj;
 };
-
-// struct Light {
-//     vec3 position;
-//     vec3 direction;
-//     vec3 color;
-//
-//     float intensity;
-//     float cutOff; // Spotlight cutoff angle
-//     float outerCutOff; // Spotlight outer cutoff angle
-//
-//     // Attenuation parameters
-//     float constant;
-//     float linear;
-//     float quadratic;
-// };
-//
 
 struct LightData {
     glm::vec3 position;
@@ -59,15 +51,10 @@ struct LightData {
     float linear;
     float quadratic;
 };
-// struct LightData {
-//     glm::vec3 pos;
-//     glm::vec3 color;
-// };
 
-static FrameBufferSettings fbs = {
-    1280,
-    720,
-    { RGBA16F, Depth }
+struct EnvironmentData {
+    Ref<EnvironmentMap> envMap;
+    float lod = 1.0f;
 };
 
 class DMCORE_API Renderer {
@@ -85,11 +72,14 @@ public:
 
     static void renderCube(Ref<Material>& mat, glm::mat4 transform);
     static void renderSphere(Ref<Material>& mat, glm::mat4 transform);
-    static void renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform);
-    static void renderModel(Model& model, Ref<Material>& mat, glm::mat4 transform);
+    static void renderMesh(Mesh& mesh, Ref<Material> material, glm::mat4 transform);
+    static void renderModel(Model& model, glm::mat4 transform);
+    //
+    static void renderModel(Model& model, glm::mat4 transform, std::vector<AssetHandle>& materialOverride);
+
     //
     static void submitLight(LightData data);
-
+    static void submitEnvironment(EnvironmentData data);
     //
 
     static void beginScene(CameraData data);
@@ -97,8 +87,8 @@ public:
 
     // TODO: Create a better way to deal with framebuffers
     static Ref<FrameBuffer> getFrameBuffer() { return m_GetRenderer().m_FrameBuffer; };
-    static Ref<IBLMap> getIBL() { return m_GetRenderer().m_IBLMap; }
-    //
+
+    // static Ref<IBLMap> getIBL() { return m_GetRenderer().m_IBLMap; }
 
     // -----
 
@@ -110,6 +100,8 @@ private:
 
     void setupLightData();
     std::vector<LightData> m_LightData;
+
+    EnvironmentData m_CurrentEnvironmentMap;
 
     void generatePrimitives();
     void generateSphere();
@@ -124,15 +116,9 @@ private:
     //
 
     Ref<Shader> m_PBRShader;
+    Ref<Shader> m_CubeMapShader;
 
     Ref<FrameBuffer> m_FrameBuffer;
-
-    Ref<IrMap> m_IrMap;
-
-    Ref<IBLMap> m_IBLMap;
-
-    Ref<CubeMap> m_CubeMap;
-    Ref<Shader> m_CubeMapShader;
 
     static Renderer* s_RendererRef;
 };

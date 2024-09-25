@@ -1,4 +1,11 @@
+#include "Assets/AssetManager.hpp"
+#include "Assets/AssetMeta.hpp"
+#include "Log/log.hpp"
+#include "Rendering/Material.hpp"
+#include "Rendering/ModelSource.hpp"
 #include "Scene/Components.hpp"
+#include "Scene/Scene.hpp"
+#include "Scene/SceneSerializer.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <ToolPanels/SceneHierarchy.hpp>
@@ -71,6 +78,27 @@ static void customVec3Slider(const std::string& label, glm::vec3& values, float 
 
     ImGui::PopID();
 }
+
+namespace Utils {
+    static void assetDragDrop(AssetHandle& handle, AssetType typeOfAsset, const std::string& label)
+    {
+        ImGui::Text("%s", label.c_str());
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ASSET")) {
+                AssetHandle droppedHandle = *(AssetHandle*)payload->Data;
+                AssetType assetsType = AssetManager::getInstance().getMetaData(droppedHandle).type;
+
+                if (typeOfAsset == assetsType) {
+                    handle = droppedHandle;
+                } else {
+                    DM_CORE_WARN("Wrong AssetType {0} {1}", Asset::assetTypeToString(typeOfAsset), Asset::assetTypeToString(assetsType))
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    }
+}
+
 SceneHierarchy::SceneHierarchy(Ref<Scene> scene)
     : m_SceneContext(scene)
 {
@@ -177,6 +205,18 @@ void SceneHierarchy::entityComponents(Entity entity)
         ImGui::OpenPopup("AddComponent");
 
     if (ImGui::BeginPopup("AddComponent")) {
+        if (ImGui::Button("Mesh")) {
+            entity.addComponent<MeshRenderer>();
+        }
+        if (ImGui::Button("Point Light")) {
+            entity.addComponent<PointLightComponent>();
+        }
+        if (ImGui::Button("Spot Light")) {
+            entity.addComponent<SpotLightComponent>();
+        }
+        if (ImGui::Button("Sky Light")) {
+            entity.addComponent<SkyLight>();
+        }
         // DisplayAddComponentEntry<TextComponent>("Text Component");
 
         ImGui::EndPopup();
@@ -216,28 +256,107 @@ void SceneHierarchy::entityComponents(Entity entity)
             },
             true);
     }
+    if (entity.hasComponent<SkyLight>()) {
+        componentNode<SkyLight>(
+            "Sky Light", entity, [](auto& component) {
+                ImGui::Text("Environment Map:");
+                Utils::assetDragDrop(component.envMap, AssetType::ENVIRONMENTMAP,
+                    std::filesystem::path(AssetManager::getInstance().getMetaData(component.envMap).sourcePath).stem());
+
+                ImGui::DragFloat("Linear", &component.lod, 0.01f, 0.0f, 4.0f);
+            },
+            true);
+    }
+
+    if (entity.hasComponent<MeshRenderer>()) {
+        componentNode<MeshRenderer>(
+            "Model Renderer", entity, [](MeshRenderer& component) {
+                AssetHandle modelID = component.model;
+                ImGui::Text("Model:");
+                Utils::assetDragDrop(modelID, AssetType::MODEL,
+                    std::filesystem::path(AssetManager::getInstance().getMetaData(modelID).sourcePath).stem());
+                if (modelID != component.model) {
+                    component.setModelHandle(modelID);
+                }
+
+                Ref<Model> model = AssetManager::getInstance().getAsset<Model>(component.model);
+                if (!model) {
+                    return;
+                }
+
+                Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(model->getSource());
+                if (source) {
+                    ImGui::Separator();
+
+                    // Materials Section
+                    if (ImGui::BeginListBox("##MaterialOverrides", ImVec2(0, 0))) {
+                        ImGui::Text("Materials:");
+                        ImGui::Separator();
+
+                        // Loop through materials and allow override
+                        for (u32 i = 0; i < source->getMaterialHandles().size(); i++) {
+                            ImGui::PushID(i);
+
+                            if (component.materialOverrides[i] != source->getMaterialHandles()[i] && (u64)component.materialOverrides[i] != 0) {
+
+                                if (ImGui::Button("Reset##ResetButton")) {
+                                    component.materialOverrides[i] = source->getMaterialHandles()[i];
+                                }
+                                ImGui::SameLine();
+                            }
+
+                            ImGui::Text("Material %d:", i + 1);
+                            ImGui::SameLine();
+
+                            AssetHandle matID = component.materialOverrides[i];
+                            Utils::assetDragDrop(matID, AssetType::MATERIAL,
+                                std::filesystem::path(AssetManager::getInstance().getMetaData(
+                                                                                     (u64)component.materialOverrides[i] == 0
+                                                                                         ? source->getMaterialHandles()[i]
+                                                                                         : component.materialOverrides[i])
+                                                          .sourcePath)
+                                    .stem());
+
+                            if (matID != component.materialOverrides[i]) {
+                                component.materialOverrides[i] = matID;
+                            }
+
+                            if (ImGui::IsItemHovered()) {
+                                ImGui::SetTooltip("Drag and drop to assign a material.");
+                            }
+
+                            ImGui::PopID();
+                        }
+
+                        ImGui::EndListBox();
+                    }
+                }
+            },
+            true);
+    }
 }
 
 void SceneHierarchy::renderImGui()
 {
+
     ImGui::Begin("Hierarchy");
+
     if (m_SceneContext) {
         for (auto entity : m_SceneContext->m_Registry.view<entt::entity>()) {
             Entity e = { entity, m_SceneContext.get() };
             entityTreeNode(e);
         };
 
+        // Right-click on blank space
+        if (ImGui::BeginPopupContextWindow(0, 1)) {
+            if (ImGui::MenuItem("Create Empty Entity"))
+                m_SceneContext->createEntity("Empty Entity");
+
+            ImGui::EndPopup();
+        }
         if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
             m_SelectedEntity = {};
         }
-
-        // Right-click on blank space
-        // if (ImGui::BeginPopupContextWindow(0, 1)) {
-        //     if (ImGui::MenuItem("Create Empty Entity"))
-        //         m_SceneContext->createEntity("Empty Entity");
-        //
-        //     ImGui::EndPopup();
-        // }
     }
     ImGui::End();
 

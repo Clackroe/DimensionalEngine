@@ -1,11 +1,13 @@
 #ifndef DM_SCENE_H
 #define DM_SCENE_H
+#include "Scene/Components.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 
 #include <entt/entt.hpp>
 
 namespace Dimensional {
+class SceneSerializer;
 class Entity;
 class SceneHierarchy;
 
@@ -45,6 +47,9 @@ private:
     void onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component);
     template <>
     void onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component);
+    template <>
+    void onComponentAdded<SkyLight>(Entity entity, SkyLight& component);
+
 #endif
 
     entt::registry m_Registry;
@@ -52,6 +57,7 @@ private:
     UMap<UUID, entt::entity> m_EntityMap;
 
     friend class Entity;
+    friend class SceneSerializer;
     friend class SceneHierarchy;
 };
 

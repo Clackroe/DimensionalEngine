@@ -1,34 +1,55 @@
 #ifndef DM_MODEL_H
 #define DM_MODEL_H
-#include <Core/Assets/Asset.hpp>
+#include <Assets/Asset.hpp>
+#include <Assets/AssetManager.hpp>
 #include <Rendering/Mesh.hpp>
+#include <Rendering/ModelSource.hpp>
 #include <core.hpp>
-
-class aiMesh;
-struct aiScene;
-class aiNode;
-class aiMaterial;
 
 namespace Dimensional {
 
+struct ModelLoadSettings {
+    AssetHandle modelSource = 0;
+};
+
 class DMCORE_API Model : public Asset {
 public:
-    Model()
-        : Asset("EmptyModel", AssetType::ModelType) {};
-    Model(std::string path);
+    Model(ModelLoadSettings settings);
     ~Model() = default;
 
-    void Init(std::string path);
+    std::vector<Mesh>& getMeshes()
+    {
+        static std::vector<Mesh> emptyMeshes;
+
+        Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(getSource());
+        if (source) {
+            return source->getMeshes();
+        } else {
+            return emptyMeshes;
+        }
+    };
+
+    std::vector<AssetHandle>& getMaterials()
+    {
+        static std::vector<AssetHandle> emptyAssets;
+
+        Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(getSource());
+        if (source) {
+            return source->getMaterialHandles();
+        } else {
+            return emptyAssets;
+        }
+    }
+
+    inline AssetHandle getSource() { return m_Settings.modelSource; }
+    inline void setSource(AssetHandle handle) { m_Settings.modelSource = handle; }
+
+    virtual AssetType getAssetType() const override { return AssetType::MODEL; }
 
 private:
-    std::vector<Mesh> m_Meshes;
-    std::string m_Directory;
+    void load();
 
-    void loadModel(std::string path);
-    void processNode(aiNode* node, const aiScene* scene);
-    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-
-    friend class Renderer;
+    ModelLoadSettings m_Settings;
 };
 
 }

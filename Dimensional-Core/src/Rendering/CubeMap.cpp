@@ -1,4 +1,5 @@
-#include "Core/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
+#include "Assets/TextureImporter.hpp"
 #include <Rendering/CubeMap.hpp>
 #include <Rendering/Renderer.hpp>
 #include <glad.h>
@@ -10,9 +11,9 @@ CubeMap::CubeMap(std::string path, u32 w, u32 h)
     , m_Height(h)
 {
     if (!s_EquirectToCubeMap) {
-        s_EquirectToCubeMap = AssetManager::getShader("EquirectToCubeMapComp");
+        s_EquirectToCubeMap = CreateRef<Shader>("Assets/Shaders/EquirectToCubeMapComp.glsl", ShaderType::COMPUTE);
     }
-    m_EnvironmentTexture = AssetManager::loadTexture(path, false);
+    m_EnvironmentTexture = TextureImporter::loadAssetFromPath(path, true);
     createMainTexture();
     renderToCubeMap();
 }

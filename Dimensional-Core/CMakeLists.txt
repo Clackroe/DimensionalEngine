@@ -21,6 +21,7 @@ include_directories(lib/ENTT/single_include)
 # Ensure all static libraries are compiled with -fPIC
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+
 # ASSIMP
 add_subdirectory(lib/ASSIMP)
 include_directories(lib/ASSIMP/include)
@@ -31,6 +32,11 @@ set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
 set_target_properties(assimp PROPERTIES POSITION_INDEPENDENT_CODE ON LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+# YAML
+add_subdirectory(lib/YAML)
+include_directories(lib/YAML/include)
+set_target_properties(yaml-cpp PROPERTIES POSITION_INDEPENDENT_CODE ON DYAML_BUILD_SHARED_LIBS OFF)
 
 # GLFW
 set(BUILD_SHARED_LIBS OFF)           
@@ -80,7 +86,7 @@ set_source_files_properties(${PCH_HEADER} PROPERTIES HEADER_FILE_ONLY ON)
 
 # Shared Library
 add_library(Dimensional-Core SHARED ${SOURCES})
-target_link_libraries(Dimensional-Core glfw glad imgui spdlog assimp)
+target_link_libraries(Dimensional-Core glfw glad imgui spdlog yaml-cpp assimp)
 target_compile_definitions(Dimensional-Core PRIVATE MYLIB_BUILD)
 
 target_precompile_headers(Dimensional-Core PRIVATE ${PCH_HEADER})

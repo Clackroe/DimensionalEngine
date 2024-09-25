@@ -1,4 +1,4 @@
-#include "Core/Assets/AssetManager.hpp"
+#include "Assets/AssetManager.hpp"
 #include "Rendering/CubeMap.hpp"
 #include "Rendering/IrMap.hpp"
 #include "Rendering/VertexBuffer.hpp"
@@ -27,35 +27,26 @@ void Renderer::Init()
     generatePrimitives();
     DM_CORE_INFO("Renderer Initialized.")
 
-    AssetManager::loadMaterial();
-    // AssetManager::loadTexture();
-
-    AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMap.glsl"));
-    AssetManager::loadShader(("Assets/Shaders/EquirectToCubeMapComp.glsl"), COMPUTE);
-    AssetManager::loadShader(("Assets/Shaders/CubeMapConv.glsl"));
-
-    AssetManager::loadShader(("Assets/Shaders/CubeMapConvComp.glsl"), COMPUTE);
-
-    AssetManager::loadShader(("Assets/Shaders/IBLMapPreComp.glsl"), COMPUTE);
-    AssetManager::loadShader(("Assets/Shaders/BRDFComp.glsl"), COMPUTE);
-
-    m_CubeMap = CreateRef<CubeMap>("Assets/Textures/hdrmapNight.hdr", 2048, 2048);
-    m_IrMap = CreateRef<IrMap>(m_CubeMap);
-
-    m_IBLMap = CreateRef<IBLMap>(m_CubeMap);
-
-    m_CubeMapShader = AssetManager::loadShader(("Assets/Shaders/CubeMap.glsl"));
-
+    FrameBufferSettings fbs = {
+        1920,
+        1080,
+        { RGBA32F, Depth }
+    };
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
-    // TODO: IDEK but I hate this
-    m_PBRShader = AssetManager::loadShader("Assets/Shaders/PBRWithLighting.glsl");
+    m_PBRShader = CreateRef<Shader>("Assets/Shaders/PBRWithLighting.glsl");
+    m_CubeMapShader = CreateRef<Shader>("Assets/Shaders/CubeMap.glsl");
 };
 
 void Renderer::submitLight(LightData data)
 {
     Renderer& ref = m_GetRenderer();
     ref.m_LightData.push_back(data);
+}
+void Renderer::submitEnvironment(EnvironmentData data)
+{
+    Renderer& ref = m_GetRenderer();
+    ref.m_CurrentEnvironmentMap = data;
 }
 
 void Renderer::renderCube(Ref<Shader>& shader)
@@ -88,22 +79,42 @@ void Renderer::renderSphere(Ref<Material>& mat, glm::mat4 transform)
     Renderer::renderSphere(ref.m_PBRShader);
 }
 
-void Renderer::renderMesh(Mesh& mesh, Ref<Material>& mat, glm::mat4 transform)
+void Renderer::renderMesh(Mesh& mesh, Ref<Material> material, glm::mat4 transform)
 {
-
     Renderer& ref = m_GetRenderer();
-    mat->bind(ref.m_PBRShader);
     ref.setupLightData();
     ref.m_PBRShader->setMat4("model", transform);
+
+    material->bind(ref.m_PBRShader);
 
     Renderer::renderVAO(*mesh.vao, *mesh.eb, ref.m_PBRShader);
 }
 
-void Renderer::renderModel(Model& model, Ref<Material>& mat, glm::mat4 transform)
+void Renderer::renderModel(Model& model, glm::mat4 transform)
 {
-    for (u32 i = 0; i < model.m_Meshes.size(); i++) {
-        Mesh& mesh = model.m_Meshes[i];
-        Renderer::renderMesh(model.m_Meshes[i], mat, transform);
+    auto& meshes = model.getMeshes();
+    for (u32 i = 0; i < meshes.size(); i++) {
+        Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(model.getMaterials()[i]);
+        if (!mat) {
+            // TODO: If no material, render default
+            continue;
+        }
+        Renderer::renderMesh(meshes[i], mat, transform);
+    }
+}
+
+// Move to Scene Renderer Once we have one or something.
+// I dont like having this be so tightly related to the COmponentes.
+void Renderer::renderModel(Model& model, glm::mat4 transform, std::vector<AssetHandle>& materialOverride)
+{
+    auto& meshes = model.getMeshes();
+    for (u32 i = 0; i < meshes.size(); i++) {
+        AssetHandle id = materialOverride[i];
+        if ((u64)id == 0) {
+            id = model.getMaterials()[i];
+        }
+        Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(id);
+        Renderer::renderMesh(meshes[i], mat, transform);
     }
 }
 
@@ -146,27 +157,12 @@ void Renderer::setupLightData()
     ref.m_PBRShader->setInt("uIBLMap", 8);
     ref.m_PBRShader->setInt("uIrradianceMap", 9);
 
-    m_IBLMap->bind(8, 7);
-
-    m_IrMap->bind(9);
+    if (m_CurrentEnvironmentMap.envMap) {
+        m_CurrentEnvironmentMap.envMap->bind();
+    }
 
     u32 numPointLights = 0;
     u32 numSpotLights = 0;
-    /*
-     *     vec3 position;
-    vec3 direction;
-    vec3 color;
-
-    float intensity;
-    float cutOff; // Spotlight cutoff angle
-    float outerCutOff; // Spotlight outer cutoff angle
-
-    // Attenuation parameters
-    float constant;
-    float linear;
-    float quadratic;
-
-     * */
 
     for (u32 i = 0; i < ref.m_LightData.size(); ++i) {
         LightData& light = ref.m_LightData[i];
@@ -206,13 +202,19 @@ void Renderer::endScene()
 {
     Renderer& ref = m_GetRenderer();
     glDepthFunc(GL_LEQUAL);
+
     ref.m_CubeMapShader->use();
-    ref.m_CubeMapShader->setInt("environmentMap", 0);
+    ref.m_CubeMapShader->setInt("environmentMap", 8);
     ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
     ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
 
-    // ref.m_CubeMap->bind(0);
-    ref.m_IBLMap->bind(0, 1);
+    if (ref.m_CurrentEnvironmentMap.envMap) {
+        ref.m_CurrentEnvironmentMap.envMap->bind();
+        ref.m_CubeMapShader->setFloat("uLod", ref.m_CurrentEnvironmentMap.lod);
+    }
+
+    // // ref.m_CubeMap->bind(0);
+    // ref.m_IBLMap->bind(0, 1);
 
     Renderer::renderCube(ref.m_CubeMapShader);
     ref.m_FrameBuffer->Unbind();

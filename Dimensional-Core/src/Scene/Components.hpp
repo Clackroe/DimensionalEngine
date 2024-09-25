@@ -1,5 +1,6 @@
 #ifndef DM_COMPONENTS_H
 #define DM_COMPONENTS_H
+#include "Assets/AssetManager.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 
@@ -54,19 +55,44 @@ struct DMCORE_API TransformComponent {
 struct DMCORE_API MeshRenderer {
     MeshRenderer() = default;
     MeshRenderer(const MeshRenderer&) = default;
-    MeshRenderer(const Ref<Model> modelIn)
+    MeshRenderer(AssetHandle handle)
     {
-        model = modelIn;
-        mat = CreateRef<Material>();
-    }
-    MeshRenderer(const Ref<Model> modelIn, const Ref<Material> matIn)
-    {
-        model = modelIn;
-        mat = matIn;
+        setModelHandle(handle);
     }
 
-    Ref<Model> model;
-    Ref<Material> mat;
+    void setModelHandle(AssetHandle newHandle)
+    {
+        if (model == newHandle) {
+            return;
+        }
+        model = newHandle;
+        Ref<Model> modelObj = AssetManager::getInstance().getAsset<Model>(model);
+        if (!modelObj) {
+            model = 0;
+            return;
+        }
+        Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(modelObj->getSource());
+        if (source) {
+            materialOverrides.clear();
+            for (u32 i = 0; i < source->getMaterialHandles().size(); i++) {
+                materialOverrides.push_back(0);
+            }
+            return;
+        }
+        model = 0;
+        return;
+    }
+
+    AssetHandle model = 0;
+    std::vector<AssetHandle> materialOverrides;
+};
+
+struct DMCORE_API SkyLight {
+    SkyLight() = default;
+    SkyLight(const SkyLight&) = default;
+
+    AssetHandle envMap = 0;
+    float lod = 1.0;
 };
 
 struct DMCORE_API PointLightComponent {

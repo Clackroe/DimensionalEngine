@@ -1,9 +1,10 @@
 #include "Log/log.hpp"
+#include "Rendering/EnvironmentMap.hpp"
 #include "Rendering/Mesh.hpp"
-#include <Scene/Components.hpp>
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
-#include <Core/Assets/AssetManager.hpp>
+#include <Assets/AssetManager.hpp>
+#include <Scene/Components.hpp>
 #include <Scene/Entity.hpp>
 #include <Scene/Scene.hpp>
 namespace Dimensional {
@@ -58,6 +59,21 @@ void Scene::beginScene()
             Renderer::submitLight(data);
         }
     }
+
+    // Submit Environment Data
+    {
+        auto view = m_Registry.view<SkyLight>();
+        for (auto l : view) {
+            auto envData = view.get<SkyLight>(l);
+            Ref<EnvironmentMap> map = AssetManager::getInstance().getAsset<EnvironmentMap>(envData.envMap);
+            if (map) {
+                Renderer::submitEnvironment({ map, envData.lod });
+                return;
+            }
+        }
+        // Reset if no skylight exists
+        Renderer::submitEnvironment({ nullptr });
+    }
 }
 
 void Scene::updateEditor()
@@ -69,8 +85,8 @@ void Scene::updateEditor()
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, PointLightComponent>(e);
 
-            Ref<Material> mat = AssetManager::getMaterial("Default");
-            Renderer::renderCube(mat, transform.GetTransform());
+            // Ref<Material> mat = AssetManager::getMaterial("Default");
+            // Renderer::renderCube(mat, transform.GetTransform());
         }
     }
 
@@ -79,8 +95,8 @@ void Scene::updateEditor()
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, SpotLightComponent>(e);
 
-            Ref<Material> mat = AssetManager::getMaterial("Default");
-            Renderer::renderCube(mat, transform.GetTransform());
+            // Ref<Material> mat = AssetManager::getMaterial("Default");
+            // Renderer::renderCube(mat, transform.GetTransform());
         }
     }
 
@@ -89,7 +105,11 @@ void Scene::updateEditor()
         auto view = m_Registry.view<TransformComponent, MeshRenderer>();
         for (auto e : view) {
             auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-            Renderer::renderModel(*mesh.model, mesh.mat, transform.GetTransform());
+            Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
+            if (!mod) {
+                continue;
+            }
+            Renderer::renderModel(*mod, transform.GetTransform(), mesh.materialOverrides);
         }
     }
 }
@@ -165,6 +185,11 @@ void Scene::onComponentAdded<PointLightComponent>(Entity entity, PointLightCompo
 }
 template <>
 void Scene::onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component)
+{
+}
+
+template <>
+void Scene::onComponentAdded<SkyLight>(Entity entity, SkyLight& component)
 {
 }
 
