@@ -214,7 +214,9 @@ void SceneHierarchy::entityComponents(Entity entity)
         if (ImGui::Button("Spot Light")) {
             entity.addComponent<SpotLightComponent>();
         }
-
+        if (ImGui::Button("Sky Light")) {
+            entity.addComponent<SkyLight>();
+        }
         // DisplayAddComponentEntry<TextComponent>("Text Component");
 
         ImGui::EndPopup();
@@ -254,40 +256,78 @@ void SceneHierarchy::entityComponents(Entity entity)
             },
             true);
     }
+    if (entity.hasComponent<SkyLight>()) {
+        componentNode<SkyLight>(
+            "Sky Light", entity, [](auto& component) {
+                ImGui::Text("Environment Map:");
+                Utils::assetDragDrop(component.envMap, AssetType::ENVIRONMENTMAP,
+                    std::filesystem::path(AssetManager::getInstance().getMetaData(component.envMap).sourcePath).stem());
+            },
+            true);
+    }
+
     if (entity.hasComponent<MeshRenderer>()) {
         componentNode<MeshRenderer>(
             "Model Renderer", entity, [](MeshRenderer& component) {
-                AssetHandle id = component.model;
-                Utils::assetDragDrop(id, AssetType::MODEL, AssetManager::getInstance().getMetaData(component.model).sourcePath);
-                if (id != component.model) {
-                    component.setModelHandle(id);
+                AssetHandle modelID = component.model;
+                ImGui::Text("Model:");
+                Utils::assetDragDrop(modelID, AssetType::MODEL,
+                    std::filesystem::path(AssetManager::getInstance().getMetaData(modelID).sourcePath).stem());
+                if (modelID != component.model) {
+                    component.setModelHandle(modelID);
                 }
 
                 Ref<Model> model = AssetManager::getInstance().getAsset<Model>(component.model);
                 if (!model) {
                     return;
                 }
+
                 Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(model->getSource());
                 if (source) {
-                    ImGui::BeginListBox("Mats");
+                    ImGui::Separator();
 
-                    for (u32 i = 0; i < source->getMaterialHandles().size(); i++) {
+                    // Materials Section
+                    if (ImGui::BeginListBox("##MaterialOverrides", ImVec2(0, 0))) {
+                        ImGui::Text("Materials:");
+                        ImGui::Separator();
 
-                        if (component.materialOverrides[i] != source->getMaterialHandles()[i] && (u64)component.materialOverrides[i] != 0) {
-                            if (ImGui::Button("x")) {
-                                component.materialOverrides[i] = source->getMaterialHandles()[i];
+                        // Loop through materials and allow override
+                        for (u32 i = 0; i < source->getMaterialHandles().size(); i++) {
+                            ImGui::PushID(i);
+
+                            if (component.materialOverrides[i] != source->getMaterialHandles()[i] && (u64)component.materialOverrides[i] != 0) {
+
+                                if (ImGui::Button("Reset##ResetButton")) {
+                                    component.materialOverrides[i] = source->getMaterialHandles()[i];
+                                }
+                                ImGui::SameLine();
                             }
+
+                            ImGui::Text("Material %d:", i + 1);
                             ImGui::SameLine();
+
+                            AssetHandle matID = component.materialOverrides[i];
+                            Utils::assetDragDrop(matID, AssetType::MATERIAL,
+                                std::filesystem::path(AssetManager::getInstance().getMetaData(
+                                                                                     (u64)component.materialOverrides[i] == 0
+                                                                                         ? source->getMaterialHandles()[i]
+                                                                                         : component.materialOverrides[i])
+                                                          .sourcePath)
+                                    .stem());
+
+                            if (matID != component.materialOverrides[i]) {
+                                component.materialOverrides[i] = matID;
+                            }
+
+                            if (ImGui::IsItemHovered()) {
+                                ImGui::SetTooltip("Drag and drop to assign a material.");
+                            }
+
+                            ImGui::PopID();
                         }
 
-                        AssetHandle id = component.materialOverrides[i];
-                        Utils::assetDragDrop(id, AssetType::MATERIAL, AssetManager::getInstance().getMetaData((u64)component.materialOverrides[i] == 0 ? source->getMaterialHandles()[i] : component.materialOverrides[i]).sourcePath);
-                        if (id != component.materialOverrides[i]) {
-                            component.materialOverrides[i] = id;
-                        }
+                        ImGui::EndListBox();
                     }
-
-                    ImGui::EndListBox();
                 }
             },
             true);

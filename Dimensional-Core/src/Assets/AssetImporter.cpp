@@ -1,4 +1,5 @@
 #include "Assets/AssetMeta.hpp"
+#include "Assets/EnvironmentMapImporter.hpp"
 #include "Assets/MaterialImporter.hpp"
 #include "Assets/ModelImporter.hpp"
 #include "Assets/ModelSourceImporter.hpp"
@@ -22,7 +23,9 @@ Ref<Asset> AssetImporter::importAsset(const AssetMetaData& data)
     case (AssetType::MATERIAL):
         out = MaterialImporter::importModel(data);
         break;
-
+    case (AssetType::ENVIRONMENTMAP):
+        out = EnvironmentMapImporter::importEnvironment(data);
+        break;
     default:
         DM_CORE_WARN("Attempted to import texture of unimplemented type");
         break;

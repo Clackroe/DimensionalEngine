@@ -87,6 +87,13 @@ struct DMCORE_API MeshRenderer {
     std::vector<AssetHandle> materialOverrides;
 };
 
+struct DMCORE_API SkyLight {
+    SkyLight() = default;
+    SkyLight(const SkyLight&) = default;
+
+    AssetHandle envMap = 0;
+};
+
 struct DMCORE_API PointLightComponent {
     PointLightComponent() = default;
     PointLightComponent(const PointLightComponent&) = default;

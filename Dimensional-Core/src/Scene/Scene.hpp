@@ -1,5 +1,6 @@
 #ifndef DM_SCENE_H
 #define DM_SCENE_H
+#include "Scene/Components.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 
@@ -46,6 +47,9 @@ private:
     void onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component);
     template <>
     void onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component);
+    template <>
+    void onComponentAdded<SkyLight>(Entity entity, SkyLight& component);
+
 #endif
 
     entt::registry m_Registry;

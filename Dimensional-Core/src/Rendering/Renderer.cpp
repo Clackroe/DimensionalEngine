@@ -30,14 +30,18 @@ void Renderer::Init()
     m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
     m_PBRShader = CreateRef<Shader>("Assets/Shaders/PBRWithLighting.glsl");
-
-    m_TempMaterial = CreateRef<Material>();
+    m_CubeMapShader = CreateRef<Shader>("Assets/Shaders/CubeMap.glsl");
 };
 
 void Renderer::submitLight(LightData data)
 {
     Renderer& ref = m_GetRenderer();
     ref.m_LightData.push_back(data);
+}
+void Renderer::submitEnvironment(EnvironmentData data)
+{
+    Renderer& ref = m_GetRenderer();
+    ref.m_CurrentEnvironmentMap = data.envMap;
 }
 
 void Renderer::renderCube(Ref<Shader>& shader)
@@ -86,6 +90,10 @@ void Renderer::renderModel(Model& model, glm::mat4 transform)
     auto& meshes = model.getMeshes();
     for (u32 i = 0; i < meshes.size(); i++) {
         Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(model.getMaterials()[i]);
+        if (!mat) {
+            // TODO: If no material, render default
+            continue;
+        }
         Renderer::renderMesh(meshes[i], mat, transform);
     }
 }
@@ -144,27 +152,12 @@ void Renderer::setupLightData()
     ref.m_PBRShader->setInt("uIBLMap", 8);
     ref.m_PBRShader->setInt("uIrradianceMap", 9);
 
-    // m_IBLMap->bind(8, 7);
-    //
-    // m_IrMap->bind(9);
+    if (m_CurrentEnvironmentMap) {
+        m_CurrentEnvironmentMap->bind();
+    }
 
     u32 numPointLights = 0;
     u32 numSpotLights = 0;
-    /*
-     *     vec3 position;
-    vec3 direction;
-    vec3 color;
-
-    float intensity;
-    float cutOff; // Spotlight cutoff angle
-    float outerCutOff; // Spotlight outer cutoff angle
-
-    // Attenuation parameters
-    float constant;
-    float linear;
-    float quadratic;
-
-     * */
 
     for (u32 i = 0; i < ref.m_LightData.size(); ++i) {
         LightData& light = ref.m_LightData[i];
@@ -204,15 +197,20 @@ void Renderer::endScene()
 {
     Renderer& ref = m_GetRenderer();
     glDepthFunc(GL_LEQUAL);
-    // ref.m_CubeMapShader->use();
-    // ref.m_CubeMapShader->setInt("environmentMap", 0);
-    // ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
-    // ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
-    //
+
+    ref.m_CubeMapShader->use();
+    ref.m_CubeMapShader->setInt("environmentMap", 8);
+    ref.m_CubeMapShader->setMat4("view", ref.m_CameraData.view);
+    ref.m_CubeMapShader->setMat4("projection", ref.m_CameraData.proj);
+
+    if (ref.m_CurrentEnvironmentMap) {
+        ref.m_CurrentEnvironmentMap->bind();
+    }
+
     // // ref.m_CubeMap->bind(0);
     // ref.m_IBLMap->bind(0, 1);
 
-    // Renderer::renderCube(ref.m_CubeMapShader);
+    Renderer::renderCube(ref.m_CubeMapShader);
     ref.m_FrameBuffer->Unbind();
     // Flush Data
     ref.m_LightData.erase(ref.m_LightData.begin(), ref.m_LightData.end());

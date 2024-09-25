@@ -15,6 +15,7 @@ static UMap<std::string, AssetType> s_StringToTypeMap = {
     { "MODEL", AssetType::MODEL },
     { "MODELSOURCE", AssetType::MODELSOURCE },
     { "MATERIAL", AssetType::MATERIAL },
+    { "ENVIRONMENTMAP", AssetType::ENVIRONMENTMAP },
 };
 
 class DMCORE_API Asset {
@@ -44,6 +45,8 @@ public:
             return "MODELSOURCE";
         case AssetType::MATERIAL:
             return "MATERIAL";
+        case AssetType::ENVIRONMENTMAP:
+            return "ENVIRONMENTMAP";
         }
         return "NONE";
     }

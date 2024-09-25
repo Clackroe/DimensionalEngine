@@ -41,6 +41,8 @@ public:
 private:
     // For now, all meshes will utilize the same shader. This will be changed in the future most likely
 
+    void tryInitDefaultTextures();
+
     static Ref<Texture> s_WhiteTexture;
     static Ref<Texture> s_BlackTexture;
 

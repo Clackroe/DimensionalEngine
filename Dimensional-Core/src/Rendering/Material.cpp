@@ -8,7 +8,7 @@ namespace Dimensional {
 Ref<Texture> Material::s_WhiteTexture;
 Ref<Texture> Material::s_BlackTexture;
 
-Material::Material()
+void Material::tryInitDefaultTextures()
 {
     if (!s_WhiteTexture) {
         u32 data = 0x808080;
@@ -28,8 +28,14 @@ Material::Material()
     }
 }
 
+Material::Material()
+{
+    tryInitDefaultTextures();
+}
+
 Material::Material(MaterialSettings settings)
 {
+    tryInitDefaultTextures();
     if (settings.Albedo) {
 
         m_Settings.Albedo = settings.Albedo;

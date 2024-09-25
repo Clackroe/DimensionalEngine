@@ -9,7 +9,7 @@ Ref<Texture> TextureImporter::importTexture(AssetMetaData meta)
 {
     return loadAssetFromPath(meta.sourcePath);
 }
-Ref<Texture> TextureImporter::loadAssetFromPath(std::filesystem::path path)
+Ref<Texture> TextureImporter::loadAssetFromPath(std::filesystem::path path, bool hdr)
 {
     stbi_set_flip_vertically_on_load(1);
 
@@ -29,7 +29,7 @@ Ref<Texture> TextureImporter::loadAssetFromPath(std::filesystem::path path)
         format = ImageFormat::RGB8;
         break;
     case (4):
-        format = ImageFormat::RGBA8;
+        format = hdr ? ImageFormat::RGBA16f : ImageFormat::RGBA8;
         break;
     }
 

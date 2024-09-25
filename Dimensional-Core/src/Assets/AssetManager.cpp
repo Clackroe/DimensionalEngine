@@ -1,5 +1,6 @@
 #include "Assets/AssetMeta.hpp"
 #include "Log/log.hpp"
+#include "Rendering/EnvironmentMap.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Texture.hpp"
@@ -23,7 +24,8 @@ static UMap<std::string, AssetType> s_ExtensionToType = {
     { ".FBX", AssetType::MODELSOURCE },
     { ".dmod", AssetType::MODEL },
     { ".glsl", AssetType::SHADER },
-    { ".dmat", AssetType::MATERIAL }
+    { ".dmat", AssetType::MATERIAL },
+    { ".hdr", AssetType::ENVIRONMENTMAP }
 };
 
 template <typename T>
@@ -62,6 +64,7 @@ template Ref<Texture> AssetManager::getAsset<Texture>(AssetHandle handle);
 template Ref<Model> AssetManager::getAsset<Model>(AssetHandle handle);
 template Ref<ModelSource> AssetManager::getAsset<ModelSource>(AssetHandle handle);
 template Ref<Material> AssetManager::getAsset<Material>(AssetHandle handle);
+template Ref<EnvironmentMap> AssetManager::getAsset<EnvironmentMap>(AssetHandle handle);
 // template Ref<Shader> AssetManager::getAsset<Shader>(AssetHandle handle);
 
 AssetHandle AssetManager::registerAsset(std::filesystem::path path)

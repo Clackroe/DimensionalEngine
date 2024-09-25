@@ -19,9 +19,8 @@ IrMap::IrMap(Ref<CubeMap> ref)
 
 void IrMap::build()
 {
-
     if (!s_ConvShader) {
-        // s_ConvShader = AssetManager::getShader("CubeMapConvComp");
+        s_ConvShader = CreateRef<Shader>("Assets/Shaders/CubeMapConvComp.glsl", ShaderType::COMPUTE);
     }
     createMainTexture();
     renderToCubeMap();

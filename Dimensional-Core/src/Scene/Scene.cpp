@@ -1,4 +1,5 @@
 #include "Log/log.hpp"
+#include "Rendering/EnvironmentMap.hpp"
 #include "Rendering/Mesh.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
@@ -57,6 +58,21 @@ void Scene::beginScene()
             };
             Renderer::submitLight(data);
         }
+    }
+
+    // Submit Environment Data
+    {
+        auto view = m_Registry.view<SkyLight>();
+        for (auto l : view) {
+            auto envData = view.get<SkyLight>(l);
+            Ref<EnvironmentMap> map = AssetManager::getInstance().getAsset<EnvironmentMap>(envData.envMap);
+            if (map) {
+                Renderer::submitEnvironment({ map });
+                return;
+            }
+        }
+        // Reset if no skylight exists
+        Renderer::submitEnvironment({ nullptr });
     }
 }
 
@@ -169,6 +185,11 @@ void Scene::onComponentAdded<PointLightComponent>(Entity entity, PointLightCompo
 }
 template <>
 void Scene::onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component)
+{
+}
+
+template <>
+void Scene::onComponentAdded<SkyLight>(Entity entity, SkyLight& component)
 {
 }
 

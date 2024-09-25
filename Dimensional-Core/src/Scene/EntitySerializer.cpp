@@ -111,7 +111,22 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
         out << YAML::BeginMap;
 
         out << YAML::Key << "modelHandle" << YAML::Value << (u64)comp.model;
+        out << YAML::Key << "materialOverrides" << YAML::Value;
+        out << YAML::BeginSeq;
+        for (auto id : comp.materialOverrides) {
+            out << (u64)id;
+        }
 
+        out << YAML::EndSeq;
+
+        out << YAML::EndMap;
+    }
+
+    if (entity.hasComponent<SkyLight>()) {
+        auto& comp = entity.getComponent<SkyLight>();
+        out << YAML::Key << "SkyLight";
+        out << YAML::BeginMap;
+        out << YAML::Key << "environmentMap" << YAML::Value << (u64)comp.envMap;
         out << YAML::EndMap;
     }
 
@@ -178,7 +193,18 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
     if (meshComp) {
         AssetHandle handle = 0;
         SetValue(handle, meshComp["modelHandle"]);
-        loadedEntity.addComponent<MeshRenderer>(handle);
+        auto& comp = loadedEntity.addComponent<MeshRenderer>(handle);
+
+        for (auto node : meshComp["materialOverrides"]) {
+            comp.materialOverrides.clear();
+            comp.materialOverrides.push_back(node.as<u64>());
+        }
+    }
+
+    auto skyLight = node["SkyLight"];
+    if (skyLight) {
+        auto& skComp = loadedEntity.addComponent<SkyLight>();
+        SetValue(skComp.envMap, skyLight["environmentMap"]);
     }
 
     auto pointComp = node["PointLightComponent"];

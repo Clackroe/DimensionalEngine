@@ -8,7 +8,7 @@ namespace Dimensional {
 class TextureImporter {
 public:
     static Ref<Texture> importTexture(AssetMetaData meta);
-    static Ref<Texture> loadAssetFromPath(std::filesystem::path path);
+    static Ref<Texture> loadAssetFromPath(std::filesystem::path path, bool hdr = false);
 };
 }
 

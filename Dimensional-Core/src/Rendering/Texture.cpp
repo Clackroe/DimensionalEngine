@@ -18,6 +18,10 @@ static u32 imageFormatToInternalFormat(ImageFormat format)
     case (ImageFormat::RGBA8):
         return GL_RGBA8;
         break;
+    case (ImageFormat::RGBA16f):
+        return GL_RGBA16F;
+        break;
+
     case (ImageFormat::RGBA32f):
         return GL_RGBA32F;
         break;
@@ -37,6 +41,9 @@ static u32 imageFormatToDataFormat(ImageFormat format)
         return GL_RGB;
         break;
     case (ImageFormat::RGBA8):
+        return GL_RGBA;
+        break;
+    case (ImageFormat::RGBA16f):
         return GL_RGBA;
         break;
     case (ImageFormat::RGBA32f):

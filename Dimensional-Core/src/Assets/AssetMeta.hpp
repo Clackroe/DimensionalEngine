@@ -8,7 +8,8 @@ enum class AssetType : u32 {
     MATERIAL = 2,
     MODEL = 3,
     MODELSOURCE = 5,
-    SHADER = 4
+    SHADER = 4,
+    ENVIRONMENTMAP = 6
 };
 
 struct AssetMetaData {
