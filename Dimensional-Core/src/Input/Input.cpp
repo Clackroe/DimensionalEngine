@@ -1,4 +1,5 @@
 #include "Core/Application.hpp"
+#include "Core/Window.hpp"
 #include "Event/EventSystem.hpp"
 #include <Input/Input.hpp>
 
@@ -23,6 +24,15 @@ float Input::getMouseY()
     return getInstance().m_MouseY;
 }
 
+bool Input::isMouseDown(KeyCode key)
+{
+    return getInstance().m_MouseButtonStates[key];
+}
+bool Input::isMouseReleased(KeyCode key)
+{
+    return !getInstance().m_MouseButtonStates[key];
+}
+
 //---
 
 void Input::keyPressed(KeyCode key)
@@ -33,6 +43,15 @@ void Input::keyReleased(KeyCode key)
 {
     m_KeyStates[key] = false;
 }
+void Input::mousePressed(MouseCode key)
+{
+    m_MouseButtonStates[key] = true;
+}
+void Input::mouseReleased(MouseCode key)
+{
+    m_MouseButtonStates[key] = false;
+}
+
 void Input::mouseMoved(float x, float y)
 {
     m_MouseX = x;
@@ -80,12 +99,35 @@ static void keyCallBack(GLFWwindow* window, int key, int scanCode, int action, i
     EventSystem::RaiseEvent<KeyEvent>((KeyCode)key, (Mode)mode);
 };
 
+static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+    Mode mode = -1;
+    switch (action) {
+    case GLFW_REPEAT:
+        mode = Key::REPEAT;
+        break;
+    case GLFW_PRESS:
+        mode = Key::PRESS;
+        Input::getInstance().mousePressed(static_cast<MouseCode>(button));
+        break;
+    case GLFW_RELEASE:
+        mode = Key::RELEASE;
+        Input::getInstance().mouseReleased(static_cast<MouseCode>(button));
+        break;
+    default:
+        DM_CORE_WARN("UNKNOWN KEY MODE/ACTION");
+        break;
+    }
+}
+
 // ----
 
 void Input::Init()
 {
     glfwSetKeyCallback(Application::getApp().getWindowDM().getGLFWWindow(), keyCallBack);
     glfwSetCursorPosCallback(Application::getApp().getWindowDM().getGLFWWindow(), mouseMovedCallback);
+    glfwSetMouseButtonCallback(Application::getApp().getWindowDM().getGLFWWindow(), mouseButtonCallback);
 
     DM_CORE_INFO("Input System Initialized");
 }
