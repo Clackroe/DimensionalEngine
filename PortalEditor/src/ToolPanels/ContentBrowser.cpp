@@ -64,14 +64,14 @@ void ContentBrowser::renderImGui()
         ImGui::PushID(p.path().string().c_str());
 
         if (p.is_directory()) {
-            if (ImGui::ImageButton((ImTextureID)m_FolderIcon->getID(), ImVec2(iconSize, iconSize), {0, 1}, {1, 0})) {
+            if (ImGui::ImageButton((ImTextureID)(uintptr_t)m_FolderIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 })) {
                 m_CurrentPath /= p.path().filename();
                 refreshAssets();
             }
         } else {
             if (m_Mode == BrowsingMode::Asset) {
                 if (m_Items.contains(p.path().string())) {
-                    ImGui::ImageButton((ImTextureID)m_FileIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 });
+                    ImGui::ImageButton((ImTextureID)(uintptr_t)m_FileIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 });
 
                     if (ImGui::BeginDragDropSource()) {
                         auto handle = m_Items[p.path().string()].handle;
@@ -83,7 +83,7 @@ void ContentBrowser::renderImGui()
                     continue;
                 }
             } else {
-                ImGui::Image((ImTextureID)m_FileIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 });
+                ImGui::Image((ImTextureID)(uintptr_t)m_FileIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 });
 
                 if (ImGui::BeginPopupContextItem("FileContext")) {
                     if (ImGui::MenuItem("Import")) {

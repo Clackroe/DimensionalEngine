@@ -16,8 +16,20 @@ Ref<Texture> TextureImporter::loadAssetFromPath(std::filesystem::path path, bool
     int w, h, c;
     u8* data = stbi_load(path.string().c_str(), &w, &h, &c, 0);
     if (!data) {
-        DM_CORE_WARN("Failed to load texture");
-        return nullptr;
+        DM_CORE_WARN("Failed to load texture {}", path.string());
+        static Ref<Texture> s_WhiteTexture;
+
+        // temp
+        if (!s_WhiteTexture) {
+            u32 data = 0x80808080;
+            TextureLoadSettings t;
+            t.width = 1;
+            t.height = 1;
+            t.channels = 4;
+            s_WhiteTexture = CreateRef<Texture>(t, &data, sizeof(u32));
+        }
+
+        return s_WhiteTexture;
     }
 
     ImageFormat format;

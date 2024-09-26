@@ -14,6 +14,7 @@ namespace Dimensional {
 static UMap<std::string, AssetType> s_ExtensionToType = {
     { ".png", AssetType::TEXTURE },
     { ".jpg", AssetType::TEXTURE },
+    { ".dds", AssetType::TEXTURE },
     { ".jpeg", AssetType::TEXTURE },
     { ".PNG", AssetType::TEXTURE },
     { ".JPG", AssetType::TEXTURE },
@@ -71,8 +72,7 @@ std::vector<AssetHandle> AssetManager::getAssetHandles(AssetType type)
     return out;
 }
 
-const AssetMetaData&
-AssetManager::getMetaData(AssetHandle handle) const
+const AssetMetaData& AssetManager::getMetaData(AssetHandle handle) const
 {
     static AssetMetaData s_NullData;
     auto it = m_Registry.find(handle);
@@ -80,6 +80,11 @@ AssetManager::getMetaData(AssetHandle handle) const
         return s_NullData;
     }
     return it->second;
+}
+const AssetMetaData& AssetManager::getMetaDataFromPath(std::string& path)
+{
+    auto handle = getAssetHandleFromPath(path);
+    return getMetaData(handle);
 }
 
 bool AssetManager::isAssetLoaded(AssetHandle handle)

@@ -196,8 +196,8 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
         SetValue(handle, meshComp["modelHandle"]);
         auto& comp = loadedEntity.addComponent<MeshRenderer>(handle);
 
+        comp.materialOverrides.clear();
         for (auto node : meshComp["materialOverrides"]) {
-            comp.materialOverrides.clear();
             comp.materialOverrides.push_back(node.as<u64>());
         }
     }

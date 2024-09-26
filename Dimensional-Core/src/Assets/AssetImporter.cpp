@@ -9,7 +9,7 @@ namespace Dimensional {
 
 Ref<Asset> AssetImporter::importAsset(const AssetMetaData& data)
 {
-    Ref<Asset> out;
+    Ref<Asset> out = nullptr;
     switch (data.type) {
     case (AssetType::TEXTURE):
         out = TextureImporter::importTexture(data);
