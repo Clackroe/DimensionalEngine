@@ -41,7 +41,6 @@ private:
 
 private:
     EventSystem m_EventSystem;
-    Input m_Input;
     Renderer m_Renderer;
 
 private:

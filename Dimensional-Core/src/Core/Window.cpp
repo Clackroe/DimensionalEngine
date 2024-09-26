@@ -60,29 +60,6 @@ void Window::initCallbacks()
         settings.Width = width;
         glViewport(0, 0, width, height);
     });
-
-    glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanCode, int action, int mods) {
-        Mode mode = -1;
-        switch (action) {
-        case GLFW_REPEAT:
-            mode = Key::REPEAT;
-            break;
-        case GLFW_PRESS:
-            mode = Key::PRESS;
-            break;
-        case GLFW_RELEASE:
-            mode = Key::RELEASE;
-            break;
-        default:
-            DM_CORE_WARN("UNKNOWN KEY MODE/ACTION");
-            break;
-        }
-        EventSystem::RaiseEvent<KeyEvent>((KeyCode)key, (Mode)mode);
-    });
-
-    glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y) {
-        EventSystem::RaiseEvent<MouseEvent>(x, y);
-    });
 }
 
 void Window::setVsync(bool enabled)

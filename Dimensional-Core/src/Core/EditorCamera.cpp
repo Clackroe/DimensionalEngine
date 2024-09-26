@@ -42,22 +42,22 @@ void EditorCamera::handleMovement(float deltaTime)
     glm::vec3 right = getRightDir();
     glm::vec3 up = getUpDir();
 
-    if (Input::IsKeyDown(Key::W)) {
+    if (Input::isKeyDown(Key::W)) {
         m_Position += forward * cameraSpeed;
     }
-    if (Input::IsKeyDown(Key::S)) {
+    if (Input::isKeyDown(Key::S)) {
         m_Position -= forward * cameraSpeed;
     }
-    if (Input::IsKeyDown(Key::A)) {
+    if (Input::isKeyDown(Key::A)) {
         m_Position -= right * cameraSpeed;
     }
-    if (Input::IsKeyDown(Key::D)) {
+    if (Input::isKeyDown(Key::D)) {
         m_Position += right * cameraSpeed;
     }
-    if (Input::IsKeyDown(Key::Q)) {
+    if (Input::isKeyDown(Key::Q)) {
         m_Position -= up * cameraSpeed;
     }
-    if (Input::IsKeyDown(Key::E)) {
+    if (Input::isKeyDown(Key::E)) {
         m_Position += up * cameraSpeed;
     }
 }
@@ -70,7 +70,7 @@ void EditorCamera::handleRotation(float deltaTime)
     xPos = Input::getMouseX();
     yPos = Input::getMouseY();
 
-    if (Input::IsKeyDown(Key::Left_shift)) {
+    if (Input::isKeyDown(Key::Left_shift)) {
 
         float deltaX = xPos - m_LastMouseX;
         float deltaY = yPos - m_LastMouseY;

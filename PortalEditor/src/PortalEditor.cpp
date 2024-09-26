@@ -3,13 +3,13 @@
 #include "ToolPanels/ContentBrowser.hpp"
 #include "ToolPanels/MaterialsPanel.hpp"
 #include "core.hpp"
-#include <dimensional.hpp>
 #include "imgui.h"
 #include <Assets/AssetRegistrySerializer.hpp>
 #include <Input/KeyCodes.hpp>
 #include <PortalEditor.hpp>
 #include <Scene/Components.hpp>
 #include <Scene/SceneSerializer.hpp>
+#include <dimensional.hpp>
 #include <string>
 
 namespace Dimensional {
@@ -58,7 +58,7 @@ void PortalLayer::OnUpdate()
         Renderer::endScene();
     }
 
-    if (Input::IsKeyDown(Key::Escape)) {
+    if (Input::isKeyDown(Key::Escape)) {
         Application::getApp().stopApplication();
     }
 }

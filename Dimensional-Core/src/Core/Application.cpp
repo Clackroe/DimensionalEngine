@@ -64,7 +64,7 @@ void Application::runApplication()
 void Application::initializeSubSystems()
 {
     m_EventSystem.Init();
-    m_Input.Init();
+    Input::Init();
     m_Renderer.Init();
 }
 }

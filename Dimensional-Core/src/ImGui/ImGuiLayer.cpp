@@ -1,11 +1,8 @@
 #include "ImGui/ImGuiLayer.hpp"
 
-
 #include <Core/Application.hpp>
 
-
 #include <imgui.h>
-
 
 #include <GLFW/glfw3.h>
 namespace Dimensional {
@@ -30,7 +27,7 @@ void ImGuiLayer::OnAttatch()
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
     ImGui_ImplGlfw_InitForOpenGL(Application::getApp().getWindowDM().getGLFWWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 410");
+    ImGui_ImplOpenGL3_Init("#version 450");
 }
 void ImGuiLayer::OnDetatch()
 {

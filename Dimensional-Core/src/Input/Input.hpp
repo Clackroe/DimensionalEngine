@@ -9,25 +9,37 @@ namespace Dimensional {
 
 class DMCORE_API Input {
 public:
-    Input() = default;
-    ~Input() = default;
+    static Input& getInstance()
+    {
+        static Input s_Instance;
+        return s_Instance;
+    };
 
-    static bool IsKeyDown(KeyCode key);
-    static bool IsKeyReleased(KeyCode key);
+    static bool isKeyDown(KeyCode key);
+    static bool isKeyReleased(KeyCode key);
 
-    static float getMouseX() { return m_MouseX; };
-    static float getMouseY() { return m_MouseY; };
+    static float getMouseX();
+    static float getMouseY();
 
-    void Init();
+    static void Init();
+
+    void keyPressed(KeyCode key);
+    void keyReleased(KeyCode key);
+
+    void mouseMoved(float x, float y);
+
+    Input(const Input&) = delete;
+    Input& operator=(const Input&) = delete;
 
 private:
-    static Input* s_Instance;
+    ~Input() = default;
+    Input() = default;
 
-    static float m_MouseX;
-    static float m_MouseY;
+    UMap<KeyCode, bool> m_KeyStates;
+
+    float m_MouseX;
+    float m_MouseY;
 };
-
-static Input* s_Instance = nullptr;
 
 }
 
