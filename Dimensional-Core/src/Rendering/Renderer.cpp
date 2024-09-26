@@ -108,8 +108,14 @@ void Renderer::renderModel(Model& model, glm::mat4 transform)
 void Renderer::renderModel(Model& model, glm::mat4 transform, std::vector<AssetHandle>& materialOverride)
 {
     auto& meshes = model.getMeshes();
-    for (u32 i = 0; i < meshes.size(); i++) {
-        AssetHandle id = materialOverride[i];
+    for (u32 i = 0; i < model.getMaterials().size(); i++) {
+        AssetHandle id;
+        if (i >= materialOverride.size()) {
+
+            id = materialOverride[i];
+        } else {
+            id = model.getMaterials()[i];
+        }
         if ((u64)id == 0) {
             id = model.getMaterials()[i];
         }
@@ -194,6 +200,9 @@ void Renderer::beginScene(CameraData data)
     ref.m_FrameBuffer->Bind();
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     ref.m_CameraData = data;
     ref.setupCameraData();
     ref.setupLightData();

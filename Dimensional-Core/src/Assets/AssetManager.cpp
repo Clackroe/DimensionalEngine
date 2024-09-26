@@ -18,6 +18,7 @@ static UMap<std::string, AssetType> s_ExtensionToType = {
     { ".PNG", AssetType::TEXTURE },
     { ".JPG", AssetType::TEXTURE },
     { ".JPEG", AssetType::TEXTURE },
+    { ".tga", AssetType::TEXTURE },
     { ".obj", AssetType::MODELSOURCE },
     { ".gltf", AssetType::MODELSOURCE },
     { ".fbx", AssetType::MODELSOURCE },
@@ -28,14 +29,12 @@ static UMap<std::string, AssetType> s_ExtensionToType = {
     { ".hdr", AssetType::ENVIRONMENTMAP }
 };
 
-
-
 // Notify compiler of use outside of lib
-//template Ref<Texture> AssetManager::getAsset<Texture>(AssetHandle handle);
-//template Ref<Model> AssetManager::getAsset<Model>(AssetHandle handle);
-//template Ref<ModelSource> AssetManager::getAsset<ModelSource>(AssetHandle handle);
-//template Ref<Material> AssetManager::getAsset<Material>(AssetHandle handle);
-//template Ref<EnvironmentMap> AssetManager::getAsset<EnvironmentMap>(AssetHandle handle);
+// template Ref<Texture> AssetManager::getAsset<Texture>(AssetHandle handle);
+// template Ref<Model> AssetManager::getAsset<Model>(AssetHandle handle);
+// template Ref<ModelSource> AssetManager::getAsset<ModelSource>(AssetHandle handle);
+// template Ref<Material> AssetManager::getAsset<Material>(AssetHandle handle);
+// template Ref<EnvironmentMap> AssetManager::getAsset<EnvironmentMap>(AssetHandle handle);
 // template Ref<Shader> AssetManager::getAsset<Shader>(AssetHandle handle);
 
 AssetHandle AssetManager::registerAsset(std::filesystem::path path)

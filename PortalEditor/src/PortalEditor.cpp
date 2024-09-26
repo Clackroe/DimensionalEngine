@@ -64,7 +64,6 @@ void PortalLayer::OnUpdate()
 }
 void PortalLayer::OnImGuiRender()
 {
-
     // Note: Switch this to true to enable dockspace
     static bool useDocking = true;
     static bool opt_fullscreen_persistant = true;

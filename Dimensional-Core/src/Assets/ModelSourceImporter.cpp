@@ -11,6 +11,30 @@
 #include <assimp/scene.h> // Output data structure
 
 namespace Dimensional {
+
+void PrintMaterials(const aiScene* scene)
+{
+    if (!scene) {
+        std::cerr << "No scene loaded." << std::endl;
+        return;
+    }
+
+    for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
+        aiMaterial* material = scene->mMaterials[i];
+
+        // List all the textures associated with the material
+        for (unsigned int j = 0; j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j) {
+            aiString texturePath; // To hold the path of the texture
+            if (material->GetTexture(static_cast<aiTextureType>(j), 0, &texturePath) == AI_SUCCESS) {
+                std::string textureType = aiTextureTypeToString(static_cast<aiTextureType>(j));
+                std::cout << "Material " << i << ": "
+                          << "Texture Path: " << texturePath.C_Str()
+                          << ", Type: " << textureType << std::endl;
+            }
+        }
+    }
+}
+
 static AssetHandle loadEmbeddedTexture(const aiTexture* texture)
 {
     // TODO: HandleEmbeddedTextures
@@ -22,8 +46,17 @@ static AssetHandle loadEmbeddedTexture(const aiTexture* texture)
     return 0;
 }
 
+static AssetHandle loadTextureFromFile(const std::string& filePath)
+{
+    // Implement your texture loading logic here.
+    // Example:
+    // AssetHandle handle = AssetManager::getInstance().loadTexture(filePath);
+    return 0;
+}
+
 static AssetHandle loadTextureOfType(aiMaterial* mat, aiTextureType type, const aiScene* scene, const std::filesystem::path& modelPath)
 {
+    DM_CORE_ERROR("NUM TEXTURE {0}: {1}", aiTextureTypeToString(type), (u32)mat->GetTextureCount(type));
     if (mat->GetTextureCount(type) > 0) {
         aiString path;
         if (mat->GetTexture(type, 0, &path) == AI_SUCCESS) {
@@ -37,21 +70,32 @@ static AssetHandle loadTextureOfType(aiMaterial* mat, aiTextureType type, const 
                     return textureHandle;
                 }
             } else {
-                std::filesystem::path texturePath = modelPath.parent_path() / std::filesystem::path(path.C_Str());
-                DM_CORE_WARN("PATH: {0}, TYPE: {1}", texturePath.string(), aiTextureTypeToString(type));
+                std::filesystem::path texturePath = (modelPath.parent_path() / std::filesystem::path(path.C_Str()));
+                std::string texturePathString = texturePath.string();
+                std::replace(texturePathString.begin(), texturePathString.end(), '\\', '/');
 
-                if (!std::filesystem::exists(texturePath)) {
-                    DM_CORE_ERROR("Texture file not found: {0}", texturePath.string());
-                    return 0;
+                // Use the updated texturePathString for any further operations
+                DM_CORE_WARN("PATH: {0}, TYPE: {1}", texturePathString, aiTextureTypeToString(type));
+
+                if (!std::filesystem::exists(texturePathString)) {
+                    DM_CORE_ERROR("Texture file not found: {0}", texturePathString);
+                    return 0; // Return an invalid handle if the file doesn't exist
                 }
 
-                // AssetHandle textureHandle = loadTextureFromFile(texturePath.string());
-                // return textureHandle;
-                return 0;
+                AssetHandle textureHandle = AssetManager::getInstance().getAssetHandleFromPath(texturePathString);
+                if (!textureHandle) {
+                    textureHandle = AssetManager::getInstance().registerAsset(texturePathString);
+                }
+                if (textureHandle) {
+                    DM_CORE_INFO("Successfully loaded texture: {0}", texturePathString);
+                } else {
+                    DM_CORE_ERROR("Failed to load texture: {0}", texturePathString);
+                }
+                return textureHandle;
             }
         }
     }
-    return 0;
+    return 0; // No texture found
 }
 
 static void loadMaterialTextures(aiMaterial* mat, const aiScene* scene, MaterialSettings& material, const std::filesystem::path& modelPath)
@@ -64,9 +108,6 @@ static void loadMaterialTextures(aiMaterial* mat, const aiScene* scene, Material
 
     AssetHandle roughness = 0;
     roughness = loadTextureOfType(mat, aiTextureType_SPECULAR, scene, modelPath);
-    if (!roughness) {
-        roughness = loadTextureOfType(mat, aiTextureType_DIFFUSE_ROUGHNESS, scene, modelPath);
-    }
 
     AssetHandle metalness = 0;
     metalness = loadTextureOfType(mat, aiTextureType_METALNESS, scene, modelPath);
@@ -136,7 +177,7 @@ static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle,
         MaterialSettings material;
         loadMaterialTextures(mat, scene, material, modelPath);
 
-        // Register new MaterialAsset
+        // Register new MaterialAsset if it doesnt exist
         std::string name = modelPath.stem().string() + "_" + mat->GetName().C_Str() + ".dmat";
         std::filesystem::path outPath = modelPath.parent_path() / name;
 
@@ -144,9 +185,9 @@ static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle,
 
         if (!AssetManager::getInstance().isAssetRegistered(outPath.string())) {
             MaterialSerializer::Serialize(outPath, material);
-            AssetHandle materialHandle;
             handle = AssetManager::getInstance().registerAsset(outPath);
         } else {
+            MaterialSerializer::Serialize(outPath, material);
             handle = AssetManager::getInstance().getAssetHandleFromPath(outPath.string());
         }
     }
@@ -157,10 +198,11 @@ static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle,
 static void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh>& meshes, std::vector<AssetHandle>& handles, const std::filesystem::path& modelPath)
 {
     // process all the node's meshes
-    handles.resize(node->mNumMeshes);
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(processMesh(mesh, scene, handles[i], modelPath));
+        AssetHandle id = 0;
+        meshes.push_back(processMesh(mesh, scene, id, modelPath));
+        handles.push_back(id);
     }
     // Continue to do the same for all children
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -184,6 +226,8 @@ Ref<ModelSource> ModelSourceImporter::loadModelSourceFromPath(std::filesystem::p
         DM_CORE_ERROR("ASSIMP: {0}", import.GetErrorString());
         return nullptr;
     }
+
+    PrintMaterials(scene);
 
     ModelSourceLoadSettings settings;
     processNode(scene->mRootNode, scene, settings.meshes, settings.meshMaterialHandles, path);

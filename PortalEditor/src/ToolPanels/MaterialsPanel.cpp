@@ -36,23 +36,33 @@ static void renderMaterialTool(AssetHandle handle)
     ImGui::Separator();
 
     AssetHandle alb = mat->getTexture(MaterialTexture::Albedo);
-    Utils::assetDragDrop(alb, AssetType::TEXTURE, "Albedo");
+    ImGui::TextWrapped("Albedo");
+    std::string label = std::filesystem::path(AssetManager::getInstance().getMetaData(alb).sourcePath).stem().string();
+    Utils::assetDragDrop(alb, AssetType::TEXTURE, label);
     mat->setTexture(MaterialTexture::Albedo, alb);
 
     AssetHandle Normal = mat->getTexture(MaterialTexture::Normal);
-    Utils::assetDragDrop(Normal, AssetType::TEXTURE, "Normal");
+    ImGui::TextWrapped("Normal");
+    label = std::filesystem::path(AssetManager::getInstance().getMetaData(Normal).sourcePath).stem().string();
+    Utils::assetDragDrop(Normal, AssetType::TEXTURE, label);
     mat->setTexture(MaterialTexture::Normal, Normal);
 
     AssetHandle Metal = mat->getTexture(MaterialTexture::Metalness);
-    Utils::assetDragDrop(Metal, AssetType::TEXTURE, "Metal");
+    ImGui::TextWrapped("Metalness");
+    label = std::filesystem::path(AssetManager::getInstance().getMetaData(Metal).sourcePath).stem().string();
+    Utils::assetDragDrop(Metal, AssetType::TEXTURE, label);
     mat->setTexture(MaterialTexture::Metalness, Metal);
 
     AssetHandle Rough = mat->getTexture(MaterialTexture::Roughness);
-    Utils::assetDragDrop(Rough, AssetType::TEXTURE, "Rough");
+    ImGui::TextWrapped("Roughness");
+    label = std::filesystem::path(AssetManager::getInstance().getMetaData(Rough).sourcePath).stem().string();
+    Utils::assetDragDrop(Rough, AssetType::TEXTURE, label);
     mat->setTexture(MaterialTexture::Roughness, Rough);
 
     AssetHandle AO = mat->getTexture(MaterialTexture::AO);
-    Utils::assetDragDrop(AO, AssetType::TEXTURE, "AO");
+    ImGui::TextWrapped("AO");
+    label = std::filesystem::path(AssetManager::getInstance().getMetaData(AO).sourcePath).stem().string();
+    Utils::assetDragDrop(AO, AssetType::TEXTURE, label);
     mat->setTexture(MaterialTexture::AO, AO);
 };
 
