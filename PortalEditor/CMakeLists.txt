@@ -21,20 +21,39 @@ add_executable(Portal ${APP_SOURCES})
 target_link_libraries(Portal Dimensional-Core)
 
 if(WIN32)
+    # Copying the Assets directory on Windows
     add_custom_command(TARGET Portal POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PROJECT_SOURCE_DIR}/Assets" ${CMAKE_BINARY_DIR}/Assets
         COMMENT "Copying ${PROJECT_SOURCE_DIR}/Assets to ${CMAKE_BINARY_DIR}/Assets"
     )
+    # Copying imgui.ini on Windows
+    add_custom_command(TARGET Portal POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        "${PROJECT_SOURCE_DIR}/imgui.ini" ${CMAKE_BINARY_DIR}/imgui.ini
+        COMMENT "Copying ${PROJECT_SOURCE_DIR}/imgui.ini to ${CMAKE_BINARY_DIR}/imgui.ini"
+    )
 else()
+    # Creating a symlink for the Assets directory on other platforms
     add_custom_command(TARGET Portal POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E create_symlink
         "${PROJECT_SOURCE_DIR}/Assets" ${CMAKE_BINARY_DIR}/Assets
         COMMENT "Creating symlink from ${PROJECT_SOURCE_DIR}/Assets to ${CMAKE_BINARY_DIR}/Assets"
     )
+    # Creating another symlink for the Assets directory
     add_custom_command(TARGET Portal POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E create_symlink
         "${PROJECT_SOURCE_DIR}/Assets" ${PROJECT_SOURCE_DIR}/../Assets
     )
+    add_custom_command(TARGET Portal POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+        "${PROJECT_SOURCE_DIR}/imgui.ini" ${PROJECT_SOURCE_DIR}/../imgui.ini
+    )
 
+    # Creating a symlink for imgui.ini on other platforms
+    add_custom_command(TARGET Portal POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+        "${PROJECT_SOURCE_DIR}/imgui.ini" ${CMAKE_BINARY_DIR}/imgui.ini
+        COMMENT "Creating symlink from ${PROJECT_SOURCE_DIR}/imgui.ini to ${CMAKE_BINARY_DIR}/imgui.ini"
+    )
 endif()
