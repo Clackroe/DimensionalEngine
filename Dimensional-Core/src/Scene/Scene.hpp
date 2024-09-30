@@ -11,7 +11,7 @@ class SceneSerializer;
 class Entity;
 class SceneHierarchy;
 
-class DMCORE_API Scene {
+class DMCORE_API Scene : public Asset {
 public:
     Scene();
     ~Scene();
@@ -30,6 +30,8 @@ public:
 
     template <typename... Components>
     auto getAllEntitiesWith() { return m_Registry.view<Components...>(); }
+
+    virtual AssetType getAssetType() const { return AssetType::SCENE; }
 
 private:
     template <typename T>

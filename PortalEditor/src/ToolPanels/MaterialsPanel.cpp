@@ -30,6 +30,9 @@ namespace Utils {
 static void renderMaterialTool(AssetHandle handle)
 {
     Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(handle);
+    if (!mat) {
+        return;
+    }
     AssetMetaData meta = AssetManager::getInstance().getMetaData(handle);
 
     ImGui::Text("%s", meta.sourcePath.c_str());

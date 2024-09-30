@@ -9,6 +9,7 @@
 #include <PortalEditor.hpp>
 #include <Scene/Components.hpp>
 #include <Scene/SceneSerializer.hpp>
+#include <ToolPanels/Utils.hpp>
 #include <dimensional.hpp>
 #include <string>
 
@@ -62,6 +63,19 @@ void PortalLayer::OnUpdate()
         Application::getApp().stopApplication();
     }
 }
+void PortalLayer::openScene(AssetHandle sceneHandle)
+{
+    Ref<Scene> nScene = AssetManager::getInstance().getAsset<Scene>(sceneHandle);
+    if (nScene) {
+        m_ActiveSceneHandle = sceneHandle;
+        m_ActiveScene = nScene;
+        m_HierarchyPanel.setSceneContext(m_ActiveScene);
+    }
+}
+void PortalLayer::saveCurrentScene()
+{
+}
+
 void PortalLayer::OnImGuiRender()
 {
     // Note: Switch this to true to enable dockspace
@@ -161,8 +175,14 @@ void PortalLayer::OnImGuiRender()
         m_ViewPortSize = { viewportPanelSize.x, viewportPanelSize.y };
     }
     Ref<FrameBuffer> buf = Renderer::getFrameBuffer();
-
     ImGui::Image(reinterpret_cast<ImTextureID>(buf->getAttachmentID(0)), ImVec2 { viewportPanelSize.x, viewportPanelSize.y }, { 0, 1 }, { 1, 0 });
+
+    AssetHandle newHandle = m_ActiveSceneHandle;
+    UI::assetDragDrop(newHandle, AssetType::SCENE);
+    if (newHandle != m_ActiveSceneHandle) {
+        openScene(newHandle);
+    }
+
     ImGui::End();
     //
 

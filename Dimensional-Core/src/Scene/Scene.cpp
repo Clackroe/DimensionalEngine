@@ -85,8 +85,9 @@ void Scene::updateEditor()
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, PointLightComponent>(e);
 
-            // Ref<Material> mat = AssetManager::getMaterial("Default");
-            // Renderer::renderCube(mat, transform.GetTransform());
+            // TODO: Render Billboard sprite
+            //  Ref<Material> mat = AssetManager::getMaterial("Default");
+            //  Renderer::renderCube(mat, transform.GetTransform());
         }
     }
 
@@ -95,8 +96,9 @@ void Scene::updateEditor()
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, SpotLightComponent>(e);
 
-            // Ref<Material> mat = AssetManager::getMaterial("Default");
-            // Renderer::renderCube(mat, transform.GetTransform());
+            // TODO: Render Billboard sprite
+            //  Ref<Material> mat = AssetManager::getMaterial("Default");
+            //  Renderer::renderCube(mat, transform.GetTransform());
         }
     }
 

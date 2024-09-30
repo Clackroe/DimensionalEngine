@@ -33,6 +33,9 @@ public:
 
     AssetHandle registerAsset(std::filesystem::path path);
 
+    bool isSupportedType(std::filesystem::path path);
+    bool isSupportedType(std::string path);
+
     bool isAssetLoaded(AssetHandle handle);
     bool isAssetRegistered(AssetHandle handle);
     bool isAssetRegistered(std::string path);

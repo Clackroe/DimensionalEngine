@@ -7,8 +7,8 @@ namespace Dimensional {
 
 class DMCORE_API MaterialImporter {
 public:
-    static Ref<Material> importModel(AssetMetaData meta);
-    static Ref<Material> loadModelFromPath(std::filesystem::path path);
+    static Ref<Material> importMaterial(AssetMetaData meta);
+    static Ref<Material> loadMaterialFromPath(std::filesystem::path path);
 };
 }
 

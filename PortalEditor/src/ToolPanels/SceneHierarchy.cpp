@@ -9,6 +9,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <ToolPanels/SceneHierarchy.hpp>
+#include <ToolPanels/Utils.hpp>
 namespace Dimensional {
 
 // Currently this function is copied from TheCherno's Tutorial series.
@@ -77,26 +78,6 @@ static void customVec3Slider(const std::string& label, glm::vec3& values, float 
     ImGui::Columns(1);
 
     ImGui::PopID();
-}
-
-namespace Utils {
-    static void assetDragDrop(AssetHandle& handle, AssetType typeOfAsset, const std::string& label)
-    {
-        ImGui::Text("%s", label.c_str());
-        if (ImGui::BeginDragDropTarget()) {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ASSET")) {
-                AssetHandle droppedHandle = *(AssetHandle*)payload->Data;
-                AssetType assetsType = AssetManager::getInstance().getMetaData(droppedHandle).type;
-
-                if (typeOfAsset == assetsType) {
-                    handle = droppedHandle;
-                } else {
-                    DM_CORE_WARN("Wrong AssetType {0} {1}", Asset::assetTypeToString(typeOfAsset), Asset::assetTypeToString(assetsType))
-                }
-            }
-            ImGui::EndDragDropTarget();
-        }
-    }
 }
 
 SceneHierarchy::SceneHierarchy(Ref<Scene> scene)
@@ -260,7 +241,7 @@ void SceneHierarchy::entityComponents(Entity entity)
         componentNode<SkyLight>(
             "Sky Light", entity, [](auto& component) {
                 ImGui::Text("Environment Map:");
-                Utils::assetDragDrop(component.envMap, AssetType::ENVIRONMENTMAP,
+                UI::assetDragDrop(component.envMap, AssetType::ENVIRONMENTMAP,
                     std::filesystem::path(AssetManager::getInstance().getMetaData(component.envMap).sourcePath).stem().string());
 
                 ImGui::DragFloat("Linear", &component.lod, 0.01f, 0.0f, 4.0f);
@@ -274,7 +255,7 @@ void SceneHierarchy::entityComponents(Entity entity)
                 AssetHandle modelID = component.model;
                 ImGui::Text("Model:");
                 const std::string& p = AssetManager::getInstance().getMetaData(modelID).sourcePath;
-                Utils::assetDragDrop(modelID, AssetType::MODEL,
+                UI::assetDragDrop(modelID, AssetType::MODEL,
                     std::filesystem::path(p).stem().string());
                 if (modelID != component.model) {
                     component.setModelHandle(modelID);
@@ -310,13 +291,14 @@ void SceneHierarchy::entityComponents(Entity entity)
                             ImGui::SameLine();
 
                             AssetHandle matID = component.materialOverrides[i];
-                            Utils::assetDragDrop(matID, AssetType::MATERIAL,
+                            UI::assetDragDrop(matID, AssetType::MATERIAL,
                                 std::filesystem::path(AssetManager::getInstance().getMetaData(
                                                                                      (u64)component.materialOverrides[i] == 0
                                                                                          ? source->getMaterialHandles()[i]
                                                                                          : component.materialOverrides[i])
                                                           .sourcePath)
-                                    .stem().string());
+                                    .stem()
+                                    .string());
 
                             if (matID != component.materialOverrides[i]) {
                                 component.materialOverrides[i] = matID;

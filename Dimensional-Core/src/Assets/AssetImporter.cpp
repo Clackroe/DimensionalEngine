@@ -3,12 +3,17 @@
 #include "Assets/MaterialImporter.hpp"
 #include "Assets/ModelImporter.hpp"
 #include "Assets/ModelSourceImporter.hpp"
+#include "Assets/SceneImporter.hpp"
 #include "Assets/TextureImporter.hpp"
 #include <Assets/AssetImporter.hpp>
+#include <filesystem>
 namespace Dimensional {
 
 Ref<Asset> AssetImporter::importAsset(const AssetMetaData& data)
 {
+    if (!std::filesystem::exists(data.sourcePath)) {
+        return nullptr;
+    }
     Ref<Asset> out = nullptr;
     switch (data.type) {
     case (AssetType::TEXTURE):
@@ -21,10 +26,13 @@ Ref<Asset> AssetImporter::importAsset(const AssetMetaData& data)
         out = ModelImporter::importModel(data);
         break;
     case (AssetType::MATERIAL):
-        out = MaterialImporter::importModel(data);
+        out = MaterialImporter::importMaterial(data);
         break;
     case (AssetType::ENVIRONMENTMAP):
         out = EnvironmentMapImporter::importEnvironment(data);
+        break;
+    case (AssetType::SCENE):
+        out = SceneImporter::importScene(data);
         break;
     default:
         DM_CORE_WARN("Attempted to import texture of unimplemented type");

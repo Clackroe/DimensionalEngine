@@ -153,6 +153,8 @@ void main()
 
     float metallic = texture(metallicMap, vInput.TexCoords).r;
     float roughness = texture(roughnessMap, vInput.TexCoords).r;
+    roughness = clamp(roughness, 0.05, 0.95);
+
     float ao = texture(aoMap, vInput.TexCoords).r;
 
     vec3 N = getNormalFromMap();

@@ -23,20 +23,24 @@ static UMap<std::string, AssetType> s_ExtensionToType = {
     { ".obj", AssetType::MODELSOURCE },
     { ".gltf", AssetType::MODELSOURCE },
     { ".fbx", AssetType::MODELSOURCE },
+    { ".Fbx", AssetType::MODELSOURCE },
     { ".FBX", AssetType::MODELSOURCE },
     { ".dmod", AssetType::MODEL },
     { ".glsl", AssetType::SHADER },
     { ".dmat", AssetType::MATERIAL },
-    { ".hdr", AssetType::ENVIRONMENTMAP }
+    { ".hdr", AssetType::ENVIRONMENTMAP },
+    { ".dims", AssetType::SCENE }
 };
 
-// Notify compiler of use outside of lib
-// template Ref<Texture> AssetManager::getAsset<Texture>(AssetHandle handle);
-// template Ref<Model> AssetManager::getAsset<Model>(AssetHandle handle);
-// template Ref<ModelSource> AssetManager::getAsset<ModelSource>(AssetHandle handle);
-// template Ref<Material> AssetManager::getAsset<Material>(AssetHandle handle);
-// template Ref<EnvironmentMap> AssetManager::getAsset<EnvironmentMap>(AssetHandle handle);
-// template Ref<Shader> AssetManager::getAsset<Shader>(AssetHandle handle);
+bool AssetManager::isSupportedType(std::filesystem::path path)
+{
+    return s_ExtensionToType.contains(path.extension().string());
+}
+
+bool AssetManager::isSupportedType(std::string path)
+{
+    return s_ExtensionToType.contains(std::filesystem::path(path).extension().string());
+}
 
 AssetHandle AssetManager::registerAsset(std::filesystem::path path)
 {
