@@ -198,8 +198,6 @@ void SceneHierarchy::entityComponents(Entity entity)
         if (ImGui::Button("Sky Light")) {
             entity.addComponent<SkyLight>();
         }
-        // DisplayAddComponentEntry<TextComponent>("Text Component");
-
         ImGui::EndPopup();
     }
 
@@ -270,8 +268,11 @@ void SceneHierarchy::entityComponents(Entity entity)
                 if (source) {
                     ImGui::Separator();
 
+                    ImVec2 availableSize = ImGui::GetContentRegionAvail();
+                    float listBoxHeight = availableSize.y - ImGui::GetFrameHeightWithSpacing();
+
                     // Materials Section
-                    if (ImGui::BeginListBox("##MaterialOverrides", ImVec2(0, 0))) {
+                    if (ImGui::BeginListBox("##MaterialOverrides", ImVec2(-FLT_MIN, listBoxHeight))) {
                         ImGui::Text("Materials:");
                         ImGui::Separator();
 
@@ -287,7 +288,7 @@ void SceneHierarchy::entityComponents(Entity entity)
                                 ImGui::SameLine();
                             }
 
-                            ImGui::Text("Material %d:", i + 1);
+                            ImGui::Text("%d:", i + 1);
                             ImGui::SameLine();
 
                             AssetHandle matID = component.materialOverrides[i];
