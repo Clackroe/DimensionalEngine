@@ -96,6 +96,7 @@ void Renderer::renderModel(Model& model, glm::mat4 transform)
     for (u32 i = 0; i < meshes.size(); i++) {
         Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(model.getMaterials()[i]);
         if (!mat) {
+            DM_CORE_WARN("NO MAT")
             // TODO: If no material, render default
         }
         Renderer::renderMesh(meshes[i], mat, transform);

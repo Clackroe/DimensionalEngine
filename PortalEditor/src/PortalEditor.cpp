@@ -11,6 +11,7 @@
 #include <Scene/SceneSerializer.hpp>
 #include <ToolPanels/Utils.hpp>
 #include <dimensional.hpp>
+#include <filesystem>
 #include <string>
 
 namespace Dimensional {
@@ -74,6 +75,19 @@ void PortalLayer::openScene(AssetHandle sceneHandle)
 }
 void PortalLayer::saveCurrentScene()
 {
+    AssetMetaData sceneMeta = AssetManager::getInstance().getMetaData(m_ActiveSceneHandle);
+    if (std::filesystem::exists(sceneMeta.sourcePath)) {
+        auto matHandles = AssetManager::getInstance().getAssetHandles(AssetType::MATERIAL);
+        for (auto handle : matHandles) {
+            auto matMeta = AssetManager::getInstance().getMetaData(handle);
+            auto mat = AssetManager::getInstance().getAsset<Material>(handle);
+            MaterialSerializer::Serialize(matMeta.sourcePath, mat->getSettings());
+        }
+        SceneSerializer::Serialize(sceneMeta.sourcePath, m_ActiveScene);
+
+    } else {
+        DM_CORE_WARN("Unable to save scene: {}", sceneMeta.sourcePath);
+    }
 }
 
 void PortalLayer::OnImGuiRender()
@@ -121,21 +135,14 @@ void PortalLayer::OnImGuiRender()
     // TEST SCENE SAVING
     ImGui::Begin("Test Saving");
     if (ImGui::Button("Save")) {
-        auto matHandles = AssetManager::getInstance().getAssetHandles(AssetType::MATERIAL);
-        for (auto handle : matHandles) {
-            auto meta = AssetManager::getInstance().getMetaData(handle);
-            auto mat = AssetManager::getInstance().getAsset<Material>(handle);
-            MaterialSerializer::Serialize(meta.sourcePath, mat->getSettings());
-        }
-
-        SceneSerializer::Serialize(scenePath, m_ActiveScene);
+        saveCurrentScene();
     }
-    if (ImGui::Button("Load")) {
-        Ref<Scene> nScene = CreateRef<Scene>();
-        SceneSerializer::Deserialize(scenePath, nScene);
-        m_ActiveScene = nScene;
-        m_HierarchyPanel.setSceneContext(m_ActiveScene);
-    }
+    // if (ImGui::Button("Load")) {
+    //     Ref<Scene> nScene = CreateRef<Scene>();
+    //     SceneSerializer::Deserialize(scenePath, nScene);
+    //     m_ActiveScene = nScene;
+    //     m_HierarchyPanel.setSceneContext(m_ActiveScene);
+    // }
 
     ImGui::End();
 

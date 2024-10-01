@@ -43,6 +43,7 @@ void SceneSerializer::Deserialize(std::filesystem::path file, Ref<Scene>& scene)
 
     if (!sceneNode["Scene"]) {
         DM_CORE_ASSERT("Unable to Load Scene {0}", file.string());
+        return;
     }
 
     auto sceneName = sceneNode["Scene"].as<std::string>();

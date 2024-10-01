@@ -148,8 +148,9 @@ void main()
     vec3 albedo = pow(albedoSample.rgb, vec3(2.2)); // Gamma correction for albedo
     float alpha = albedoSample.a; // Alpha from the albedo texture
 
-    if (alpha < 0.1)
-        discard;
+    // TODO: Implement Alpha and Transparancy
+    // if (alpha < 0.1)
+    //     discard;
 
     float metallic = texture(metallicMap, vInput.TexCoords).r;
     float roughness = texture(roughnessMap, vInput.TexCoords).r;
