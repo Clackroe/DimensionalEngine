@@ -100,22 +100,17 @@ void SceneHierarchy::entityTreeNode(Entity entity)
         m_SelectedEntity = entity;
     }
 
-    bool entityDeleted = false;
-    if (ImGui::BeginPopupContextItem()) {
-        if (ImGui::MenuItem("Delete Entity"))
-            entityDeleted = true;
-
+    if (ImGui::BeginPopupContextItem("Entity Context")) {
+        if (ImGui::MenuItem("Delete Entity")) {
+            m_SceneContext->destroyEntity(entity);
+            if (m_SelectedEntity == entity) {
+                m_SelectedEntity = {};
+            }
+        }
         ImGui::EndPopup();
     }
     if (isOpened) {
         ImGui::TreePop();
-    }
-
-    if (entityDeleted) {
-        m_SceneContext->destroyEntity(entity);
-        if (m_SelectedEntity == entity) {
-            m_SelectedEntity = {};
-        }
     }
 }
 template <typename CType, typename CSpecificFunction>
@@ -328,18 +323,24 @@ void SceneHierarchy::renderImGui()
     if (m_SceneContext) {
         for (auto entity : m_SceneContext->m_Registry.view<entt::entity>()) {
             Entity e = { entity, m_SceneContext.get() };
+            ImGui::PushID(e.getID());
             entityTreeNode(e);
+            ImGui::PopID();
         };
-
-        // Right-click on blank space
-        if (ImGui::BeginPopupContextWindow(0, 1)) {
-            if (ImGui::MenuItem("Create Empty Entity"))
-                m_SceneContext->createEntity("Empty Entity");
-
-            ImGui::EndPopup();
-        }
         if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
             m_SelectedEntity = {};
+        }
+
+        // Right-click on blank space
+        if (ImGui::IsMouseDown(1) && ImGui::IsWindowHovered() && !m_SelectedEntity) {
+            ImGui::OpenPopup("Add Entity");
+        }
+
+        if (ImGui::BeginPopup("Add Entity")) {
+            if (ImGui::MenuItem("Create Empty Entity")) {
+                m_SceneContext->createEntity("Empty Entity");
+            }
+            ImGui::EndPopup();
         }
     }
     ImGui::End();
