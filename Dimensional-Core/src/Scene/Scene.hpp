@@ -22,6 +22,7 @@ public:
 
     Entity createEntity(const std::string& name = std::string());
     Entity createEntityWithUUID(UUID uuid, const std::string& name = std::string());
+    Entity duplicateEntity(Entity);
 
     void destroyEntity(Entity entity);
 

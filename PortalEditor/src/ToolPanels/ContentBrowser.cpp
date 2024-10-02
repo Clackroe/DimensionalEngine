@@ -148,7 +148,7 @@ void ContentBrowser::renderImGui()
     }
     ImGui::Columns(1);
 
-    if (ImGui::BeginPopupContextWindow(0)) {
+    if (ImGui::BeginPopupContextWindow(0, ImGuiPopupFlags_NoOpenOverItems)) {
         // TEMPORARY
         if (ImGui::MenuItem("New Scene")) {
             Utils::newFile(m_CurrentPath / "NewScene.dims", DefaultScene);

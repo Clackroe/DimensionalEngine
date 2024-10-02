@@ -1,5 +1,6 @@
 #include "Assets/AssetManager.hpp"
 #include "Assets/AssetMeta.hpp"
+#include "Input/KeyCodes.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelSource.hpp"
@@ -79,7 +80,6 @@ static void customVec3Slider(const std::string& label, glm::vec3& values, float 
 
     ImGui::PopID();
 }
-
 SceneHierarchy::SceneHierarchy(Ref<Scene> scene)
     : m_SceneContext(scene)
 {
@@ -317,6 +317,18 @@ void SceneHierarchy::entityComponents(Entity entity)
 
 void SceneHierarchy::renderImGui()
 {
+    // Could be done in the constructor
+    static bool listenerAdded = false;
+    if (!listenerAdded) {
+        EventSystem::AddListener<KeyEvent>([&](const Ref<KeyEvent>& e) {
+            if (Input::isKeyDown(Key::Left_control) && e->getKey() == Key::D && e->getMode() == Key::PRESS) {
+                if (m_SelectedEntity) {
+                    m_SceneContext->duplicateEntity(m_SelectedEntity);
+                }
+            }
+        });
+        listenerAdded = true;
+    }
 
     ImGui::Begin("Hierarchy");
 
