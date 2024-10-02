@@ -101,7 +101,7 @@ void ContentBrowser::renderImGui()
         }
 
         BrowserItem currentItem;
-        currentItem.handle = manager.getAssetHandleFromPath(itemPath);
+        currentItem.handle = manager.getAssetHandleFromPath(itemPath.string());
         currentItem.type = manager.getMetaData(currentItem.handle).type;
         renderItem(m_FileIcon, glm::vec2(iconSize), fileName.string(), currentItem);
         if (ImGui::BeginPopupContextItem("FileContext")) {
@@ -114,12 +114,14 @@ void ContentBrowser::renderImGui()
                     AssetManager::getInstance().registerAsset(pp);
                 }
             }
+            ImGui::EndPopup();
         }
         ImGui::TextWrapped("%s", fileName.string().c_str());
 
         // Move on
-        ImGui::NextColumn();
         ImGui::PopID();
+
+        ImGui::NextColumn();
     }
     ImGui::Columns(1);
 
