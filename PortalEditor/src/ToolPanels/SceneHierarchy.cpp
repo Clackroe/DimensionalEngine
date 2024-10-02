@@ -327,17 +327,7 @@ void SceneHierarchy::renderImGui()
             entityTreeNode(e);
             ImGui::PopID();
         };
-<<<<<<< HEAD
-=======
 
-        // Right-click on blank space
-        if (ImGui::BeginPopupContextWindow(0)) {
-            if (ImGui::MenuItem("Create Empty Entity"))
-                m_SceneContext->createEntity("Empty Entity");
-
-            ImGui::EndPopup();
-        }
->>>>>>> 2d5bb47 (feat: Can create new scenes and materials in the content browser)
         if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
             m_SelectedEntity = {};
         }
