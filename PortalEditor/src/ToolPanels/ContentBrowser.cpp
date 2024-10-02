@@ -8,6 +8,42 @@
 
 namespace Dimensional {
 
+// TEMPORARY
+static std::string DefaultMaterial = R"(Material:
+  Albedo: 0
+  Normal: 0
+  Metal: 0
+  Roughness: 0
+  AO: 0
+)";
+
+static std::string DefaultScene = "Scene: Untitled Scene";
+
+// TODO: Move to a filesystem class/namespace
+namespace Utils {
+    static void newFile(std::filesystem::path path, std::string content)
+    {
+        std::filesystem::path parent = path.parent_path();
+        std::string baseName = path.stem().string();
+        std::filesystem::path ext = path.extension();
+        u32 num = 1;
+
+        while (std::filesystem::exists(path)) {
+            std::string newName = baseName + std::to_string(num);
+            std::filesystem::path fileName = std::filesystem::path(newName + ext.string());
+            path = parent / fileName;
+            ++num;
+        }
+        std::ofstream file(path);
+        if (file) {
+            file << content;
+            file.close();
+        } else {
+            DM_CORE_WARN("Failed to create file {}", path.string());
+        }
+    }
+}
+
 static std::vector<std::filesystem::directory_entry> getSortedDirectory(std::filesystem::path path)
 {
     // Get sort the files to ensure that directories are first
@@ -42,19 +78,6 @@ void ContentBrowser::renderImGui()
     static float padding = 12.0f;
     static float iconSize = 128.0f;
     float itemSize = iconSize + padding;
-
-    // if (ImGui::Button("Hmmm TEST SEEE")) {
-    //     ImGui::OpenPopup("Test Import Asset");
-    // }
-    // if (ImGui::BeginPopupModal("Test Import Asset", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-    //     ImGui::Text("This is a modal popup");
-    //
-    //     if (ImGui::Button("Close")) {
-    //         ImGui::CloseCurrentPopup();
-    //     }
-    //
-    //     ImGui::EndPopup();
-    // }
 
     if (m_CurrentPath != m_RootPath) {
         if (ImGui::Button("../")) {
@@ -124,6 +147,18 @@ void ContentBrowser::renderImGui()
         ImGui::NextColumn();
     }
     ImGui::Columns(1);
+
+    if (ImGui::BeginPopupContextWindow(0)) {
+        // TEMPORARY
+        if (ImGui::MenuItem("New Scene")) {
+            Utils::newFile(m_CurrentPath / "NewScene.dims", DefaultScene);
+        }
+        if (ImGui::MenuItem("New Material")) {
+            Utils::newFile(m_CurrentPath / "NewMat.dmat", DefaultMaterial);
+        }
+
+        ImGui::EndPopup();
+    }
 
     ImGui::End();
 }
