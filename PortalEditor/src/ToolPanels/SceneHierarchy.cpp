@@ -1,5 +1,6 @@
 #include "Assets/AssetManager.hpp"
 #include "Assets/AssetMeta.hpp"
+#include "Input/KeyCodes.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelSource.hpp"
@@ -9,6 +10,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <ToolPanels/SceneHierarchy.hpp>
+#include <ToolPanels/Utils.hpp>
 namespace Dimensional {
 
 // Currently this function is copied from TheCherno's Tutorial series.
@@ -78,27 +80,6 @@ static void customVec3Slider(const std::string& label, glm::vec3& values, float 
 
     ImGui::PopID();
 }
-
-namespace Utils {
-    static void assetDragDrop(AssetHandle& handle, AssetType typeOfAsset, const std::string& label)
-    {
-        ImGui::Text("%s", label.c_str());
-        if (ImGui::BeginDragDropTarget()) {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ASSET")) {
-                AssetHandle droppedHandle = *(AssetHandle*)payload->Data;
-                AssetType assetsType = AssetManager::getInstance().getMetaData(droppedHandle).type;
-
-                if (typeOfAsset == assetsType) {
-                    handle = droppedHandle;
-                } else {
-                    DM_CORE_WARN("Wrong AssetType {0} {1}", Asset::assetTypeToString(typeOfAsset), Asset::assetTypeToString(assetsType))
-                }
-            }
-            ImGui::EndDragDropTarget();
-        }
-    }
-}
-
 SceneHierarchy::SceneHierarchy(Ref<Scene> scene)
     : m_SceneContext(scene)
 {
@@ -119,22 +100,17 @@ void SceneHierarchy::entityTreeNode(Entity entity)
         m_SelectedEntity = entity;
     }
 
-    bool entityDeleted = false;
-    if (ImGui::BeginPopupContextItem()) {
-        if (ImGui::MenuItem("Delete Entity"))
-            entityDeleted = true;
-
+    if (ImGui::BeginPopupContextItem("Entity Context")) {
+        if (ImGui::MenuItem("Delete Entity")) {
+            m_SceneContext->destroyEntity(entity);
+            if (m_SelectedEntity == entity) {
+                m_SelectedEntity = {};
+            }
+        }
         ImGui::EndPopup();
     }
     if (isOpened) {
         ImGui::TreePop();
-    }
-
-    if (entityDeleted) {
-        m_SceneContext->destroyEntity(entity);
-        if (m_SelectedEntity == entity) {
-            m_SelectedEntity = {};
-        }
     }
 }
 template <typename CType, typename CSpecificFunction>
@@ -217,8 +193,6 @@ void SceneHierarchy::entityComponents(Entity entity)
         if (ImGui::Button("Sky Light")) {
             entity.addComponent<SkyLight>();
         }
-        // DisplayAddComponentEntry<TextComponent>("Text Component");
-
         ImGui::EndPopup();
     }
 
@@ -260,7 +234,7 @@ void SceneHierarchy::entityComponents(Entity entity)
         componentNode<SkyLight>(
             "Sky Light", entity, [](auto& component) {
                 ImGui::Text("Environment Map:");
-                Utils::assetDragDrop(component.envMap, AssetType::ENVIRONMENTMAP,
+                UI::assetDragDrop(component.envMap, AssetType::ENVIRONMENTMAP,
                     std::filesystem::path(AssetManager::getInstance().getMetaData(component.envMap).sourcePath).stem().string());
 
                 ImGui::DragFloat("Linear", &component.lod, 0.01f, 0.0f, 4.0f);
@@ -274,7 +248,7 @@ void SceneHierarchy::entityComponents(Entity entity)
                 AssetHandle modelID = component.model;
                 ImGui::Text("Model:");
                 const std::string& p = AssetManager::getInstance().getMetaData(modelID).sourcePath;
-                Utils::assetDragDrop(modelID, AssetType::MODEL,
+                UI::assetDragDrop(modelID, AssetType::MODEL,
                     std::filesystem::path(p).stem().string());
                 if (modelID != component.model) {
                     component.setModelHandle(modelID);
@@ -289,8 +263,11 @@ void SceneHierarchy::entityComponents(Entity entity)
                 if (source) {
                     ImGui::Separator();
 
+                    ImVec2 availableSize = ImGui::GetContentRegionAvail();
+                    float listBoxHeight = availableSize.y - ImGui::GetFrameHeightWithSpacing();
+
                     // Materials Section
-                    if (ImGui::BeginListBox("##MaterialOverrides", ImVec2(0, 0))) {
+                    if (ImGui::BeginListBox("##MaterialOverrides", ImVec2(-FLT_MIN, listBoxHeight))) {
                         ImGui::Text("Materials:");
                         ImGui::Separator();
 
@@ -306,17 +283,18 @@ void SceneHierarchy::entityComponents(Entity entity)
                                 ImGui::SameLine();
                             }
 
-                            ImGui::Text("Material %d:", i + 1);
+                            ImGui::Text("%d:", i + 1);
                             ImGui::SameLine();
 
                             AssetHandle matID = component.materialOverrides[i];
-                            Utils::assetDragDrop(matID, AssetType::MATERIAL,
+                            UI::assetDragDrop(matID, AssetType::MATERIAL,
                                 std::filesystem::path(AssetManager::getInstance().getMetaData(
                                                                                      (u64)component.materialOverrides[i] == 0
                                                                                          ? source->getMaterialHandles()[i]
                                                                                          : component.materialOverrides[i])
                                                           .sourcePath)
-                                    .stem().string());
+                                    .stem()
+                                    .string());
 
                             if (matID != component.materialOverrides[i]) {
                                 component.materialOverrides[i] = matID;
@@ -339,24 +317,43 @@ void SceneHierarchy::entityComponents(Entity entity)
 
 void SceneHierarchy::renderImGui()
 {
+    // Could be done in the constructor
+    static bool listenerAdded = false;
+    if (!listenerAdded) {
+        EventSystem::AddListener<KeyEvent>([&](const Ref<KeyEvent>& e) {
+            if (Input::isKeyDown(Key::Left_control) && e->getKey() == Key::D && e->getMode() == Key::PRESS) {
+                if (m_SelectedEntity) {
+                    m_SceneContext->duplicateEntity(m_SelectedEntity);
+                }
+            }
+        });
+        listenerAdded = true;
+    }
 
     ImGui::Begin("Hierarchy");
 
     if (m_SceneContext) {
         for (auto entity : m_SceneContext->m_Registry.view<entt::entity>()) {
             Entity e = { entity, m_SceneContext.get() };
+            ImGui::PushID(e.getID());
             entityTreeNode(e);
+            ImGui::PopID();
         };
 
-        // Right-click on blank space
-        if (ImGui::BeginPopupContextWindow(0, 1)) {
-            if (ImGui::MenuItem("Create Empty Entity"))
-                m_SceneContext->createEntity("Empty Entity");
-
-            ImGui::EndPopup();
-        }
         if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
             m_SelectedEntity = {};
+        }
+
+        // Right-click on blank space
+        if (ImGui::IsMouseDown(1) && ImGui::IsWindowHovered() && !m_SelectedEntity) {
+            ImGui::OpenPopup("Add Entity");
+        }
+
+        if (ImGui::BeginPopup("Add Entity")) {
+            if (ImGui::MenuItem("Create Empty Entity")) {
+                m_SceneContext->createEntity("Empty Entity");
+            }
+            ImGui::EndPopup();
         }
     }
     ImGui::End();

@@ -85,8 +85,14 @@ void Scene::updateEditor()
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, PointLightComponent>(e);
 
-            // Ref<Material> mat = AssetManager::getMaterial("Default");
-            // Renderer::renderCube(mat, transform.GetTransform());
+            // TODO: Render Billboard sprite
+
+            // TEMPORARY FOR NOW
+            static Ref<Material> mat;
+            if (!mat) {
+                mat = CreateRef<Material>();
+            }
+            Renderer::renderCube(mat, transform.GetTransform());
         }
     }
 
@@ -95,8 +101,14 @@ void Scene::updateEditor()
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, SpotLightComponent>(e);
 
-            // Ref<Material> mat = AssetManager::getMaterial("Default");
-            // Renderer::renderCube(mat, transform.GetTransform());
+            // TODO: Render Billboard sprite
+
+            // TEMPORARY FOR NOW
+            static Ref<Material> mat;
+            if (!mat) {
+                mat = CreateRef<Material>();
+            }
+            Renderer::renderCube(mat, transform.GetTransform());
         }
     }
 
@@ -131,6 +143,30 @@ Entity Scene::createEntityWithUUID(UUID uuid, const std::string& name)
     e.addComponent<TagComponent>(tag);
     m_EntityMap[uuid] = e;
     return e;
+}
+
+// Thanks Cherno, Template magic right here
+template <typename... Component>
+static void CopyComponentIfExists(Entity dst, Entity src)
+{
+    ([&]() {
+        if (src.hasComponent<Component>())
+            dst.addOrReplaceComponent<Component>(src.getComponent<Component>());
+    }(),
+        ...);
+}
+
+template <typename... Component>
+static void CopyComponentIfExists(ComponentGroup<Component...>, Entity dst, Entity src)
+{
+    CopyComponentIfExists<Component...>(dst, src);
+}
+Entity Scene::duplicateEntity(Entity e)
+{
+    std::string name = e.getComponent<TagComponent>().Tag;
+    Entity outEntity = createEntity(name);
+    CopyComponentIfExists(EveryComponent {}, outEntity, e);
+    return outEntity;
 }
 
 void Scene::destroyEntity(Entity entity)
@@ -182,10 +218,14 @@ void Scene::onComponentAdded<TagComponent>(Entity entity, TagComponent& componen
 template <>
 void Scene::onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component)
 {
+    component.intensity = 0.5f;
+    component.constant = 6.0f;
 }
 template <>
 void Scene::onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component)
 {
+    component.intensity = 0.5f;
+    component.constant = 6.0f;
 }
 
 template <>

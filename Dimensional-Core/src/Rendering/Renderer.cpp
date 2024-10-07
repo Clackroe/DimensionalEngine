@@ -96,8 +96,8 @@ void Renderer::renderModel(Model& model, glm::mat4 transform)
     for (u32 i = 0; i < meshes.size(); i++) {
         Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(model.getMaterials()[i]);
         if (!mat) {
+            DM_CORE_WARN("NO MAT")
             // TODO: If no material, render default
-            continue;
         }
         Renderer::renderMesh(meshes[i], mat, transform);
     }
@@ -108,18 +108,16 @@ void Renderer::renderModel(Model& model, glm::mat4 transform)
 void Renderer::renderModel(Model& model, glm::mat4 transform, std::vector<AssetHandle>& materialOverride)
 {
     auto& meshes = model.getMeshes();
-    for (u32 i = 0; i < model.getMaterials().size(); i++) {
-        AssetHandle id;
-        if (i >= materialOverride.size()) {
-
-            id = materialOverride[i];
-        } else {
-            id = model.getMaterials()[i];
-        }
+    // DM_CORE_WARN("MESHES: {0} | OVERRIDE: {1}", model.getMeshes().size(), materialOverride.size())
+    for (u32 i = 0; i < materialOverride.size(); i++) {
+        AssetHandle id = materialOverride[i];
         if ((u64)id == 0) {
             id = model.getMaterials()[i];
         }
         Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(id);
+        if (!mat) {
+            DM_CORE_WARN("ATTEMPTED TO RENDER WITH A MISSING MATERIAL")
+        }
         Renderer::renderMesh(meshes[i], mat, transform);
     }
 }
@@ -200,9 +198,6 @@ void Renderer::beginScene(CameraData data)
     ref.m_FrameBuffer->Bind();
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     ref.m_CameraData = data;
     ref.setupCameraData();
     ref.setupLightData();

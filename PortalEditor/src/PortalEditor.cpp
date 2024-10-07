@@ -9,7 +9,9 @@
 #include <PortalEditor.hpp>
 #include <Scene/Components.hpp>
 #include <Scene/SceneSerializer.hpp>
+#include <ToolPanels/Utils.hpp>
 #include <dimensional.hpp>
+#include <filesystem>
 #include <string>
 
 namespace Dimensional {
@@ -62,6 +64,32 @@ void PortalLayer::OnUpdate()
         Application::getApp().stopApplication();
     }
 }
+void PortalLayer::openScene(AssetHandle sceneHandle)
+{
+    Ref<Scene> nScene = AssetManager::getInstance().getAsset<Scene>(sceneHandle);
+    if (nScene) {
+        m_ActiveSceneHandle = sceneHandle;
+        m_ActiveScene = nScene;
+        m_HierarchyPanel.setSceneContext(m_ActiveScene);
+    }
+}
+void PortalLayer::saveCurrentScene()
+{
+    AssetMetaData sceneMeta = AssetManager::getInstance().getMetaData(m_ActiveSceneHandle);
+    if (std::filesystem::exists(sceneMeta.sourcePath)) {
+        auto matHandles = AssetManager::getInstance().getAssetHandles(AssetType::MATERIAL);
+        for (auto handle : matHandles) {
+            auto matMeta = AssetManager::getInstance().getMetaData(handle);
+            auto mat = AssetManager::getInstance().getAsset<Material>(handle);
+            MaterialSerializer::Serialize(matMeta.sourcePath, mat->getSettings());
+        }
+        SceneSerializer::Serialize(sceneMeta.sourcePath, m_ActiveScene);
+
+    } else {
+        DM_CORE_WARN("Unable to save scene: {}", sceneMeta.sourcePath);
+    }
+}
+
 void PortalLayer::OnImGuiRender()
 {
     // Note: Switch this to true to enable dockspace
@@ -107,21 +135,14 @@ void PortalLayer::OnImGuiRender()
     // TEST SCENE SAVING
     ImGui::Begin("Test Saving");
     if (ImGui::Button("Save")) {
-        auto matHandles = AssetManager::getInstance().getAssetHandles(AssetType::MATERIAL);
-        for (auto handle : matHandles) {
-            auto meta = AssetManager::getInstance().getMetaData(handle);
-            auto mat = AssetManager::getInstance().getAsset<Material>(handle);
-            MaterialSerializer::Serialize(meta.sourcePath, mat->getSettings());
-        }
-
-        SceneSerializer::Serialize(scenePath, m_ActiveScene);
+        saveCurrentScene();
     }
-    if (ImGui::Button("Load")) {
-        Ref<Scene> nScene = CreateRef<Scene>();
-        SceneSerializer::Deserialize(scenePath, nScene);
-        m_ActiveScene = nScene;
-        m_HierarchyPanel.setSceneContext(m_ActiveScene);
-    }
+    // if (ImGui::Button("Load")) {
+    //     Ref<Scene> nScene = CreateRef<Scene>();
+    //     SceneSerializer::Deserialize(scenePath, nScene);
+    //     m_ActiveScene = nScene;
+    //     m_HierarchyPanel.setSceneContext(m_ActiveScene);
+    // }
 
     ImGui::End();
 
@@ -161,8 +182,14 @@ void PortalLayer::OnImGuiRender()
         m_ViewPortSize = { viewportPanelSize.x, viewportPanelSize.y };
     }
     Ref<FrameBuffer> buf = Renderer::getFrameBuffer();
-
     ImGui::Image(reinterpret_cast<ImTextureID>(buf->getAttachmentID(0)), ImVec2 { viewportPanelSize.x, viewportPanelSize.y }, { 0, 1 }, { 1, 0 });
+
+    AssetHandle newHandle = m_ActiveSceneHandle;
+    UI::assetDragDrop(newHandle, AssetType::SCENE);
+    if (newHandle != m_ActiveSceneHandle) {
+        openScene(newHandle);
+    }
+
     ImGui::End();
     //
 

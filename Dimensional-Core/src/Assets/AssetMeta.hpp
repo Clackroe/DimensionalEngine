@@ -9,7 +9,8 @@ enum class AssetType : u32 {
     MODEL = 3,
     MODELSOURCE = 5,
     SHADER = 4,
-    ENVIRONMENTMAP = 6
+    ENVIRONMENTMAP = 6,
+    SCENE = 7
 };
 
 struct DMCORE_API AssetMetaData {

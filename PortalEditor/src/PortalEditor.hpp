@@ -11,6 +11,9 @@ public:
     virtual void OnUpdate() override;
     virtual void OnImGuiRender() override;
 
+    void openScene(AssetHandle sceneHandle);
+    void saveCurrentScene();
+
 private:
     SceneHierarchy m_HierarchyPanel;
 
@@ -19,6 +22,7 @@ private:
 
     glm::vec2 m_ViewPortSize;
 
+    AssetHandle m_ActiveSceneHandle = 0;
     Ref<Scene> m_ActiveScene;
 };
 }

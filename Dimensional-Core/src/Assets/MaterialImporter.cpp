@@ -4,12 +4,12 @@
 
 namespace Dimensional {
 
-Ref<Material> MaterialImporter::importModel(AssetMetaData meta)
+Ref<Material> MaterialImporter::importMaterial(AssetMetaData meta)
 {
-    return loadModelFromPath(meta.sourcePath);
+    return loadMaterialFromPath(meta.sourcePath);
 }
 
-Ref<Material> MaterialImporter::loadModelFromPath(std::filesystem::path path)
+Ref<Material> MaterialImporter::loadMaterialFromPath(std::filesystem::path path)
 {
     MaterialSettings settings;
     MaterialSerializer::Deserialize(path, settings);

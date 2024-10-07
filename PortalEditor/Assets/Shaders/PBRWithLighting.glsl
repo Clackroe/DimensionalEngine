@@ -148,8 +148,14 @@ void main()
     vec3 albedo = pow(albedoSample.rgb, vec3(2.2)); // Gamma correction for albedo
     float alpha = albedoSample.a; // Alpha from the albedo texture
 
+    // TODO: Implement Alpha and Transparancy
+    // if (alpha < 0.1)
+    //     discard;
+
     float metallic = texture(metallicMap, vInput.TexCoords).r;
     float roughness = texture(roughnessMap, vInput.TexCoords).r;
+    roughness = clamp(roughness, 0.05, 0.95);
+
     float ao = texture(aoMap, vInput.TexCoords).r;
 
     vec3 N = getNormalFromMap();
@@ -230,7 +236,7 @@ void main()
     const float MAX_REF_LOD = 4.0;
     vec3 prefilterColor = textureLod(uIBLMap, R, roughness * MAX_REF_LOD).rgb;
     vec2 envBRDF = texture(uBRDFLut, vec2(clamp(dot(N, V), 0.0, 1.0), roughness)).rg;
-    vec3 specular = prefilterColor * (F); // max(envBRDF.r, 0.01) + max(envBRDF.g, 0.01));
+    vec3 specular = prefilterColor * (F * max(envBRDF.r, 0.01) + max(envBRDF.g, 0.01));
 
     vec3 ambient = (kD * diff + specular) * ao;
 
@@ -241,7 +247,8 @@ void main()
     // // gamma correct
     color = pow(color, vec3(1.0 / 2.2));
 
-    FragColor = vec4(color, alpha);
+    FragColor = vec4(color, 1.0);
+    // FragColor = vec4(color, alpha);
     // FragColor = vec4(albedo, 1.0);
     // FragColor = vec4(envBRDF, 0.0, 1.0);
     // FragColor = vec4(N * 0.5 + 0.5, 1.0);

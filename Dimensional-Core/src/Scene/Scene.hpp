@@ -11,7 +11,7 @@ class SceneSerializer;
 class Entity;
 class SceneHierarchy;
 
-class DMCORE_API Scene {
+class DMCORE_API Scene : public Asset {
 public:
     Scene();
     ~Scene();
@@ -22,6 +22,7 @@ public:
 
     Entity createEntity(const std::string& name = std::string());
     Entity createEntityWithUUID(UUID uuid, const std::string& name = std::string());
+    Entity duplicateEntity(Entity);
 
     void destroyEntity(Entity entity);
 
@@ -30,6 +31,8 @@ public:
 
     template <typename... Components>
     auto getAllEntitiesWith() { return m_Registry.view<Components...>(); }
+
+    virtual AssetType getAssetType() const { return AssetType::SCENE; }
 
 private:
     template <typename T>

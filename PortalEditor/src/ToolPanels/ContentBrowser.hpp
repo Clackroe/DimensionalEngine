@@ -10,11 +10,6 @@
 
 namespace Dimensional {
 
-enum class BrowsingMode {
-    Asset = 0,
-    FileSystem = 1
-};
-
 struct BrowserItem {
     AssetHandle handle;
     AssetType type;
@@ -28,7 +23,6 @@ public:
     {
         m_FileIcon = TextureImporter::loadAssetFromPath("Assets/Resources/File.png");
         m_FolderIcon = TextureImporter::loadAssetFromPath("Assets/Resources/Folder.png");
-        refreshAssets();
     }
 
     void renderImGui();
@@ -37,13 +31,8 @@ private:
     std::filesystem::path m_RootPath;
     std::filesystem::path m_CurrentPath;
 
-    UMap<std::string, BrowserItem> m_Items;
-
-    BrowsingMode m_Mode;
     Ref<Texture> m_FileIcon;
     Ref<Texture> m_FolderIcon;
-
-    void refreshAssets();
 };
 }
 

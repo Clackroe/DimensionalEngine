@@ -56,7 +56,6 @@ static AssetHandle loadTextureFromFile(const std::string& filePath)
 
 static AssetHandle loadTextureOfType(aiMaterial* mat, aiTextureType type, const aiScene* scene, const std::filesystem::path& modelPath)
 {
-    DM_CORE_ERROR("NUM TEXTURE {0}: {1}", aiTextureTypeToString(type), (u32)mat->GetTextureCount(type));
     if (mat->GetTextureCount(type) > 0) {
         aiString path;
         if (mat->GetTexture(type, 0, &path) == AI_SUCCESS) {
@@ -78,7 +77,7 @@ static AssetHandle loadTextureOfType(aiMaterial* mat, aiTextureType type, const 
                 DM_CORE_WARN("PATH: {0}, TYPE: {1}", texturePathString, aiTextureTypeToString(type));
 
                 if (!std::filesystem::exists(texturePathString)) {
-                    DM_CORE_ERROR("Texture file not found: {0}", texturePathString);
+                    DM_CORE_WARN("Texture file not found: {0}", texturePathString);
                     return 0; // Return an invalid handle if the file doesn't exist
                 }
 
@@ -89,7 +88,8 @@ static AssetHandle loadTextureOfType(aiMaterial* mat, aiTextureType type, const 
                 if (textureHandle) {
                     DM_CORE_INFO("Successfully loaded texture: {0}", texturePathString);
                 } else {
-                    DM_CORE_ERROR("Failed to load texture: {0}", texturePathString);
+                    DM_CORE_ERROR("SourceImporter:: Failed to load texture: {0}", texturePathString);
+                    return 0;
                 }
                 return textureHandle;
             }

@@ -1,5 +1,6 @@
 #include "Assets/Asset.hpp"
 #include "Assets/AssetManager.hpp"
+#include "Log/log.hpp"
 #include "Rendering/Texture.hpp"
 #include "Scene/Scene.hpp"
 #include <Rendering/Material.hpp>
@@ -127,7 +128,9 @@ void Material::bind(Ref<Shader> shad)
 
     if (m_Settings.Normal) {
         auto norm = manager.getAsset<Texture>(m_Settings.Normal);
-        norm->bind(MaterialTexture::Normal);
+        if (norm) {
+            norm->bind(MaterialTexture::Normal);
+        }
     }
 
     auto metal = manager.getAsset<Texture>(m_Settings.Metalness);
