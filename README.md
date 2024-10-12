@@ -1,6 +1,6 @@
 # Dimensional Engine | 3D Game Engine
 
-[Showcase Video](https://youtu.be/qoZyaPVTCOg?si=3PGdKyhAwCXKbFEp)
+[Devlog Playlist]([https://youtu.be/qoZyaPVTCOg?si=3PGdKyhAwCXKbFEp](https://www.youtube.com/watch?v=J3G-0CCDfLk&list=PLrQtcP4mbo2tiHt1OQloHOCjqevkUlcas))
 
 - [What's Unique?](#whats-unique)
 - [General Architecture](#general-architecture)
