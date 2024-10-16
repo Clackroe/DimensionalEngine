@@ -60,6 +60,11 @@ Eventually there will be another executable, the Application Build, that will be
     - Albedo Maps
     - Metalness Maps
     - Roughness Maps
+- Asset Manager
+  - "Smart" asset manager that allows for lazy loaded assets
+    - Cuts down on memory footprint
+    - Asset data gathering planned to be multithreaded, and submitted to GPU using a render thread job system.
+  - All assets are referenced by unique 64 bit integer, allowing for better serialization, and quick asset interchanging.
 - Entity and Scene System with custom components
   - Implemented behind the scenes with [ENTT](https://github.com/skypjack/entt)
 - Custom Event System
@@ -74,8 +79,9 @@ Eventually there will be another executable, the Application Build, that will be
 | **Feature**                  | **Status**          | **Notes**                                                                 |
 |------------------------------|---------------------|---------------------------------------------------------------------------|
 | PBR Rendering                 | Completed           | Includes HDR environment maps, normal maps, AO maps, etc.                 |
-| Entity and Scene System       | In Progress         | Powered by ENTT, custom components implemented.                           |
-| Serialization and Deserialization| In Progress         | Development saving and loading of Assets, scenes, and Projects using YAML                           |
+| Entity and Scene System       | Functionally Complete         | Powered by ENTT, custom components implemented.                           |
+| Serialization and Deserialization| Completed (Editor)         | Development saving and loading of Assets, scenes, and Projects using YAML                           |
+| Asset Manager | Completed (Editor)         | Lazy loaded assets that are referenced by 64bit UUID.                 |
 | Event System                  | Completed           | Custom event system for core and custom events.                           |
 | Input System                  | Completed           | Supports event-driven and query-based input.                  |
 | 2D Sprite to 3D Mesh System   | Planned             | Plan to generate a 3D mesh from a 2D sprite with auto PBR material setup and editing. |
