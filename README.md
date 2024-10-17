@@ -18,7 +18,7 @@
 ![image](https://github.com/user-attachments/assets/3cd8d5c4-0ee1-422d-a5eb-29d5d23695cc)
 
 ---
-This game engine is being developed by myself, primarily from scratch in terms of rendering. (Minus some [Libraries](#libraries)) I am using it as a way to further my knowledge of low level programming, memory management, inter-working systems, general Engine development, and game Rendering.
+This game engine is being developed by myself. (Minus some [Libraries](#libraries) that I may revisit to rewrite) I am using it as a way to further my knowledge of low level programming, memory management, inter-working systems, general Engine development, and game Rendering.
 
 ## What's unique?
 While the engine is still under development, my goal is to support a built in, seamless, system for integrating 2D sprites into a 3D world with PBR rendering. This will enable:
