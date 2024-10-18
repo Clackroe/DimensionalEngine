@@ -1,5 +1,5 @@
-#include "Assets/AssetManager.hpp"
-#include "Assets/AssetMeta.hpp"
+#include "Asset/AssetManager.hpp"
+#include "Asset/AssetMeta.hpp"
 #include "Input/KeyCodes.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Material.hpp"

@@ -1,6 +1,6 @@
 #ifndef DM_MODEL_IMPORTER
 #define DM_MODEL_IMPORTER
-#include "Assets/AssetMeta.hpp"
+#include "Asset/AssetMeta.hpp"
 #include "Rendering/Model.hpp"
 #include <core.hpp>
 namespace Dimensional {

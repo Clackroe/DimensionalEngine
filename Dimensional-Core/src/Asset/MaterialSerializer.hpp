@@ -1,7 +1,7 @@
 #ifndef DM_MATERIAL_SERIALIZER
 #define DM_MATERIAL_SERIALIZER
 #include "Rendering/Material.hpp"
-#include <Assets/AssetManager.hpp>
+#include <Asset/AssetManager.hpp>
 #include <Rendering/Model.hpp>
 #include <core.hpp>
 

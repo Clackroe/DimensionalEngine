@@ -1,7 +1,7 @@
 #ifndef DM_ENVIRONMENTMAPIMPORTER_HPP
 #define DM_ENVIRONMENTMAPIMPORTER_HPP
 
-#include "Assets/AssetMeta.hpp"
+#include "Asset/AssetMeta.hpp"
 #include <Rendering/EnvironmentMap.hpp>
 #include <core.hpp>
 

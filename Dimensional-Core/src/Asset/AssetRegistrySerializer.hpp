@@ -1,7 +1,7 @@
 #ifndef DM_ASSETREG_SERIALIZER_HPP
 #define DM_ASSETREG_SERIALIZER_HPP
 
-#include <Assets/AssetManager.hpp>
+#include <Asset/AssetManager.hpp>
 #include <core.hpp>
 
 namespace Dimensional {

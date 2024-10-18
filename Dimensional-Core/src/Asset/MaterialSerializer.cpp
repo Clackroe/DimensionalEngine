@@ -1,6 +1,6 @@
 #include "yaml-cpp/emitter.h"
 #include "yaml-cpp/emittermanip.h"
-#include <Assets/MaterialSerializer.hpp>
+#include <Asset/MaterialSerializer.hpp>
 #include <yaml-cpp/yaml.h>
 
 namespace Dimensional {

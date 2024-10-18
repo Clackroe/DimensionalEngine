@@ -1,5 +1,5 @@
-#include "Assets/AssetManager.hpp"
-#include "Assets/TextureImporter.hpp"
+#include "Asset/AssetManager.hpp"
+#include "Asset/TextureImporter.hpp"
 #include <Rendering/CubeMap.hpp>
 #include <Rendering/Renderer.hpp>
 #include <glad.h>

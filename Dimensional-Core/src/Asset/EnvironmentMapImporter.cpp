@@ -1,4 +1,4 @@
-#include "Assets/EnvironmentMapImporter.hpp"
+#include "Asset/EnvironmentMapImporter.hpp"
 #include "Rendering/CubeMap.hpp"
 #include "Rendering/EnvironmentMap.hpp"
 #include "Rendering/IBLMap.hpp"

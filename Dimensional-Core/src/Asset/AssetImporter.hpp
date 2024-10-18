@@ -1,6 +1,6 @@
 #ifndef DM_ASSET_IMPORTER_HPP
 #define DM_ASSET_IMPORTER_HPP
-#include "Assets/Asset.hpp"
+#include "Asset/Asset.hpp"
 #include <core.hpp>
 
 namespace Dimensional {

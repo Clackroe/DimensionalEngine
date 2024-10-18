@@ -1,6 +1,6 @@
 #ifndef DM_COMPONENTS_H
 #define DM_COMPONENTS_H
-#include "Assets/AssetManager.hpp"
+#include "Asset/AssetManager.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 

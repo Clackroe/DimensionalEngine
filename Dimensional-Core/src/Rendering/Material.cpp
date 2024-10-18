@@ -1,5 +1,5 @@
-#include "Assets/Asset.hpp"
-#include "Assets/AssetManager.hpp"
+#include "Asset/Asset.hpp"
+#include "Asset/AssetManager.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Texture.hpp"
 #include "Scene/Scene.hpp"

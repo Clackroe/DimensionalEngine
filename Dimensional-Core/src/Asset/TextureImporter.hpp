@@ -1,6 +1,6 @@
 #ifndef DM_TEXTURE_IMPORTER
 #define DM_TEXTURE_IMPORTER
-#include "Assets/AssetMeta.hpp"
+#include "Asset/AssetMeta.hpp"
 #include "Rendering/Texture.hpp"
 #include <core.hpp>
 namespace Dimensional {

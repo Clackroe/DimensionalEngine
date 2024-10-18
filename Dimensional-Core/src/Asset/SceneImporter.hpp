@@ -1,7 +1,7 @@
 #ifndef DM_SCENE_IMPORTER
 #define DM_SCENE_IMPORTER
 #include "Scene/Scene.hpp"
-#include <Assets/AssetManager.hpp>
+#include <Asset/AssetManager.hpp>
 #include <core.hpp>
 
 namespace Dimensional {

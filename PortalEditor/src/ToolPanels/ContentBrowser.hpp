@@ -1,9 +1,9 @@
 #ifndef DM_CONTENTBROWSER_HPP
 #define DM_CONTENTBROWSER_HPP
 
-#include "Assets/Asset.hpp"
-#include "Assets/AssetMeta.hpp"
-#include "Assets/TextureImporter.hpp"
+#include "Asset/Asset.hpp"
+#include "Asset/AssetMeta.hpp"
+#include "Asset/TextureImporter.hpp"
 #include "Rendering/Texture.hpp"
 #include <core.hpp>
 #include <imgui.h>

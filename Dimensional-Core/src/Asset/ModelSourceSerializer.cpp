@@ -1,7 +1,7 @@
 // #include "Rendering/Model.hpp"
 // #include "yaml-cpp/emitter.h"
 // #include "yaml-cpp/emittermanip.h"
-// #include <Assets/ModelSourceSerializer.hpp>
+// #include <Asset/ModelSourceSerializer.hpp>
 // #include <yaml-cpp/yaml.h>
 //
 // namespace Dimensional {

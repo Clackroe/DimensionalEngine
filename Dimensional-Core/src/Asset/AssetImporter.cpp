@@ -1,11 +1,11 @@
-#include "Assets/AssetMeta.hpp"
-#include "Assets/EnvironmentMapImporter.hpp"
-#include "Assets/MaterialImporter.hpp"
-#include "Assets/ModelImporter.hpp"
-#include "Assets/ModelSourceImporter.hpp"
-#include "Assets/SceneImporter.hpp"
-#include "Assets/TextureImporter.hpp"
-#include <Assets/AssetImporter.hpp>
+#include "Asset/AssetMeta.hpp"
+#include "Asset/EnvironmentMapImporter.hpp"
+#include "Asset/MaterialImporter.hpp"
+#include "Asset/ModelImporter.hpp"
+#include "Asset/ModelSourceImporter.hpp"
+#include "Asset/SceneImporter.hpp"
+#include "Asset/TextureImporter.hpp"
+#include <Asset/AssetImporter.hpp>
 #include <filesystem>
 namespace Dimensional {
 

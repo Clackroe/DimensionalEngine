@@ -1,6 +1,6 @@
 #ifndef DM_MODEL_SERIALIZER
 #define DM_MODEL_SERIALIZER
-#include <Assets/AssetManager.hpp>
+#include <Asset/AssetManager.hpp>
 #include <Rendering/Model.hpp>
 #include <core.hpp>
 

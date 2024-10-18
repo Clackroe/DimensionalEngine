@@ -1,7 +1,7 @@
 #ifndef DM_MATERIAL_H
 #define DM_MATERIAL_H
-#include "Assets/Asset.hpp"
-#include "Assets/AssetMeta.hpp"
+#include "Asset/Asset.hpp"
+#include "Asset/AssetMeta.hpp"
 #include <Rendering/Shader.hpp>
 #include <Rendering/Texture.hpp>
 namespace Dimensional {

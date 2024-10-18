@@ -1,9 +1,9 @@
 #ifndef DM_ASSETMANAGER_H
 #define DM_ASSETMANAGER_H
 
-#include "Assets/Asset.hpp"
-#include "Assets/AssetImporter.hpp"
-#include "Assets/AssetMeta.hpp"
+#include "Asset/Asset.hpp"
+#include "Asset/AssetImporter.hpp"
+#include "Asset/AssetMeta.hpp"
 #include "Rendering/Texture.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>

@@ -1,9 +1,9 @@
-#include "Assets/Asset.hpp"
-#include "Assets/AssetManager.hpp"
+#include "Asset/Asset.hpp"
+#include "Asset/AssetManager.hpp"
 #include "Log/log.hpp"
 #include "assimp/material.h"
-#include <Assets/MaterialSerializer.hpp>
-#include <Assets/ModelSourceImporter.hpp>
+#include <Asset/MaterialSerializer.hpp>
+#include <Asset/ModelSourceImporter.hpp>
 #include <Rendering/Material.hpp>
 
 #include <assimp/Importer.hpp> // C++ importer interface
@@ -178,7 +178,7 @@ static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle,
         loadMaterialTextures(mat, scene, material, modelPath);
 
         // Register new MaterialAsset if it doesnt exist
-        std::string name = modelPath.stem().string() + "_" + mat->GetName().C_Str() + ".dmat";
+        std::string name = modelPath.stem().string() + "_" + mat->GetName().C_Str() + std::to_string(mesh->mMaterialIndex) + ".dmat";
         std::filesystem::path outPath = modelPath.parent_path() / name;
 
         DM_CORE_WARN("Loading Material | Name: {0}, Path: {1}", name, outPath.string());

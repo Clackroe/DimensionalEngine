@@ -1,5 +1,5 @@
-#include "Assets/MaterialImporter.hpp"
-#include "Assets/MaterialSerializer.hpp"
+#include "Asset/MaterialImporter.hpp"
+#include "Asset/MaterialSerializer.hpp"
 #include "Rendering/Material.hpp"
 
 namespace Dimensional {

@@ -1,5 +1,5 @@
-#include "Assets/ModelImporter.hpp"
-#include "Assets/ModelSerializer.hpp"
+#include "Asset/ModelImporter.hpp"
+#include "Asset/ModelSerializer.hpp"
 
 namespace Dimensional {
 

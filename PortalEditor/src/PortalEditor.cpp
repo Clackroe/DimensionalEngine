@@ -1,10 +1,10 @@
-#include "Assets/Asset.hpp"
-#include "Assets/MaterialSerializer.hpp"
+#include "Asset/Asset.hpp"
+#include "Asset/MaterialSerializer.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
 #include "ToolPanels/MaterialsPanel.hpp"
 #include "core.hpp"
 #include "imgui.h"
-#include <Assets/AssetRegistrySerializer.hpp>
+#include <Asset/AssetRegistrySerializer.hpp>
 #include <Input/KeyCodes.hpp>
 #include <PortalEditor.hpp>
 #include <Scene/Components.hpp>

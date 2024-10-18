@@ -1,5 +1,5 @@
 #include "Scene/SceneSerializer.hpp"
-#include <Assets/SceneImporter.hpp>
+#include <Asset/SceneImporter.hpp>
 namespace Dimensional {
 
 Ref<Scene> SceneImporter::importScene(AssetMetaData meta)

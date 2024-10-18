@@ -1,4 +1,4 @@
-#include "Assets/AssetRegistrySerializer.hpp"
+#include "Asset/AssetRegistrySerializer.hpp"
 #include "Log/log.hpp"
 #include "yaml-cpp/emitter.h"
 #include "yaml-cpp/emittermanip.h"

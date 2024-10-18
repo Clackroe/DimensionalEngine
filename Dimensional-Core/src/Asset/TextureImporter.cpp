@@ -1,6 +1,6 @@
 #include "Log/log.hpp"
 #include "Rendering/Texture.hpp"
-#include <Assets/TextureImporter.hpp>
+#include <Asset/TextureImporter.hpp>
 #include <stb_image.hpp>
 
 namespace Dimensional {

@@ -1,7 +1,7 @@
 #ifndef DM_ASSET_HPP
 #define DM_ASSET_HPP
 #include "Core/UUID.hpp"
-#include <Assets/AssetMeta.hpp>
+#include <Asset/AssetMeta.hpp>
 #include <core.hpp>
 
 namespace Dimensional {

@@ -1,4 +1,4 @@
-#include <Assets/AssetManager.hpp>
+#include <Asset/AssetManager.hpp>
 #include <Rendering/Mesh.hpp>
 #include <Rendering/Model.hpp>
 
