@@ -15,7 +15,7 @@
   - [Building](#building)
 - [Resources Used for Learning](#resources-used-for-learning)
 - 
-![image](https://github.com/user-attachments/assets/3cd8d5c4-0ee1-422d-a5eb-29d5d23695cc)
+![image](https://github.com/user-attachments/assets/a1d16b77-8811-4d32-9bc9-d569c3ee12f3)
 
 ---
 This game engine is being developed by myself. (Minus some [Libraries](#libraries) that I may revisit to rewrite) I am using it as a way to further my knowledge of low level programming, memory management, inter-working systems, general Engine development, and game Rendering.
