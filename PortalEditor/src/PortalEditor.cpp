@@ -1,5 +1,6 @@
 #include "Asset/Asset.hpp"
 #include "Asset/MaterialSerializer.hpp"
+#include "Rendering/SceneRenderer.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
 #include "ToolPanels/MaterialsPanel.hpp"
 #include "core.hpp"
@@ -15,6 +16,8 @@
 #include <string>
 
 namespace Dimensional {
+
+SceneRenderer tempSceneRenderer;
 
 // TODO: Move to managed system
 static std::string scenePath = "Assets/TestScene.dims";
@@ -38,6 +41,7 @@ void PortalLayer::OnAttatch()
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
     m_ActiveScene = CreateRef<Scene>();
+    tempSceneRenderer = SceneRenderer(m_ActiveScene);
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
     s_Browser = CreateRef<ContentBrowser>("Assets");
@@ -51,13 +55,14 @@ void PortalLayer::OnUpdate()
     glm::vec3 p = m_EditorCamera.getPosition();
 
     if (m_ActiveScene) {
-        m_ActiveScene->beginScene();
+        // m_ActiveScene->beginScene();
 
-        Renderer::beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
+        tempSceneRenderer.beginScene(CameraData { m_EditorCamera.getViewProj(), p, 0.0f, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
 
-        m_ActiveScene->updateEditor();
+        tempSceneRenderer.render();
+        // m_ActiveScene->updateEditor();
 
-        Renderer::endScene();
+        tempSceneRenderer.endScene();
     }
 
     if (Input::isKeyDown(Key::Escape)) {
@@ -70,6 +75,7 @@ void PortalLayer::openScene(AssetHandle sceneHandle)
     if (nScene) {
         m_ActiveSceneHandle = sceneHandle;
         m_ActiveScene = nScene;
+        tempSceneRenderer = SceneRenderer(m_ActiveScene);
         m_HierarchyPanel.setSceneContext(m_ActiveScene);
     }
 }
@@ -181,7 +187,7 @@ void PortalLayer::OnImGuiRender()
         m_EditorCamera.setViewportDimensions(viewportPanelSize.x, viewportPanelSize.y);
         m_ViewPortSize = { viewportPanelSize.x, viewportPanelSize.y };
     }
-    Ref<FrameBuffer> buf = Renderer::getFrameBuffer();
+    Ref<FrameBuffer> buf = tempSceneRenderer.getFrameBuffer();
     ImGui::Image(reinterpret_cast<ImTextureID>(buf->getAttachmentID(0)), ImVec2 { viewportPanelSize.x, viewportPanelSize.y }, { 0, 1 }, { 1, 0 });
 
     AssetHandle newHandle = m_ActiveSceneHandle;

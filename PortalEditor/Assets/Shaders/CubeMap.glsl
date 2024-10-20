@@ -2,8 +2,13 @@
 #version 430 core
 layout(location = 0) in vec3 aPos;
 
-uniform mat4 projection;
-uniform mat4 view;
+layout(std140, binding = 0) uniform CameraBlock {
+    mat4 viewProj;
+    vec3 uCameraPosition;
+
+    mat4 view;
+    mat4 proj;
+};
 
 out vec3 localPos;
 
@@ -12,7 +17,7 @@ void main()
     localPos = aPos;
 
     mat4 rotView = mat4(mat3(view)); // remove translation from the view matrix
-    vec4 clipPos = projection * rotView * vec4(localPos, 1.0);
+    vec4 clipPos = proj * rotView * vec4(localPos, 1.0);
 
     gl_Position = clipPos.xyww;
 }

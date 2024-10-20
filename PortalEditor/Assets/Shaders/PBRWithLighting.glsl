@@ -1,10 +1,18 @@
 ##VERTEXSHADER
-#version 430 core
+#version 450 core
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoords;
 layout(location = 3) in vec3 aTangent;
 layout(location = 4) in vec3 aBiTangent;
+
+layout(std140, binding = 0) uniform CameraBlock {
+    mat4 viewProj;
+    vec3 uCameraPosition;
+
+    mat4 view;
+    mat4 proj;
+};
 
 struct Vertex {
     vec2 TexCoords;
@@ -15,7 +23,6 @@ struct Vertex {
 
 layout(location = 0) out Vertex vOutput;
 
-uniform mat4 viewProj;
 uniform mat4 model;
 
 void main()
@@ -33,10 +40,11 @@ void main()
     vOutput.TBN = mat3(T, B, N);
 
     gl_Position = viewProj * vec4(vOutput.WorldPos, 1.0);
+    // gl_Position = vec4(aPos, 1.0);
 }
 
 ##FRAGSHADER
-#version 430 core
+#version 450 core
 
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 attachment1;
@@ -57,6 +65,14 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 
+layout(std140, binding = 0) uniform CameraBlock {
+    mat4 viewProj;
+    vec3 uCameraPosition;
+
+    mat4 view;
+    mat4 proj;
+};
+
 // lights
 
 struct Light {
@@ -64,27 +80,29 @@ struct Light {
     vec3 direction;
     vec3 color;
 
-    float intensity;
     float cutOff; // Spotlight cutoff angle
     float outerCutOff; // Spotlight outer cutoff angle
 
+    float intensity;
     // Attenuation parameters
     float constant;
     float linear;
     float quadratic;
 };
-uniform Light uPointLights[50];
-uniform Light uSpotLights[50];
-uniform int uNumPointLights;
-uniform int uNumSpotLights;
+layout(std140, binding = 1) uniform PLightBlock {
+    Light uPointLights[100];
+    uint uNumPointLights;
+};
+layout(std140, binding = 2) uniform SLightBlock {
+    Light uSpotLights[100];
+    uint uNumSpotLights;
+};
 
-uniform samplerCube uIrradianceMap;
-uniform sampler2D uBRDFLut;
-uniform samplerCube uIBLMap;
+layout(binding = 9) uniform samplerCube uIrradianceMap;
+layout(binding = 7) uniform sampler2D uBRDFLut;
+layout(binding = 8) uniform samplerCube uIBLMap;
 
 uniform bool uShouldUseNormalMap;
-
-uniform vec3 uCameraPosition;
 
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
@@ -240,6 +258,7 @@ void main()
 
     vec3 ambient = (kD * diff + specular) * ao;
 
+    // vec3 color = Lo;
     vec3 color = ambient + Lo;
 
     // HDR tonemapping
@@ -248,6 +267,11 @@ void main()
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);
+    // FragColor = vec4(uPointLights[1].position, 1.0);
+    // float v = float(uNumPointLights);
+    // FragColor = vec4(v, 0, 0, 1.0);
+    // FragColor = vec4(uPointLights[0].color, 1.0);
+    // FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     // FragColor = vec4(color, alpha);
     // FragColor = vec4(albedo, 1.0);
     // FragColor = vec4(envBRDF, 0.0, 1.0);

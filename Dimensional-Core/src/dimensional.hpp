@@ -33,7 +33,7 @@
 #include <Rendering/Material.hpp>
 #include <Rendering/Model.hpp>
 #include <Rendering/ModelSource.hpp>
-#include <Rendering/Renderer.hpp>
+#include <Rendering/SceneRenderer.hpp>
 #include <Rendering/Shader.hpp>
 #include <Rendering/Texture.hpp>
 #endif

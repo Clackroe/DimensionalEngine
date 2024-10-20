@@ -9,7 +9,6 @@
 
 #include <Rendering/Material.hpp>
 #include <Rendering/Model.hpp>
-#include <Rendering/Renderer.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>

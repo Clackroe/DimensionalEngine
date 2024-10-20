@@ -1,7 +1,6 @@
 #include "Asset/AssetManager.hpp"
 #include "Asset/TextureImporter.hpp"
 #include <Rendering/CubeMap.hpp>
-#include <Rendering/Renderer.hpp>
 #include <glad.h>
 namespace Dimensional {
 Ref<Shader> CubeMap::s_EquirectToCubeMap = nullptr;

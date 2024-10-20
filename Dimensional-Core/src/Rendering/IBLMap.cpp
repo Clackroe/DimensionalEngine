@@ -1,7 +1,6 @@
 #include "Asset/AssetManager.hpp"
 #include "Log/log.hpp"
 #include <Rendering/IBLMap.hpp>
-#include <Rendering/Renderer.hpp>
 #include <glad.h>
 
 namespace Dimensional {

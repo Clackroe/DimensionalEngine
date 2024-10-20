@@ -28,7 +28,10 @@ public:
     Material(MaterialSettings settings);
     ~Material() = default;
 
-    void bind(Ref<Shader> shad);
+    void bind();
+
+    // TODO: Set to return acutal shader
+    const Ref<Shader> getShader() { return s_DefaultPBRShader; };
 
     void setTexture(MaterialTexture slot, AssetHandle textureHandle);
 
@@ -45,6 +48,10 @@ private:
 
     static Ref<Texture> s_WhiteTexture;
     static Ref<Texture> s_BlackTexture;
+
+    // TODO: Needs to me smarter, should keep track of its own unique shader, once
+    // the engine supports that.
+    static Ref<Shader> s_DefaultPBRShader;
 
     MaterialSettings m_Settings;
 };
