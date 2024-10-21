@@ -14,11 +14,19 @@ layout(std140, binding = 0) uniform CameraBlock {
     mat4 proj;
 };
 
+struct DirLight {
+    mat4 projection;
+};
+layout(std140, binding = 2) uniform DLightBlock {
+    DirLight uDirLight;
+};
+
 struct Vertex {
     vec2 TexCoords;
     vec3 WorldPos;
     vec3 Normal;
     mat3 TBN;
+    vec4 posDirLightSpace;
 };
 
 layout(location = 0) out Vertex vOutput;
@@ -39,6 +47,8 @@ void main()
     T = normalize(cross(N, B));
     vOutput.TBN = mat3(T, B, N);
 
+    vOutput.posDirLightSpace = uDirLight.projection * vec4(vOutput.WorldPos, 1.0);
+
     gl_Position = viewProj * vec4(vOutput.WorldPos, 1.0);
     // gl_Position = vec4(aPos, 1.0);
 }
@@ -54,6 +64,7 @@ struct Vertex {
     vec3 WorldPos;
     vec3 Normal;
     mat3 TBN;
+    vec4 posDirLightSpace;
 };
 
 layout(location = 0) in Vertex vInput;
@@ -65,6 +76,13 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 
+uniform vec3 uColorValue;
+uniform float uMetalnessMult;
+uniform float uRoughnessMult;
+
+uniform bool uUseRoughnessMap;
+uniform bool uUseMetalMap;
+
 layout(std140, binding = 0) uniform CameraBlock {
     mat4 viewProj;
     vec3 uCameraPosition;
@@ -74,28 +92,26 @@ layout(std140, binding = 0) uniform CameraBlock {
 };
 
 // lights
+struct DirLight {
+    mat4 projection;
+};
+
+layout(binding = 6) uniform sampler2D uDepth;
+layout(std140, binding = 2) uniform DLightBlock {
+    DirLight uDirLight;
+};
 
 struct Light {
     vec3 position;
     vec3 direction;
-    vec3 color;
-
-    float cutOff; // Spotlight cutoff angle
-    float outerCutOff; // Spotlight outer cutoff angle
-
-    float intensity;
-    // Attenuation parameters
-    float constant;
-    float linear;
-    float quadratic;
+    // vec3 color, intensity;
+    vec4 color;
+    // Combined (cutOff, outerCutoff, Radius, type[0 plight, 1 spotLight]);
+    vec4 lightParams;
 };
 layout(std140, binding = 1) uniform PLightBlock {
-    Light uPointLights[100];
+    Light uPointLights[300];
     uint uNumPointLights;
-};
-layout(std140, binding = 2) uniform SLightBlock {
-    Light uSpotLights[100];
-    uint uNumSpotLights;
 };
 
 layout(binding = 9) uniform samplerCube uIrradianceMap;
@@ -160,18 +176,40 @@ vec3 fresnelSchlickWithRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 // ----------------------------------------------------------------------------
+
+float shadowCalculation(vec4 lightSpace) {
+    vec3 projected = lightSpace.xyz / lightSpace.w;
+    projected = projected * 0.5 + 0.5;
+    float closest = texture(uDepth, projected.xy).r;
+    float current = projected.z;
+    float bias = 0.005;
+    float shadow = current - bias > closest ? 1.0 : 0.0;
+    return shadow;
+}
+
+// Light Falloff/Attentuation based on paper by epic games: https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+float lightAttenuation(float distance, float radius) {
+    float a = distance / radius;
+    float b = clamp(1 - pow(a, 4), 0, 1);
+    float n = pow(b, 2);
+    return n / (pow(distance, 2) + 1);
+}
 void main()
 {
-    vec4 albedoSample = texture(albedoMap, vInput.TexCoords);
+    vec4 albedoSample = texture(albedoMap, vInput.TexCoords) * vec4(uColorValue, 1.0f);
     vec3 albedo = pow(albedoSample.rgb, vec3(2.2)); // Gamma correction for albedo
-    float alpha = albedoSample.a; // Alpha from the albedo texture
 
-    // TODO: Implement Alpha and Transparancy
-    // if (alpha < 0.1)
-    //     discard;
+    float metallic = 1.0;
+    if (uUseMetalMap) {
+        metallic = texture(metallicMap, vInput.TexCoords).r;
+    }
+    metallic *= max(uMetalnessMult, 0);
 
-    float metallic = texture(metallicMap, vInput.TexCoords).r;
-    float roughness = texture(roughnessMap, vInput.TexCoords).r;
+    float roughness = 1.0;
+    if (uUseRoughnessMap) {
+        roughness = texture(roughnessMap, vInput.TexCoords).r;
+    }
+    roughness *= uRoughnessMult;
     roughness = clamp(roughness, 0.05, 0.95);
 
     float ao = texture(aoMap, vInput.TexCoords).r;
@@ -185,20 +223,63 @@ void main()
 
     const float epsilon = 0.000001;
     // Point lights contribution
-    vec3 Lo = vec3(0.0);
-    for (int i = 0; i < uNumPointLights; ++i)
-    {
-        vec3 lightDirection = uPointLights[i].position - vInput.WorldPos;
+
+    vec3 lightContribution = vec3(0.0);
+    float shadow = 0.0f;
+    shadow += shadowCalculation(vInput.posDirLightSpace);
+
+    for (int i = 0; i < uNumPointLights; ++i) {
+        Light light = uPointLights[i];
+        vec3 lightPos = light.position.xyz;
+        vec3 lightDirection = lightPos - vInput.WorldPos;
+        vec3 lightColor = light.color.rgb;
+        float lightIntensity = light.color.w;
+
+        float innerCutoff = light.lightParams.x;
+        float outerCutoff = light.lightParams.y;
+        float radius = light.lightParams.z;
+
+        uint type = uint(round(light.lightParams.w));
+
         float distance = length(lightDirection);
-        vec3 L = normalize(lightDirection); // Normalized light direction
+        vec3 L = normalize(lightDirection);
         vec3 H = normalize(V + L);
 
-        float attenuation = 1.0 / (uPointLights[i].constant +
-                    uPointLights[i].linear * distance +
-                    uPointLights[i].quadratic * (distance * distance));
+        float NDOTL = max(dot(N, L), 0.0);
+
+        float attenuation;
+        switch (type) {
+            case 0: // PointLight Attenuation
+            {
+                attenuation = lightAttenuation(distance, radius);
+                break;
+            }
+            case 1: // SpotLight Attenuation
+            {
+                float lDistSquared = dot(L, L);
+                float radiusSquared = radius * radius;
+                if (radiusSquared > lDistSquared) {
+                    float theta = dot(L, normalize(-light.direction));
+                    float epsilon = innerCutoff - outerCutoff;
+                    float intensity = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);
+                    attenuation = intensity / lDistSquared;
+                }
+                else {
+                    attenuation = 0.0;
+                }
+                break;
+            }
+        }
+        //Directional LIght
+
+        // Calculate Lighting with calculated light Prameters.
+        vec3 lightContRadiance = lightColor * lightIntensity * attenuation;
 
         float NDF = DistributionGGX(N, H, roughness);
+        // float G = GeometrySmith(NDOTL, V, L, roughness);
         float G = GeometrySmith(N, V, L, roughness);
+
+        // Maybe Try with the roughness function?
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
         vec3 numerator = NDF * G * F;
@@ -207,39 +288,7 @@ void main()
 
         vec3 kS = F;
         vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
-
-        float NdotL = max(dot(N, L), 0.0);
-
-        Lo += ((kD * albedo / PI) + specular) * (uPointLights[i].color * uPointLights[i].intensity) * NdotL * attenuation;
-    }
-
-    // Spotlight contribution
-    for (int i = 0; i < uNumSpotLights; ++i)
-    {
-        vec3 L = normalize(uSpotLights[i].position - vInput.WorldPos);
-        vec3 H = normalize(V + L);
-        float distance = length(uSpotLights[i].position - vInput.WorldPos);
-        float attenuation = 1.0 / (uSpotLights[i].constant + uSpotLights[i].linear * distance + uSpotLights[i].quadratic * (distance * distance));
-
-        float theta = dot(L, normalize(-uSpotLights[i].direction));
-        float epsilon = uSpotLights[i].cutOff - uSpotLights[i].outerCutOff;
-        float intensity = clamp((theta - uSpotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
-
-        float NDF = DistributionGGX(N, H, roughness);
-        float G = GeometrySmith(N, V, L, roughness);
-        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-
-        vec3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + epsilon;
-        vec3 specular = numerator / denominator;
-
-        vec3 kS = F;
-        vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
-
-        float NdotL = max(dot(N, L), 0.0);
-        vec3 diffuse = kD * albedo / PI;
-        vec3 radiance = (diffuse + specular) * (uSpotLights[i].color * uSpotLights[i].intensity) * NdotL;
-        Lo += radiance * attenuation * intensity;
+        lightContribution += (kD * (albedo / PI) + specular) * lightContRadiance * NDOTL;
     }
 
     // Calculate ambient lighting from scene IBLMaps
@@ -258,8 +307,7 @@ void main()
 
     vec3 ambient = (kD * diff + specular) * ao;
 
-    // vec3 color = Lo;
-    vec3 color = ambient + Lo;
+    vec3 color = ambient + lightContribution * shadow;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
@@ -267,17 +315,9 @@ void main()
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);
+    // FragColor = vec4(texture(uDepth, vInput.TexCoords).rgb, 1.0);
+    // FragColor = vec4(shadow, 0.0, 0.0, 1.0);
     // FragColor = vec4(uPointLights[1].position, 1.0);
     // float v = float(uNumPointLights);
     // FragColor = vec4(v, 0, 0, 1.0);
-    // FragColor = vec4(uPointLights[0].color, 1.0);
-    // FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    // FragColor = vec4(color, alpha);
-    // FragColor = vec4(albedo, 1.0);
-    // FragColor = vec4(envBRDF, 0.0, 1.0);
-    // FragColor = vec4(N * 0.5 + 0.5, 1.0);
-    // attachment1 = vec4(N, 1.0);
-    // FragColor = vec4(N, 1.0);
-    // FragColor = vec4(vInput.Tangent, 1.0);
-    // FragColor = vec4(uPointLights[0].position, 1.0);
 }

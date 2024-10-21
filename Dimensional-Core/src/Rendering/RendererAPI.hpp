@@ -39,7 +39,7 @@ public:
     void endFrame();
 
     void setClearColor(const glm::vec4& color);
-    void clearBuffer();
+    void clearBuffer(bool depthOnly = false);
 
     void renderArrays(VertexArray vao, u32 triangleCount, Ref<Shader>& shader);
     void renderIndexed(VertexArray& vao, ElementBuffer& eb, const Ref<Shader>& shader);

@@ -83,7 +83,22 @@ void Renderer3D::renderMesh(Mesh& mesh, Ref<Material> material, glm::mat4 transf
     RendererAPI::getInstance().renderIndexed(*mesh.vao, *mesh.eb, material->getShader());
 }
 
-void Renderer3D::renderModel(Ref<Model> model, glm::mat4 transform)
+void Renderer3D::renderMesh(Mesh& mesh, Ref<Shader> shader, glm::mat4 transform)
+{
+    shader->use();
+    shader->setMat4("model", transform);
+    RendererAPI::getInstance().renderIndexed(*mesh.vao, *mesh.eb, shader);
+}
+
+void Renderer3D::renderModel(Ref<Model> model, glm::mat4 transform, Ref<Shader> shader)
+{
+    auto& meshes = model->getMeshes();
+    for (u32 i = 0; i < meshes.size(); i++) {
+        Renderer3D::renderMesh(meshes[i], shader, transform);
+    }
+}
+
+void Renderer3D::renderModel(Ref<Model> model, glm::mat4 transform, std::vector<AssetHandle> matOverrirdes)
 {
     auto& meshes = model->getMeshes();
     for (u32 i = 0; i < meshes.size(); i++) {
@@ -91,6 +106,9 @@ void Renderer3D::renderModel(Ref<Model> model, glm::mat4 transform)
         if (!mat) {
             DM_CORE_WARN("NO MAT")
             // TODO: If no material, render default
+        }
+        if (matOverrirdes[i]) {
+            mat = AssetManager::getInstance().getAsset<Material>(matOverrirdes[i]);
         }
         Renderer3D::renderMesh(meshes[i], mat, transform);
     }

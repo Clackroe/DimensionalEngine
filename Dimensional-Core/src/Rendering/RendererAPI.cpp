@@ -20,8 +20,12 @@ void RendererAPI::setClearColor(const glm::vec4& color)
 {
     glClearColor(color.r, color.g, color.b, color.a);
 }
-void RendererAPI::clearBuffer()
+void RendererAPI::clearBuffer(bool depthOnly)
 {
+    if (depthOnly) {
+        glClear(GL_DEPTH_BUFFER_BIT);
+        return;
+    }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

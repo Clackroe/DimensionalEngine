@@ -101,9 +101,7 @@ struct DMCORE_API PointLightComponent {
     glm::vec3 color = glm::vec3(1.0f);
 
     float intensity;
-    float constant;
-    float linear;
-    float quadratic;
+    float radius;
 };
 
 struct DMCORE_API SpotLightComponent {
@@ -115,9 +113,7 @@ struct DMCORE_API SpotLightComponent {
     float outerCutOff;
 
     float intensity;
-    float constant;
-    float linear;
-    float quadratic;
+    float radius;
 };
 
 template <typename... Component>

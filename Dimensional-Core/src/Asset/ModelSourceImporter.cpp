@@ -122,6 +122,24 @@ static void loadMaterialTextures(aiMaterial* mat, const aiScene* scene, Material
     material.AO = ao;
 }
 
+static void loadMaterialProperties(aiMaterial* mat, MaterialSettings& material)
+{
+    aiColor4D color;
+    float value;
+
+    if (AI_SUCCESS == aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &color)) {
+        material.color = glm::vec3(color.r, color.g, color.b);
+    }
+
+    if (AI_SUCCESS == aiGetMaterialFloat(mat, AI_MATKEY_ROUGHNESS_FACTOR, &value)) {
+        material.roughnessMult = 1.0f - (value / 100.0f);
+    }
+
+    if (AI_SUCCESS == aiGetMaterialFloat(mat, AI_MATKEY_METALLIC_FACTOR, &value)) {
+        material.metalnessMult = value;
+    }
+}
+
 static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle, const std::filesystem::path& modelPath)
 {
     std::vector<Vertex> vertices;
@@ -176,6 +194,7 @@ static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle,
         aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
         MaterialSettings material;
         loadMaterialTextures(mat, scene, material, modelPath);
+        loadMaterialProperties(mat, material);
 
         // Register new MaterialAsset if it doesnt exist
         std::string name = modelPath.stem().string() + "_" + mat->GetName().C_Str() + std::to_string(mesh->mMaterialIndex) + ".dmat";
@@ -235,5 +254,4 @@ Ref<ModelSource> ModelSourceImporter::loadModelSourceFromPath(std::filesystem::p
     Ref<ModelSource> out = CreateRef<ModelSource>(settings);
     return out;
 }
-
 }

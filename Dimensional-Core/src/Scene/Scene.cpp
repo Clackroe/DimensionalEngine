@@ -119,13 +119,13 @@ template <>
 void Scene::onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component)
 {
     component.intensity = 0.5f;
-    component.constant = 6.0f;
+    component.radius = 1.0f;
 }
 template <>
 void Scene::onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component)
 {
     component.intensity = 0.5f;
-    component.constant = 6.0f;
+    component.radius = 1.0f;
 }
 
 template <>

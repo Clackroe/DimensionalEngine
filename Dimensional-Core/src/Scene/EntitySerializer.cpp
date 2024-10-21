@@ -138,9 +138,7 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
 
         out << YAML::Key << "Color" << YAML::Value << comp.color;
         out << YAML::Key << "Intensity" << YAML::Value << comp.intensity;
-        out << YAML::Key << "Constant" << YAML::Value << comp.constant;
-        out << YAML::Key << "Linear" << YAML::Value << comp.linear;
-        out << YAML::Key << "Quadratic" << YAML::Value << comp.quadratic;
+        out << YAML::Key << "Radius" << YAML::Value << comp.radius;
 
         out << YAML::EndMap;
     }
@@ -156,9 +154,7 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
         out << YAML::Key << "OuterCutOff" << YAML::Value << comp.outerCutOff;
 
         out << YAML::Key << "Intensity" << YAML::Value << comp.intensity;
-        out << YAML::Key << "Constant" << YAML::Value << comp.constant;
-        out << YAML::Key << "Linear" << YAML::Value << comp.linear;
-        out << YAML::Key << "Quadratic" << YAML::Value << comp.quadratic;
+        out << YAML::Key << "Radius" << YAML::Value << comp.radius;
 
         out << YAML::EndMap;
     }
@@ -216,9 +212,7 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
 
         SetValue(pComp.color, pointComp["Color"]);
         SetValue(pComp.intensity, pointComp["Intensity"]);
-        SetValue(pComp.constant, pointComp["Constant"]);
-        SetValue(pComp.linear, pointComp["Linear"]);
-        SetValue(pComp.quadratic, pointComp["Quadratic"]);
+        SetValue(pComp.radius, pointComp["Radius"]);
     }
 
     auto spotComp = node["SpotLightComponent"];
@@ -232,9 +226,7 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
         SetValue(sComp.outerCutOff, spotComp["OuterCutOff"]);
 
         SetValue(sComp.intensity, spotComp["Intensity"]);
-        SetValue(sComp.constant, spotComp["Constant"]);
-        SetValue(sComp.linear, spotComp["Linear"]);
-        SetValue(sComp.quadratic, spotComp["Quadratic"]);
+        SetValue(sComp.radius, spotComp["Radius"]);
     }
 
     return loadedEntity.getID();

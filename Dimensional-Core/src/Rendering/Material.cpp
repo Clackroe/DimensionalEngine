@@ -39,6 +39,7 @@ Material::Material()
 
 Material::Material(MaterialSettings settings)
 {
+    m_Settings = settings;
     tryInitDefaultTextures();
     if (settings.Albedo) {
 
@@ -172,5 +173,12 @@ void Material::bind()
     s_DefaultPBRShader->setInt("metallicMap", MaterialTexture::Metalness);
     s_DefaultPBRShader->setInt("roughnessMap", MaterialTexture::Roughness);
     s_DefaultPBRShader->setInt("aoMap", MaterialTexture::AO);
+
+    s_DefaultPBRShader->setVec3("uColorValue", m_Settings.color.x, m_Settings.color.y, m_Settings.color.z);
+    s_DefaultPBRShader->setFloat("uMetalnessMult", m_Settings.metalnessMult);
+    s_DefaultPBRShader->setFloat("uRoughnessMult", m_Settings.roughnessMult);
+
+    s_DefaultPBRShader->setBool("uUseRoughnessMap", m_Settings.useRoughnessMap);
+    s_DefaultPBRShader->setBool("uUseMetalMap", m_Settings.useMetalMap);
 }
 }
