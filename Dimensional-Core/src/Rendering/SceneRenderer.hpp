@@ -19,6 +19,9 @@ struct alignas(16) CameraData {
 };
 
 struct alignas(16) DirectionalLightData {
+    glm::vec4 direction;
+    // color, intensity
+    glm::vec4 color;
     glm::mat4 viewProj;
 };
 

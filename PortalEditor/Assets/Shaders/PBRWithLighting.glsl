@@ -15,6 +15,8 @@ layout(std140, binding = 0) uniform CameraBlock {
 };
 
 struct DirLight {
+    vec4 direction;
+    vec4 color;
     mat4 projection;
 };
 layout(std140, binding = 2) uniform DLightBlock {
@@ -93,6 +95,8 @@ layout(std140, binding = 0) uniform CameraBlock {
 
 // lights
 struct DirLight {
+    vec4 direction;
+    vec4 color;
     mat4 projection;
 };
 
@@ -183,7 +187,7 @@ float shadowCalculation(vec4 lightSpace) {
     float closest = texture(uDepth, projected.xy).r;
     float current = projected.z;
     float bias = 0.005;
-    float shadow = current - bias > closest ? 1.0 : 0.0;
+    float shadow = current > closest ? 1.0 : 0.0;
     return shadow;
 }
 
@@ -225,8 +229,36 @@ void main()
     // Point lights contribution
 
     vec3 lightContribution = vec3(0.0);
-    float shadow = 0.0f;
-    shadow += shadowCalculation(vInput.posDirLightSpace);
+
+    // TEMP DirLight
+    {
+		vec3 L = -1.0 * normalize(uDirLight.direction.xyz);
+        vec3 H = normalize(V + L);
+
+		float NdotL = max(dot(N, L), 0.0);
+		float shadow = shadowCalculation(vInput.posDirLightSpace);
+
+
+        vec3 radiance = shadow * uDirLight.color.rgb * uDirLight.color.a;
+
+        float NDF = DistributionGGX(N, H, roughness);
+        // float G = GeometrySmith(NDOTL, V, L, roughness);
+        float G = GeometrySmith(N, V, L, roughness);
+
+        // Maybe Try with the roughness function?
+        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+        vec3 numerator = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + epsilon; // Prevent division by zero
+        vec3 specular = numerator / denominator;
+
+        vec3 kS = F;
+        vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
+        lightContribution += (kD * (albedo / PI) + specular) * radiance * NdotL;
+    }
+
+
+    //
 
     for (int i = 0; i < uNumPointLights; ++i) {
         Light light = uPointLights[i];
@@ -307,7 +339,7 @@ void main()
 
     vec3 ambient = (kD * diff + specular) * ao;
 
-    vec3 color = ambient + lightContribution * shadow;
+    vec3 color = ambient + lightContribution;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

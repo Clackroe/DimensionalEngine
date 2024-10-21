@@ -16,7 +16,7 @@ void SceneRenderer::beginScene(CameraData camData)
     setupLightData();
     setupCameraData();
 }
-static glm::mat4 s_DirLightVP = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.5f, 2000.0f) * glm::lookAt(glm::vec3(100.0f, 100.0f, 100.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+static glm::mat4 s_DirLightVP = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, -2000.5f, 2000.0f) * glm::lookAt(glm::vec3(100.0f, 100.0f, 100.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 void SceneRenderer::shadowPass()
 {
     m_DirLightFB->Bind();
@@ -37,7 +37,7 @@ void SceneRenderer::shadowPass()
         }
     }
     m_DirLightDepthID = m_DirLightFB->getDepthID();
-    m_DirLightData = { s_DirLightVP };
+    m_DirLightData = { glm::vec4(100, 100, 100, 1.0f), glm::vec4(1.0f, 0.1f, 0.1f, 7.0f), s_DirLightVP };
     m_DirLightFB->bindDephAttachment(6);
     m_DirLightUBO->setData(&m_DirLightData, 0, sizeof(m_DirLightData));
     m_DirLightFB->Unbind();
