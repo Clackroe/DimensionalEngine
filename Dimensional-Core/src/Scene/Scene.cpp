@@ -133,4 +133,9 @@ void Scene::onComponentAdded<SkyLight>(Entity entity, SkyLight& component)
 {
 }
 
+template <>
+void Scene::onComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component)
+{
+}
+
 }

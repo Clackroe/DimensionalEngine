@@ -28,7 +28,6 @@ struct Vertex {
     vec3 WorldPos;
     vec3 Normal;
     mat3 TBN;
-    vec4 posDirLightSpace;
 };
 
 layout(location = 0) out Vertex vOutput;
@@ -49,7 +48,7 @@ void main()
     T = normalize(cross(N, B));
     vOutput.TBN = mat3(T, B, N);
 
-    vOutput.posDirLightSpace = uDirLight.projection * vec4(vOutput.WorldPos, 1.0);
+    // vOutput.posDirLightSpace = uDirLight.projection * vec4(vOutput.WorldPos, 1.0);
 
     gl_Position = viewProj * vec4(vOutput.WorldPos, 1.0);
     // gl_Position = vec4(aPos, 1.0);
@@ -66,7 +65,7 @@ struct Vertex {
     vec3 WorldPos;
     vec3 Normal;
     mat3 TBN;
-    vec4 posDirLightSpace;
+    // vec4 posDirLightSpace;
 };
 
 layout(location = 0) in Vertex vInput;
@@ -187,7 +186,7 @@ float shadowCalculation(vec4 lightSpace) {
     float closest = texture(uDepth, projected.xy).r;
     float current = projected.z;
     float bias = 0.005;
-    float shadow = current > closest ? 1.0 : 0.0;
+    float shadow = current - bias < closest ? 1.0 : 0.0;
     return shadow;
 }
 
@@ -236,8 +235,7 @@ void main()
         vec3 H = normalize(V + L);
 
 		float NdotL = max(dot(N, L), 0.0);
-		float shadow = shadowCalculation(vInput.posDirLightSpace);
-
+		float shadow = shadowCalculation(uDirLight.projection * vec4(vInput.WorldPos, 1.0));
 
         vec3 radiance = shadow * uDirLight.color.rgb * uDirLight.color.a;
 
@@ -255,6 +253,7 @@ void main()
         vec3 kS = F;
         vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
         lightContribution += (kD * (albedo / PI) + specular) * radiance * NdotL;
+
     }
 
 

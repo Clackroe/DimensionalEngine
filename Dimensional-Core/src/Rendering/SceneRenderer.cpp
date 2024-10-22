@@ -1,6 +1,7 @@
 #include "Log/log.hpp"
 #include "Rendering/RendererAPI.hpp"
 #include "Rendering/UniformBuffer.hpp"
+#include "Scene/Components.hpp"
 #include <Rendering/Renderer3d.hpp>
 #include <Rendering/SceneRenderer.hpp>
 namespace Dimensional {
@@ -16,37 +17,54 @@ void SceneRenderer::beginScene(CameraData camData)
     setupLightData();
     setupCameraData();
 }
-static glm::mat4 s_DirLightVP = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, -2000.5f, 2000.0f) * glm::lookAt(glm::vec3(100.0f, 100.0f, 100.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 void SceneRenderer::shadowPass()
 {
-    m_DirLightFB->Bind();
-    RendererAPI::getInstance().clearBuffer(true);
-    m_ShadowMapShader->use();
-    m_ShadowMapShader->setMat4("uViewProj", s_DirLightVP);
-    {
-        // Render Meshes
-        auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
-        for (auto e : view) {
-            auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-            Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
-            if (!mod) {
-                continue;
+    auto view = m_Scene->m_Registry.view<TransformComponent, DirectionalLightComponent>();
+    for (auto e : view) {
+        auto [transform, dirLight] = view.get<TransformComponent, DirectionalLightComponent>(e);
+        dirLight.shadowMapFrameBuffer->Bind();
+
+        glm::vec4 zDir = transform.GetTransform() * glm::vec4(0, 0, 1, 0);
+        float nearPlane = -100.0f, farPlane = 100.0f, size = 40.0f;
+        glm::mat4 lightProjection = glm::ortho(-size, size, -size, size, nearPlane, farPlane);
+        glm::vec3 pos = transform.Position;
+        glm::vec3 dir = glm::normalize(glm::vec3(zDir));
+        glm::vec3 lookAt = pos + dir;
+        glm::mat4 dirLightView = glm::lookAt(pos, lookAt, glm::vec3(0, 1, 0));
+        glm::mat4 s_DirLightVP = lightProjection * dirLightView;
+
+        RendererAPI::getInstance().clearBuffer(true);
+        m_ShadowMapShader->use();
+        m_ShadowMapShader->setMat4("uViewProj", s_DirLightVP);
+
+        {
+            // Render Meshes
+            auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
+            for (auto e : view) {
+                auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
+                Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
+                if (!mod) {
+                    continue;
+                }
+                auto& overrides = mesh.materialOverrides;
+                Renderer3D::renderModel(mod, transform.GetTransform(), m_ShadowMapShader);
             }
-            auto& overrides = mesh.materialOverrides;
-            Renderer3D::renderModel(mod, transform.GetTransform(), m_ShadowMapShader);
         }
+
+        u32 glId = m_DirLightFB->getDepthID();
+        m_DirLightData = { zDir, glm::vec4(dirLight.color, dirLight.intensity), s_DirLightVP };
+        dirLight.shadowMapFrameBuffer->bindDephAttachment(6);
+        m_DirLightUBO->setData(&m_DirLightData, 0, sizeof(m_DirLightData));
+
+        dirLight.shadowMapFrameBuffer->Unbind();
     }
-    m_DirLightDepthID = m_DirLightFB->getDepthID();
-    m_DirLightData = { glm::vec4(100, 100, 100, 1.0f), glm::vec4(1.0f, 0.1f, 0.1f, 7.0f), s_DirLightVP };
-    m_DirLightFB->bindDephAttachment(6);
-    m_DirLightUBO->setData(&m_DirLightData, 0, sizeof(m_DirLightData));
-    m_DirLightFB->Unbind();
 }
 
 void SceneRenderer::render()
 {
     shadowPass();
     m_FrameBuffer->Bind();
+    // m_DirLightFB->bindDephAttachment(6);
 
     {
         // Render Meshes
@@ -137,5 +155,4 @@ void SceneRenderer::setupLightData()
     m_PointLightUBO->setData(m_PointLightData.data(), 0, pLightDataSize);
     m_PointLightUBO->setData(&numPLights, maxPLightSize, sizeof(u32));
 }
-
 }

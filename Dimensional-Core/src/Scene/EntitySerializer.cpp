@@ -158,6 +158,18 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
 
         out << YAML::EndMap;
     }
+
+    if (entity.hasComponent<DirectionalLightComponent>()) {
+        auto& comp = entity.getComponent<DirectionalLightComponent>();
+        out << YAML::Key << "DirectionalLightComponent";
+        out << YAML::BeginMap;
+
+        out << YAML::Key << "Color" << YAML::Value << comp.color;
+        out << YAML::Key << "Intensity" << YAML::Value << comp.intensity;
+
+        out << YAML::EndMap;
+    }
+
     out << YAML::EndMap;
 }
 
@@ -227,6 +239,16 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
 
         SetValue(sComp.intensity, spotComp["Intensity"]);
         SetValue(sComp.radius, spotComp["Radius"]);
+    }
+
+    auto dirComp = node["DirectionalLightComponent"];
+    if (dirComp) {
+
+        auto& dComp = loadedEntity.addComponent<DirectionalLightComponent>();
+
+        SetValue(dComp.color, dirComp["Color"]);
+
+        SetValue(dComp.intensity, dirComp["Intensity"]);
     }
 
     return loadedEntity.getID();

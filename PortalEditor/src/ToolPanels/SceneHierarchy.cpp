@@ -193,6 +193,10 @@ void SceneHierarchy::entityComponents(Entity entity)
         if (ImGui::Button("Sky Light")) {
             entity.addComponent<SkyLight>();
         }
+        if (ImGui::Button("Directional Light")) {
+            entity.addComponent<DirectionalLightComponent>();
+        }
+
         ImGui::EndPopup();
     }
 
@@ -226,6 +230,17 @@ void SceneHierarchy::entityComponents(Entity entity)
             },
             true);
     }
+    if (entity.hasComponent<DirectionalLightComponent>()) {
+        componentNode<DirectionalLightComponent>(
+            "Directional Light", entity, [](auto& component) {
+                ImGui::ColorEdit3("Color", glm::value_ptr(component.color));
+                ImGui::DragFloat("Intensity", &component.intensity, 0.1f, 0.0f, 30.0f);
+                u32 textureID = component.shadowMapFrameBuffer->getDepthID();
+                ImGui::Image(reinterpret_cast<ImTextureID>(textureID), ImVec2 { 256, 256 }, ImVec2 { 0, 1 }, ImVec2 { 1, 0 });
+            },
+            true);
+    }
+
     if (entity.hasComponent<SkyLight>()) {
         componentNode<SkyLight>(
             "Sky Light", entity, [](auto& component) {

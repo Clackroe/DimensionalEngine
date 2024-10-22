@@ -178,16 +178,6 @@ void PortalLayer::OnImGuiRender()
     }
 
     ImGui::End();
-    //
-    ImGui::Begin("ViewportSHADOW");
-    // ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-    // if ((viewportPanelSize.x != m_ViewPortSize.x) || (viewportPanelSize.y != m_ViewPortSize.y)) {
-    //     m_EditorCamera.setViewportDimensions(viewportPanelSize.x, viewportPanelSize.y);
-    //     m_ViewPortSize = { viewportPanelSize.x, viewportPanelSize.y };
-    // }
-    Ref<FrameBuffer> bufTEMP = tempSceneRenderer.getFrameBufferTEMP();
-    ImGui::Image(reinterpret_cast<ImTextureID>(bufTEMP->getDepthID()), ImVec2 { 2048, 2048 }, { 0, 1 }, { 1, 0 });
-    ImGui::End();
 
     // Viewport
     ImGui::Begin("Viewport");

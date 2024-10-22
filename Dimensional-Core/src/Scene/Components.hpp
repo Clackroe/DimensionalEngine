@@ -1,6 +1,7 @@
 #ifndef DM_COMPONENTS_H
 #define DM_COMPONENTS_H
 #include "Asset/AssetManager.hpp"
+#include "Rendering/FrameBuffer.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 
@@ -116,11 +117,27 @@ struct DMCORE_API SpotLightComponent {
     float radius;
 };
 
+struct DMCORE_API DirectionalLightComponent {
+    DirectionalLightComponent()
+    {
+        FrameBufferSettings fbs = {
+            2048, 2048, { Shadow }
+        };
+        shadowMapFrameBuffer = CreateRef<FrameBuffer>(fbs);
+    };
+    DirectionalLightComponent(const DirectionalLightComponent&) = default;
+
+    glm::vec3 color = glm::vec3(1.0f);
+    float intensity;
+
+    Ref<FrameBuffer> shadowMapFrameBuffer;
+};
+
 template <typename... Component>
 struct ComponentGroup {
 };
 
-using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent>;
+using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent, DirectionalLightComponent>;
 
 }
 #endif

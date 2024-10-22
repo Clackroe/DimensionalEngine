@@ -20,8 +20,7 @@ struct alignas(16) CameraData {
 
 struct alignas(16) DirectionalLightData {
     glm::vec4 direction;
-    // color, intensity
-    glm::vec4 color;
+    glm::vec4 color; // color, intensity
     glm::mat4 viewProj;
 };
 
@@ -57,8 +56,8 @@ public:
         m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
         FrameBufferSettings dfbs = {
-            2048,
-            2048,
+            1024,
+            1024,
             { Shadow }
         };
         m_DirLightFB = CreateRef<FrameBuffer>(dfbs);
