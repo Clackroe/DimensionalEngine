@@ -34,7 +34,13 @@ public:
     void setData(void* data, u32 sizeBytes);
     u32 getID() const { return m_GLId; };
 
-    virtual AssetType getAssetType() const { return AssetType::TEXTURE; }
+    static u32 imageFormatToInternalFormat(ImageFormat format);
+    static u32 imageFormatToDataFormat(ImageFormat format);
+
+    virtual AssetType getAssetType() const
+    {
+        return AssetType::TEXTURE;
+    }
 
 private:
     void load(void* data, u32 sizeBytes);

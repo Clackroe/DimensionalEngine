@@ -6,7 +6,7 @@
 
 namespace Dimensional {
 
-static u32 imageFormatToInternalFormat(ImageFormat format)
+u32 Texture::imageFormatToInternalFormat(ImageFormat format)
 {
     switch (format) {
     case (ImageFormat::R8):
@@ -42,7 +42,7 @@ static u32 imageFormatToInternalFormat(ImageFormat format)
     return 0;
 }
 
-static u32 imageFormatToDataFormat(ImageFormat format)
+u32 Texture::imageFormatToDataFormat(ImageFormat format)
 {
     switch (format) {
     case (ImageFormat::R8):

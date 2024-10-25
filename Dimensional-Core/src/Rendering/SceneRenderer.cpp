@@ -25,7 +25,7 @@ void SceneRenderer::shadowPass()
         dirLight.shadowMapFrameBuffer->Bind();
 
         glm::vec4 zDir = transform.GetTransform() * glm::vec4(0, 0, 1, 0);
-        float nearPlane = -100.0f, farPlane = 100.0f, size = 40.0f;
+        float nearPlane = -200.0f, farPlane = 200.0f, size = 40.0f;
         glm::mat4 lightProjection = glm::ortho(-size, size, -size, size, nearPlane, farPlane);
         glm::vec3 pos = transform.Position;
         glm::vec3 dir = glm::normalize(glm::vec3(zDir));
@@ -53,7 +53,7 @@ void SceneRenderer::shadowPass()
 
         u32 glId = m_DirLightFB->getDepthID();
         m_DirLightData = { zDir, glm::vec4(dirLight.color, dirLight.intensity), s_DirLightVP };
-        dirLight.shadowMapFrameBuffer->bindDephAttachment(6);
+        dirLight.shadowMapFrameBuffer->bindDepthAttachment(6);
         m_DirLightUBO->setData(&m_DirLightData, 0, sizeof(m_DirLightData));
 
         dirLight.shadowMapFrameBuffer->Unbind();

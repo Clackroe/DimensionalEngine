@@ -57,6 +57,10 @@ void main()
 ##FRAGSHADER
 #version 450 core
 
+#define MAX_POINTLIGHTS 256
+#define MAX_DIRECTIONAL_LIGHTS = 256;
+
+
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 attachment1;
 
@@ -99,10 +103,11 @@ struct DirLight {
     mat4 projection;
 };
 
-layout(binding = 6) uniform sampler2D uDepth;
 layout(std140, binding = 2) uniform DLightBlock {
-    DirLight uDirLight;
+    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS];
+    uint uNumDirLights;
 };
+layout(binding = 6) uniform sampler2DArray uDirLightShadowMaps;
 
 struct Light {
     vec3 position;
@@ -113,7 +118,7 @@ struct Light {
     vec4 lightParams;
 };
 layout(std140, binding = 1) uniform PLightBlock {
-    Light uPointLights[300];
+    Light uPointLights[MAX_POINTLIGHTS];
     uint uNumPointLights;
 };
 
@@ -183,7 +188,7 @@ vec3 fresnelSchlickWithRoughness(float cosTheta, vec3 F0, float roughness)
 float shadowCalculation(vec4 lightSpace) {
     vec3 projected = lightSpace.xyz / lightSpace.w;
     projected = projected * 0.5 + 0.5;
-    float closest = texture(uDepth, projected.xy).r;
+    float closest = texture(uDepth, vec4(projected.xy, 1)).r;
     float current = projected.z;
     float bias = 0.005;
     float shadow = current - bias < closest ? 1.0 : 0.0;

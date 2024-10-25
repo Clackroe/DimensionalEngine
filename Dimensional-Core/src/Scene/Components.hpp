@@ -121,7 +121,7 @@ struct DMCORE_API DirectionalLightComponent {
     DirectionalLightComponent()
     {
         FrameBufferSettings fbs = {
-            2048, 2048, { Shadow }
+            2048, 2048, { Shadow }, ARRAY_2D
         };
         shadowMapFrameBuffer = CreateRef<FrameBuffer>(fbs);
     };

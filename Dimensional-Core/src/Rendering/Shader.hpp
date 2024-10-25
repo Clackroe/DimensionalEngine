@@ -38,7 +38,7 @@ public:
     virtual AssetType getAssetType() const override { return AssetType::SHADER; };
 
 private:
-    u32 compile(const char* shaderProg, enum ShaderType type);
+    u32 compile(const char* shaderProg, enum ShaderType type, const std::filesystem::path& path);
     void link(std::vector<u32> programs);
     enum ShaderType m_Type;
 };

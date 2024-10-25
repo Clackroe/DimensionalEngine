@@ -15,6 +15,10 @@ enum DMCORE_API FramebufferAttachmentFormat {
     Shadow = DEPTHCOMPONENT24,
     Depth = DEPTH24STENCIl8
 };
+enum DMCORE_API FramebufferAttachmentType {
+    TEXTURE_2D,
+    ARRAY_2D,
+};
 
 struct DMCORE_API FramebufferAttachmentSettings {
     FramebufferAttachmentSettings() = default;
@@ -22,19 +26,24 @@ struct DMCORE_API FramebufferAttachmentSettings {
         : attachmentFormat(fmt)
     {
     }
-
     FramebufferAttachmentFormat attachmentFormat = FramebufferAttachmentFormat::None;
 };
 
 struct DMCORE_API FrameBufferSettings {
     u32 width, height;
 
+    FramebufferAttachmentType bufferType = FramebufferAttachmentType::TEXTURE_2D;
+
     std::vector<FramebufferAttachmentSettings> attachmentsList;
 
-    FrameBufferSettings(u32 w, u32 h, std::initializer_list<FramebufferAttachmentSettings> attachments, bool cube = false)
+    u32 layers = 1;
+
+    FrameBufferSettings(u32 w, u32 h, std::initializer_list<FramebufferAttachmentSettings> attachments, FramebufferAttachmentType type = TEXTURE_2D, u32 layers = 1, bool cube = false)
         : width(w)
         , height(h)
+        , bufferType(type)
         , attachmentsList(attachments)
+        , layers(layers)
     {
     }
 };
@@ -48,7 +57,7 @@ public:
     void Unbind();
 
     void bindAttachment(u32 index, u32 slot);
-    void bindDephAttachment(u32 slot);
+    void bindDepthAttachment(u32 slot);
 
     u32 getAttachmentID(u32 index);
     u32 getDepthID();

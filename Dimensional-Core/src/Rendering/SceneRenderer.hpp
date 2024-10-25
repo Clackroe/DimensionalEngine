@@ -8,7 +8,8 @@
 #include <buffer.hpp>
 
 namespace Dimensional {
-#define MAX_POINTLIGHTS 300
+#define MAX_POINTLIGHTS 256
+#define MAX_DIRECTIONAL_LIGHTS = 256;
 
 struct alignas(16) CameraData {
     glm::mat4 viewProj;
@@ -51,14 +52,16 @@ public:
         FrameBufferSettings fbs = {
             1920,
             1080,
-            { RGBA32F, Depth }
+            { RGBA32F, Depth },
+            TEXTURE_2D
         };
         m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
         FrameBufferSettings dfbs = {
             1024,
             1024,
-            { Shadow }
+            { Shadow },
+            ARRAY_2D
         };
         m_DirLightFB = CreateRef<FrameBuffer>(dfbs);
         m_ShadowMapShader = CreateRef<Shader>("Assets/Shaders/ShadowMap.glsl");

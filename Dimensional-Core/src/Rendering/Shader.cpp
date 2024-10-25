@@ -24,7 +24,7 @@ Shader::Shader(const std::string& path, enum ShaderType type)
         } catch (std::ifstream::failure err) {
             DM_CORE_ERROR("ERROR WITH READING THE SHADER FILES: {0}", err.what());
         }
-        u32 computeID = compile(computeSourceCode.c_str(), COMPUTE);
+        u32 computeID = compile(computeSourceCode.c_str(), COMPUTE, std::filesystem::path(path));
         link({ computeID });
         return;
     }
@@ -76,8 +76,8 @@ Shader::Shader(const std::string& path, enum ShaderType type)
     }
     const char* vShaderProg = vertexSourceCode.c_str();
     const char* fShaderProg = fragmentSourceCode.c_str();
-    u32 vertexID = compile(vShaderProg, VERTEX);
-    u32 fragID = compile(fShaderProg, FRAGMENT);
+    u32 vertexID = compile(vShaderProg, VERTEX, std::filesystem::path(path));
+    u32 fragID = compile(fShaderProg, FRAGMENT, std::filesystem::path(path));
     link({ vertexID, fragID });
 }
 
@@ -146,11 +146,11 @@ void Shader::dispatchCompute(u32 width, u32 height, u32 depth)
     glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
-u32 Shader::compile(const char* shaderProg, enum ShaderType type)
+u32 Shader::compile(const char* shaderProg, enum ShaderType type, const std::filesystem::path& path)
 {
     u32 shader;
     int result;
-    char infoLog[512];
+    char infoLog[2048];
 
     switch (type) {
     case (COMPUTE):
@@ -172,8 +172,8 @@ u32 Shader::compile(const char* shaderProg, enum ShaderType type)
 
     glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
     if (!result) {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        DM_CORE_WARN("SHADER COMPILATION_FAILED {0}\n", infoLog);
+        glGetShaderInfoLog(shader, 2048, NULL, infoLog);
+        DM_CORE_WARN("{0} SHADER COMPILATION_FAILED {1}\n", path.stem().string(), infoLog);
     };
     return shader;
 }
