@@ -61,7 +61,7 @@ public:
             1024,
             1024,
             { Shadow },
-            ARRAY_2D
+            TEXTURE_2D
         };
         m_DirLightFB = CreateRef<FrameBuffer>(dfbs);
         m_ShadowMapShader = CreateRef<Shader>("Assets/Shaders/ShadowMap.glsl");

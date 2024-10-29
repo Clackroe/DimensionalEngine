@@ -64,7 +64,7 @@ void SceneRenderer::render()
 {
     shadowPass();
     m_FrameBuffer->Bind();
-    // m_DirLightFB->bindDephAttachment(6);
+    // m_DirLightFB->bindDepthAttachment(6);
 
     {
         // Render Meshes

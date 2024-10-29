@@ -60,7 +60,6 @@ void main()
 #define MAX_POINTLIGHTS 256
 #define MAX_DIRECTIONAL_LIGHTS = 256;
 
-
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 attachment1;
 
@@ -104,10 +103,9 @@ struct DirLight {
 };
 
 layout(std140, binding = 2) uniform DLightBlock {
-    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS];
-    uint uNumDirLights;
+    DirLight uDirLight;
 };
-layout(binding = 6) uniform sampler2DArray uDirLightShadowMaps;
+layout(binding = 6) uniform sampler2D uDirLightShadowMaps;
 
 struct Light {
     vec3 position;
@@ -188,7 +186,7 @@ vec3 fresnelSchlickWithRoughness(float cosTheta, vec3 F0, float roughness)
 float shadowCalculation(vec4 lightSpace) {
     vec3 projected = lightSpace.xyz / lightSpace.w;
     projected = projected * 0.5 + 0.5;
-    float closest = texture(uDepth, vec4(projected.xy, 1)).r;
+    float closest = texture(uDirLightShadowMaps, projected.xy).r;
     float current = projected.z;
     float bias = 0.005;
     float shadow = current - bias < closest ? 1.0 : 0.0;
@@ -236,11 +234,11 @@ void main()
 
     // TEMP DirLight
     {
-		vec3 L = -1.0 * normalize(uDirLight.direction.xyz);
+        vec3 L = -1.0 * normalize(uDirLight.direction.xyz);
         vec3 H = normalize(V + L);
 
-		float NdotL = max(dot(N, L), 0.0);
-		float shadow = shadowCalculation(uDirLight.projection * vec4(vInput.WorldPos, 1.0));
+        float NdotL = max(dot(N, L), 0.0);
+        float shadow = shadowCalculation(uDirLight.projection * vec4(vInput.WorldPos, 1.0));
 
         vec3 radiance = shadow * uDirLight.color.rgb * uDirLight.color.a;
 
@@ -258,9 +256,7 @@ void main()
         vec3 kS = F;
         vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
         lightContribution += (kD * (albedo / PI) + specular) * radiance * NdotL;
-
     }
-
 
     //
 
