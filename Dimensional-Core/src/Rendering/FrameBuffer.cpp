@@ -42,8 +42,8 @@ static void attachColorTexture(u32 glId, GLenum internalFormat, GLenum format, u
 static void attachDepthTexture(u32 glId, GLenum format, GLenum type, u32 w, u32 h, u32 layers = 1, GLenum target = GL_TEXTURE_2D)
 {
     if (target == GL_TEXTURE_2D_ARRAY) {
-        glTexStorage3D(target, 1, format, w, h, layers);
-        glFramebufferTexture(GL_FRAMEBUFFER, type, glId, 0);
+        glTexImage3D(target, 0, format, w, h, layers, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, glId, 0);
     } else {
         glTexStorage2D(target, 1, format, w, h);
         glFramebufferTexture2D(GL_FRAMEBUFFER, type, target, glId, 0);
@@ -124,7 +124,7 @@ void FrameBuffer::Rebuild()
     }
 
     if (m_DepthAttachment.attachmentFormat != FramebufferAttachmentFormat::None) {
-        glCreateTextures(type, 1, &m_DepthID);
+        glGenTextures(1, &m_DepthID);
         glBindTexture(type, m_DepthID);
 
         switch (m_DepthAttachment.attachmentFormat) {

@@ -19,6 +19,7 @@ void SceneRenderer::beginScene(CameraData camData)
 void SceneRenderer::shadowPass()
 {
     m_DirLightFB->Bind();
+
     m_ShadowMapShader->use();
 
     RendererAPI::getInstance().clearBuffer(true);
