@@ -73,7 +73,7 @@ void RendererAPI::setDepthFunc(DepthFunc f)
     }
 }
 
-void RendererAPI::setDepthTest(bool enable)
+void RendererAPI::enableDepthTest(bool enable)
 {
     if (enable) {
         glEnable(GL_DEPTH_TEST);
@@ -81,12 +81,35 @@ void RendererAPI::setDepthTest(bool enable)
         glDisable(GL_DEPTH_TEST);
     }
 }
-void RendererAPI::setBlending(bool enable)
+void RendererAPI::enableBlending(bool enable)
 {
     if (enable) {
         glEnable(GL_BLEND);
     } else {
         glDisable(GL_BLEND);
+    }
+}
+void RendererAPI::enableCulling(bool enable)
+{
+    if (enable) {
+        glEnable(GL_CULL_FACE);
+    } else {
+        glDisable(GL_CULL_FACE);
+    }
+}
+
+void RendererAPI::setCulling(FaceCulling cull)
+{
+    switch (cull) {
+    case FaceCulling::FRONTANDBACK:
+        glCullFace(GL_FRONT_AND_BACK);
+        break;
+    case FaceCulling::FRONT:
+        glCullFace(GL_FRONT);
+        break;
+    case FaceCulling::BACK:
+        glCullFace(GL_BACK);
+        break;
     }
 }
 

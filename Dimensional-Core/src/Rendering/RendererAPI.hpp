@@ -22,6 +22,13 @@ enum class DepthFunc {
     ALWAYS,
     DEFAULT = LESS
 };
+
+enum class FaceCulling {
+    FRONTANDBACK,
+    FRONT,
+    BACK,
+    DEFAULT = BACK
+};
 // Potentially factor out into multiple implementations for different render APIS
 // Currently, I only plan to support OpenGL, and maybe Vulkan in the distant future.
 // Vulkan will warrent a rewrite anyway.
@@ -45,9 +52,11 @@ public:
     void renderIndexed(VertexArray& vao, ElementBuffer& eb, const Ref<Shader>& shader);
 
     void setDepthFunc(DepthFunc f);
+    void setCulling(FaceCulling cull);
 
-    void setDepthTest(bool enable);
-    void setBlending(bool enable);
+    void enableDepthTest(bool enable);
+    void enableBlending(bool enable);
+    void enableCulling(bool enable);
 
 private:
 };

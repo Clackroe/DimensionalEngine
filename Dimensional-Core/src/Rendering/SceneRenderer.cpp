@@ -5,6 +5,22 @@
 #include <Rendering/SceneRenderer.hpp>
 namespace Dimensional {
 
+Ref<UniformBuffer> SceneRenderer::m_PointLightUBO;
+Ref<UniformBuffer> SceneRenderer::m_CameraUBO;
+
+Ref<UniformBuffer> SceneRenderer::m_DirLightUBO;
+Ref<FrameBuffer> SceneRenderer::m_DirLightFB;
+Ref<Shader> SceneRenderer::m_ShadowMapShader;
+
+SceneRenderer::~SceneRenderer()
+{
+    auto view = m_Scene->m_Registry.view<TransformComponent, DirectionalLightComponent>();
+    for (auto e : view) {
+        auto [transform, light] = view.get<TransformComponent, DirectionalLightComponent>(e);
+        light.shadowTextureView = CreateRef<TextureView>();
+    }
+}
+
 void SceneRenderer::beginScene(CameraData camData)
 {
     m_FrameBuffer->Bind();
@@ -23,6 +39,8 @@ void SceneRenderer::shadowPass()
     m_ShadowMapShader->use();
 
     RendererAPI::getInstance().clearBuffer(true);
+    RendererAPI::getInstance().enableCulling(true);
+    RendererAPI::getInstance().setCulling(FaceCulling::FRONT);
     for (int index = 0; index < m_DirLightData.size(); index++) {
 
         m_ShadowMapShader->setInt("uDirLightIndex", index);
@@ -41,6 +59,8 @@ void SceneRenderer::shadowPass()
             }
         }
     }
+    RendererAPI::getInstance().setCulling(FaceCulling::DEFAULT);
+    RendererAPI::getInstance().enableCulling(false);
     m_DirLightFB->bindDepthAttachment(6);
     m_DirLightFB->Unbind();
 }
@@ -89,11 +109,13 @@ void SceneRenderer::setupCameraData()
 void SceneRenderer::setupLightData()
 {
     m_DirLightData.clear();
+    m_DirLightUBO->zeroOut();
     {
         auto view = m_Scene->m_Registry.view<TransformComponent, DirectionalLightComponent>();
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, DirectionalLightComponent>(e);
             i32 index = m_DirLightData.size();
+
             if (light.shadowTextureView->glID == 0) {
                 light.shadowTextureView = CreateRef<TextureView>(m_DirLightFB->getDepthID(), ImageFormat::DEPTH32F, index);
             }
@@ -118,6 +140,7 @@ void SceneRenderer::setupLightData()
     }
 
     m_PointLightData.clear();
+    m_PointLightUBO->zeroOut();
     {
         auto view = m_Scene->m_Registry.view<TransformComponent, PointLightComponent>();
         for (auto e : view) {

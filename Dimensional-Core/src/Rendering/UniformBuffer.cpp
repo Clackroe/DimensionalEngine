@@ -1,3 +1,4 @@
+#include "Log/log.hpp"
 #include <Rendering/UniformBuffer.hpp>
 #include <glad.h>
 namespace Dimensional {
@@ -24,6 +25,13 @@ void UniformBuffer::bind()
 void UniformBuffer::unbind()
 {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void UniformBuffer::zeroOut()
+{
+    bind();
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, m_SizeBytes, nullptr);
+    unbind();
 }
 
 void UniformBuffer::setData(const void* data, u32 offset, u32 sizeBytes)

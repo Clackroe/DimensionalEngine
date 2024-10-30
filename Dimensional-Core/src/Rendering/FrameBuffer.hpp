@@ -10,10 +10,10 @@ enum DMCORE_API FramebufferAttachmentFormat {
     RGBA32F,
     // TODO: Support more formats if needed
 
-    DEPTH24STENCIl8,
+    DEPTH24STENCIL8,
     DEPTHCOMPONENT32F,
     Shadow = DEPTHCOMPONENT32F,
-    Depth = DEPTH24STENCIl8
+    Depth = DEPTH24STENCIL8
 };
 enum DMCORE_API FramebufferAttachmentType {
     TEXTURE_2D,

@@ -1,3 +1,4 @@
+#include "Log/log.hpp"
 #include "core.hpp"
 #include <Rendering/Texture.hpp>
 
@@ -111,10 +112,15 @@ Texture::~Texture()
 
 // =========== TEXTURE VIEW ============
 
-TextureView::TextureView(u32 textureArray, ImageFormat format, u32 layerIndex)
+TextureView::TextureView(u32 textureArray, ImageFormat format, i32 layerIndex)
 {
+    this->layerIndex = layerIndex;
     glGenTextures(1, &glID);
-    glTextureView(glID, GL_TEXTURE_2D, textureArray, GL_R32F, 0, 1, layerIndex, 1);
+    glTextureView(glID, GL_TEXTURE_2D, textureArray, Texture::imageFormatToInternalFormat(format), 0, 1, layerIndex, 1);
+    glTextureParameteri(glID, GL_TEXTURE_SWIZZLE_R, GL_RED);
+    glTextureParameteri(glID, GL_TEXTURE_SWIZZLE_G, GL_RED);
+    glTextureParameteri(glID, GL_TEXTURE_SWIZZLE_B, GL_RED);
+    glTextureParameteri(glID, GL_TEXTURE_SWIZZLE_A, GL_ONE);
 }
 TextureView::~TextureView()
 {

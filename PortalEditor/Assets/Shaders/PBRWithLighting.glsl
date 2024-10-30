@@ -187,12 +187,12 @@ vec3 fresnelSchlickWithRoughness(float cosTheta, vec3 F0, float roughness)
 }
 // ----------------------------------------------------------------------------
 
-float shadowCalculation(vec4 lightSpace, int layer) {
+float shadowCalculation(vec4 lightSpace, float ndotl, int layer) {
     vec3 projected = lightSpace.xyz / lightSpace.w;
     projected = projected * 0.5 + 0.5;
     float closest = texture(uDirLightShadowMaps, vec3(projected.xy, layer)).r;
     float current = projected.z;
-    float bias = 0.005;
+    float bias = max(0.05 * (1.0 - ndotl), 0.005);
     float shadow = current - bias < closest ? 1.0 : 0.0;
     return shadow;
 }
@@ -243,8 +243,8 @@ void main()
         vec3 L = normalize(uDirLight[i].direction.xyz);
         vec3 H = normalize(V + L);
 
-        float NdotL = max(dot(N, L), 0.0);
-        float shadow = shadowCalculation(uDirLight[i].projection * vec4(vInput.WorldPos, 1.0), i);
+        float NdotL = dot(N, L);
+        float shadow = shadowCalculation(uDirLight[i].projection * vec4(vInput.WorldPos, 1.0), NdotL, i);
 
         vec3 radiance = shadow * uDirLight[i].color.rgb * uDirLight[i].color.a;
 

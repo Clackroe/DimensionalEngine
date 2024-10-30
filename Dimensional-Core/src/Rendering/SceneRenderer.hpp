@@ -44,6 +44,7 @@ struct EnvironmentData {
 class SceneRenderer {
 public:
     SceneRenderer() = default;
+    ~SceneRenderer();
     SceneRenderer(Ref<Scene> scene)
         : m_Scene(scene)
     {
@@ -67,6 +68,7 @@ public:
         m_DirLightFB = CreateRef<FrameBuffer>(dfbs);
 
         m_ShadowMapShader = CreateRef<Shader>("Assets/Shaders/ShadowMap.glsl");
+
         m_DirLightUBO = CreateRef<UniformBuffer>(MAX_DIRECTIONAL_LIGHTS * sizeof(DirectionalLightData) + sizeof(u32), 2);
 
         m_CubeMapShader = CreateRef<Shader>("Assets/Shaders/CubeMap.glsl");
@@ -93,20 +95,18 @@ private:
 
     CameraData m_CameraData;
 
-    Ref<UniformBuffer> m_PointLightUBO;
-
-    Ref<UniformBuffer> m_CameraUBO;
+    static Ref<UniformBuffer> m_PointLightUBO;
+    static Ref<UniformBuffer> m_CameraUBO;
 
     Ref<Shader> m_CubeMapShader;
     EnvironmentData m_CurrentEnvironmentMap;
 
     std::vector<DirectionalLightData> m_DirLightData;
     u32 m_DirLightDepthID;
-    Ref<UniformBuffer> m_DirLightUBO;
-    Ref<FrameBuffer> m_DirLightFB;
 
-    Ref<Shader> m_ShadowMapShader;
-
+    static Ref<UniformBuffer> m_DirLightUBO;
+    static Ref<FrameBuffer> m_DirLightFB;
+    static Ref<Shader> m_ShadowMapShader;
     Ref<FrameBuffer> m_FrameBuffer;
 };
 

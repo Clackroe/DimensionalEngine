@@ -13,6 +13,7 @@ public:
     void bind();
     void unbind();
     void setData(const void* data, u32 offset, u32 sizeBytes);
+    void zeroOut();
 
 private:
     u32 m_GLId, m_Binding, m_SizeBytes;
