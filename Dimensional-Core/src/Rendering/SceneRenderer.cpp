@@ -23,18 +23,22 @@ void SceneRenderer::shadowPass()
     m_ShadowMapShader->use();
 
     RendererAPI::getInstance().clearBuffer(true);
+    for (int index = 0; index < m_DirLightData.size(); index++) {
 
-    {
-        // Render Meshes
-        auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
-        for (auto e : view) {
-            auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-            Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
-            if (!mod) {
-                continue;
+        m_ShadowMapShader->setInt("uDirLightIndex", index);
+
+        {
+            // Render Meshes
+            auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
+            for (auto e : view) {
+                auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
+                Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
+                if (!mod) {
+                    continue;
+                }
+                auto& overrides = mesh.materialOverrides;
+                Renderer3D::renderModel(mod, transform.GetTransform(), m_ShadowMapShader);
             }
-            auto& overrides = mesh.materialOverrides;
-            Renderer3D::renderModel(mod, transform.GetTransform(), m_ShadowMapShader);
         }
     }
     m_DirLightFB->bindDepthAttachment(6);
@@ -90,9 +94,9 @@ void SceneRenderer::setupLightData()
         for (auto e : view) {
             auto [transform, light] = view.get<TransformComponent, DirectionalLightComponent>(e);
             i32 index = m_DirLightData.size();
-            // if (light.shadowTextureView->glID == 0) {
-            light.shadowTextureView = CreateRef<TextureView>(m_DirLightFB->getDepthID(), ImageFormat::DEPTH32F, index);
-            // }
+            if (light.shadowTextureView->glID == 0) {
+                light.shadowTextureView = CreateRef<TextureView>(m_DirLightFB->getDepthID(), ImageFormat::DEPTH32F, index);
+            }
 
             float nearPlane = -200.0f, farPlane = 200.0f, size = 20.0f;
             glm::mat4 lightProjection = glm::ortho(-size, size, -size, size, nearPlane, farPlane);

@@ -39,14 +39,14 @@ static void attachColorTexture(u32 glId, GLenum internalFormat, GLenum format, u
     }
 }
 
-static void attachDepthTexture(u32 glId, GLenum format, GLenum type, u32 w, u32 h, u32 layers = 1, GLenum target = GL_TEXTURE_2D)
+static void attachDepthTexture(u32 glId, GLenum format, GLenum attachmentType, u32 w, u32 h, u32 layers = 1, GLenum target = GL_TEXTURE_2D)
 {
     if (target == GL_TEXTURE_2D_ARRAY) {
         glTexImage3D(target, 0, format, w, h, layers, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, glId, 0);
+        glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, glId, 0);
     } else {
-        glTexStorage2D(target, 1, format, w, h);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, type, target, glId, 0);
+        glTexImage2D(target, 0, format, w, h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, target, glId, 0);
     }
 
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -120,11 +120,12 @@ void FrameBuffer::Rebuild()
                 DM_CORE_ASSERT(false, "Invalid Framebuffer Color Attachment Format.");
                 break;
             }
+            glBindTexture(type, 0);
         }
     }
 
     if (m_DepthAttachment.attachmentFormat != FramebufferAttachmentFormat::None) {
-        glGenTextures(1, &m_DepthID);
+        glCreateTextures(type, 1, &m_DepthID);
         glBindTexture(type, m_DepthID);
 
         switch (m_DepthAttachment.attachmentFormat) {
@@ -138,6 +139,7 @@ void FrameBuffer::Rebuild()
             DM_CORE_WARN("COLOR BUFFER ATTACHMENT MADE IT INTO THE DEPTH ATTACHMENT");
             return;
         }
+        glBindTexture(type, 0);
     }
 
     if (m_ColorAttachmentSettings.size() > 1) {

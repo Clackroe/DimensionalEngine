@@ -55,11 +55,10 @@ private:
 class DMCORE_API TextureView {
 public:
     TextureView() = default;
-    TextureView(u32 textureArray, ImageFormat format, i32 layerIndex);
+    TextureView(u32 textureArray, ImageFormat format, u32 layerIndex);
     ~TextureView();
 
-    u32 glID;
-    i32 layerIndex;
+    u32 glID = 0, layerIndex;
 };
 }
 

@@ -33,25 +33,20 @@ layout(std140, binding = 2) uniform DLightBlock {
 };
 
 out vec4 FragPosLightSpace;
+uniform int uDirLightIndex;
 
 void main() {
-    for (int i = 0; i < 2; i++) {
-        gl_Layer = i;
-        for (int j = 0; j < 3; j++) {
-            FragPosLightSpace = uDirLight[i].projection * gl_in[j].gl_Position;
-            gl_Position = FragPosLightSpace;
-            EmitVertex();
-        }
-        EndPrimitive();
+    gl_Layer = uDirLightIndex;
+    for (int j = 0; j < 3; j++) {
+        FragPosLightSpace = uDirLight[uDirLightIndex].projection * gl_in[j].gl_Position;
+        gl_Position = FragPosLightSpace;
+        EmitVertex();
     }
+    EndPrimitive();
 }
 
 ##FRAGSHADER
 #version 450 core
 
-// layout(location = 0) in float fragDepth;
-
 void main()
-{
-    // gl_FragDepth = fragDepth;
-}
+{}
