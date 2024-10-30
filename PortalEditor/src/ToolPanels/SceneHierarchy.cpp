@@ -11,6 +11,7 @@
 #include "imgui_internal.h"
 #include <ToolPanels/SceneHierarchy.hpp>
 #include <ToolPanels/Utils.hpp>
+#include <charconv>
 namespace Dimensional {
 
 // Currently this function is copied from TheCherno's Tutorial series.
@@ -232,11 +233,13 @@ void SceneHierarchy::entityComponents(Entity entity)
     }
     if (entity.hasComponent<DirectionalLightComponent>()) {
         componentNode<DirectionalLightComponent>(
-            "Directional Light", entity, [](auto& component) {
+            "Directional Light", entity, [](DirectionalLightComponent& component) {
                 ImGui::ColorEdit3("Color", glm::value_ptr(component.color));
                 ImGui::DragFloat("Intensity", &component.intensity, 0.1f, 0.0f, 30.0f);
-                u32 textureID = component.shadowMapFrameBuffer->getDepthID();
+                u32 textureID = component.shadowTextureView->glID;
                 ImGui::Image(reinterpret_cast<ImTextureID>(textureID), ImVec2 { 256, 256 }, ImVec2 { 0, 1 }, ImVec2 { 1, 0 });
+                // DM_CORE_INFO("{}", component.shadowTextureView->layerIndex);
+                // ImGui::Text("%s", std::to_string(component.shadowTextureView->layerIndex).c_str());
             },
             true);
     }

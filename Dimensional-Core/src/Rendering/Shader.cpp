@@ -5,6 +5,26 @@
 #include <glad.h>
 
 namespace Dimensional {
+
+static std::string shaderTypeToString(ShaderType type)
+{
+    switch (type) {
+    case NONE:
+        return "NONE";
+    case RENDER:
+        return "RENDER";
+    case COMPUTE:
+        return "COMPUTE";
+    case VERTEX:
+        return "VERTEX";
+    case FRAGMENT:
+        return "FRAGMENT";
+    case GEOMETRY:
+        return "GEOMETRY";
+        break;
+    }
+}
+
 Shader::Shader(const std::string& path, enum ShaderType type)
 {
     m_Type = type;
@@ -29,11 +49,10 @@ Shader::Shader(const std::string& path, enum ShaderType type)
         return;
     }
 
-    std::string vertexSourceCode;
-    std::string fragmentSourceCode;
+    UMap<ShaderType, std::string> sourcesMap;
+    ShaderType currentShader = NONE;
 
     std::ifstream file;
-
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try {
         file.open(path);
@@ -44,28 +63,28 @@ Shader::Shader(const std::string& path, enum ShaderType type)
         file.close();
 
         std::string line;
-        bool isVertex = false;
-        bool isFrag = false;
         while (std::getline(stream, line)) {
             if (line.empty()) {
                 continue;
             }
+
             if (line.find("##VERTEXSHADER") != std::string::npos) {
-                isVertex = true;
-                isFrag = false;
+                currentShader = VERTEX;
+                sourcesMap[currentShader] = std::string();
                 continue;
             }
             if (line.find("##FRAGSHADER") != std::string::npos) {
-                isVertex = false;
-                isFrag = true;
+                currentShader = FRAGMENT;
+                sourcesMap[currentShader] = std::string();
                 continue;
             }
-            if (isVertex) {
-                vertexSourceCode += (line + "\n");
+            if (line.find("##GEOMETRY") != std::string::npos) {
+                currentShader = GEOMETRY;
+                sourcesMap[currentShader] = std::string();
                 continue;
             }
-            if (isFrag) {
-                fragmentSourceCode += (line + "\n");
+            if (currentShader != NONE) {
+                sourcesMap[currentShader] += (line + "\n");
                 continue;
             }
             DM_CORE_WARN("WARNING: POSSIBLE MISFORMATTED SHADERFILE")
@@ -74,11 +93,11 @@ Shader::Shader(const std::string& path, enum ShaderType type)
     } catch (std::ifstream::failure err) {
         DM_CORE_ERROR("ERROR WITH READING THE SHADER FILES: {0}", err.what());
     }
-    const char* vShaderProg = vertexSourceCode.c_str();
-    const char* fShaderProg = fragmentSourceCode.c_str();
-    u32 vertexID = compile(vShaderProg, VERTEX, std::filesystem::path(path));
-    u32 fragID = compile(fShaderProg, FRAGMENT, std::filesystem::path(path));
-    link({ vertexID, fragID });
+    std::vector<u32> ids;
+    for (const auto& [type, source] : sourcesMap) {
+        ids.push_back(compile(source.c_str(), type, std::filesystem::path(path)));
+    }
+    link(ids);
 }
 
 void Shader::use()
@@ -162,8 +181,11 @@ u32 Shader::compile(const char* shaderProg, enum ShaderType type, const std::fil
     case (FRAGMENT):
         shader = glCreateShader(GL_FRAGMENT_SHADER);
         break;
+    case (GEOMETRY):
+        shader = glCreateShader(GL_GEOMETRY_SHADER);
+        break;
     default:
-        DM_CORE_ERROR("Unkown ShaderType attempted to compule.");
+        DM_CORE_ERROR("Unkown ShaderType attempted to compile.");
         break;
     }
 
@@ -173,7 +195,7 @@ u32 Shader::compile(const char* shaderProg, enum ShaderType type, const std::fil
     glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
     if (!result) {
         glGetShaderInfoLog(shader, 2048, NULL, infoLog);
-        DM_CORE_WARN("{0} SHADER COMPILATION_FAILED {1}\n", path.stem().string(), infoLog);
+        DM_CORE_WARN("{0} {1} SHADER COMPILATION_FAILED {2}\n", path.stem().string(), shaderTypeToString(type), infoLog);
     };
     return shader;
 }

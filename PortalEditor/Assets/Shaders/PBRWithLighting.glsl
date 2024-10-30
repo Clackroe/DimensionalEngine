@@ -1,5 +1,9 @@
 ##VERTEXSHADER
 #version 450 core
+
+#define MAX_POINTLIGHTS 256
+#define MAX_DIRECTIONAL_LIGHTS 256
+
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoords;
@@ -20,7 +24,8 @@ struct DirLight {
     mat4 projection;
 };
 layout(std140, binding = 2) uniform DLightBlock {
-    DirLight uDirLight;
+    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS];
+    uint uNumDirLights;
 };
 
 struct Vertex {
@@ -58,7 +63,7 @@ void main()
 #version 450 core
 
 #define MAX_POINTLIGHTS 256
-#define MAX_DIRECTIONAL_LIGHTS = 256;
+#define MAX_DIRECTIONAL_LIGHTS  256
 
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 attachment1;
@@ -103,17 +108,16 @@ struct DirLight {
 };
 
 layout(std140, binding = 2) uniform DLightBlock {
-    DirLight uDirLight;
+    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS];
+    uint uNumDirLights;
 };
-layout(binding = 6) uniform sampler2D uDirLightShadowMaps;
+layout(binding = 6) uniform sampler2DArray uDirLightShadowMaps;
 
 struct Light {
     vec3 position;
     vec3 direction;
-    // vec3 color, intensity;
-    vec4 color;
-    // Combined (cutOff, outerCutoff, Radius, type[0 plight, 1 spotLight]);
-    vec4 lightParams;
+    vec4 color; // vec3 color, intensity;
+    vec4 lightParams; // Combined (cutOff, outerCutoff, Radius, type[0 plight, 1 spotLight]);
 };
 layout(std140, binding = 1) uniform PLightBlock {
     Light uPointLights[MAX_POINTLIGHTS];
@@ -183,10 +187,10 @@ vec3 fresnelSchlickWithRoughness(float cosTheta, vec3 F0, float roughness)
 }
 // ----------------------------------------------------------------------------
 
-float shadowCalculation(vec4 lightSpace) {
+float shadowCalculation(vec4 lightSpace, int layer) {
     vec3 projected = lightSpace.xyz / lightSpace.w;
     projected = projected * 0.5 + 0.5;
-    float closest = texture(uDirLightShadowMaps, projected.xy).r;
+    float closest = texture(uDirLightShadowMaps, vec3(projected.xy, layer)).r;
     float current = projected.z;
     float bias = 0.005;
     float shadow = current - bias < closest ? 1.0 : 0.0;
@@ -233,14 +237,16 @@ void main()
     vec3 lightContribution = vec3(0.0);
 
     // TEMP DirLight
+
+    for (int i = 0; i < uNumDirLights; i++)
     {
-        vec3 L = -1.0 * normalize(uDirLight.direction.xyz);
+        vec3 L = normalize(uDirLight[i].direction.xyz);
         vec3 H = normalize(V + L);
 
         float NdotL = max(dot(N, L), 0.0);
-        float shadow = shadowCalculation(uDirLight.projection * vec4(vInput.WorldPos, 1.0));
+        float shadow = shadowCalculation(uDirLight[i].projection * vec4(vInput.WorldPos, 1.0), i);
 
-        vec3 radiance = shadow * uDirLight.color.rgb * uDirLight.color.a;
+        vec3 radiance = shadow * uDirLight[i].color.rgb * uDirLight[i].color.a;
 
         float NDF = DistributionGGX(N, H, roughness);
         // float G = GeometrySmith(NDOTL, V, L, roughness);

@@ -11,8 +11,8 @@ enum DMCORE_API FramebufferAttachmentFormat {
     // TODO: Support more formats if needed
 
     DEPTH24STENCIl8,
-    DEPTHCOMPONENT24,
-    Shadow = DEPTHCOMPONENT24,
+    DEPTHCOMPONENT32F,
+    Shadow = DEPTHCOMPONENT32F,
     Depth = DEPTH24STENCIl8
 };
 enum DMCORE_API FramebufferAttachmentType {

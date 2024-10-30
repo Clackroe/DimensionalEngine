@@ -1,6 +1,5 @@
 #include "Log/log.hpp"
 #include "Rendering/RendererAPI.hpp"
-#include "Rendering/UniformBuffer.hpp"
 #include "Scene/Components.hpp"
 #include <Rendering/Renderer3d.hpp>
 #include <Rendering/SceneRenderer.hpp>
@@ -19,45 +18,26 @@ void SceneRenderer::beginScene(CameraData camData)
 }
 void SceneRenderer::shadowPass()
 {
-    auto view = m_Scene->m_Registry.view<TransformComponent, DirectionalLightComponent>();
-    for (auto e : view) {
-        auto [transform, dirLight] = view.get<TransformComponent, DirectionalLightComponent>(e);
-        dirLight.shadowMapFrameBuffer->Bind();
+    m_DirLightFB->Bind();
+    m_ShadowMapShader->use();
 
-        glm::vec4 zDir = transform.GetTransform() * glm::vec4(0, 0, 1, 0);
-        float nearPlane = -200.0f, farPlane = 200.0f, size = 40.0f;
-        glm::mat4 lightProjection = glm::ortho(-size, size, -size, size, nearPlane, farPlane);
-        glm::vec3 pos = transform.Position;
-        glm::vec3 dir = glm::normalize(glm::vec3(zDir));
-        glm::vec3 lookAt = pos + dir;
-        glm::mat4 dirLightView = glm::lookAt(pos, lookAt, glm::vec3(0, 1, 0));
-        glm::mat4 s_DirLightVP = lightProjection * dirLightView;
+    RendererAPI::getInstance().clearBuffer(true);
 
-        RendererAPI::getInstance().clearBuffer(true);
-        m_ShadowMapShader->use();
-        m_ShadowMapShader->setMat4("uViewProj", s_DirLightVP);
-
-        {
-            // Render Meshes
-            auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
-            for (auto e : view) {
-                auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-                Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
-                if (!mod) {
-                    continue;
-                }
-                auto& overrides = mesh.materialOverrides;
-                Renderer3D::renderModel(mod, transform.GetTransform(), m_ShadowMapShader);
+    {
+        // Render Meshes
+        auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
+        for (auto e : view) {
+            auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
+            Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
+            if (!mod) {
+                continue;
             }
+            auto& overrides = mesh.materialOverrides;
+            Renderer3D::renderModel(mod, transform.GetTransform(), m_ShadowMapShader);
         }
-
-        u32 glId = m_DirLightFB->getDepthID();
-        m_DirLightData = { zDir, glm::vec4(dirLight.color, dirLight.intensity), s_DirLightVP };
-        dirLight.shadowMapFrameBuffer->bindDepthAttachment(6);
-        m_DirLightUBO->setData(&m_DirLightData, 0, sizeof(m_DirLightData));
-
-        dirLight.shadowMapFrameBuffer->Unbind();
     }
+    m_DirLightFB->bindDepthAttachment(6);
+    m_DirLightFB->Unbind();
 }
 
 void SceneRenderer::render()
@@ -103,6 +83,34 @@ void SceneRenderer::setupCameraData()
 }
 void SceneRenderer::setupLightData()
 {
+    m_DirLightData.clear();
+    {
+        auto view = m_Scene->m_Registry.view<TransformComponent, DirectionalLightComponent>();
+        for (auto e : view) {
+            auto [transform, light] = view.get<TransformComponent, DirectionalLightComponent>(e);
+            i32 index = m_DirLightData.size();
+            // if (light.shadowTextureView->glID == 0) {
+            light.shadowTextureView = CreateRef<TextureView>(m_DirLightFB->getDepthID(), ImageFormat::DEPTH32F, index);
+            // }
+
+            float nearPlane = -200.0f, farPlane = 200.0f, size = 20.0f;
+            glm::mat4 lightProjection = glm::ortho(-size, size, -size, size, nearPlane, farPlane);
+
+            float dist = 100;
+            glm::vec3 dir = glm::normalize(glm::quat(transform.Rotation) * glm::vec3(0, 0, -1));
+            glm::vec3 pos = dir * dist;
+
+            glm::mat4 dirLightView = glm::lookAt(pos, glm::vec3(0.0f), glm::vec3(0, 1, 0));
+            glm::mat4 viewProj = lightProjection * dirLightView;
+
+            DirectionalLightData data = {
+                .direction = glm::vec4(dir, 0.0f),
+                .color = glm::vec4(light.color, light.intensity),
+                .viewProj = viewProj,
+            };
+            m_DirLightData.push_back(data);
+        }
+    }
 
     m_PointLightData.clear();
     {
@@ -154,5 +162,11 @@ void SceneRenderer::setupLightData()
 
     m_PointLightUBO->setData(m_PointLightData.data(), 0, pLightDataSize);
     m_PointLightUBO->setData(&numPLights, maxPLightSize, sizeof(u32));
+
+    u32 numDLights = m_DirLightData.size();
+    int dLightDataSize = sizeof(DirectionalLightData) * numDLights;
+    int maxDLightSize = sizeof(DirectionalLightData) * MAX_DIRECTIONAL_LIGHTS;
+    m_DirLightUBO->setData(m_DirLightData.data(), 0, dLightDataSize);
+    m_DirLightUBO->setData(&numDLights, maxDLightSize, sizeof(u32));
 }
 }

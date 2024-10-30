@@ -10,12 +10,14 @@
 
 namespace Dimensional {
 enum DMCORE_API ShaderType {
+    NONE = 0,
     RENDER,
     COMPUTE,
 
     // for internal use only
     VERTEX,
-    FRAGMENT
+    FRAGMENT,
+    GEOMETRY
 };
 
 class DMCORE_API Shader : public Asset {

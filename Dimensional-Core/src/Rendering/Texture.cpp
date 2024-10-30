@@ -36,6 +36,9 @@ u32 Texture::imageFormatToInternalFormat(ImageFormat format)
     case (ImageFormat::RGBA32):
         return GL_RGBA32F;
         break;
+    case (ImageFormat::DEPTH32F):
+        return GL_DEPTH_COMPONENT32F;
+        break;
     default:
         DM_CORE_ASSERT(false, "Tried to get an image with NONE format type");
     }
@@ -104,6 +107,19 @@ void Texture::bind(u32 textureSlot)
 Texture::~Texture()
 {
     glDeleteTextures(1, &m_GLId);
+}
+
+// =========== TEXTURE VIEW ============
+
+TextureView::TextureView(u32 textureArray, ImageFormat format, i32 layerIndex)
+{
+    this->layerIndex = layerIndex;
+    glGenTextures(1, &glID);
+    glTextureView(glID, GL_TEXTURE_2D, textureArray, Texture::imageFormatToInternalFormat(format), 0, 1, layerIndex, 1);
+}
+TextureView::~TextureView()
+{
+    glDeleteTextures(1, &glID);
 }
 
 }

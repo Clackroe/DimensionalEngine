@@ -43,8 +43,10 @@ static void attachDepthTexture(u32 glId, GLenum format, GLenum type, u32 w, u32 
 {
     if (target == GL_TEXTURE_2D_ARRAY) {
         glTexStorage3D(target, 1, format, w, h, layers);
+        glFramebufferTexture(GL_FRAMEBUFFER, type, glId, 0);
     } else {
-        glTexStorage2D(GL_TEXTURE_2D, 1, format, w, h);
+        glTexStorage2D(target, 1, format, w, h);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, type, target, glId, 0);
     }
 
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -52,12 +54,6 @@ static void attachDepthTexture(u32 glId, GLenum format, GLenum type, u32 w, u32 
     glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-    if (target == GL_TEXTURE_2D_ARRAY) {
-        glFramebufferTexture(GL_FRAMEBUFFER, type, glId, 0);
-    } else {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, type, target, glId, 0);
-    }
 }
 
 FrameBuffer::FrameBuffer(const FrameBufferSettings& settings)
@@ -135,8 +131,8 @@ void FrameBuffer::Rebuild()
         case DEPTH24STENCIl8:
             attachDepthTexture(m_DepthID, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Settings.width, m_Settings.height, layers, type);
             break;
-        case DEPTHCOMPONENT24:
-            attachDepthTexture(m_DepthID, GL_DEPTH_COMPONENT24, GL_DEPTH_ATTACHMENT, m_Settings.width, m_Settings.height, layers, type);
+        case DEPTHCOMPONENT32F:
+            attachDepthTexture(m_DepthID, GL_DEPTH_COMPONENT32F, GL_DEPTH_ATTACHMENT, m_Settings.width, m_Settings.height, layers, type);
             break;
         default:
             DM_CORE_WARN("COLOR BUFFER ATTACHMENT MADE IT INTO THE DEPTH ATTACHMENT");
@@ -186,9 +182,9 @@ void FrameBuffer::Bind()
     glBindFramebuffer(GL_FRAMEBUFFER, m_GLId);
     glViewport(0, 0, m_Settings.width, m_Settings.height);
 
-    if (m_ColorAttachmentSettings.size() == 0) {
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    }
+    // if (m_ColorAttachmentSettings.size() == 0) {
+    //     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    // }
 }
 
 void FrameBuffer::Unbind()

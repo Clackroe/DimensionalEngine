@@ -15,7 +15,8 @@ enum class ImageFormat {
     RGB32,
     RGBA8,
     RGBA16,
-    RGBA32
+    RGBA32,
+    DEPTH32F,
 };
 
 struct TextureLoadSettings {
@@ -48,6 +49,17 @@ private:
 
     u32 m_InternalDataFormat, m_DataFormat;
     TextureLoadSettings m_Settings;
+};
+
+// Currently, the only use for this is rendering through IMGUI, this class is intentionally non-complex and completely open.
+class DMCORE_API TextureView {
+public:
+    TextureView() = default;
+    TextureView(u32 textureArray, ImageFormat format, i32 layerIndex);
+    ~TextureView();
+
+    u32 glID;
+    i32 layerIndex;
 };
 }
 

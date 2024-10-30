@@ -9,7 +9,7 @@
 
 namespace Dimensional {
 #define MAX_POINTLIGHTS 256
-#define MAX_DIRECTIONAL_LIGHTS = 256;
+#define MAX_DIRECTIONAL_LIGHTS 256
 
 struct alignas(16) CameraData {
     glm::mat4 viewProj;
@@ -48,7 +48,7 @@ public:
         : m_Scene(scene)
     {
         m_CameraUBO = CreateRef<UniformBuffer>(sizeof(CameraData), 0);
-        m_PointLightUBO = CreateRef<UniformBuffer>(MAX_POINTLIGHTS * sizeof(LightData) + sizeof(int), 1);
+        m_PointLightUBO = CreateRef<UniformBuffer>(MAX_POINTLIGHTS * sizeof(LightData) + sizeof(u32), 1);
         FrameBufferSettings fbs = {
             1920,
             1080,
@@ -58,14 +58,16 @@ public:
         m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
         FrameBufferSettings dfbs = {
-            1024,
-            1024,
+            2048,
+            2048,
             { Shadow },
-            TEXTURE_2D
+            ARRAY_2D,
+            MAX_DIRECTIONAL_LIGHTS
         };
         m_DirLightFB = CreateRef<FrameBuffer>(dfbs);
+
         m_ShadowMapShader = CreateRef<Shader>("Assets/Shaders/ShadowMap.glsl");
-        m_DirLightUBO = CreateRef<UniformBuffer>(sizeof(DirectionalLightData), 2);
+        m_DirLightUBO = CreateRef<UniformBuffer>(MAX_DIRECTIONAL_LIGHTS * sizeof(DirectionalLightData) + sizeof(u32), 2);
 
         m_CubeMapShader = CreateRef<Shader>("Assets/Shaders/CubeMap.glsl");
     }
@@ -98,11 +100,12 @@ private:
     Ref<Shader> m_CubeMapShader;
     EnvironmentData m_CurrentEnvironmentMap;
 
-    DirectionalLightData m_DirLightData;
-    Ref<FrameBuffer> m_DirLightFB;
-    Ref<Shader> m_ShadowMapShader;
+    std::vector<DirectionalLightData> m_DirLightData;
     u32 m_DirLightDepthID;
     Ref<UniformBuffer> m_DirLightUBO;
+    Ref<FrameBuffer> m_DirLightFB;
+
+    Ref<Shader> m_ShadowMapShader;
 
     Ref<FrameBuffer> m_FrameBuffer;
 };
