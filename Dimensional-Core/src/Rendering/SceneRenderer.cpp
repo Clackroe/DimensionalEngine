@@ -39,7 +39,6 @@ void SceneRenderer::shadowPass()
     m_ShadowMapShader->use();
 
     RendererAPI::getInstance().clearBuffer(true);
-    RendererAPI::getInstance().enableCulling(true);
     RendererAPI::getInstance().setCulling(FaceCulling::FRONT);
     for (int index = 0; index < m_DirLightData.size(); index++) {
 
@@ -60,7 +59,6 @@ void SceneRenderer::shadowPass()
         }
     }
     RendererAPI::getInstance().setCulling(FaceCulling::DEFAULT);
-    RendererAPI::getInstance().enableCulling(false);
     m_DirLightFB->bindDepthAttachment(6);
     m_DirLightFB->Unbind();
 }
@@ -90,15 +88,18 @@ void SceneRenderer::render()
 void SceneRenderer::endScene()
 {
     m_FrameBuffer->Bind();
-    RendererAPI::getInstance().setDepthFunc(DepthFunc::LEQUAL);
     m_CubeMapShader->setInt("environmentMap", 8);
     if (m_CurrentEnvironmentMap.envMap) {
         m_CurrentEnvironmentMap.envMap->bind();
         m_CubeMapShader->setFloat("uLod", m_CurrentEnvironmentMap.lod);
     }
-    Renderer3D::renderCube(m_CubeMapShader);
 
-    // RendererAPI::getInstance().setDepthFunc(DepthFunc::DEFAULT);
+    RendererAPI::getInstance().setDepthFunc(DepthFunc::LEQUAL);
+    RendererAPI::getInstance().enableCulling(false);
+    Renderer3D::renderCube(m_CubeMapShader);
+    RendererAPI::getInstance().enableCulling(true);
+    RendererAPI::getInstance().setDepthFunc(DepthFunc::DEFAULT);
+
     m_FrameBuffer->Unbind();
 }
 
@@ -120,7 +121,7 @@ void SceneRenderer::setupLightData()
                 light.shadowTextureView = CreateRef<TextureView>(m_DirLightFB->getDepthID(), ImageFormat::DEPTH32F, index);
             }
 
-            float nearPlane = -200.0f, farPlane = 200.0f, size = 20.0f;
+            float nearPlane = 0.0f, farPlane = 200.0f, size = 20.0f;
             glm::mat4 lightProjection = glm::ortho(-size, size, -size, size, nearPlane, farPlane);
 
             float dist = 100;

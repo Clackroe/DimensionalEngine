@@ -40,8 +40,6 @@ static void attachColorTexture(u32 glId, GLenum internalFormat, GLenum format, u
 
 static void attachDepthTexture(u32 glId, GLenum format, GLenum attachmentType, u32 w, u32 h, u32 layers = 1, GLenum target = GL_TEXTURE_2D)
 {
-    DM_CORE_ASSERT(attachmentType == GL_DEPTH_ATTACHMENT || attachmentType == GL_DEPTH_STENCIL_ATTACHMENT, "Invalid Depth Attachment Type");
-
     if (target == GL_TEXTURE_2D_ARRAY) {
         glTexStorage3D(target, 1, format, w, h, layers);
         glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, glId, 0);
@@ -55,6 +53,8 @@ static void attachDepthTexture(u32 glId, GLenum format, GLenum attachmentType, u
     glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, borderColor);
 }
 
 FrameBuffer::FrameBuffer(const FrameBufferSettings& settings)

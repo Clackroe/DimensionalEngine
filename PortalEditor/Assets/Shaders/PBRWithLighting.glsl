@@ -192,8 +192,18 @@ float shadowCalculation(vec4 lightSpace, float ndotl, int layer) {
     projected = projected * 0.5 + 0.5;
     float closest = texture(uDirLightShadowMaps, vec3(projected.xy, layer)).r;
     float current = projected.z;
-    float bias = max(0.05 * (1.0 - ndotl), 0.005);
-    float shadow = current - bias < closest ? 1.0 : 0.0;
+    if (current > 1.0) {
+        return 1.0;
+    }
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(uDirLightShadowMaps, 0).xy;
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            float pcfDepth = texture(uDirLightShadowMaps, vec3(projected.xy + vec2(x, y) * texelSize, layer)).r;
+            shadow += (current) < pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
     return shadow;
 }
 
@@ -243,7 +253,7 @@ void main()
         vec3 L = normalize(uDirLight[i].direction.xyz);
         vec3 H = normalize(V + L);
 
-        float NdotL = dot(N, L);
+        float NdotL = max(dot(N, L), 0.0);
         float shadow = shadowCalculation(uDirLight[i].projection * vec4(vInput.WorldPos, 1.0), NdotL, i);
 
         vec3 radiance = shadow * uDirLight[i].color.rgb * uDirLight[i].color.a;

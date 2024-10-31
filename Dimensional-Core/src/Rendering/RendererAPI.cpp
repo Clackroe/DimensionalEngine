@@ -9,7 +9,13 @@ void RendererAPI::Init(GLADloadproc proc)
 
     DM_CORE_ASSERT(gladLoadGLLoader(proc), "Failed to initialize GLAD. Aborting");
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     Renderer3D::Init();
+    GLint max_layers;
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
+    DM_CORE_WARN("MAX ARRAY TEXTURE LAYERS: {}", max_layers);
+
     DM_CORE_INFO("RendererAPI initialized");
 }
 

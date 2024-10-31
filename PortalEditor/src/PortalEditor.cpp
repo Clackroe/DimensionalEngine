@@ -75,7 +75,8 @@ void PortalLayer::openScene(AssetHandle sceneHandle)
     if (nScene) {
         m_ActiveSceneHandle = sceneHandle;
         m_ActiveScene = nScene;
-        tempSceneRenderer = SceneRenderer(m_ActiveScene);
+        tempSceneRenderer.setScene(m_ActiveScene);
+        // tempSceneRenderer = SceneRenderer(m_ActiveScene);
         m_HierarchyPanel.setSceneContext(m_ActiveScene);
     }
 }

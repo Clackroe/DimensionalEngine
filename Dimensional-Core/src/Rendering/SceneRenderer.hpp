@@ -77,9 +77,11 @@ public:
     void beginScene(CameraData camData);
     void endScene();
 
+    void setScene(Ref<Scene> scene) { m_Scene = scene; };
+
     void render();
 
-    Ref<FrameBuffer> getFrameBuffer() { return m_FrameBuffer; };
+    Ref<FrameBuffer> getFrameBuffer() { return m_FrameBuffer; }
     Ref<FrameBuffer> getFrameBufferTEMP() { return m_DirLightFB; };
 
 private:
