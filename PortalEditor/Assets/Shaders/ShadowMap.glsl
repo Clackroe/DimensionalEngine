@@ -17,9 +17,10 @@ void main()
 ##GEOMETRY
 #version 450 core
 
-#define MAX_DIRECTIONAL_LIGHTS 256
+#define MAX_DIRECTIONAL_LIGHTS 10
+#define CASCADES 3
 
-layout(triangles) in;
+layout(triangles, invocations = 3) in;
 layout(triangle_strip, max_vertices = 3) out;
 
 struct DirLight {
@@ -28,7 +29,7 @@ struct DirLight {
     mat4 projection;
 };
 layout(std140, binding = 2) uniform DLightBlock {
-    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS];
+    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS * CASCADES];
     uint uNumDirLights;
 };
 
@@ -36,9 +37,9 @@ out vec4 FragPosLightSpace;
 uniform int uDirLightIndex;
 
 void main() {
-    gl_Layer = uDirLightIndex;
+    gl_Layer = uDirLightIndex + gl_InvocationID;
     for (int j = 0; j < 3; j++) {
-        FragPosLightSpace = uDirLight[uDirLightIndex].projection * gl_in[j].gl_Position;
+        FragPosLightSpace = uDirLight[uDirLightIndex + gl_InvocationID].projection * gl_in[j].gl_Position;
         gl_Position = FragPosLightSpace;
         EmitVertex();
     }

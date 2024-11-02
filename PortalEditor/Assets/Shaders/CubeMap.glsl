@@ -5,9 +5,12 @@ layout(location = 0) in vec3 aPos;
 layout(std140, binding = 0) uniform CameraBlock {
     mat4 viewProj;
     vec3 uCameraPosition;
-
+    float aspectRatio;
     mat4 view;
     mat4 proj;
+    float fov;
+    float near;
+    float far;
 };
 
 out vec3 localPos;

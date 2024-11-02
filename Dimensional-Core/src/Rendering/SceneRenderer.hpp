@@ -9,20 +9,25 @@
 
 namespace Dimensional {
 #define MAX_POINTLIGHTS 256
-#define MAX_DIRECTIONAL_LIGHTS 256
+
+#define MAX_DIRECTIONAL_LIGHTS 10
+#define CASCADES 3
 
 struct alignas(16) CameraData {
     glm::mat4 viewProj;
     glm::vec3 uCameraPosition;
-    float p1;
+    float aspectRatio;
     glm::mat4 view;
     glm::mat4 proj;
+    float fov;
+    float near;
+    float far;
 };
 
 struct alignas(16) DirectionalLightData {
     glm::vec4 direction;
     glm::vec4 color; // color, intensity
-    glm::mat4 viewProj;
+    glm::mat4 projections;
 };
 
 struct alignas(16) LightData {
@@ -53,7 +58,7 @@ public:
         FrameBufferSettings fbs = {
             1920,
             1080,
-            { RGBA32F, Depth },
+            { RGBA32F, RGBA32F, RGBA32F, Depth },
             TEXTURE_2D
         };
         m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
@@ -63,13 +68,13 @@ public:
             2048,
             { Shadow },
             ARRAY_2D,
-            MAX_DIRECTIONAL_LIGHTS
+            MAX_DIRECTIONAL_LIGHTS * CASCADES
         };
         m_DirLightFB = CreateRef<FrameBuffer>(dfbs);
 
         m_ShadowMapShader = CreateRef<Shader>("Assets/Shaders/ShadowMap.glsl");
 
-        m_DirLightUBO = CreateRef<UniformBuffer>(MAX_DIRECTIONAL_LIGHTS * sizeof(DirectionalLightData) + sizeof(u32), 2);
+        m_DirLightUBO = CreateRef<UniformBuffer>(MAX_DIRECTIONAL_LIGHTS * CASCADES * sizeof(DirectionalLightData) + sizeof(u32), 2);
 
         m_CubeMapShader = CreateRef<Shader>("Assets/Shaders/CubeMap.glsl");
     }

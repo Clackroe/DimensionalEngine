@@ -1,9 +1,12 @@
 #ifndef DM_EDITORCAM_H
 #define DM_EDITORCAM_H
+#include "Scene/Scene.hpp"
 #include <Core/Camera.hpp>
 #include <core.hpp>
 
 namespace Dimensional {
+
+class PortalLayer;
 class DMCORE_API EditorCamera : public Camera {
 public:
     EditorCamera() = default;
@@ -32,6 +35,8 @@ public:
     glm::vec3 getUpDir() const { return m_Orientation * glm::vec3(0.0f, 1.0f, 0.0f); }
     glm::vec3 getRightDir() const { return m_Orientation * glm::vec3(1.0f, 0.0f, 0.0f); }
     glm::vec3 getFwdDir() const { return m_Orientation * glm::vec3(0.0f, 0.0f, -1.0f); }
+
+    float getAspectRatio() { return m_AspectRatio; };
 
     void setPosition(const glm::vec3& position)
     {
@@ -66,6 +71,8 @@ private:
     float m_LastMouseX, m_LastMouseY;
 
     float m_ViewportW = 1200, m_ViewportH = 720;
+
+    friend class PortalLayer;
 };
 }
 

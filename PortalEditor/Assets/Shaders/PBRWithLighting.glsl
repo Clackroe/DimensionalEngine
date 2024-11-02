@@ -2,7 +2,8 @@
 #version 450 core
 
 #define MAX_POINTLIGHTS 256
-#define MAX_DIRECTIONAL_LIGHTS 256
+#define MAX_DIRECTIONAL_LIGHTS 10
+#define CASCADES 3
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -13,9 +14,12 @@ layout(location = 4) in vec3 aBiTangent;
 layout(std140, binding = 0) uniform CameraBlock {
     mat4 viewProj;
     vec3 uCameraPosition;
-
+    float aspectRatio;
     mat4 view;
     mat4 proj;
+    float fov;
+    float near;
+    float far;
 };
 
 struct DirLight {
@@ -24,7 +28,7 @@ struct DirLight {
     mat4 projection;
 };
 layout(std140, binding = 2) uniform DLightBlock {
-    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS];
+    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS * CASCADES];
     uint uNumDirLights;
 };
 
@@ -63,10 +67,14 @@ void main()
 #version 450 core
 
 #define MAX_POINTLIGHTS 256
-#define MAX_DIRECTIONAL_LIGHTS  256
+#define MAX_DIRECTIONAL_LIGHTS 10
+#define CASCADES 3
 
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 attachment1;
+vec3 attColor = vec3(0, 0, 0);
+layout(location = 2) out vec4 attachment2;
+vec3 attColor2 = vec3(0, 0, 0);
 
 struct Vertex {
     vec2 TexCoords;
@@ -95,9 +103,12 @@ uniform bool uUseMetalMap;
 layout(std140, binding = 0) uniform CameraBlock {
     mat4 viewProj;
     vec3 uCameraPosition;
-
+    float aspectRatio;
     mat4 view;
     mat4 proj;
+    float fov;
+    float near;
+    float far;
 };
 
 // lights
@@ -108,7 +119,7 @@ struct DirLight {
 };
 
 layout(std140, binding = 2) uniform DLightBlock {
-    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS];
+    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS * CASCADES];
     uint uNumDirLights;
 };
 layout(binding = 6) uniform sampler2DArray uDirLightShadowMaps;
@@ -187,10 +198,13 @@ vec3 fresnelSchlickWithRoughness(float cosTheta, vec3 F0, float roughness)
 }
 // ----------------------------------------------------------------------------
 
-float shadowCalculation(vec4 lightSpace, float ndotl, int layer) {
+float shadowCalculation(float ndotl, int layer) {
+    vec4 lightSpace = uDirLight[layer].projection * vec4(vInput.WorldPos, 1.0);
     vec3 projected = lightSpace.xyz / lightSpace.w;
     projected = projected * 0.5 + 0.5;
+
     float closest = texture(uDirLightShadowMaps, vec3(projected.xy, layer)).r;
+
     float current = projected.z;
     if (current > 1.0) {
         return 1.0;
@@ -248,13 +262,44 @@ void main()
 
     // TEMP DirLight
 
-    for (int i = 0; i < uNumDirLights; i++)
+    vec4 posViewSpace = view * vec4(vInput.WorldPos, 1.0);
+    float viewDepth = abs(posViewSpace.z);
+    attColor = vec3(viewDepth, 0, 0);
+
+    int cascade = -1;
+    float cascadeRatio = far / float(CASCADES);
+    for (int i = 0; i < CASCADES; ++i) {
+        if (viewDepth < cascadeRatio + (i * cascadeRatio)) {
+            cascade = i;
+            break;
+        }
+    }
+    if (cascade == -1) {
+        cascade = CASCADES - 1;
+    }
+
+    attColor2 = vec3((cascadeRatio + (cascade * cascadeRatio)), 0, 0);
+
+    switch (cascade) {
+        case 0:
+        attColor = vec3(0, 1, 0);
+        break;
+        case 1:
+        attColor = vec3(0, 0, 1);
+        break;
+        case 2:
+        attColor = vec3(1, 0, 0);
+        break;
+    }
+
+    for (int i = 0; i < uNumDirLights; i += 3)
     {
         vec3 L = normalize(uDirLight[i].direction.xyz);
         vec3 H = normalize(V + L);
 
         float NdotL = max(dot(N, L), 0.0);
-        float shadow = shadowCalculation(uDirLight[i].projection * vec4(vInput.WorldPos, 1.0), NdotL, i);
+        int layer = i + cascade;
+        float shadow = shadowCalculation(NdotL, layer);
 
         vec3 radiance = shadow * uDirLight[i].color.rgb * uDirLight[i].color.a;
 
@@ -363,6 +408,8 @@ void main()
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);
+    attachment1 = vec4(color * attColor, 1);
+    attachment2 = vec4(attColor2, 1);
     // FragColor = vec4(texture(uDepth, vInput.TexCoords).rgb, 1.0);
     // FragColor = vec4(shadow, 0.0, 0.0, 1.0);
     // FragColor = vec4(uPointLights[1].position, 1.0);

@@ -1,9 +1,29 @@
-#include "Log/log.hpp"
 #include "Rendering/RendererAPI.hpp"
 #include "Scene/Components.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
+#include <Core/Camera.hpp>
 #include <Rendering/Renderer3d.hpp>
 #include <Rendering/SceneRenderer.hpp>
 namespace Dimensional {
+
+static std::vector<glm::mat4> getCascadedLightMatricies(glm::mat4 cameraView, glm::vec3 lightDir, float aspect, float fov, int cascades, float camNear, float camFar, float zMult = 10.0)
+{
+    std::vector<glm::mat4> out;
+
+    const float cascadeRatio = (1.0f / cascades) * camFar;
+
+    for (int i = 0; i < cascades; i++) {
+        float near = camNear + (i * cascadeRatio);
+        float far = cascadeRatio + (i * cascadeRatio);
+        glm::mat4 viewProj = Camera::calcTightOrthoProjection(cameraView, lightDir, near, far, fov, aspect, zMult);
+        out.push_back(viewProj);
+    }
+    return out;
+}
+
+// ==
+
+// ============== END SHADOW UTILS =============
 
 Ref<UniformBuffer> SceneRenderer::m_PointLightUBO;
 Ref<UniformBuffer> SceneRenderer::m_CameraUBO;
@@ -40,7 +60,7 @@ void SceneRenderer::shadowPass()
 
     RendererAPI::getInstance().clearBuffer(true);
     RendererAPI::getInstance().setCulling(FaceCulling::FRONT);
-    for (int index = 0; index < m_DirLightData.size(); index++) {
+    for (int index = 0; index < m_DirLightData.size(); index += 3) {
 
         m_ShadowMapShader->setInt("uDirLightIndex", index);
 
@@ -121,22 +141,17 @@ void SceneRenderer::setupLightData()
                 light.shadowTextureView = CreateRef<TextureView>(m_DirLightFB->getDepthID(), ImageFormat::DEPTH32F, index);
             }
 
-            float nearPlane = 0.0f, farPlane = 200.0f, size = 20.0f;
-            glm::mat4 lightProjection = glm::ortho(-size, size, -size, size, nearPlane, farPlane);
-
-            float dist = 100;
             glm::vec3 dir = glm::normalize(glm::quat(transform.Rotation) * glm::vec3(0, 0, -1));
-            glm::vec3 pos = dir * dist;
 
-            glm::mat4 dirLightView = glm::lookAt(pos, glm::vec3(0.0f), glm::vec3(0, 1, 0));
-            glm::mat4 viewProj = lightProjection * dirLightView;
-
-            DirectionalLightData data = {
-                .direction = glm::vec4(dir, 0.0f),
-                .color = glm::vec4(light.color, light.intensity),
-                .viewProj = viewProj,
-            };
-            m_DirLightData.push_back(data);
+            std::vector<glm::mat4> cascades = getCascadedLightMatricies(m_CameraData.view, dir, m_CameraData.aspectRatio, m_CameraData.fov, CASCADES, m_CameraData.near, m_CameraData.far, 10.0);
+            for (glm::mat4& vp : cascades) {
+                DirectionalLightData data = {
+                    .direction = glm::vec4(dir, 0.0f),
+                    .color = glm::vec4(light.color, light.intensity),
+                    .projections = vp,
+                };
+                m_DirLightData.push_back(data);
+            }
         }
     }
 
@@ -194,7 +209,7 @@ void SceneRenderer::setupLightData()
 
     u32 numDLights = m_DirLightData.size();
     int dLightDataSize = sizeof(DirectionalLightData) * numDLights;
-    int maxDLightSize = sizeof(DirectionalLightData) * MAX_DIRECTIONAL_LIGHTS;
+    int maxDLightSize = sizeof(DirectionalLightData) * MAX_DIRECTIONAL_LIGHTS * CASCADES;
     m_DirLightUBO->setData(m_DirLightData.data(), 0, dLightDataSize);
     m_DirLightUBO->setData(&numDLights, maxDLightSize, sizeof(u32));
 }

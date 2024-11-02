@@ -36,7 +36,7 @@ void PortalLayer::OnAttatch()
         AssetRegistrySerializer::Deserialize("Assets/Registry.dreg", manager);
     }
 
-    m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+    m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 100.0f);
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
@@ -57,7 +57,7 @@ void PortalLayer::OnUpdate()
     if (m_ActiveScene) {
         // m_ActiveScene->beginScene();
 
-        tempSceneRenderer.beginScene(CameraData { m_EditorCamera.getViewProj(), p, 0.0f, m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection() });
+        tempSceneRenderer.beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getAspectRatio(), m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection(), m_EditorCamera.getFOV(), m_EditorCamera.m_NearClipPlane, m_EditorCamera.m_FarClipPlane });
 
         tempSceneRenderer.render();
         // m_ActiveScene->updateEditor();
@@ -188,7 +188,11 @@ void PortalLayer::OnImGuiRender()
         m_ViewPortSize = { viewportPanelSize.x, viewportPanelSize.y };
     }
     Ref<FrameBuffer> buf = tempSceneRenderer.getFrameBuffer();
-    ImGui::Image(reinterpret_cast<ImTextureID>(buf->getAttachmentID(0)), ImVec2 { viewportPanelSize.x, viewportPanelSize.y }, { 0, 1 }, { 1, 0 });
+    int att = 0;
+    if (Input::isKeyDown(Key::F)) {
+        att = 1;
+    }
+    ImGui::Image(reinterpret_cast<ImTextureID>(buf->getAttachmentID(att)), ImVec2 { viewportPanelSize.x, viewportPanelSize.y }, { 0, 1 }, { 1, 0 });
 
     AssetHandle newHandle = m_ActiveSceneHandle;
     UI::assetDragDrop(newHandle, AssetType::SCENE);
