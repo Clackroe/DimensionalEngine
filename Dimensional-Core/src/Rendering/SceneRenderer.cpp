@@ -1,3 +1,4 @@
+#include "Log/log.hpp"
 #include "Rendering/RendererAPI.hpp"
 #include "Scene/Components.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
@@ -6,15 +7,53 @@
 #include <Rendering/SceneRenderer.hpp>
 namespace Dimensional {
 
-static std::vector<glm::mat4> getCascadedLightMatricies(glm::mat4 cameraView, glm::vec3 lightDir, float aspect, float fov, int cascades, float camNear, float camFar, float zMult = 10.0)
+// https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-10-parallel-split-shadow-maps-programmable-gpus
+static std::vector<float> splitCascadesUniform(int cascades, float near, float far)
+{
+    std::vector<float> out;
+
+    for (int i = 1; i < cascades; i++) {
+        out.push_back(near + ((far - near) * (float(i) / cascades)));
+    }
+    out.push_back(far);
+
+    return out;
+}
+
+static std::vector<float> splitCascadesLog(int cascades, float near, float far)
+{
+    std::vector<float> out;
+    for (int i = 0; i < cascades; i++) {
+        float ratio = static_cast<float>(i + 1) / cascades; // i+1 because we are not starting at the near plane
+        out.push_back(near * glm::pow(far / near, ratio));
+    }
+    return out;
+}
+
+static std::vector<float> splitCascadesPracticalSplitSum(int cascades, float near, float far, float lamda = 0.7)
+{
+    std::vector<float> out;
+
+    std::vector<float> uniformValues = splitCascadesUniform(cascades, near, far);
+    std::vector<float> logValues = splitCascadesLog(cascades, near, far);
+    for (int i = 0; i < cascades; i++) {
+        float logPart = lamda * logValues[i];
+        float uniPart = (1.0f - lamda) * uniformValues[i];
+        out.push_back(logPart + uniPart);
+    }
+    return out;
+}
+
+static std::vector<glm::mat4> getCascadedLightMatricies(glm::mat4 cameraView, glm::vec3 lightDir, float aspect, float fov, std::vector<float> splits, float camNear, float camFar, float zMult = 10.0)
 {
     std::vector<glm::mat4> out;
 
-    const float cascadeRatio = (1.0f / cascades) * camFar;
+    float prevFar = camNear;
+    for (int i = 0; i < splits.size(); i++) {
+        float near = prevFar;
+        float far = splits[i];
+        prevFar = far;
 
-    for (int i = 0; i < cascades; i++) {
-        float near = camNear + (i * cascadeRatio);
-        float far = cascadeRatio + (i * cascadeRatio);
         glm::mat4 viewProj = Camera::calcTightOrthoProjection(cameraView, lightDir, near, far, fov, aspect, zMult);
         out.push_back(viewProj);
     }
@@ -127,8 +166,16 @@ void SceneRenderer::setupCameraData()
 {
     m_CameraUBO->setData(&m_CameraData, 0, sizeof(CameraData));
 }
+
 void SceneRenderer::setupLightData()
 {
+    std::vector<float> cascadeSplits = splitCascadesPracticalSplitSum(CASCADES, m_CameraData.near, m_CameraData.far);
+    std::vector<float> paddedSplits;
+    paddedSplits.resize(cascadeSplits.size() * 4);
+    for (int i = 0; i < cascadeSplits.size(); i++) {
+        paddedSplits[i * 4] = cascadeSplits[i];
+    }
+
     m_DirLightData.clear();
     m_DirLightUBO->zeroOut();
     {
@@ -143,7 +190,7 @@ void SceneRenderer::setupLightData()
 
             glm::vec3 dir = glm::normalize(glm::quat(transform.Rotation) * glm::vec3(0, 0, -1));
 
-            std::vector<glm::mat4> cascades = getCascadedLightMatricies(m_CameraData.view, dir, m_CameraData.aspectRatio, m_CameraData.fov, CASCADES, m_CameraData.near, m_CameraData.far, 10.0);
+            std::vector<glm::mat4> cascades = getCascadedLightMatricies(m_CameraData.view, dir, m_CameraData.aspectRatio, m_CameraData.fov, cascadeSplits, m_CameraData.near, m_CameraData.far, 10.0);
             for (glm::mat4& vp : cascades) {
                 DirectionalLightData data = {
                     .direction = glm::vec4(dir, 0.0f),
@@ -212,5 +259,6 @@ void SceneRenderer::setupLightData()
     int maxDLightSize = sizeof(DirectionalLightData) * MAX_DIRECTIONAL_LIGHTS * CASCADES;
     m_DirLightUBO->setData(m_DirLightData.data(), 0, dLightDataSize);
     m_DirLightUBO->setData(&numDLights, maxDLightSize, sizeof(u32));
+    m_DirLightUBO->setData(paddedSplits.data(), maxDLightSize + sizeof(u32) + 12 /*Alignment*/, 16 * CASCADES);
 }
 }

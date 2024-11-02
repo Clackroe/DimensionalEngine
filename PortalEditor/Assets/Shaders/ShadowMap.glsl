@@ -31,6 +31,7 @@ struct DirLight {
 layout(std140, binding = 2) uniform DLightBlock {
     DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS * CASCADES];
     uint uNumDirLights;
+    float cascadeDists[CASCADES];
 };
 
 out vec4 FragPosLightSpace;

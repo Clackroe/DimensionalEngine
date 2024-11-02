@@ -74,7 +74,8 @@ public:
 
         m_ShadowMapShader = CreateRef<Shader>("Assets/Shaders/ShadowMap.glsl");
 
-        m_DirLightUBO = CreateRef<UniformBuffer>(MAX_DIRECTIONAL_LIGHTS * CASCADES * sizeof(DirectionalLightData) + sizeof(u32), 2);
+        m_DirLightUBO = CreateRef<UniformBuffer>(MAX_DIRECTIONAL_LIGHTS * CASCADES * sizeof(DirectionalLightData) + sizeof(u32) + 12 + (16 * CASCADES), 2);
+        float padding[3];
 
         m_CubeMapShader = CreateRef<Shader>("Assets/Shaders/CubeMap.glsl");
     }

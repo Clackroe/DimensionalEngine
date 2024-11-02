@@ -30,6 +30,7 @@ struct DirLight {
 layout(std140, binding = 2) uniform DLightBlock {
     DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS * CASCADES];
     uint uNumDirLights;
+    float cascadeDists[CASCADES];
 };
 
 struct Vertex {
@@ -121,6 +122,7 @@ struct DirLight {
 layout(std140, binding = 2) uniform DLightBlock {
     DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS * CASCADES];
     uint uNumDirLights;
+    float cascadeDists[CASCADES];
 };
 layout(binding = 6) uniform sampler2DArray uDirLightShadowMaps;
 
@@ -267,9 +269,8 @@ void main()
     attColor = vec3(viewDepth, 0, 0);
 
     int cascade = -1;
-    float cascadeRatio = far / float(CASCADES);
     for (int i = 0; i < CASCADES; ++i) {
-        if (viewDepth < cascadeRatio + (i * cascadeRatio)) {
+        if (viewDepth < cascadeDists[i]) {
             cascade = i;
             break;
         }
@@ -277,8 +278,6 @@ void main()
     if (cascade == -1) {
         cascade = CASCADES - 1;
     }
-
-    attColor2 = vec3((cascadeRatio + (cascade * cascadeRatio)), 0, 0);
 
     switch (cascade) {
         case 0:
