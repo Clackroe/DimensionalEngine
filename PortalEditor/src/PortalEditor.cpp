@@ -36,7 +36,7 @@ void PortalLayer::OnAttatch()
         AssetRegistrySerializer::Deserialize("Assets/Registry.dreg", manager);
     }
 
-    m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+    m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 200.0f);
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 

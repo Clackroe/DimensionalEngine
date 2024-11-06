@@ -29,6 +29,15 @@ enum class FaceCulling {
     BACK,
     DEFAULT = BACK
 };
+
+enum class ClearBuffer {
+    NONE,
+    COLOR,
+    DEPTH,
+    BOTH,
+    DEFAULT = BOTH
+};
+
 // Potentially factor out into multiple implementations for different render APIS
 // Currently, I only plan to support OpenGL, and maybe Vulkan in the distant future.
 // Vulkan will warrent a rewrite anyway.
@@ -46,7 +55,7 @@ public:
     void endFrame();
 
     void setClearColor(const glm::vec4& color);
-    void clearBuffer(bool depthOnly = false);
+    void clearBuffer(ClearBuffer cb = ClearBuffer::DEFAULT);
 
     void renderArrays(VertexArray vao, u32 triangleCount, Ref<Shader>& shader);
     void renderIndexed(VertexArray& vao, ElementBuffer& eb, const Ref<Shader>& shader);

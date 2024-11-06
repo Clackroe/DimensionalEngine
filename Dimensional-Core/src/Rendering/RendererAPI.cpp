@@ -26,13 +26,21 @@ void RendererAPI::setClearColor(const glm::vec4& color)
 {
     glClearColor(color.r, color.g, color.b, color.a);
 }
-void RendererAPI::clearBuffer(bool depthOnly)
+void RendererAPI::clearBuffer(ClearBuffer cb)
 {
-    if (depthOnly) {
+    switch (cb) {
+    case ClearBuffer::COLOR:
+        glClear(GL_COLOR_BUFFER_BIT);
+        return;
+    case ClearBuffer::DEPTH:
         glClear(GL_DEPTH_BUFFER_BIT);
         return;
+    case ClearBuffer::BOTH:
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        return;
+    case ClearBuffer::NONE:
+        return;
     }
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void RendererAPI::renderArrays(VertexArray vao, u32 triangleCount, Ref<Shader>& shader)
