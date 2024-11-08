@@ -1,5 +1,6 @@
 #include <Rendering/VertexArray.hpp>
 #include <Rendering/VertexLayout.hpp>
+#include <cstdint>
 #include <glad.h>
 namespace Dimensional {
 
@@ -32,7 +33,7 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexLayout& vLayout)
     for (u32 i = 0; i < elements.size(); i++) {
         const auto& el = elements[i];
         glEnableVertexAttribArray(i);
-        glVertexAttribPointer(i, el.count, el.type, el.normalized, vLayout.getStride(), (const void*)offset);
+        glVertexAttribPointer(i, el.count, el.type, el.normalized, vLayout.getStride(), (const void*)(uintptr_t)offset);
         offset += el.count * vbElement::GetSizeOfType(el.type);
     }
 }

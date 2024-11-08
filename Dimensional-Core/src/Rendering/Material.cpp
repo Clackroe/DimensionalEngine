@@ -1,13 +1,13 @@
-#include "Assets/Asset.hpp"
-#include "Assets/AssetManager.hpp"
+#include "Asset/Asset.hpp"
+#include "Asset/AssetManager.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Texture.hpp"
-#include "Scene/Scene.hpp"
 #include <Rendering/Material.hpp>
 
 namespace Dimensional {
 Ref<Texture> Material::s_WhiteTexture;
 Ref<Texture> Material::s_BlackTexture;
+Ref<Shader> Material::s_DefaultPBRShader;
 
 void Material::tryInitDefaultTextures()
 {
@@ -32,10 +32,14 @@ void Material::tryInitDefaultTextures()
 Material::Material()
 {
     tryInitDefaultTextures();
+    if (!s_DefaultPBRShader) {
+        s_DefaultPBRShader = CreateRef<Shader>("Assets/Shaders/PBRWithLighting.glsl");
+    }
 }
 
 Material::Material(MaterialSettings settings)
 {
+    m_Settings = settings;
     tryInitDefaultTextures();
     if (settings.Albedo) {
 
@@ -113,9 +117,13 @@ void Material::setTexture(MaterialTexture slot, AssetHandle textureHandle)
     }
 }
 
-void Material::bind(Ref<Shader> shad)
+void Material::bind()
 {
-    shad->use();
+    if (!s_DefaultPBRShader) {
+        s_DefaultPBRShader = CreateRef<Shader>("Assets/Shaders/PBRWithLighting.glsl");
+    }
+
+    s_DefaultPBRShader->use();
 
     AssetManager& manager = AssetManager::getInstance();
 
@@ -155,15 +163,22 @@ void Material::bind(Ref<Shader> shad)
         s_WhiteTexture->bind(MaterialTexture::AO);
     }
 
-    shad->setInt("albedoMap", MaterialTexture::Albedo);
-    shad->setInt("normalMap", MaterialTexture::Normal);
+    s_DefaultPBRShader->setInt("albedoMap", MaterialTexture::Albedo);
+    s_DefaultPBRShader->setInt("normalMap", MaterialTexture::Normal);
     if (!m_Settings.Normal) {
-        shad->setBool("uShouldUseNormalMap", false);
+        s_DefaultPBRShader->setBool("uShouldUseNormalMap", false);
     } else {
-        shad->setBool("uShouldUseNormalMap", true);
+        s_DefaultPBRShader->setBool("uShouldUseNormalMap", true);
     }
-    shad->setInt("metallicMap", MaterialTexture::Metalness);
-    shad->setInt("roughnessMap", MaterialTexture::Roughness);
-    shad->setInt("aoMap", MaterialTexture::AO);
+    s_DefaultPBRShader->setInt("metallicMap", MaterialTexture::Metalness);
+    s_DefaultPBRShader->setInt("roughnessMap", MaterialTexture::Roughness);
+    s_DefaultPBRShader->setInt("aoMap", MaterialTexture::AO);
+
+    s_DefaultPBRShader->setVec3("uColorValue", m_Settings.color.x, m_Settings.color.y, m_Settings.color.z);
+    s_DefaultPBRShader->setFloat("uMetalnessMult", m_Settings.metalnessMult);
+    s_DefaultPBRShader->setFloat("uRoughnessMult", m_Settings.roughnessMult);
+
+    s_DefaultPBRShader->setBool("uUseRoughnessMap", m_Settings.useRoughnessMap);
+    s_DefaultPBRShader->setBool("uUseMetalMap", m_Settings.useMetalMap);
 }
 }

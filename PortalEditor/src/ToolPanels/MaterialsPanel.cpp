@@ -1,5 +1,5 @@
-#include "Assets/AssetManager.hpp"
-#include "Assets/AssetMeta.hpp"
+#include "Asset/AssetManager.hpp"
+#include "Asset/AssetMeta.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Material.hpp"
 #include "imgui.h"
@@ -25,6 +25,12 @@ static void renderMaterialTool(AssetHandle handle)
     UI::assetDragDrop(alb, AssetType::TEXTURE, label);
     mat->setTexture(MaterialTexture::Albedo, alb);
 
+    glm::vec3 color = mat->getColor();
+    ImGui::ColorEdit3("Color", glm::value_ptr(color));
+    if (color != mat->getColor()) {
+        mat->setColor(color);
+    }
+
     AssetHandle Normal = mat->getTexture(MaterialTexture::Normal);
     ImGui::TextWrapped("Normal");
     label = std::filesystem::path(AssetManager::getInstance().getMetaData(Normal).sourcePath).stem().string();
@@ -37,11 +43,34 @@ static void renderMaterialTool(AssetHandle handle)
     UI::assetDragDrop(Metal, AssetType::TEXTURE, label);
     mat->setTexture(MaterialTexture::Metalness, Metal);
 
+    float metalness = mat->getMetalness();
+    ImGui::DragFloat("Metalness", &metalness);
+    if (metalness != mat->getMetalness()) {
+        mat->setMetalness(metalness);
+    }
+    bool useMetalMap = mat->getUseMetalMap();
+    ImGui::Checkbox("Use MetalMap", &useMetalMap);
+    if (useMetalMap != mat->getUseMetalMap()) {
+        mat->setUseMetalness(useMetalMap);
+    }
+
     AssetHandle Rough = mat->getTexture(MaterialTexture::Roughness);
     ImGui::TextWrapped("Roughness");
     label = std::filesystem::path(AssetManager::getInstance().getMetaData(Rough).sourcePath).stem().string();
     UI::assetDragDrop(Rough, AssetType::TEXTURE, label);
     mat->setTexture(MaterialTexture::Roughness, Rough);
+
+    bool useRoughMap = mat->getUseRoughMap();
+    ImGui::Checkbox("Use RoughMap", &useRoughMap);
+    if (useRoughMap != mat->getUseRoughMap()) {
+        mat->setUseRoughness(useRoughMap);
+    }
+
+    float roughness = mat->getRoughness();
+    ImGui::DragFloat("Roughness", &roughness);
+    if (roughness != mat->getRoughness()) {
+        mat->setRoughness(roughness);
+    }
 
     AssetHandle AO = mat->getTexture(MaterialTexture::AO);
     ImGui::TextWrapped("AO");

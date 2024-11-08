@@ -1,10 +1,37 @@
 ##VERTEXSHADER
-#version 430 core
+#version 450 core
+
+#define MAX_POINTLIGHTS 256
+#define MAX_DIRECTIONAL_LIGHTS 10
+#define CASCADES 3
+
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoords;
 layout(location = 3) in vec3 aTangent;
 layout(location = 4) in vec3 aBiTangent;
+
+layout(std140, binding = 0) uniform CameraBlock {
+    mat4 viewProj;
+    vec3 uCameraPosition;
+    float aspectRatio;
+    mat4 view;
+    mat4 proj;
+    float fov;
+    float near;
+    float far;
+};
+
+struct DirLight {
+    vec4 direction;
+    vec4 color;
+    mat4 projection;
+};
+layout(std140, binding = 2) uniform DLightBlock {
+    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS * CASCADES];
+    uint uNumDirLights;
+    float cascadeDists[CASCADES];
+};
 
 struct Vertex {
     vec2 TexCoords;
@@ -15,7 +42,6 @@ struct Vertex {
 
 layout(location = 0) out Vertex vOutput;
 
-uniform mat4 viewProj;
 uniform mat4 model;
 
 void main()
@@ -32,20 +58,31 @@ void main()
     T = normalize(cross(N, B));
     vOutput.TBN = mat3(T, B, N);
 
+    // vOutput.posDirLightSpace = uDirLight.projection * vec4(vOutput.WorldPos, 1.0);
+
     gl_Position = viewProj * vec4(vOutput.WorldPos, 1.0);
+    // gl_Position = vec4(aPos, 1.0);
 }
 
 ##FRAGSHADER
-#version 430 core
+#version 450 core
+
+#define MAX_POINTLIGHTS 256
+#define MAX_DIRECTIONAL_LIGHTS 10
+#define CASCADES 3
 
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 attachment1;
+vec3 attColor = vec3(0, 0, 0);
+layout(location = 2) out vec4 attachment2;
+vec3 attColor2 = vec3(0, 0, 0);
 
 struct Vertex {
     vec2 TexCoords;
     vec3 WorldPos;
     vec3 Normal;
     mat3 TBN;
+    // vec4 posDirLightSpace;
 };
 
 layout(location = 0) in Vertex vInput;
@@ -57,34 +94,54 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 
+uniform vec3 uColorValue;
+uniform float uMetalnessMult;
+uniform float uRoughnessMult;
+
+uniform bool uUseRoughnessMap;
+uniform bool uUseMetalMap;
+
+layout(std140, binding = 0) uniform CameraBlock {
+    mat4 viewProj;
+    vec3 uCameraPosition;
+    float aspectRatio;
+    mat4 view;
+    mat4 proj;
+    float fov;
+    float near;
+    float far;
+};
+
 // lights
+struct DirLight {
+    vec4 direction;
+    vec4 color;
+    mat4 projection;
+};
+
+layout(std140, binding = 2) uniform DLightBlock {
+    DirLight uDirLight[MAX_DIRECTIONAL_LIGHTS * CASCADES];
+    uint uNumDirLights;
+    float cascadeDists[CASCADES];
+};
+layout(binding = 6) uniform sampler2DArray uDirLightShadowMaps;
 
 struct Light {
     vec3 position;
     vec3 direction;
-    vec3 color;
-
-    float intensity;
-    float cutOff; // Spotlight cutoff angle
-    float outerCutOff; // Spotlight outer cutoff angle
-
-    // Attenuation parameters
-    float constant;
-    float linear;
-    float quadratic;
+    vec4 color; // vec3 color, intensity;
+    vec4 lightParams; // Combined (cutOff, outerCutoff, Radius, type[0 plight, 1 spotLight]);
 };
-uniform Light uPointLights[50];
-uniform Light uSpotLights[50];
-uniform int uNumPointLights;
-uniform int uNumSpotLights;
+layout(std140, binding = 1) uniform PLightBlock {
+    Light uPointLights[MAX_POINTLIGHTS];
+    uint uNumPointLights;
+};
 
-uniform samplerCube uIrradianceMap;
-uniform sampler2D uBRDFLut;
-uniform samplerCube uIBLMap;
+layout(binding = 9) uniform samplerCube uIrradianceMap;
+layout(binding = 7) uniform sampler2D uBRDFLut;
+layout(binding = 8) uniform samplerCube uIBLMap;
 
 uniform bool uShouldUseNormalMap;
-
-uniform vec3 uCameraPosition;
 
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
@@ -142,18 +199,53 @@ vec3 fresnelSchlickWithRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 // ----------------------------------------------------------------------------
+
+float shadowCalculation(float ndotl, int layer) {
+    vec4 lightSpace = uDirLight[layer].projection * vec4(vInput.WorldPos, 1.0);
+    vec3 projected = lightSpace.xyz / lightSpace.w;
+    projected = projected * 0.5 + 0.5;
+
+    float closest = texture(uDirLightShadowMaps, vec3(projected.xy, layer)).r;
+
+    float current = projected.z;
+    if (current > 1.0) {
+        return 1.0;
+    }
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(uDirLightShadowMaps, 0).xy;
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            float pcfDepth = texture(uDirLightShadowMaps, vec3(projected.xy + vec2(x, y) * texelSize, layer)).r;
+            shadow += (current) < pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
+    return shadow;
+}
+
+// Light Falloff/Attentuation based on paper by epic games: https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+float lightAttenuation(float distance, float radius) {
+    float a = distance / radius;
+    float b = clamp(1 - pow(a, 4), 0, 1);
+    float n = pow(b, 2);
+    return n / (pow(distance, 2) + 1);
+}
 void main()
 {
-    vec4 albedoSample = texture(albedoMap, vInput.TexCoords);
+    vec4 albedoSample = texture(albedoMap, vInput.TexCoords) * vec4(uColorValue, 1.0f);
     vec3 albedo = pow(albedoSample.rgb, vec3(2.2)); // Gamma correction for albedo
-    float alpha = albedoSample.a; // Alpha from the albedo texture
 
-    // TODO: Implement Alpha and Transparancy
-    // if (alpha < 0.1)
-    //     discard;
+    float metallic = 1.0;
+    if (uUseMetalMap) {
+        metallic = texture(metallicMap, vInput.TexCoords).r;
+    }
+    metallic *= max(uMetalnessMult, 0);
 
-    float metallic = texture(metallicMap, vInput.TexCoords).r;
-    float roughness = texture(roughnessMap, vInput.TexCoords).r;
+    float roughness = 1.0;
+    if (uUseRoughnessMap) {
+        roughness = texture(roughnessMap, vInput.TexCoords).r;
+    }
+    roughness *= uRoughnessMult;
     roughness = clamp(roughness, 0.05, 0.95);
 
     float ao = texture(aoMap, vInput.TexCoords).r;
@@ -167,20 +259,54 @@ void main()
 
     const float epsilon = 0.000001;
     // Point lights contribution
-    vec3 Lo = vec3(0.0);
-    for (int i = 0; i < uNumPointLights; ++i)
+
+    vec3 lightContribution = vec3(0.0);
+
+    // TEMP DirLight
+
+    vec4 posViewSpace = view * vec4(vInput.WorldPos, 1.0);
+    float viewDepth = abs(posViewSpace.z);
+    attColor = vec3(viewDepth, 0, 0);
+
+    int cascade = -1;
+    for (int i = 0; i < CASCADES; ++i) {
+        if (viewDepth < cascadeDists[i]) {
+            cascade = i;
+            break;
+        }
+    }
+    if (cascade == -1) {
+        cascade = CASCADES - 1;
+    }
+
+    switch (cascade) {
+        case 0:
+        attColor = vec3(0, 1, 0);
+        break;
+        case 1:
+        attColor = vec3(0, 0, 1);
+        break;
+        case 2:
+        attColor = vec3(1, 0, 0);
+        break;
+    }
+
+    for (int i = 0; i < uNumDirLights; i += 3)
     {
-        vec3 lightDirection = uPointLights[i].position - vInput.WorldPos;
-        float distance = length(lightDirection);
-        vec3 L = normalize(lightDirection); // Normalized light direction
+        vec3 L = normalize(uDirLight[i].direction.xyz);
         vec3 H = normalize(V + L);
 
-        float attenuation = 1.0 / (uPointLights[i].constant +
-                    uPointLights[i].linear * distance +
-                    uPointLights[i].quadratic * (distance * distance));
+        float NdotL = max(dot(N, L), 0.0);
+        int layer = i + cascade;
+        float shadow = shadowCalculation(NdotL, layer);
+
+        vec3 radiance = shadow * uDirLight[i].color.rgb * uDirLight[i].color.a;
 
         float NDF = DistributionGGX(N, H, roughness);
+        // float G = GeometrySmith(NDOTL, V, L, roughness);
         float G = GeometrySmith(N, V, L, roughness);
+
+        // Maybe Try with the roughness function?
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
         vec3 numerator = NDF * G * F;
@@ -189,39 +315,72 @@ void main()
 
         vec3 kS = F;
         vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
-
-        float NdotL = max(dot(N, L), 0.0);
-
-        Lo += ((kD * albedo / PI) + specular) * (uPointLights[i].color * uPointLights[i].intensity) * NdotL * attenuation;
+        lightContribution += (kD * (albedo / PI) + specular) * radiance * NdotL;
     }
 
-    // Spotlight contribution
-    for (int i = 0; i < uNumSpotLights; ++i)
-    {
-        vec3 L = normalize(uSpotLights[i].position - vInput.WorldPos);
-        vec3 H = normalize(V + L);
-        float distance = length(uSpotLights[i].position - vInput.WorldPos);
-        float attenuation = 1.0 / (uSpotLights[i].constant + uSpotLights[i].linear * distance + uSpotLights[i].quadratic * (distance * distance));
+    //
 
-        float theta = dot(L, normalize(-uSpotLights[i].direction));
-        float epsilon = uSpotLights[i].cutOff - uSpotLights[i].outerCutOff;
-        float intensity = clamp((theta - uSpotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
+    for (int i = 0; i < uNumPointLights; ++i) {
+        Light light = uPointLights[i];
+        vec3 lightPos = light.position.xyz;
+        vec3 lightDirection = lightPos - vInput.WorldPos;
+        vec3 lightColor = light.color.rgb;
+        float lightIntensity = light.color.w;
+
+        float innerCutoff = light.lightParams.x;
+        float outerCutoff = light.lightParams.y;
+        float radius = light.lightParams.z;
+
+        uint type = uint(round(light.lightParams.w));
+
+        float distance = length(lightDirection);
+        vec3 L = normalize(lightDirection);
+        vec3 H = normalize(V + L);
+
+        float NDOTL = max(dot(N, L), 0.0);
+
+        float attenuation;
+        switch (type) {
+            case 0: // PointLight Attenuation
+            {
+                attenuation = lightAttenuation(distance, radius);
+                break;
+            }
+            case 1: // SpotLight Attenuation
+            {
+                float lDistSquared = dot(L, L);
+                float radiusSquared = radius * radius;
+                if (radiusSquared > lDistSquared) {
+                    float theta = dot(L, normalize(-light.direction));
+                    float epsilon = innerCutoff - outerCutoff;
+                    float intensity = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);
+                    attenuation = intensity / lDistSquared;
+                }
+                else {
+                    attenuation = 0.0;
+                }
+                break;
+            }
+        }
+        //Directional LIght
+
+        // Calculate Lighting with calculated light Prameters.
+        vec3 lightContRadiance = lightColor * lightIntensity * attenuation;
 
         float NDF = DistributionGGX(N, H, roughness);
+        // float G = GeometrySmith(NDOTL, V, L, roughness);
         float G = GeometrySmith(N, V, L, roughness);
+
+        // Maybe Try with the roughness function?
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
         vec3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + epsilon;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + epsilon; // Prevent division by zero
         vec3 specular = numerator / denominator;
 
         vec3 kS = F;
         vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
-
-        float NdotL = max(dot(N, L), 0.0);
-        vec3 diffuse = kD * albedo / PI;
-        vec3 radiance = (diffuse + specular) * (uSpotLights[i].color * uSpotLights[i].intensity) * NdotL;
-        Lo += radiance * attenuation * intensity;
+        lightContribution += (kD * (albedo / PI) + specular) * lightContRadiance * NDOTL;
     }
 
     // Calculate ambient lighting from scene IBLMaps
@@ -240,7 +399,7 @@ void main()
 
     vec3 ambient = (kD * diff + specular) * ao;
 
-    vec3 color = ambient + Lo;
+    vec3 color = ambient + lightContribution;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
@@ -248,12 +407,11 @@ void main()
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);
-    // FragColor = vec4(color, alpha);
-    // FragColor = vec4(albedo, 1.0);
-    // FragColor = vec4(envBRDF, 0.0, 1.0);
-    // FragColor = vec4(N * 0.5 + 0.5, 1.0);
-    // attachment1 = vec4(N, 1.0);
-    // FragColor = vec4(N, 1.0);
-    // FragColor = vec4(vInput.Tangent, 1.0);
-    // FragColor = vec4(uPointLights[0].position, 1.0);
+    attachment1 = vec4(color * attColor, 1);
+    attachment2 = vec4(attColor2, 1);
+    // FragColor = vec4(texture(uDepth, vInput.TexCoords).rgb, 1.0);
+    // FragColor = vec4(shadow, 0.0, 0.0, 1.0);
+    // FragColor = vec4(uPointLights[1].position, 1.0);
+    // float v = float(uNumPointLights);
+    // FragColor = vec4(v, 0, 0, 1.0);
 }

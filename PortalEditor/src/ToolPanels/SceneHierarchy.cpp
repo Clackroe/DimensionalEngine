@@ -1,5 +1,5 @@
-#include "Assets/AssetManager.hpp"
-#include "Assets/AssetMeta.hpp"
+#include "Asset/AssetManager.hpp"
+#include "Asset/AssetMeta.hpp"
 #include "Input/KeyCodes.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Material.hpp"
@@ -11,6 +11,7 @@
 #include "imgui_internal.h"
 #include <ToolPanels/SceneHierarchy.hpp>
 #include <ToolPanels/Utils.hpp>
+#include <charconv>
 namespace Dimensional {
 
 // Currently this function is copied from TheCherno's Tutorial series.
@@ -193,6 +194,10 @@ void SceneHierarchy::entityComponents(Entity entity)
         if (ImGui::Button("Sky Light")) {
             entity.addComponent<SkyLight>();
         }
+        if (ImGui::Button("Directional Light")) {
+            entity.addComponent<DirectionalLightComponent>();
+        }
+
         ImGui::EndPopup();
     }
 
@@ -210,10 +215,8 @@ void SceneHierarchy::entityComponents(Entity entity)
         componentNode<PointLightComponent>(
             "Point Light", entity, [](auto& component) {
                 ImGui::ColorEdit3("Color", glm::value_ptr(component.color));
-                ImGui::DragFloat("Intensity", &component.intensity, 0.5f, 0.0f, 30.0f);
-                ImGui::DragFloat("Constant", &component.constant, 0.5f, 1.0f, 10.0f);
-                ImGui::DragFloat("Linear", &component.linear, 0.01f, 0.0f, 1.0f);
-                ImGui::DragFloat("Quadratic", &component.quadratic, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Intensity", &component.intensity, 0.1f, 0.0f, 30.0f);
+                ImGui::DragFloat("Radius", &component.radius, 0.1f, 0.0f, 10.0f);
             },
             true);
     }
@@ -223,13 +226,24 @@ void SceneHierarchy::entityComponents(Entity entity)
                 ImGui::ColorEdit3("Color", glm::value_ptr(component.color));
                 ImGui::DragFloat("Cut Off (degrees)", &component.cutOff, 1.0f, 0.0f, 90.0f);
                 ImGui::DragFloat("Outer Cut Off (degrees)", &component.outerCutOff, 1.0f, 0.0f, 90.0f);
-                ImGui::DragFloat("Intensity", &component.intensity, 0.5f, 0.0f, 30.0f);
-                ImGui::DragFloat("Constant", &component.constant, 0.5f, 1.0f, 10.0f);
-                ImGui::DragFloat("Linear", &component.linear, 0.01f, 0.0f, 1.0f);
-                ImGui::DragFloat("Quadratic", &component.quadratic, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Intensity", &component.intensity, 0.1f, 0.0f, 30.0f);
+                ImGui::DragFloat("Radius", &component.radius, 0.1f, 1.0f, 10.0f);
             },
             true);
     }
+    if (entity.hasComponent<DirectionalLightComponent>()) {
+        componentNode<DirectionalLightComponent>(
+            "Directional Light", entity, [](DirectionalLightComponent& component) {
+                ImGui::ColorEdit3("Color", glm::value_ptr(component.color));
+                ImGui::DragFloat("Intensity", &component.intensity, 0.1f, 0.0f, 30.0f);
+                u32 textureID = component.shadowTextureView->glID;
+                ImGui::Image(reinterpret_cast<ImTextureID>(textureID), ImVec2 { 256, 256 }, ImVec2 { 0, 1 }, ImVec2 { 1, 0 });
+                ImGui::Text("LayerIndex %s", std::to_string(component.shadowTextureView->layerIndex).c_str());
+                ImGui::Text("GLID %s", std::to_string(component.shadowTextureView->glID).c_str());
+            },
+            true);
+    }
+
     if (entity.hasComponent<SkyLight>()) {
         componentNode<SkyLight>(
             "Sky Light", entity, [](auto& component) {

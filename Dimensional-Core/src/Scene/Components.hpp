@@ -1,6 +1,7 @@
 #ifndef DM_COMPONENTS_H
 #define DM_COMPONENTS_H
-#include "Assets/AssetManager.hpp"
+#include "Asset/AssetManager.hpp"
+#include "Rendering/FrameBuffer.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 
@@ -9,7 +10,6 @@
 
 #include <Rendering/Material.hpp>
 #include <Rendering/Model.hpp>
-#include <Rendering/Renderer.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -102,9 +102,7 @@ struct DMCORE_API PointLightComponent {
     glm::vec3 color = glm::vec3(1.0f);
 
     float intensity;
-    float constant;
-    float linear;
-    float quadratic;
+    float radius;
 };
 
 struct DMCORE_API SpotLightComponent {
@@ -116,16 +114,24 @@ struct DMCORE_API SpotLightComponent {
     float outerCutOff;
 
     float intensity;
-    float constant;
-    float linear;
-    float quadratic;
+    float radius;
+};
+
+struct DMCORE_API DirectionalLightComponent {
+    DirectionalLightComponent() {};
+    DirectionalLightComponent(const DirectionalLightComponent&) = default;
+
+    glm::vec3 color = glm::vec3(1.0f);
+    float intensity;
+
+    Ref<TextureView> shadowTextureView = CreateRef<TextureView>();
 };
 
 template <typename... Component>
 struct ComponentGroup {
 };
 
-using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent>;
+using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent, DirectionalLightComponent>;
 
 }
 #endif

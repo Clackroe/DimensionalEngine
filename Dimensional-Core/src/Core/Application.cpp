@@ -1,6 +1,5 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
-#include "Rendering/Renderer.hpp"
 #include <Core/Application.hpp>
 
 #include <Core/Time.hpp>
@@ -65,6 +64,6 @@ void Application::initializeSubSystems()
 {
     m_EventSystem.Init();
     Input::Init();
-    m_Renderer.Init();
+    m_Renderer.Init(m_Window->getLoadProc());
 }
 }

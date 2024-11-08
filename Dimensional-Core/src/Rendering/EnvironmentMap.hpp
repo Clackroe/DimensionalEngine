@@ -1,7 +1,7 @@
 #ifndef DM_ENVIRONMENTMAP_HPP
 #define DM_ENVIRONMENTMAP_HPP
 
-#include "Assets/Asset.hpp"
+#include "Asset/Asset.hpp"
 #include "Rendering/IBLMap.hpp"
 #include "Rendering/IrMap.hpp"
 #include <core.hpp>

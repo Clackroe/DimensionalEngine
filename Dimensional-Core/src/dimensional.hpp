@@ -23,17 +23,17 @@
 #include <Input/KeyCodes.hpp>
 
 // ---- ASSETS
-#include <Assets/Asset.hpp>
-#include <Assets/AssetManager.hpp>
+#include <Asset/Asset.hpp>
+#include <Asset/AssetManager.hpp>
 
 // ---- RENDERING
 #include <Core/EditorCamera.hpp>
 #include <Rendering/CubeMap.hpp>
 #include <Rendering/FrameBuffer.hpp>
-#include <Rendering/Model.hpp>
 #include <Rendering/Material.hpp>
+#include <Rendering/Model.hpp>
 #include <Rendering/ModelSource.hpp>
-#include <Rendering/Renderer.hpp>
+#include <Rendering/SceneRenderer.hpp>
 #include <Rendering/Shader.hpp>
 #include <Rendering/Texture.hpp>
 #endif

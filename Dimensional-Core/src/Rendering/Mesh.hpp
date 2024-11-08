@@ -25,7 +25,8 @@ private:
     Ref<ElementBuffer> eb;
 
     void setup();
-    friend class Renderer;
+    friend class Renderer3D;
+    // friend class Renderer2D;
 };
 }
 #endif

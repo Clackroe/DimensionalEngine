@@ -3,10 +3,11 @@
 #include "Rendering/Mesh.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
-#include <Assets/AssetManager.hpp>
+#include <Asset/AssetManager.hpp>
 #include <Scene/Components.hpp>
 #include <Scene/Entity.hpp>
 #include <Scene/Scene.hpp>
+
 namespace Dimensional {
 
 Scene::Scene()
@@ -19,111 +20,10 @@ Scene::~Scene()
 
 void Scene::beginScene()
 {
-    // Submit Lights
-    {
-        auto view = m_Registry.view<TransformComponent, PointLightComponent>();
-        for (auto e : view) {
-            auto [transform, light] = view.get<TransformComponent, PointLightComponent>(e);
-            LightData data = {
-                transform.Position,
-                transform.Rotation,
-                light.color * 255.0f,
-                0.0f,
-                0.0f,
-                light.intensity,
-                light.constant,
-                light.linear,
-                light.quadratic
-            };
-            Renderer::submitLight(data);
-        }
-    }
-    {
-        auto view = m_Registry.view<TransformComponent, SpotLightComponent>();
-        for (auto e : view) {
-            auto [transform, light] = view.get<TransformComponent, SpotLightComponent>(e);
-
-            glm::vec3 spotlightDirection = glm::rotate(glm::quat(transform.Rotation), glm::vec3(0.0f, -1.0f, 0.0f));
-
-            LightData data = {
-                transform.Position,
-                spotlightDirection,
-                light.color * 255.0f,
-                glm::cos(glm::radians(light.cutOff)),
-                glm::cos(glm::radians(light.outerCutOff)),
-                light.intensity,
-                light.constant,
-                light.linear,
-                light.quadratic
-            };
-            Renderer::submitLight(data);
-        }
-    }
-
-    // Submit Environment Data
-    {
-        auto view = m_Registry.view<SkyLight>();
-        for (auto l : view) {
-            auto envData = view.get<SkyLight>(l);
-            Ref<EnvironmentMap> map = AssetManager::getInstance().getAsset<EnvironmentMap>(envData.envMap);
-            if (map) {
-                Renderer::submitEnvironment({ map, envData.lod });
-                return;
-            }
-        }
-        // Reset if no skylight exists
-        Renderer::submitEnvironment({ nullptr });
-    }
 }
 
 void Scene::updateEditor()
 {
-
-    // Render Lights | Should possibly be done in another spot.
-    {
-        auto view = m_Registry.view<TransformComponent, PointLightComponent>();
-        for (auto e : view) {
-            auto [transform, light] = view.get<TransformComponent, PointLightComponent>(e);
-
-            // TODO: Render Billboard sprite
-
-            // TEMPORARY FOR NOW
-            static Ref<Material> mat;
-            if (!mat) {
-                mat = CreateRef<Material>();
-            }
-            Renderer::renderCube(mat, transform.GetTransform());
-        }
-    }
-
-    {
-        auto view = m_Registry.view<TransformComponent, SpotLightComponent>();
-        for (auto e : view) {
-            auto [transform, light] = view.get<TransformComponent, SpotLightComponent>(e);
-
-            // TODO: Render Billboard sprite
-
-            // TEMPORARY FOR NOW
-            static Ref<Material> mat;
-            if (!mat) {
-                mat = CreateRef<Material>();
-            }
-            Renderer::renderCube(mat, transform.GetTransform());
-        }
-    }
-
-    {
-        // Render Meshes
-        auto view = m_Registry.view<TransformComponent, MeshRenderer>();
-        for (auto e : view) {
-            auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-            Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
-            if (!mod) {
-                continue;
-            }
-            Renderer::renderModel(*mod, transform.GetTransform(), mesh.materialOverrides);
-        }
-    }
 }
 
 Entity Scene::createEntity(const std::string& name)
@@ -219,17 +119,22 @@ template <>
 void Scene::onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component)
 {
     component.intensity = 0.5f;
-    component.constant = 6.0f;
+    component.radius = 1.0f;
 }
 template <>
 void Scene::onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component)
 {
     component.intensity = 0.5f;
-    component.constant = 6.0f;
+    component.radius = 1.0f;
 }
 
 template <>
 void Scene::onComponentAdded<SkyLight>(Entity entity, SkyLight& component)
+{
+}
+
+template <>
+void Scene::onComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component)
 {
 }
 

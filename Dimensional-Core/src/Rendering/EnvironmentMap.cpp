@@ -1,6 +1,5 @@
 
 #include <Rendering/EnvironmentMap.hpp>
-#include <Rendering/Renderer.hpp>
 
 namespace Dimensional {
 EnvironmentMap::EnvironmentMap(EnvironmentMapLoadSettings settings)

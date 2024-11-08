@@ -1,3 +1,4 @@
+#include "Log/log.hpp"
 #include "core.hpp"
 #include <Rendering/Texture.hpp>
 
@@ -6,7 +7,7 @@
 
 namespace Dimensional {
 
-static u32 imageFormatToInternalFormat(ImageFormat format)
+u32 Texture::imageFormatToInternalFormat(ImageFormat format)
 {
     switch (format) {
     case (ImageFormat::R8):
@@ -36,13 +37,16 @@ static u32 imageFormatToInternalFormat(ImageFormat format)
     case (ImageFormat::RGBA32):
         return GL_RGBA32F;
         break;
+    case (ImageFormat::DEPTH32F):
+        return GL_DEPTH_COMPONENT32F;
+        break;
     default:
         DM_CORE_ASSERT(false, "Tried to get an image with NONE format type");
     }
     return 0;
 }
 
-static u32 imageFormatToDataFormat(ImageFormat format)
+u32 Texture::imageFormatToDataFormat(ImageFormat format)
 {
     switch (format) {
     case (ImageFormat::R8):
@@ -104,6 +108,23 @@ void Texture::bind(u32 textureSlot)
 Texture::~Texture()
 {
     glDeleteTextures(1, &m_GLId);
+}
+
+// =========== TEXTURE VIEW ============
+
+TextureView::TextureView(u32 textureArray, ImageFormat format, i32 layerIndex)
+{
+    this->layerIndex = layerIndex;
+    glGenTextures(1, &glID);
+    glTextureView(glID, GL_TEXTURE_2D, textureArray, Texture::imageFormatToInternalFormat(format), 0, 1, layerIndex, 1);
+    glTextureParameteri(glID, GL_TEXTURE_SWIZZLE_R, GL_RED);
+    glTextureParameteri(glID, GL_TEXTURE_SWIZZLE_G, GL_RED);
+    glTextureParameteri(glID, GL_TEXTURE_SWIZZLE_B, GL_RED);
+    glTextureParameteri(glID, GL_TEXTURE_SWIZZLE_A, GL_ONE);
+}
+TextureView::~TextureView()
+{
+    glDeleteTextures(1, &glID);
 }
 
 }

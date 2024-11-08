@@ -1,6 +1,6 @@
 #ifndef DM_MODELSOURCE_H
 #define DM_MODELSOURCE_H
-#include <Assets/Asset.hpp>
+#include <Asset/Asset.hpp>
 #include <Rendering/Mesh.hpp>
 #include <core.hpp>
 

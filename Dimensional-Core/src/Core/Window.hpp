@@ -4,6 +4,8 @@
 
 class GLFWwindow;
 
+typedef void* (*GLADloadproc)(const char* name);
+
 namespace Dimensional {
 
 struct WindowSettings {
@@ -29,6 +31,8 @@ public:
 
     GLFWwindow* getGLFWWindow() { return m_Window; }
 
+    GLADloadproc getLoadProc() { return m_GLLoadProc; };
+
 private:
     void initWindow(const WindowSettings& settings);
     void shutdown();
@@ -36,6 +40,8 @@ private:
     void initCallbacks();
 
     GLFWwindow* m_Window;
+
+    GLADloadproc m_GLLoadProc;
 
     WindowSettings m_Settings;
 };

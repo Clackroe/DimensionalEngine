@@ -1,7 +1,7 @@
 #ifndef DM_MODEL_H
 #define DM_MODEL_H
-#include <Assets/Asset.hpp>
-#include <Assets/AssetManager.hpp>
+#include <Asset/Asset.hpp>
+#include <Asset/AssetManager.hpp>
 #include <Rendering/Mesh.hpp>
 #include <Rendering/ModelSource.hpp>
 #include <core.hpp>

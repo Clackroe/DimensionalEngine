@@ -1,6 +1,6 @@
 #ifndef DM_TEXTURE_H
 #define DM_TEXTURE_H
-#include <Assets/Asset.hpp>
+#include <Asset/Asset.hpp>
 #include <core.hpp>
 
 namespace Dimensional {
@@ -15,7 +15,8 @@ enum class ImageFormat {
     RGB32,
     RGBA8,
     RGBA16,
-    RGBA32
+    RGBA32,
+    DEPTH32F,
 };
 
 struct TextureLoadSettings {
@@ -34,7 +35,13 @@ public:
     void setData(void* data, u32 sizeBytes);
     u32 getID() const { return m_GLId; };
 
-    virtual AssetType getAssetType() const { return AssetType::TEXTURE; }
+    static u32 imageFormatToInternalFormat(ImageFormat format);
+    static u32 imageFormatToDataFormat(ImageFormat format);
+
+    virtual AssetType getAssetType() const
+    {
+        return AssetType::TEXTURE;
+    }
 
 private:
     void load(void* data, u32 sizeBytes);
@@ -42,6 +49,16 @@ private:
 
     u32 m_InternalDataFormat, m_DataFormat;
     TextureLoadSettings m_Settings;
+};
+
+// Currently, the only use for this is rendering through IMGUI, this class is intentionally non-complex and completely open.
+class DMCORE_API TextureView {
+public:
+    TextureView() = default;
+    TextureView(u32 textureArray, ImageFormat format, i32 layerIndex);
+    ~TextureView();
+
+    u32 glID, layerIndex;
 };
 }
 

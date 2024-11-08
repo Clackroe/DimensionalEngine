@@ -1,6 +1,6 @@
-#include <Assets/Asset.hpp>
-#include <Assets/AssetManager.hpp>
-#include <Assets/AssetMeta.hpp>
+#include <Asset/Asset.hpp>
+#include <Asset/AssetManager.hpp>
+#include <Asset/AssetMeta.hpp>
 #include <core.hpp>
 #include <imgui.h>
 namespace Dimensional {

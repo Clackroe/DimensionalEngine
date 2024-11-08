@@ -27,7 +27,8 @@ void Window::update()
 void Window::initWindow(const WindowSettings& settings)
 {
 
-    DM_CORE_ASSERT(glfwInit(), "Failed to initialize GLFW")
+    int glfwSuccess = glfwInit();
+    DM_CORE_ASSERT(glfwSuccess, "Failed to initialize GLFW")
 
     // define openGL version and profile
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -39,9 +40,11 @@ void Window::initWindow(const WindowSettings& settings)
     DM_CORE_ASSERT(m_Window, "Failed to create GLFW window. Terminating.");
 
     glfwMakeContextCurrent(m_Window);
-    DM_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize GLAD. Aborting");
 
-    glEnable(GL_DEPTH_TEST);
+    m_GLLoadProc = (GLADloadproc)glfwGetProcAddress;
+    // int glLoaded = gladLoadGLLoader(();
+    // DM_CORE_ASSERT(glLoaded, "Failed to initialize GLAD. Aborting");
+    // glEnable(GL_DEPTH_TEST);
 
     glfwSetWindowUserPointer(m_Window, &m_Settings);
     initCallbacks();

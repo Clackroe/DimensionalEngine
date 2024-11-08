@@ -3,14 +3,13 @@
 #include <core.hpp>
 
 #include "ImGui/ImGuiLayer.hpp"
+#include "Rendering/RendererAPI.hpp"
 #include <Core/LayerStack.hpp>
 #include <Core/Window.hpp>
 
 #include <Rendering/FrameBuffer.hpp>
 
 #include <Event/EventSystem.hpp>
-
-#include <Rendering/Renderer.hpp>
 
 #include <Input/Input.hpp>
 
@@ -41,7 +40,7 @@ private:
 
 private:
     EventSystem m_EventSystem;
-    Renderer m_Renderer;
+    RendererAPI m_Renderer = RendererAPI::getInstance();
 
 private:
     Scope<Window> m_Window;

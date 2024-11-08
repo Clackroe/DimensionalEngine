@@ -11,3 +11,5 @@ CTestTestfile.cmake
 _deps
 imgui.ini
 Assets
+!Assets/shaders
+

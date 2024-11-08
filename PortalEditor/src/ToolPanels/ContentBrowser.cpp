@@ -1,8 +1,8 @@
-#include "Assets/AssetMeta.hpp"
+#include "Asset/AssetMeta.hpp"
 #include "Rendering/Model.hpp"
 #include "imgui.h"
-#include <Assets/AssetManager.hpp>
-#include <Assets/ModelSerializer.hpp>
+#include <Asset/AssetManager.hpp>
+#include <Asset/ModelSerializer.hpp>
 #include <ToolPanels/ContentBrowser.hpp>
 #include <filesystem>
 

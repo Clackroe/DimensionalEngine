@@ -3,19 +3,21 @@
 
 #include <core.hpp>
 
-#include "Assets/Asset.hpp"
+#include "Asset/Asset.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Dimensional {
 enum DMCORE_API ShaderType {
+    NONE = 0,
     RENDER,
     COMPUTE,
 
     // for internal use only
     VERTEX,
-    FRAGMENT
+    FRAGMENT,
+    GEOMETRY
 };
 
 class DMCORE_API Shader : public Asset {
@@ -38,7 +40,7 @@ public:
     virtual AssetType getAssetType() const override { return AssetType::SHADER; };
 
 private:
-    u32 compile(const char* shaderProg, enum ShaderType type);
+    u32 compile(const char* shaderProg, enum ShaderType type, const std::filesystem::path& path);
     void link(std::vector<u32> programs);
     enum ShaderType m_Type;
 };
