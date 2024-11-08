@@ -48,7 +48,6 @@ void Window::initWindow(const WindowSettings& settings)
 
     glfwSetWindowUserPointer(m_Window, &m_Settings);
     initCallbacks();
-    // setVsync(false);
 }
 void Window::shutdown() { }
 

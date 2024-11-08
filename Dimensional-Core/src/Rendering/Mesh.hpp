@@ -1,6 +1,5 @@
 #ifndef DM_MESH_H
 #define DM_MESH_H
-#include "Rendering/VertexArray.hpp"
 #include <buffer.hpp>
 #include <core.hpp>
 namespace Dimensional {
@@ -20,8 +19,6 @@ public:
 
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
-
-    Ref<VertexArray> getVAO() { return vao; };
 
 private:
     Ref<VertexArray> vao;

@@ -14,13 +14,9 @@ public:
 
     void AddBuffer(const VertexBuffer& vb, const VertexLayout& vLayout);
 
-    u32 getGLID() { return m_GLId; };
-
 private:
     u32 m_GLId;
     u32 m_Buffer;
-
-    friend class Renderer3D;
 };
 }
 

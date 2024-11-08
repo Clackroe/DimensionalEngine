@@ -117,15 +117,13 @@ void Material::setTexture(MaterialTexture slot, AssetHandle textureHandle)
     }
 }
 
-void Material::bind(bool bindShader)
+void Material::bind()
 {
     if (!s_DefaultPBRShader) {
         s_DefaultPBRShader = CreateRef<Shader>("Assets/Shaders/PBRWithLighting.glsl");
     }
 
-    if (bindShader) {
-        s_DefaultPBRShader->use();
-    }
+    s_DefaultPBRShader->use();
 
     AssetManager& manager = AssetManager::getInstance();
 

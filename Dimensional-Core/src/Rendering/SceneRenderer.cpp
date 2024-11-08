@@ -93,14 +93,12 @@ void SceneRenderer::beginScene(CameraData camData)
 }
 void SceneRenderer::shadowPass()
 {
+    m_DirLightFB->Bind();
 
-    Renderer3D::beginSector([&]() {
-        m_DirLightFB->Bind();
-        m_ShadowMapShader->use();
-        RendererAPI::getInstance().clearBuffer(ClearBuffer::DEPTH);
-        RendererAPI::getInstance().setCulling(FaceCulling::FRONT);
-    });
+    m_ShadowMapShader->use();
 
+    RendererAPI::getInstance().clearBuffer(true);
+    RendererAPI::getInstance().setCulling(FaceCulling::FRONT);
     for (int index = 0; index < m_DirLightData.size(); index += 3) {
 
         m_ShadowMapShader->setInt("uDirLightIndex", index);
@@ -115,23 +113,19 @@ void SceneRenderer::shadowPass()
                     continue;
                 }
                 auto& overrides = mesh.materialOverrides;
-                Renderer3D::submitModel(mod, transform.GetTransform(), m_ShadowMapShader);
+                Renderer3D::renderModel(mod, transform.GetTransform(), m_ShadowMapShader);
             }
         }
     }
-    Renderer3D::endSector([&]() {
-        RendererAPI::getInstance().setCulling(FaceCulling::DEFAULT);
-        m_DirLightFB->bindDepthAttachment(6);
-        m_DirLightFB->Unbind();
-    });
+    RendererAPI::getInstance().setCulling(FaceCulling::DEFAULT);
+    m_DirLightFB->bindDepthAttachment(6);
+    m_DirLightFB->Unbind();
 }
 
 void SceneRenderer::render()
 {
     shadowPass();
-    Renderer3D::beginSector([&]() {
-        m_FrameBuffer->Bind();
-    });
+    m_FrameBuffer->Bind();
     // m_DirLightFB->bindDepthAttachment(6);
 
     {
@@ -144,32 +138,28 @@ void SceneRenderer::render()
                 continue;
             }
             auto& overrides = mesh.materialOverrides;
-            Renderer3D::submitModel(mod, transform.GetTransform(), overrides);
+            Renderer3D::renderModel(mod, transform.GetTransform(), overrides);
         }
     }
-    Renderer3D::endSector([&]() {
-        m_FrameBuffer->Unbind();
-    });
+    m_FrameBuffer->Unbind();
 }
 
 void SceneRenderer::endScene()
 {
-    Renderer3D::submitFrame();
-    // m_FrameBuffer->Bind();
-    // m_CubeMapShader->use();
-    // m_CubeMapShader->setInt("environmentMap", 8);
-    // if (m_CurrentEnvironmentMap.envMap) {
-    //     m_CurrentEnvironmentMap.envMap->bind();
-    //     m_CubeMapShader->setFloat("uLod", m_CurrentEnvironmentMap.lod);
-    // }
-    //
-    // RendererAPI::getInstance().setDepthFunc(DepthFunc::LEQUAL);
-    // RendererAPI::getInstance().enableCulling(false);
-    // Renderer3D::submitCube(m_CubeMapShader);
-    // RendererAPI::getInstance().enableCulling(true);
-    // RendererAPI::getInstance().setDepthFunc(DepthFunc::DEFAULT);
-    //
-    // m_FrameBuffer->Unbind();
+    m_FrameBuffer->Bind();
+    m_CubeMapShader->setInt("environmentMap", 8);
+    if (m_CurrentEnvironmentMap.envMap) {
+        m_CurrentEnvironmentMap.envMap->bind();
+        m_CubeMapShader->setFloat("uLod", m_CurrentEnvironmentMap.lod);
+    }
+
+    RendererAPI::getInstance().setDepthFunc(DepthFunc::LEQUAL);
+    RendererAPI::getInstance().enableCulling(false);
+    Renderer3D::renderCube(m_CubeMapShader);
+    RendererAPI::getInstance().enableCulling(true);
+    RendererAPI::getInstance().setDepthFunc(DepthFunc::DEFAULT);
+
+    m_FrameBuffer->Unbind();
 }
 
 void SceneRenderer::setupCameraData()

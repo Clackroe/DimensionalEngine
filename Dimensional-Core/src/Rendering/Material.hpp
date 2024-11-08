@@ -38,7 +38,7 @@ public:
     Material(MaterialSettings settings);
     ~Material() = default;
 
-    void bind(bool bindShader = true);
+    void bind();
 
     // TODO: Set to return acutal shader
     const Ref<Shader> getShader() { return s_DefaultPBRShader; };

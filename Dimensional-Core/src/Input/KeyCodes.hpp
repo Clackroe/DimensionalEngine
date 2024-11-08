@@ -1,8 +1,6 @@
 #ifndef DM_KEYCODESH
 #define DM_KEYCODESH
 
-#include <core.hpp>
-
 namespace Dimensional {
 
 // THESE ARE COPIED FROM GLFW
