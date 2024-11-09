@@ -57,8 +57,7 @@ struct EnvironmentData {
     float lod = 1.0f;
 };
 
-// TODO: I DONT LIKE INHERITING LIKE THIS
-class SceneRenderer : std::enable_shared_from_this<SceneRenderer> {
+class SceneRenderer {
 public:
     SceneRenderer() = default;
     ~SceneRenderer();
@@ -75,8 +74,6 @@ public:
             TEXTURE_2D
         };
         m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
-
-        // std::weak_ptr<SceneRenderer> instance = shared_from_this();
 
         RenderPass shadowPassData {};
         shadowPassData.debugName = "Scene Shadow Pass";
@@ -145,8 +142,6 @@ private:
     void setupCameraData();
 
     void gatherMeshData();
-
-    void shadowPass();
 
     void tryInitStaticMembers();
 

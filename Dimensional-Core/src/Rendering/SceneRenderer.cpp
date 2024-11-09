@@ -115,14 +115,6 @@ void SceneRenderer::tryInitStaticMembers()
     }
 }
 
-void SceneRenderer::beginScene(CameraData camData)
-{
-    m_CameraData = camData;
-    setupLightData();
-    setupCameraData();
-    gatherMeshData();
-}
-
 void SceneRenderer::gatherMeshData()
 {
     auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
@@ -155,6 +147,14 @@ void SceneRenderer::gatherMeshData()
     }
 };
 
+void SceneRenderer::beginScene(CameraData camData)
+{
+    m_CameraData = camData;
+    setupLightData();
+    setupCameraData();
+    gatherMeshData();
+}
+
 void SceneRenderer::render()
 {
     m_RenderGraph.execute();
@@ -162,20 +162,6 @@ void SceneRenderer::render()
 
 void SceneRenderer::endScene()
 {
-    // m_FrameBuffer->Bind();
-    // s_CubeMapShader->setInt("environmentMap", 8);
-    // if (m_CurrentEnvironmentMap.envMap) {
-    //     m_CurrentEnvironmentMap.envMap->bind();
-    //     s_CubeMapShader->setFloat("uLod", m_CurrentEnvironmentMap.lod);
-    // }
-    //
-    // RendererAPI::getInstance().setDepthFunc(DepthFunc::LEQUAL);
-    // RendererAPI::getInstance().disableCulling();
-    // RendererAPI::getInstance().enableCulling();
-    // RendererAPI::getInstance().setDepthFunc(DepthFunc::DEFAULT);
-    //
-    // m_FrameBuffer->Unbind();
-
     m_SceneMeshes.clear();
 }
 
