@@ -1,5 +1,6 @@
 #ifndef DM_MODEL_H
 #define DM_MODEL_H
+#include "Log/log.hpp"
 #include <Asset/Asset.hpp>
 #include <Asset/AssetManager.hpp>
 #include <Rendering/Mesh.hpp>
@@ -17,11 +18,12 @@ public:
     Model(ModelLoadSettings settings);
     ~Model() = default;
 
-    std::vector<Mesh>& getMeshes()
+    std::vector<Ref<Mesh>> getMeshes()
     {
-        static std::vector<Mesh> emptyMeshes;
+        static std::vector<Ref<Mesh>> emptyMeshes;
 
         Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(getSource());
+        // DM_CORE_WARN("Source Size {} ", source->getMeshes().size());
         if (source) {
             return source->getMeshes();
         } else {

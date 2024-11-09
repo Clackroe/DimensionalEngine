@@ -23,11 +23,23 @@ enum class DepthFunc {
     DEFAULT = LESS
 };
 
+enum class BlendFunc {
+
+};
+
 enum class FaceCulling {
     FRONTANDBACK,
     FRONT,
     BACK,
     DEFAULT = BACK
+};
+
+enum class ClearBuffer {
+    NONE,
+    COLOR,
+    DEPTH,
+    BOTH,
+    DEFAULT = BOTH
 };
 // Potentially factor out into multiple implementations for different render APIS
 // Currently, I only plan to support OpenGL, and maybe Vulkan in the distant future.
@@ -46,17 +58,22 @@ public:
     void endFrame();
 
     void setClearColor(const glm::vec4& color);
-    void clearBuffer(bool depthOnly = false);
+    void clearBuffer(ClearBuffer cb = ClearBuffer::DEFAULT);
 
     void renderArrays(VertexArray vao, u32 triangleCount, Ref<Shader>& shader);
     void renderIndexed(VertexArray& vao, ElementBuffer& eb, const Ref<Shader>& shader);
 
     void setDepthFunc(DepthFunc f);
     void setCulling(FaceCulling cull);
+    // void setBlendFunc(BlendFunc f);
 
-    void enableDepthTest(bool enable);
-    void enableBlending(bool enable);
-    void enableCulling(bool enable);
+    void enableDepthTest();
+    void enableBlending();
+    void enableCulling();
+
+    void disableDepthTest();
+    void disableBlending();
+    void disableCulling();
 
 private:
 };

@@ -22,6 +22,8 @@ private:
 
     glm::vec2 m_ViewPortSize;
 
+    Ref<SceneRenderer> m_SceneRenderer;
+
     AssetHandle m_ActiveSceneHandle = 0;
     Ref<Scene> m_ActiveScene;
 };

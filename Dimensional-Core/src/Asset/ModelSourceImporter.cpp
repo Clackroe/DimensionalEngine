@@ -140,7 +140,7 @@ static void loadMaterialProperties(aiMaterial* mat, MaterialSettings& material)
     }
 }
 
-static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle, const std::filesystem::path& modelPath)
+static Ref<Mesh> processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle, const std::filesystem::path& modelPath)
 {
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
@@ -211,10 +211,10 @@ static Mesh processMesh(aiMesh* mesh, const aiScene* scene, AssetHandle& handle,
         }
     }
 
-    return Mesh(vertices, indices);
+    return CreateRef<Mesh>(vertices, indices);
 }
 
-static void processNode(aiNode* node, const aiScene* scene, std::vector<Mesh>& meshes, std::vector<AssetHandle>& handles, const std::filesystem::path& modelPath)
+static void processNode(aiNode* node, const aiScene* scene, std::vector<Ref<Mesh>>& meshes, std::vector<AssetHandle>& handles, const std::filesystem::path& modelPath)
 {
     // process all the node's meshes
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {

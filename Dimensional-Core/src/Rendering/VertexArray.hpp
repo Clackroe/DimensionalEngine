@@ -14,6 +14,8 @@ public:
 
     void AddBuffer(const VertexBuffer& vb, const VertexLayout& vLayout);
 
+    u32 getID() const { return m_GLId; };
+
 private:
     u32 m_GLId;
     u32 m_Buffer;

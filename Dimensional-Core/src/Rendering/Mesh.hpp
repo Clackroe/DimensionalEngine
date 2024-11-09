@@ -26,6 +26,7 @@ private:
 
     void setup();
     friend class Renderer3D;
+    friend class SceneRenderer;
     // friend class Renderer2D;
 };
 }

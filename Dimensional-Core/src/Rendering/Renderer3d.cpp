@@ -76,23 +76,23 @@ void Renderer3D::Init()
     generateCube();
 }
 
-void Renderer3D::renderMesh(Mesh& mesh, Ref<Material> material, glm::mat4 transform)
+void Renderer3D::renderMesh(Ref<Mesh> mesh, Ref<Material> material, glm::mat4 transform)
 {
     material->bind();
     material->getShader()->setMat4("model", transform);
-    RendererAPI::getInstance().renderIndexed(*mesh.vao, *mesh.eb, material->getShader());
+    RendererAPI::getInstance().renderIndexed(*mesh->vao, *mesh->eb, material->getShader());
 }
 
-void Renderer3D::renderMesh(Mesh& mesh, Ref<Shader> shader, glm::mat4 transform)
+void Renderer3D::renderMesh(Ref<Mesh> mesh, Ref<Shader> shader, glm::mat4 transform)
 {
     shader->use();
     shader->setMat4("model", transform);
-    RendererAPI::getInstance().renderIndexed(*mesh.vao, *mesh.eb, shader);
+    RendererAPI::getInstance().renderIndexed(*mesh->vao, *mesh->eb, shader);
 }
 
 void Renderer3D::renderModel(Ref<Model> model, glm::mat4 transform, Ref<Shader> shader)
 {
-    auto& meshes = model->getMeshes();
+    auto meshes = model->getMeshes();
     for (u32 i = 0; i < meshes.size(); i++) {
         Renderer3D::renderMesh(meshes[i], shader, transform);
     }
@@ -100,7 +100,7 @@ void Renderer3D::renderModel(Ref<Model> model, glm::mat4 transform, Ref<Shader> 
 
 void Renderer3D::renderModel(Ref<Model> model, glm::mat4 transform, std::vector<AssetHandle> matOverrirdes)
 {
-    auto& meshes = model->getMeshes();
+    auto meshes = model->getMeshes();
     for (u32 i = 0; i < meshes.size(); i++) {
         Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(model->getMaterials()[i]);
         if (!mat) {

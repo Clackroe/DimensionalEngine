@@ -26,13 +26,22 @@ void RendererAPI::setClearColor(const glm::vec4& color)
 {
     glClearColor(color.r, color.g, color.b, color.a);
 }
-void RendererAPI::clearBuffer(bool depthOnly)
+
+void RendererAPI::clearBuffer(ClearBuffer cb)
 {
-    if (depthOnly) {
+    switch (cb) {
+    case ClearBuffer::COLOR:
+        glClear(GL_COLOR_BUFFER_BIT);
+        return;
+    case ClearBuffer::DEPTH:
         glClear(GL_DEPTH_BUFFER_BIT);
         return;
+    case ClearBuffer::BOTH:
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        return;
+    case ClearBuffer::NONE:
+        return;
     }
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void RendererAPI::renderArrays(VertexArray vao, u32 triangleCount, Ref<Shader>& shader)
@@ -79,29 +88,29 @@ void RendererAPI::setDepthFunc(DepthFunc f)
     }
 }
 
-void RendererAPI::enableDepthTest(bool enable)
+void RendererAPI::enableDepthTest()
 {
-    if (enable) {
-        glEnable(GL_DEPTH_TEST);
-    } else {
-        glDisable(GL_DEPTH_TEST);
-    }
+    glEnable(GL_DEPTH_TEST);
 }
-void RendererAPI::enableBlending(bool enable)
+void RendererAPI::enableBlending()
 {
-    if (enable) {
-        glEnable(GL_BLEND);
-    } else {
-        glDisable(GL_BLEND);
-    }
+    glEnable(GL_BLEND);
 }
-void RendererAPI::enableCulling(bool enable)
+void RendererAPI::enableCulling()
 {
-    if (enable) {
-        glEnable(GL_CULL_FACE);
-    } else {
-        glDisable(GL_CULL_FACE);
-    }
+    glEnable(GL_CULL_FACE);
+}
+void RendererAPI::disableDepthTest()
+{
+    glDisable(GL_DEPTH_TEST);
+}
+void RendererAPI::disableBlending()
+{
+    glDisable(GL_BLEND);
+}
+void RendererAPI::disableCulling()
+{
+    glDisable(GL_CULL_FACE);
 }
 
 void RendererAPI::setCulling(FaceCulling cull)

@@ -15,6 +15,11 @@ static std::string DefaultMaterial = R"(Material:
   Metal: 0
   Roughness: 0
   AO: 0
+  UseMetalMap: false
+  UseRoughnessMap: false
+  Color: [1.0, 1.0, 1.0]
+  MetalnessMultiplier: 1
+  RoughnessMultiplier: 1
 )";
 
 static std::string DefaultScene = "Scene: Untitled Scene";

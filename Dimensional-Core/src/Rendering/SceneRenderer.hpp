@@ -1,17 +1,28 @@
 #ifndef DM_SCENERENDERER_HPP
 #define DM_SCENERENDERER_HPP
 
+#include "Log/log.hpp"
 #include "Rendering/EnvironmentMap.hpp"
 #include "Rendering/FrameBuffer.hpp"
+#include "Rendering/RendererAPI.hpp"
 #include "Rendering/UniformBuffer.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
+#include <Rendering/RenderGraph.hpp>
 #include <Scene/Scene.hpp>
 #include <buffer.hpp>
+#include <memory>
 
 namespace Dimensional {
 #define MAX_POINTLIGHTS 256
 
 #define MAX_DIRECTIONAL_LIGHTS 10
 #define CASCADES 3
+
+struct MeshData {
+    Ref<Mesh> mesh;
+    glm::mat4 transform;
+    AssetHandle material;
+};
 
 struct alignas(16) CameraData {
     glm::mat4 viewProj;
@@ -46,15 +57,17 @@ struct EnvironmentData {
     float lod = 1.0f;
 };
 
-class SceneRenderer {
+// TODO: I DONT LIKE INHERITING LIKE THIS
+class SceneRenderer : std::enable_shared_from_this<SceneRenderer> {
 public:
     SceneRenderer() = default;
     ~SceneRenderer();
     SceneRenderer(Ref<Scene> scene)
         : m_Scene(scene)
     {
-        m_CameraUBO = CreateRef<UniformBuffer>(sizeof(CameraData), 0);
-        m_PointLightUBO = CreateRef<UniformBuffer>(MAX_POINTLIGHTS * sizeof(LightData) + sizeof(u32), 1);
+
+        tryInitStaticMembers();
+
         FrameBufferSettings fbs = {
             1920,
             1080,
@@ -63,21 +76,58 @@ public:
         };
         m_FrameBuffer = CreateRef<FrameBuffer>(fbs);
 
-        FrameBufferSettings dfbs = {
-            2048,
-            2048,
-            { Shadow },
-            ARRAY_2D,
-            MAX_DIRECTIONAL_LIGHTS * CASCADES
+        // std::weak_ptr<SceneRenderer> instance = shared_from_this();
+
+        RenderPass shadowPassData {};
+        shadowPassData.debugName = "Scene Shadow Pass";
+        shadowPassData.faceCulling = true;
+        shadowPassData.culledFace = FaceCulling::FRONT;
+        shadowPassData.depthTest = true;
+        shadowPassData.depthFunction = DepthFunc::DEFAULT;
+        shadowPassData.clearBuffer = ClearBuffer::DEPTH;
+        shadowPassData.frameBuffer = s_DirLightFB;
+        shadowPassData.renderShader = s_ShadowMapShader;
+        shadowPassData.renderFunc = [this](Ref<Shader> shad, Ref<FrameBuffer> buf) {
+            for (int index = 0; index < this->m_DirLightData.size(); index += 3) {
+                s_ShadowMapShader->setInt("uDirLightIndex", index);
+                for (auto& data : this->m_SceneMeshes) {
+                    Renderer3D::renderMesh(data.mesh, s_ShadowMapShader, data.transform);
+                }
+            }
         };
-        m_DirLightFB = CreateRef<FrameBuffer>(dfbs);
 
-        m_ShadowMapShader = CreateRef<Shader>("Assets/Shaders/ShadowMap.glsl");
+        RenderPass mainPassData {};
+        mainPassData.debugName = "Scene Main Pass";
+        mainPassData.faceCulling = true;
+        mainPassData.culledFace = FaceCulling::BACK;
+        mainPassData.depthTest = true;
+        mainPassData.depthFunction = DepthFunc::DEFAULT;
+        mainPassData.clearBuffer = ClearBuffer::BOTH;
+        mainPassData.frameBuffer = m_FrameBuffer;
+        mainPassData.renderFunc = [this](Ref<Shader> shad, Ref<FrameBuffer> buf) {
+            this->s_DirLightFB->bindDepthAttachment(6);
 
-        m_DirLightUBO = CreateRef<UniformBuffer>(MAX_DIRECTIONAL_LIGHTS * CASCADES * sizeof(DirectionalLightData) + sizeof(u32) + 12 + (16 * CASCADES), 2);
-        float padding[3];
+            for (auto& data : this->m_SceneMeshes) {
+                Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(data.material);
+                Renderer3D::renderMesh(data.mesh, mat, data.transform);
+            }
+        };
 
-        m_CubeMapShader = CreateRef<Shader>("Assets/Shaders/CubeMap.glsl");
+        RenderPass skyBoxPassData {};
+        skyBoxPassData.debugName = "Scene SkyBox Pass";
+        skyBoxPassData.faceCulling = false;
+        skyBoxPassData.depthTest = true;
+        skyBoxPassData.depthFunction = DepthFunc::LEQUAL;
+        skyBoxPassData.clearBuffer = ClearBuffer::NONE;
+        skyBoxPassData.frameBuffer = m_FrameBuffer;
+        skyBoxPassData.renderShader = s_CubeMapShader;
+        skyBoxPassData.renderFunc = [this](Ref<Shader> shad, Ref<FrameBuffer> fb) {
+            Renderer3D::renderCube(shad);
+        };
+
+        m_RenderGraph.pushRenderPass(shadowPassData);
+        m_RenderGraph.pushRenderPass(mainPassData);
+        m_RenderGraph.pushRenderPass(skyBoxPassData);
     }
 
     void beginScene(CameraData camData);
@@ -88,34 +138,40 @@ public:
     void render();
 
     Ref<FrameBuffer> getFrameBuffer() { return m_FrameBuffer; }
-    Ref<FrameBuffer> getFrameBufferTEMP() { return m_DirLightFB; };
+    Ref<FrameBuffer> getFrameBufferTEMP() { return s_DirLightFB; };
 
 private:
     void setupLightData();
     void setupCameraData();
 
+    void gatherMeshData();
+
     void shadowPass();
+
+    void tryInitStaticMembers();
 
 private:
     Ref<Scene> m_Scene;
+    Ref<FrameBuffer> m_FrameBuffer;
 
     std::vector<LightData> m_PointLightData;
-
     CameraData m_CameraData;
 
-    static Ref<UniformBuffer> m_PointLightUBO;
-    static Ref<UniformBuffer> m_CameraUBO;
-
-    Ref<Shader> m_CubeMapShader;
     EnvironmentData m_CurrentEnvironmentMap;
 
     std::vector<DirectionalLightData> m_DirLightData;
     u32 m_DirLightDepthID;
 
-    static Ref<UniformBuffer> m_DirLightUBO;
-    static Ref<FrameBuffer> m_DirLightFB;
-    static Ref<Shader> m_ShadowMapShader;
-    Ref<FrameBuffer> m_FrameBuffer;
+    std::vector<MeshData> m_SceneMeshes;
+
+    RenderGraph m_RenderGraph;
+
+    static Ref<UniformBuffer> s_PointLightUBO;
+    static Ref<UniformBuffer> s_CameraUBO;
+    static Ref<UniformBuffer> s_DirLightUBO;
+    static Ref<FrameBuffer> s_DirLightFB;
+    static Ref<Shader> s_ShadowMapShader;
+    static Ref<Shader> s_CubeMapShader;
 };
 
 }

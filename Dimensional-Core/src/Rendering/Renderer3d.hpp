@@ -15,8 +15,8 @@ class Renderer3D {
 public:
     static void Init();
 
-    static void renderMesh(Mesh& mesh, Ref<Material> material, glm::mat4 transform);
-    static void renderMesh(Mesh& mesh, Ref<Shader> shader, glm::mat4 transform);
+    static void renderMesh(Ref<Mesh> mesh, Ref<Material> material, glm::mat4 transform);
+    static void renderMesh(Ref<Mesh> mesh, Ref<Shader> shader, glm::mat4 transform);
     static void renderModel(Ref<Model> model, glm::mat4 transform, std::vector<AssetHandle> matOverrirdes = std::vector<AssetHandle>());
     static void renderModel(Ref<Model> model, glm::mat4 transform, Ref<Shader> shader);
 

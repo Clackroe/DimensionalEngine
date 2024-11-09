@@ -7,7 +7,7 @@
 namespace Dimensional {
 
 struct DMCORE_API ModelSourceLoadSettings {
-    std::vector<Mesh> meshes;
+    std::vector<Ref<Mesh>> meshes;
     std::vector<AssetHandle> meshMaterialHandles;
 };
 
@@ -16,7 +16,7 @@ public:
     ModelSource(ModelSourceLoadSettings settings);
     ~ModelSource() = default;
 
-    std::vector<Mesh>& getMeshes() { return m_Settings.meshes; };
+    std::vector<Ref<Mesh>> getMeshes() { return m_Settings.meshes; };
     std::vector<AssetHandle>& getMaterialHandles() { return m_Settings.meshMaterialHandles; };
 
     virtual AssetType getAssetType() const override { return AssetType::MODELSOURCE; }

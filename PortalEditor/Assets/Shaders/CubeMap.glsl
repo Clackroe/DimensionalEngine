@@ -31,7 +31,7 @@ out vec4 FragColor;
 
 in vec3 localPos;
 
-uniform samplerCube environmentMap;
+layout(binding = 8) uniform samplerCube environmentMap;
 uniform float uLod;
 
 void main()

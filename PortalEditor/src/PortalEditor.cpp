@@ -17,8 +17,6 @@
 
 namespace Dimensional {
 
-SceneRenderer tempSceneRenderer;
-
 // TODO: Move to managed system
 static std::string scenePath = "Assets/TestScene.dims";
 
@@ -36,12 +34,12 @@ void PortalLayer::OnAttatch()
         AssetRegistrySerializer::Deserialize("Assets/Registry.dreg", manager);
     }
 
-    m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+    m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
     m_ActiveScene = CreateRef<Scene>();
-    tempSceneRenderer = SceneRenderer(m_ActiveScene);
+    m_SceneRenderer = CreateRef<SceneRenderer>(m_ActiveScene);
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
     s_Browser = CreateRef<ContentBrowser>("Assets");
@@ -57,12 +55,12 @@ void PortalLayer::OnUpdate()
     if (m_ActiveScene) {
         // m_ActiveScene->beginScene();
 
-        tempSceneRenderer.beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getAspectRatio(), m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection(), m_EditorCamera.getFOV(), m_EditorCamera.m_NearClipPlane, m_EditorCamera.m_FarClipPlane });
+        m_SceneRenderer->beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getAspectRatio(), m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection(), m_EditorCamera.getFOV(), m_EditorCamera.m_NearClipPlane, m_EditorCamera.m_FarClipPlane });
 
-        tempSceneRenderer.render();
+        m_SceneRenderer->render();
         // m_ActiveScene->updateEditor();
 
-        tempSceneRenderer.endScene();
+        m_SceneRenderer->endScene();
     }
 
     if (Input::isKeyDown(Key::Escape)) {
@@ -75,7 +73,7 @@ void PortalLayer::openScene(AssetHandle sceneHandle)
     if (nScene) {
         m_ActiveSceneHandle = sceneHandle;
         m_ActiveScene = nScene;
-        tempSceneRenderer.setScene(m_ActiveScene);
+        m_SceneRenderer->setScene(m_ActiveScene);
         // tempSceneRenderer = SceneRenderer(m_ActiveScene);
         m_HierarchyPanel.setSceneContext(m_ActiveScene);
     }
@@ -187,7 +185,7 @@ void PortalLayer::OnImGuiRender()
         m_EditorCamera.setViewportDimensions(viewportPanelSize.x, viewportPanelSize.y);
         m_ViewPortSize = { viewportPanelSize.x, viewportPanelSize.y };
     }
-    Ref<FrameBuffer> buf = tempSceneRenderer.getFrameBuffer();
+    Ref<FrameBuffer> buf = m_SceneRenderer->getFrameBuffer();
     int att = 0;
     if (Input::isKeyDown(Key::F)) {
         att = 1;

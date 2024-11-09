@@ -1,3 +1,4 @@
+#include "Asset/AssetManager.hpp"
 #include "Log/log.hpp"
 #include "Rendering/RendererAPI.hpp"
 #include "Scene/Components.hpp"
@@ -64,12 +65,13 @@ static std::vector<glm::mat4> getCascadedLightMatricies(glm::mat4 cameraView, gl
 
 // ============== END SHADOW UTILS =============
 
-Ref<UniformBuffer> SceneRenderer::m_PointLightUBO;
-Ref<UniformBuffer> SceneRenderer::m_CameraUBO;
+Ref<UniformBuffer> SceneRenderer::s_PointLightUBO;
+Ref<UniformBuffer> SceneRenderer::s_CameraUBO;
 
-Ref<UniformBuffer> SceneRenderer::m_DirLightUBO;
-Ref<FrameBuffer> SceneRenderer::m_DirLightFB;
-Ref<Shader> SceneRenderer::m_ShadowMapShader;
+Ref<UniformBuffer> SceneRenderer::s_DirLightUBO;
+Ref<FrameBuffer> SceneRenderer::s_DirLightFB;
+Ref<Shader> SceneRenderer::s_ShadowMapShader;
+Ref<Shader> SceneRenderer::s_CubeMapShader;
 
 SceneRenderer::~SceneRenderer()
 {
@@ -80,91 +82,106 @@ SceneRenderer::~SceneRenderer()
     }
 }
 
+void SceneRenderer::tryInitStaticMembers()
+{
+    if (!s_DirLightFB) {
+        FrameBufferSettings dfbs = {
+            2048,
+            2048,
+            { Shadow },
+            ARRAY_2D,
+            MAX_DIRECTIONAL_LIGHTS * CASCADES
+        };
+        s_DirLightFB = CreateRef<FrameBuffer>(dfbs);
+    }
+
+    if (!s_CameraUBO) {
+        s_CameraUBO = CreateRef<UniformBuffer>(sizeof(CameraData), 0);
+    }
+    if (!s_PointLightUBO) {
+        s_PointLightUBO = CreateRef<UniformBuffer>(MAX_POINTLIGHTS * sizeof(LightData) + sizeof(u32), 1);
+    }
+
+    if (!s_ShadowMapShader) {
+        s_ShadowMapShader = CreateRef<Shader>("Assets/Shaders/ShadowMap.glsl");
+    }
+
+    if (!s_DirLightUBO) {
+        s_DirLightUBO = CreateRef<UniformBuffer>(MAX_DIRECTIONAL_LIGHTS * CASCADES * sizeof(DirectionalLightData) + sizeof(u32) + 12 + (16 * CASCADES), 2);
+    }
+
+    if (!s_CubeMapShader) {
+        s_CubeMapShader = CreateRef<Shader>("Assets/Shaders/CubeMap.glsl");
+    }
+}
+
 void SceneRenderer::beginScene(CameraData camData)
 {
-    m_FrameBuffer->Bind();
-    RendererAPI::getInstance().setClearColor(glm::vec4(0.0, 1.0, 0.0, 1.0));
-    RendererAPI::getInstance().clearBuffer();
-    m_FrameBuffer->Unbind();
-
     m_CameraData = camData;
     setupLightData();
     setupCameraData();
+    gatherMeshData();
 }
-void SceneRenderer::shadowPass()
+
+void SceneRenderer::gatherMeshData()
 {
-    m_DirLightFB->Bind();
+    auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
+    for (auto e : view) {
+        auto [transform, model] = view.get<TransformComponent, MeshRenderer>(e);
+        Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(model.model);
+        if (!mod) {
+            continue;
+        }
+        auto& overrides = model.materialOverrides;
+        std::vector<Ref<Mesh>> meshes = mod->getMeshes();
+        u32 index = 0;
 
-    m_ShadowMapShader->use();
+        for (auto& mesh : meshes) {
 
-    RendererAPI::getInstance().clearBuffer(true);
-    RendererAPI::getInstance().setCulling(FaceCulling::FRONT);
-    for (int index = 0; index < m_DirLightData.size(); index += 3) {
-
-        m_ShadowMapShader->setInt("uDirLightIndex", index);
-
-        {
-            // Render Meshes
-            auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
-            for (auto e : view) {
-                auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-                Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
-                if (!mod) {
-                    continue;
-                }
-                auto& overrides = mesh.materialOverrides;
-                Renderer3D::renderModel(mod, transform.GetTransform(), m_ShadowMapShader);
+            AssetHandle material;
+            if (overrides[index]) {
+                material = overrides[index];
+            } else {
+                material = mod->getMaterials()[index];
             }
+            MeshData data {
+                .mesh = mesh,
+                .transform = transform.GetTransform(),
+                .material = material
+            };
+            m_SceneMeshes.push_back(std::move(data));
+            index++;
         }
     }
-    RendererAPI::getInstance().setCulling(FaceCulling::DEFAULT);
-    m_DirLightFB->bindDepthAttachment(6);
-    m_DirLightFB->Unbind();
-}
+};
 
 void SceneRenderer::render()
 {
-    shadowPass();
-    m_FrameBuffer->Bind();
-    // m_DirLightFB->bindDepthAttachment(6);
-
-    {
-        // Render Meshes
-        auto view = m_Scene->m_Registry.view<TransformComponent, MeshRenderer>();
-        for (auto e : view) {
-            auto [transform, mesh] = view.get<TransformComponent, MeshRenderer>(e);
-            Ref<Model> mod = AssetManager::getInstance().getAsset<Model>(mesh.model);
-            if (!mod) {
-                continue;
-            }
-            auto& overrides = mesh.materialOverrides;
-            Renderer3D::renderModel(mod, transform.GetTransform(), overrides);
-        }
-    }
-    m_FrameBuffer->Unbind();
+    m_RenderGraph.execute();
 }
 
 void SceneRenderer::endScene()
 {
-    m_FrameBuffer->Bind();
-    m_CubeMapShader->setInt("environmentMap", 8);
-    if (m_CurrentEnvironmentMap.envMap) {
-        m_CurrentEnvironmentMap.envMap->bind();
-        m_CubeMapShader->setFloat("uLod", m_CurrentEnvironmentMap.lod);
-    }
+    // m_FrameBuffer->Bind();
+    // s_CubeMapShader->setInt("environmentMap", 8);
+    // if (m_CurrentEnvironmentMap.envMap) {
+    //     m_CurrentEnvironmentMap.envMap->bind();
+    //     s_CubeMapShader->setFloat("uLod", m_CurrentEnvironmentMap.lod);
+    // }
+    //
+    // RendererAPI::getInstance().setDepthFunc(DepthFunc::LEQUAL);
+    // RendererAPI::getInstance().disableCulling();
+    // RendererAPI::getInstance().enableCulling();
+    // RendererAPI::getInstance().setDepthFunc(DepthFunc::DEFAULT);
+    //
+    // m_FrameBuffer->Unbind();
 
-    RendererAPI::getInstance().setDepthFunc(DepthFunc::LEQUAL);
-    RendererAPI::getInstance().enableCulling(false);
-    Renderer3D::renderCube(m_CubeMapShader);
-    RendererAPI::getInstance().enableCulling(true);
-    RendererAPI::getInstance().setDepthFunc(DepthFunc::DEFAULT);
-
-    m_FrameBuffer->Unbind();
+    m_SceneMeshes.clear();
 }
 
 void SceneRenderer::setupCameraData()
 {
-    m_CameraUBO->setData(&m_CameraData, 0, sizeof(CameraData));
+    s_CameraUBO->setData(&m_CameraData, 0, sizeof(CameraData));
 }
 
 void SceneRenderer::setupLightData()
@@ -177,7 +194,7 @@ void SceneRenderer::setupLightData()
     }
 
     m_DirLightData.clear();
-    m_DirLightUBO->zeroOut();
+    s_DirLightUBO->zeroOut();
     {
         auto view = m_Scene->m_Registry.view<TransformComponent, DirectionalLightComponent>();
         for (auto e : view) {
@@ -185,7 +202,7 @@ void SceneRenderer::setupLightData()
             i32 index = m_DirLightData.size();
 
             if (light.shadowTextureView->glID == 0) {
-                light.shadowTextureView = CreateRef<TextureView>(m_DirLightFB->getDepthID(), ImageFormat::DEPTH32F, index);
+                light.shadowTextureView = CreateRef<TextureView>(s_DirLightFB->getDepthID(), ImageFormat::DEPTH32F, index);
             }
 
             glm::vec3 dir = glm::normalize(glm::quat(transform.Rotation) * glm::vec3(0, 0, -1));
@@ -203,7 +220,7 @@ void SceneRenderer::setupLightData()
     }
 
     m_PointLightData.clear();
-    m_PointLightUBO->zeroOut();
+    s_PointLightUBO->zeroOut();
     {
         auto view = m_Scene->m_Registry.view<TransformComponent, PointLightComponent>();
         for (auto e : view) {
@@ -251,14 +268,14 @@ void SceneRenderer::setupLightData()
     int pLightDataSize = sizeof(LightData) * numPLights;
     int maxPLightSize = sizeof(LightData) * MAX_POINTLIGHTS;
 
-    m_PointLightUBO->setData(m_PointLightData.data(), 0, pLightDataSize);
-    m_PointLightUBO->setData(&numPLights, maxPLightSize, sizeof(u32));
+    s_PointLightUBO->setData(m_PointLightData.data(), 0, pLightDataSize);
+    s_PointLightUBO->setData(&numPLights, maxPLightSize, sizeof(u32));
 
     u32 numDLights = m_DirLightData.size();
     int dLightDataSize = sizeof(DirectionalLightData) * numDLights;
     int maxDLightSize = sizeof(DirectionalLightData) * MAX_DIRECTIONAL_LIGHTS * CASCADES;
-    m_DirLightUBO->setData(m_DirLightData.data(), 0, dLightDataSize);
-    m_DirLightUBO->setData(&numDLights, maxDLightSize, sizeof(u32));
-    m_DirLightUBO->setData(paddedSplits.data(), maxDLightSize + sizeof(u32) + 12 /*Alignment*/, 16 * CASCADES);
+    s_DirLightUBO->setData(m_DirLightData.data(), 0, dLightDataSize);
+    s_DirLightUBO->setData(&numDLights, maxDLightSize, sizeof(u32));
+    s_DirLightUBO->setData(paddedSplits.data(), maxDLightSize + sizeof(u32) + 12 /*Alignment*/, 16 * CASCADES);
 }
 }
