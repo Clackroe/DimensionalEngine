@@ -52,6 +52,8 @@ private:
     void onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component);
     template <>
     void onComponentAdded<SkyLight>(Entity entity, SkyLight& component);
+    template <>
+    void onComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component);
 
 #endif
 

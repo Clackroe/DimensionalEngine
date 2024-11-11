@@ -20,18 +20,18 @@ include_directories(src)
 add_executable(Portal ${APP_SOURCES})
 target_link_libraries(Portal Dimensional-Core)
 
-if(WIN32)
-    # Copying the Assets directory on Windows
+if(EXISTS "${CMAKE_BINARY_DIR}/Assets" AND NOT IS_SYMLINK "${CMAKE_BINARY_DIR}/Assets")
+    message(STATUS "Assets directory already exists as a regular directory; skipping symlink creation.")
+elseif(WIN32)
+    # Attempt to create a symlink on Windows
     add_custom_command(TARGET Portal POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_SOURCE_DIR}/Assets" ${CMAKE_BINARY_DIR}/Assets
-        COMMENT "Copying ${PROJECT_SOURCE_DIR}/Assets to ${CMAKE_BINARY_DIR}/Assets"
+        COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/Assets" "${CMAKE_BINARY_DIR}/Assets"
+        COMMENT "Creating symlink from ${PROJECT_SOURCE_DIR}/Assets to ${CMAKE_BINARY_DIR}/Assets"
     )
-    # Copying imgui.ini on Windows
+    # If symlink fails, copy as a fallback
     add_custom_command(TARGET Portal POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        "${PROJECT_SOURCE_DIR}/imgui.ini" ${CMAKE_BINARY_DIR}/imgui.ini
-        COMMENT "Copying ${PROJECT_SOURCE_DIR}/imgui.ini to ${CMAKE_BINARY_DIR}/imgui.ini"
+        COMMAND if not exist "${CMAKE_BINARY_DIR}/Assets" (${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/Assets" "${CMAKE_BINARY_DIR}/Assets")
+        COMMENT "Fallback: Copying ${PROJECT_SOURCE_DIR}/Assets to ${CMAKE_BINARY_DIR}/Assets"
     )
 else()
     # Creating a symlink for the Assets directory on other platforms

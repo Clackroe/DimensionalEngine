@@ -57,7 +57,7 @@ struct EnvironmentData {
     float lod = 1.0f;
 };
 
-class SceneRenderer {
+class DMCORE_API SceneRenderer {
 public:
     SceneRenderer() = default;
     ~SceneRenderer();

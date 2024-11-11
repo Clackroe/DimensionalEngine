@@ -12,4 +12,7 @@ _deps
 imgui.ini
 Assets
 !Assets/shaders
+.vs
+out
+Builds
 

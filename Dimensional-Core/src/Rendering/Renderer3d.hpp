@@ -11,7 +11,7 @@
 #include <buffer.hpp>
 
 namespace Dimensional {
-class Renderer3D {
+class DMCORE_API Renderer3D {
 public:
     static void Init();
 
