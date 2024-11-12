@@ -1,0 +1,28 @@
+#include "Log/log.hpp"
+#include "Scripting/EngineAPI.hpp"
+#include <Scripting/NativeScriptManager.hpp>
+namespace Dimensional {
+NativeScriptManager::NativeScriptManager()
+{
+}
+NativeScriptManager::~NativeScriptManager()
+{
+}
+
+void NativeScriptManager::setGameLibrary(std::string& path)
+{
+    gameLibraryHandle = LoadLibraryFunc(path.c_str());
+    if (!gameLibraryHandle) {
+        DM_CORE_WARN("FAILED TO LOAD GAME LIBRARY");
+    }
+    bool success = loadLibraryFunction(gameLibraryHandle, "Init", initializeFunction);
+    if (!success) {
+        DM_CORE_WARN("Cannot retrieve initializeFunction from game library");
+        gameLibraryHandle = nullptr;
+        return;
+    }
+    EngineAPI* api = getEngineAPI();
+    initializeFunction(api);
+}
+
+}

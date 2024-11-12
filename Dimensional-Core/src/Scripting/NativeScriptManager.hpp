@@ -1,0 +1,48 @@
+#ifndef DM_NATIVESCRIPTMANAGER
+#define DM_NATIVESCRIPTMANAGER
+
+#include "Scripting/EngineAPI.hpp"
+#include <functional>
+#ifdef _WIN32
+#include <Windows.h>
+#define LoadLibraryFunc(name) LoadLibrary(name)
+#define GetFunctionAddress(lib, func) GetProcAddress((HMODULE)lib, func)
+#define FreeLibraryFunc(lib) FreeLibrary((HMODULE)lib)
+#else
+#include <dlfcn.h>
+#define LoadLibraryFunc(name) dlopen(name, RTLD_LAZY)
+#define GetFunctionAddress(lib, func) dlsym(lib, func)
+#define FreeLibraryFunc(lib) dlclose(lib)
+#endif
+
+template <typename FuncT>
+bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<FuncT>& out)
+{
+    void* funcPTR = GetFunctionAddress(libHandle, funcName);
+    if (!funcPTR) {
+        DM_CORE_WARN("FAILED TO LOAD FUNCTION {}", funcName);
+        return false;
+    }
+    out = reinterpret_cast<FuncT>(funcPTR);
+    return true;
+}
+
+#include <core.hpp>
+
+namespace Dimensional {
+
+class NativeScriptManager {
+public:
+    NativeScriptManager();
+    ~NativeScriptManager();
+
+    void setGameLibrary(std::string& path);
+
+private:
+    void* gameLibraryHandle = nullptr;
+
+    std::function<void(EngineAPI*)> initializeFunction;
+};
+}
+
+#endif

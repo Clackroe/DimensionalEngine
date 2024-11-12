@@ -1,6 +1,8 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
+#include "core.hpp"
 #include <Core/Application.hpp>
+#include <Scripting/EngineAPI.hpp>
 
 #include <Core/Time.hpp>
 
@@ -30,6 +32,7 @@ static float frameTime = 0;
 
 void Application::runApplication()
 {
+
     while (m_Running) {
         float frameStartTime = Time::getTime();
         Time::Update();
