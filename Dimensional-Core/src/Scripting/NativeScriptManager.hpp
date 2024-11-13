@@ -1,7 +1,6 @@
 #ifndef DM_NATIVESCRIPTMANAGER
 #define DM_NATIVESCRIPTMANAGER
-
-#include "Scripting/EngineAPI.hpp"
+#include "Scripting/include/EngineAPI.hpp"
 #include <functional>
 #ifdef _WIN32
 #include <Windows.h>
@@ -23,7 +22,8 @@ bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<Fu
         DM_CORE_WARN("FAILED TO LOAD FUNCTION {}", funcName);
         return false;
     }
-    out = reinterpret_cast<FuncT>(funcPTR);
+    auto typedFunc = reinterpret_cast<FuncT*>(funcPTR);
+    out = std::function<FuncT>(*typedFunc);
     return true;
 }
 
@@ -36,7 +36,7 @@ public:
     NativeScriptManager();
     ~NativeScriptManager();
 
-    void setGameLibrary(std::string& path);
+    void reloadGameLibrary(std::string& path);
 
 private:
     void* gameLibraryHandle = nullptr;

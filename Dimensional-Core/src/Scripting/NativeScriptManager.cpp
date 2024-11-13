@@ -1,5 +1,5 @@
 #include "Log/log.hpp"
-#include "Scripting/EngineAPI.hpp"
+#include "Scripting/include/EngineAPI.hpp"
 #include <Scripting/NativeScriptManager.hpp>
 namespace Dimensional {
 NativeScriptManager::NativeScriptManager()
@@ -9,7 +9,7 @@ NativeScriptManager::~NativeScriptManager()
 {
 }
 
-void NativeScriptManager::setGameLibrary(std::string& path)
+void NativeScriptManager::reloadGameLibrary(std::string& path)
 {
     gameLibraryHandle = LoadLibraryFunc(path.c_str());
     if (!gameLibraryHandle) {

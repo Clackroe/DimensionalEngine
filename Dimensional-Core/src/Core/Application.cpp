@@ -2,7 +2,6 @@
 #include "Log/log.hpp"
 #include "core.hpp"
 #include <Core/Application.hpp>
-#include <Scripting/EngineAPI.hpp>
 
 #include <Core/Time.hpp>
 
