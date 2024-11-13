@@ -3,6 +3,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <unordered_map>
 
 class NativeScriptableEntity;
 
@@ -18,16 +19,16 @@ struct ScriptableEntityData {
     std::function<void()> onDestroy = nullptr;
 };
 
+struct NativeScriptRegistry {
+    std::unordered_map<std::string, ScriptableEntityData> scriptRegistry;
+};
+
 #define REGISTER_API_FUNC(name) std::function<decltype(name)> name;
 
 struct EngineAPI {
     std::function<void(const char*)> LogInfo;
     std::function<void(const char*)> LogWarn;
     std::function<void(const char*)> LogError;
-};
-
-struct ScriptRegistry {
-    std::map<uint64_t, ScriptableEntityData> registry;
 };
 
 extern "C" EngineAPI* getEngineAPI();

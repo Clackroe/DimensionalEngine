@@ -15,15 +15,14 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
     if (!gameLibraryHandle) {
         DM_CORE_WARN("FAILED TO LOAD GAME LIBRARY");
     }
-    bool success = loadLibraryFunction(gameLibraryHandle, "Init", initializeFunction);
+    bool success = loadLibraryFunction(gameLibraryHandle, "InitializeEngineAPI", initializeFunction);
     if (!success) {
         DM_CORE_WARN("Cannot retrieve initializeFunction from game library");
         gameLibraryHandle = nullptr;
         return;
     }
     EngineAPI* api = getEngineAPI();
-    ScriptableEntityData* t = initializeFunction(api);
-    t->onUpdate();
+    initializeFunction(api);
 }
 
 }

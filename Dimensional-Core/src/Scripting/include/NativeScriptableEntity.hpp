@@ -1,10 +1,11 @@
 #ifndef DM_NATIVE_SCRIPTABLE_ENTITY
 #define DM_NATIVE_SCRIPTABLE_ENTITY
-#include "Scripting/include/EngineAPI.hpp"
+#include "EngineAPI.hpp"
 
 extern EngineAPI* g_EngineAPI;
 
 class NativeScriptableEntity {
+public:
     NativeScriptableEntity(int entityHandle)
         : m_EntityHandle(entityHandle)
     {
