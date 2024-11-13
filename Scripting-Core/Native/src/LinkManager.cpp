@@ -7,7 +7,7 @@ ScriptableEntityData t {};
 
 void UpdateTest()
 {
-    std::cout << "UpdateTest" << std::endl;
+    engineAPI->LogWarn("WOW ITS A WARNING");
 }
 
 DM_GAMEAPI ScriptableEntityData* Init(EngineAPI* api)
