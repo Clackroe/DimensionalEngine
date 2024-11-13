@@ -11,11 +11,11 @@ CTestTestfile.cmake
 _deps
 imgui.ini
 Assets
-!Assets/shaders
-!Assets/Scripts
 Assets/Scripts/build/
 Assets/Scripts/out/
 Assets/Scripts/.cache/
+!Assets/shaders
+!Assets/Scripts
 .vs
 out
 Builds
