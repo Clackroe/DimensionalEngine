@@ -9,7 +9,7 @@ NativeScriptManager::~NativeScriptManager()
 {
 }
 
-void NativeScriptManager::reloadGameLibrary(std::string& path)
+void NativeScriptManager::reloadGameLibrary(const std::string& path)
 {
     gameLibraryHandle = LoadLibraryFunc(path.c_str());
     if (!gameLibraryHandle) {
@@ -22,7 +22,8 @@ void NativeScriptManager::reloadGameLibrary(std::string& path)
         return;
     }
     EngineAPI* api = getEngineAPI();
-    initializeFunction(api);
+    ScriptableEntityData* t = initializeFunction(api);
+    t->onUpdate();
 }
 
 }

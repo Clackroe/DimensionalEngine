@@ -12,7 +12,14 @@ _deps
 imgui.ini
 Assets
 !Assets/shaders
+!Assets/Scripts
+Assets/Scripts/build
+Assets/Scripts/out
+Assets/Scripts/.cache
 .vs
 out
 Builds
+build
+builds
+.cache
 

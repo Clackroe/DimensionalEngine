@@ -36,12 +36,12 @@ public:
     NativeScriptManager();
     ~NativeScriptManager();
 
-    void reloadGameLibrary(std::string& path);
+    void reloadGameLibrary(const std::string& path);
 
 private:
     void* gameLibraryHandle = nullptr;
 
-    std::function<void(EngineAPI*)> initializeFunction;
+    std::function<ScriptableEntityData*(EngineAPI*)> initializeFunction;
 };
 }
 

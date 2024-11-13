@@ -1,5 +1,6 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
+#include "Scripting/NativeScriptManager.hpp"
 #include "core.hpp"
 #include <Core/Application.hpp>
 
@@ -31,6 +32,10 @@ static float frameTime = 0;
 
 void Application::runApplication()
 {
+
+    NativeScriptManager managerTemp;
+
+    managerTemp.reloadGameLibrary("Assets/libGameApp.so");
 
     while (m_Running) {
         float frameStartTime = Time::getTime();
