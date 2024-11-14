@@ -24,7 +24,7 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
     freeGameLibrary();
     m_GameLibraryHandle = LoadLibraryFunc(uniqueLibPath.c_str());
     if (!m_GameLibraryHandle) {
-        const char* error = dlerror();
+        const char* error = LibError();
         if (error) {
             DM_CORE_WARN("FAILED TO LOAD GAME LIBRARY: {}", error);
         } else {
@@ -51,17 +51,17 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
 void NativeScriptManager::freeGameLibrary()
 {
     if (m_GameLibraryHandle) {
-        m_InitializeFunction = nullptr; // Clear function pointer
-        m_NativeScriptRegistry->scriptRegistry.clear(); // Clear any registry references
+        m_InitializeFunction = nullptr;
+        m_NativeScriptRegistry->scriptRegistry.clear();
 
-        if (dlclose(m_GameLibraryHandle) != 0) { // Ensure successful unload
-            const char* error = dlerror();
+        if (dlclose(m_GameLibraryHandle) != 0) {
+            const char* error = LibError();
             if (error) {
                 DM_CORE_WARN("FAILED TO UNLOAD GAME LIBRARY: {}", error);
             }
         }
 
-        m_GameLibraryHandle = nullptr; // Nullify handle to avoid accidental reuse
+        m_GameLibraryHandle = nullptr;
     }
 }
 

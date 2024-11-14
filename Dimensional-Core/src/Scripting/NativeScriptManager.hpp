@@ -7,11 +7,13 @@
 #define LoadLibraryFunc(name) LoadLibrary(name)
 #define GetFunctionAddress(lib, func) GetProcAddress((HMODULE)lib, func)
 #define FreeLibraryFunc(lib) FreeLibrary((HMODULE)lib)
+#define LibError() nullptr
 #else
 #include <dlfcn.h>
 #define LoadLibraryFunc(name) dlopen(name, RTLD_NOW | RTLD_LOCAL)
 #define GetFunctionAddress(lib, func) dlsym(lib, func)
 #define FreeLibraryFunc(lib) dlclose(lib)
+#define LibError() dlerror()
 #endif
 
 template <typename FuncT>

@@ -170,6 +170,16 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
         out << YAML::EndMap;
     }
 
+    if (entity.hasComponent<NativeScriptComponent>()) {
+        auto& comp = entity.getComponent<NativeScriptComponent>();
+        out << YAML::Key << "NativeScriptComponent";
+        out << YAML::BeginMap;
+
+        out << YAML::Key << "ClassName" << YAML::Value << comp.className;
+
+        out << YAML::EndMap;
+    }
+
     out << YAML::EndMap;
 }
 
@@ -249,6 +259,14 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
         SetValue(dComp.color, dirComp["Color"]);
 
         SetValue(dComp.intensity, dirComp["Intensity"]);
+    }
+
+    auto nsComp = node["NativeScriptComponent"];
+    if (nsComp) {
+
+        auto& comp = loadedEntity.addComponent<NativeScriptComponent>();
+
+        SetValue(comp.className, nsComp["ClassName"]);
     }
 
     return loadedEntity.getID();

@@ -12,7 +12,7 @@ public:
 
     void update()
     {
-        g_EngineAPI->LogWarn("ERM...");
+        g_EngineAPI->LogWarn("ERM2...");
     };
 
     void create()
@@ -35,7 +35,7 @@ public:
 
     void update()
     {
-        g_EngineAPI->LogWarn("WOW...");
+        g_EngineAPI->LogWarn("WOW2...");
     };
 
     void destroy()
