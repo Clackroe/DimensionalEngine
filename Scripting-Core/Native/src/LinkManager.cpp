@@ -1,20 +1,21 @@
-#include <CoreScriptLib.hpp>
+#include <ReflectionHelpers.hpp>
+
 #include <EngineAPI.hpp>
 
-EngineAPI* engineAPI = nullptr;
+EngineAPI* g_EngineAPI = nullptr;
+NativeScriptRegistry g_ScriptRegistry;
+extern std::vector<std::function<void()>> g_RegistrationFunctions;
 
-ScriptableEntityData t {};
-
-void UpdateTest()
+void registerScripts()
 {
-    engineAPI->LogWarn("WOW ITS A WARNING");
+    for (auto& func : g_RegistrationFunctions) {
+        func();
+    }
 }
 
-DM_GAMEAPI ScriptableEntityData* Init(EngineAPI* api)
+DM_GAMEAPI NativeScriptRegistry* InitializeEngineAPI(EngineAPI* api)
 {
-    std::cout << "INITIALIZING SCRIPTING" << std::endl;
-    t.onUpdate = UpdateTest;
-    engineAPI = api;
-
-    return &t;
+    registerScripts();
+    g_EngineAPI = api;
+    return &g_ScriptRegistry;
 }

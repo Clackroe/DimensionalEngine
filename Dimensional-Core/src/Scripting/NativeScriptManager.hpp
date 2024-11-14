@@ -9,7 +9,7 @@
 #define FreeLibraryFunc(lib) FreeLibrary((HMODULE)lib)
 #else
 #include <dlfcn.h>
-#define LoadLibraryFunc(name) dlopen(name, RTLD_LAZY)
+#define LoadLibraryFunc(name) dlopen(name, RTLD_NOW | RTLD_LOCAL)
 #define GetFunctionAddress(lib, func) dlsym(lib, func)
 #define FreeLibraryFunc(lib) dlclose(lib)
 #endif
@@ -37,11 +37,16 @@ public:
     ~NativeScriptManager();
 
     void reloadGameLibrary(const std::string& path);
+    void freeGameLibrary();
 
 private:
-    void* gameLibraryHandle = nullptr;
+    void* m_GameLibraryHandle = nullptr;
 
-    std::function<ScriptableEntityData*(EngineAPI*)> initializeFunction;
+    std::function<NativeScriptRegistry*(EngineAPI*)> m_InitializeFunction = nullptr;
+    NativeScriptRegistry* m_NativeScriptRegistry;
+
+    friend class Scene;
+    friend class Application;
 };
 }
 

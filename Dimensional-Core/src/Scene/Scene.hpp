@@ -16,10 +16,6 @@ public:
     Scene();
     ~Scene();
 
-    void updateEditor();
-
-    void beginScene();
-
     Entity createEntity(const std::string& name = std::string());
     Entity createEntityWithUUID(UUID uuid, const std::string& name = std::string());
     Entity duplicateEntity(Entity);
@@ -31,6 +27,12 @@ public:
 
     template <typename... Components>
     auto getAllEntitiesWith() { return m_Registry.view<Components...>(); }
+
+    void onSceneRuntimeStart();
+
+    void updateSceneRuntime();
+
+    void onSceneRuntimeEnd();
 
     virtual AssetType getAssetType() const { return AssetType::SCENE; }
 
@@ -54,6 +56,8 @@ private:
     void onComponentAdded<SkyLight>(Entity entity, SkyLight& component);
     template <>
     void onComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component);
+    template <>
+    void onComponentAdded<NatNativeScriptComponent>(Entity entity, NaNativeScriptComponent& component);
 
 #endif
 

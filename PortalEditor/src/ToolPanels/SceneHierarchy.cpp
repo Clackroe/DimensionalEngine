@@ -198,6 +198,10 @@ void SceneHierarchy::entityComponents(Entity entity)
             entity.addComponent<DirectionalLightComponent>();
         }
 
+        if (ImGui::Button("Native Script")) {
+            entity.addComponent<NativeScriptComponent>();
+        }
+
         ImGui::EndPopup();
     }
 
@@ -252,6 +256,21 @@ void SceneHierarchy::entityComponents(Entity entity)
                     std::filesystem::path(AssetManager::getInstance().getMetaData(component.envMap).sourcePath).stem().string());
 
                 ImGui::DragFloat("Linear", &component.lod, 0.01f, 0.0f, 4.0f);
+            },
+            true);
+    }
+
+    if (entity.hasComponent<NativeScriptComponent>()) {
+        componentNode<NativeScriptComponent>(
+            "Native Script", entity, [](NativeScriptComponent& component) {
+                ImGui::Text("ClassName");
+
+                char buffer[256];
+                std::memset(buffer, 0, sizeof(buffer));
+                std::strncpy(buffer, component.className.c_str(), sizeof(buffer) - 1);
+                if (ImGui::InputText("##Tag", buffer, sizeof(buffer))) {
+                    component.className = std::string(buffer);
+                }
             },
             true);
     }

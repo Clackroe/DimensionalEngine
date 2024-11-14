@@ -1,10 +1,12 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
 #include "Scripting/NativeScriptManager.hpp"
+#include "Scripting/include/EngineAPI.hpp"
 #include "core.hpp"
 #include <Core/Application.hpp>
 
 #include <Core/Time.hpp>
+#include <filesystem>
 
 namespace Dimensional {
 
@@ -26,16 +28,12 @@ Application::Application(const std::string& title, u32 width, u32 height)
     DM_CORE_INFO("Platform: {0}", DM_PLATFORM);
 
     initializeSubSystems();
+    m_ScriptManager.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
 }
 
 static float frameTime = 0;
-
 void Application::runApplication()
 {
-
-    NativeScriptManager managerTemp;
-
-    managerTemp.reloadGameLibrary("Assets/libGameApp.so");
 
     while (m_Running) {
         float frameStartTime = Time::getTime();
@@ -72,5 +70,6 @@ void Application::initializeSubSystems()
     m_EventSystem.Init();
     Input::Init();
     m_Renderer.Init(m_Window->getLoadProc());
+    m_ScriptManager.freeGameLibrary();
 }
 }

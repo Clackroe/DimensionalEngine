@@ -1,6 +1,8 @@
+#include "Core/Application.hpp"
 #include "Log/log.hpp"
 #include "Rendering/EnvironmentMap.hpp"
 #include "Rendering/Mesh.hpp"
+#include "Scripting/include/EngineAPI.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
 #include <Asset/AssetManager.hpp>
@@ -18,12 +20,43 @@ Scene::~Scene()
 {
 }
 
-void Scene::beginScene()
+void Scene::onSceneRuntimeStart()
 {
+    auto& app = Application::getApp();
+    app.getScriptManager().reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+
+    auto view = m_Registry.view<IDComponent, NativeScriptComponent>();
+    for (auto e : view) {
+        auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
+        auto registry = app.getScriptManager().m_NativeScriptRegistry->scriptRegistry;
+        ScriptableEntityData data = registry.at(comp.className);
+        comp.objectPointer = data.classFactory(id.ID);
+        data.onCreate(comp.objectPointer);
+    }
 }
 
-void Scene::updateEditor()
+void Scene::updateSceneRuntime()
 {
+    auto view = m_Registry.view<IDComponent, NativeScriptComponent>();
+    for (auto e : view) {
+        auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
+        auto registry = Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry;
+        ScriptableEntityData data = registry.at(comp.className);
+        data.onUpdate(comp.objectPointer);
+    }
+}
+
+void Scene::onSceneRuntimeEnd()
+{
+    auto view = m_Registry.view<IDComponent, NativeScriptComponent>();
+    for (auto e : view) {
+        auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
+        auto registry = Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry;
+        ScriptableEntityData data = registry.at(comp.className);
+        data.onDestroy(comp.objectPointer);
+        data.classDestructor(comp.objectPointer);
+        comp.objectPointer = nullptr;
+    }
 }
 
 Entity Scene::createEntity(const std::string& name)
@@ -71,6 +104,12 @@ Entity Scene::duplicateEntity(Entity e)
 
 void Scene::destroyEntity(Entity entity)
 {
+
+    if (entity.hasComponent<NativeScriptComponent>()) {
+        auto& comp = entity.getComponent<NativeScriptComponent>();
+        Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry[comp.className].classDestructor(comp.objectPointer);
+    }
+
     m_EntityMap.erase(entity.getID());
     m_Registry.destroy(entity);
 }
@@ -138,4 +177,8 @@ void Scene::onComponentAdded<DirectionalLightComponent>(Entity entity, Direction
 {
 }
 
+template <>
+void Scene::onComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
+{
+}
 }

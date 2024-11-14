@@ -1,7 +1,6 @@
 #ifndef DM_ENGINEAPI
 #define DM_ENGINEAPI
 #include <functional>
-#include <map>
 #include <string>
 #include <unordered_map>
 
@@ -12,15 +11,15 @@ struct ScriptableEntityData {
     // Class and Instance Data
     std::string className;
     std::function<NativeScriptableEntity*(int)> classFactory = nullptr;
-    std::function<void()> classDestructor = nullptr;
+    std::function<void(NativeScriptableEntity*)> classDestructor = nullptr;
     // Events
-    std::function<void()> onUpdate = nullptr;
-    std::function<void()> onCreate = nullptr;
-    std::function<void()> onDestroy = nullptr;
+    std::function<void(NativeScriptableEntity*)> onUpdate = nullptr;
+    std::function<void(NativeScriptableEntity*)> onCreate = nullptr;
+    std::function<void(NativeScriptableEntity*)> onDestroy = nullptr;
 };
 
 struct NativeScriptRegistry {
-    std::unordered_map<std::string, ScriptableEntityData> scriptRegistry;
+    std::unordered_map<std::string, ScriptableEntityData> scriptRegistry = std::unordered_map<std::string, ScriptableEntityData>();
 };
 
 #define REGISTER_API_FUNC(name) std::function<decltype(name)> name;

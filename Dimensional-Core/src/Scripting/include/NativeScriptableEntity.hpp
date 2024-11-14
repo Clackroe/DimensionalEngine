@@ -6,13 +6,13 @@ extern EngineAPI* g_EngineAPI;
 
 class NativeScriptableEntity {
 public:
-    NativeScriptableEntity(int entityHandle)
+    NativeScriptableEntity(uint64_t entityHandle)
         : m_EntityHandle(entityHandle)
     {
     }
     ~NativeScriptableEntity() = default;
 
 private:
-    int m_EntityHandle = 0;
+    uint64_t m_EntityHandle = 0;
 };
 #endif

@@ -3,6 +3,12 @@
 #include "ToolPanels/SceneHierarchy.hpp"
 #include <dimensional.hpp>
 namespace Dimensional {
+
+enum class EditorState {
+    EDIT,
+    PLAY
+};
+
 class PortalLayer : public Layer {
 public:
     PortalLayer() = default;
@@ -11,11 +17,16 @@ public:
     virtual void OnUpdate() override;
     virtual void OnImGuiRender() override;
 
+    void startRuntime();
+    void endRuntime();
+
     void openScene(AssetHandle sceneHandle);
     void saveCurrentScene();
 
 private:
     SceneHierarchy m_HierarchyPanel;
+
+    EditorState m_State = EditorState::EDIT;
 
 private:
     EditorCamera m_EditorCamera;
