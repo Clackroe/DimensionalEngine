@@ -51,10 +51,14 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
 void NativeScriptManager::freeGameLibrary()
 {
     if (m_GameLibraryHandle) {
-        m_InitializeFunction = nullptr;
-        m_NativeScriptRegistry->scriptRegistry.clear();
 
-        if (dlclose(m_GameLibraryHandle) != 0) {
+        if (m_NativeScriptRegistry) {
+            m_NativeScriptRegistry->scriptRegistry.clear();
+        }
+
+        m_NativeScriptRegistry = nullptr;
+        m_InitializeFunction = nullptr;
+        if (FreeLibraryFunc(m_GameLibraryHandle) != 0) {
             const char* error = LibError();
             if (error) {
                 DM_CORE_WARN("FAILED TO UNLOAD GAME LIBRARY: {}", error);
