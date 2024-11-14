@@ -1,12 +1,13 @@
 #ifndef DM_KEYCODESH
 #define DM_KEYCODESH
 
+#include <cstdint>
 namespace Dimensional {
 
 // THESE ARE COPIED FROM GLFW
-using KeyCode = u16;
-using Mode = u16;
-using MouseCode = u16;
+using KeyCode = uint16_t;
+using Mode = uint16_t;
+using MouseCode = uint16_t;
 namespace Key {
     enum : Mode {
         RELEASE,

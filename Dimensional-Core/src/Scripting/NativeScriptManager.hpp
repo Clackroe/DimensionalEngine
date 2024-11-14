@@ -1,6 +1,6 @@
 #ifndef DM_NATIVESCRIPTMANAGER
 #define DM_NATIVESCRIPTMANAGER
-#include "Scripting/include/EngineAPI.hpp"
+#include <EngineAPI.hpp>
 #include <functional>
 #ifdef _WIN32
 #include <Windows.h>

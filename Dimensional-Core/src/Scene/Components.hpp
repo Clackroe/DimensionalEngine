@@ -1,8 +1,8 @@
 #ifndef DM_COMPONENTS_H
 #define DM_COMPONENTS_H
 #include "Asset/AssetManager.hpp"
+#include "EngineAPI.hpp"
 #include "Rendering/FrameBuffer.hpp"
-#include "Scripting/include/EngineAPI.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 

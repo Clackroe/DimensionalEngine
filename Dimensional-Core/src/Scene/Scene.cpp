@@ -1,8 +1,8 @@
 #include "Core/Application.hpp"
+#include "EngineAPI.hpp"
 #include "Log/log.hpp"
 #include "Rendering/EnvironmentMap.hpp"
 #include "Rendering/Mesh.hpp"
-#include "Scripting/include/EngineAPI.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
 #include <Asset/AssetManager.hpp>

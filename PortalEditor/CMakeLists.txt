@@ -11,6 +11,7 @@ file(GLOB_RECURSE APP_SOURCES "src/*.cpp")
 
 # Include directories
 include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/src)
+include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/public/include)
 include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/lib/GLM)
 include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/lib/ENTT/single_include)
 include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/lib/YAML/include)

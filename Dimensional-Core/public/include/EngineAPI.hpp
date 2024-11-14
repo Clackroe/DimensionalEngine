@@ -1,5 +1,6 @@
 #ifndef DM_ENGINEAPI
 #define DM_ENGINEAPI
+#include <KeyCodes.hpp>
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -22,12 +23,22 @@ struct NativeScriptRegistry {
     std::unordered_map<std::string, ScriptableEntityData> scriptRegistry = std::unordered_map<std::string, ScriptableEntityData>();
 };
 
-#define REGISTER_API_FUNC(name) std::function<decltype(name)> name;
-
 struct EngineAPI {
+    // LOGGING
     std::function<void(const char*)> LogInfo;
     std::function<void(const char*)> LogWarn;
     std::function<void(const char*)> LogError;
+    // INPUT
+    std::function<bool(Dimensional::KeyCode)> Input_IsKeyDown;
+    std::function<bool(Dimensional::KeyCode)> Input_IsKeyUp;
+
+    std::function<bool(Dimensional::MouseCode)> Input_IsMouseDown;
+    std::function<bool(Dimensional::MouseCode)> Input_IsMouseUp;
+
+    std::function<float()> Input_GetMouseX;
+    std::function<float()> Input_GetMouseY;
+
+    // ENTITY
 };
 
 extern "C" EngineAPI* getEngineAPI();

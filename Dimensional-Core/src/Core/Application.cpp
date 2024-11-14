@@ -1,7 +1,7 @@
+#include "EngineAPI.hpp"
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
 #include "Scripting/NativeScriptManager.hpp"
-#include "Scripting/include/EngineAPI.hpp"
 #include "core.hpp"
 #include <Core/Application.hpp>
 

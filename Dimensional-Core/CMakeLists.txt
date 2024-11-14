@@ -11,6 +11,7 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Include directories
 include_directories(src)
+include_directories(public/include)
 
 # STB
 include_directories(lib/STB)

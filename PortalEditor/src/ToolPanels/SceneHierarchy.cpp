@@ -1,6 +1,6 @@
 #include "Asset/AssetManager.hpp"
 #include "Asset/AssetMeta.hpp"
-#include "Input/KeyCodes.hpp"
+#include "KeyCodes.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelSource.hpp"

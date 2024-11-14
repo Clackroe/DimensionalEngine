@@ -6,7 +6,7 @@
 #include "core.hpp"
 #include "imgui.h"
 #include <Asset/AssetRegistrySerializer.hpp>
-#include <Input/KeyCodes.hpp>
+#include <KeyCodes.hpp>
 #include <PortalEditor.hpp>
 #include <Scene/Components.hpp>
 #include <Scene/SceneSerializer.hpp>

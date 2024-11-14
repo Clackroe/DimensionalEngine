@@ -16,7 +16,7 @@ file(GLOB_RECURSE APP_SOURCES "*.cpp" "*.hpp")
 # Include directories
 include_directories(./)
 include_directories(${PROJECT_SOURCE_DIR}/../../../Scripting-Core/Native/src)
-include_directories(${PROJECT_SOURCE_DIR}/../../../Dimensional-Core/src/Scripting/include)
+include_directories(${PROJECT_SOURCE_DIR}/../../../Dimensional-Core/public/include)
 
 #ScriptCore is another CMakeProject
 add_subdirectory(${PROJECT_SOURCE_DIR}/../../../Scripting-Core/Native ${CMAKE_BINARY_DIR}/Scripting-Core/Native)
@@ -32,4 +32,4 @@ target_link_libraries(GameApp PRIVATE "-Wl,--whole-archive" ScriptingCore "-Wl,-
 # target_link_libraries(GameApp ScriptingCore)
 
 # Link include directories specifically to GameApp
-target_include_directories(GameApp PRIVATE ./ PRIVATE ${PROJECT_SOURCE_DIR}/../../../Dimensional-Core/src/Scripting/include)
+target_include_directories(GameApp PRIVATE ./ PRIVATE ${PROJECT_SOURCE_DIR}/../../../Dimensional-Core/public/include)

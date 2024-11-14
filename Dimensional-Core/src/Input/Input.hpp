@@ -1,7 +1,7 @@
 #ifndef DM_INPUTH
 #define DM_INPUTH
 #include <Event/EventSystem.hpp>
-#include <Input/KeyCodes.hpp>
+#include <KeyCodes.hpp>
 
 #include <core.hpp>
 

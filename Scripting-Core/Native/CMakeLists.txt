@@ -20,5 +20,4 @@ include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/lib/ENTT/single_in
 
 add_library(ScriptingCore STATIC ${APP_SOURCES})
 
-target_include_directories(ScriptingCore PRIVATE ./ PRIVATE ${PROJECT_SOURCE_DIR}/../../Dimensional-Core/src/Scripting/include)
-
+target_include_directories(ScriptingCore PRIVATE ./ PRIVATE ${PROJECT_SOURCE_DIR}/../../Dimensional-Core/public/include)
