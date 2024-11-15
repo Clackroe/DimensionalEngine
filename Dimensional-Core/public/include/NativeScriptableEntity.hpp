@@ -1,6 +1,8 @@
 #ifndef DM_NATIVE_SCRIPTABLE_ENTITY
 #define DM_NATIVE_SCRIPTABLE_ENTITY
 #include "EngineAPI.hpp"
+#include <iostream>
+#include <string>
 
 extern EngineAPI* g_EngineAPI;
 
@@ -10,9 +12,14 @@ public:
         : m_EntityHandle(entityHandle)
     {
     }
+
+    template <typename T>
+    T GetComponent() {
+    };
+
     ~NativeScriptableEntity() = default;
 
-private:
+protected:
     uint64_t m_EntityHandle = 0;
 };
 #endif

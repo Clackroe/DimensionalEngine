@@ -39,7 +39,8 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
         return;
     }
     EngineAPI* api = getEngineAPI();
-    NativeScriptRegistry* tempReg = m_InitializeFunction(api);
+    ComponentAPI* cAPI = getComponentAPI();
+    NativeScriptRegistry* tempReg = m_InitializeFunction(api, cAPI);
     if (tempReg) {
         m_NativeScriptRegistry = tempReg;
     } else {

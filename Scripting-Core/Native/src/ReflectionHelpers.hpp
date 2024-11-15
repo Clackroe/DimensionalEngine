@@ -50,7 +50,7 @@ void registerClass()
     data.className = demangle(typeid(Class).name());
 
     data.classFactory
-        = [](int id) { return new Class(id); };
+        = [](uint64_t id) { return new Class(id); };
     data.classDestructor = [](NativeScriptableEntity* pointer) {
         delete static_cast<Class*>(pointer);
     };

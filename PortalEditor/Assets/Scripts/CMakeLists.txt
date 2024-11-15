@@ -17,6 +17,7 @@ file(GLOB_RECURSE APP_SOURCES "*.cpp" "*.hpp")
 include_directories(./)
 include_directories(${PROJECT_SOURCE_DIR}/../../../Scripting-Core/Native/src)
 include_directories(${PROJECT_SOURCE_DIR}/../../../Dimensional-Core/public/include)
+include_directories(${PROJECT_SOURCE_DIR}/../../../Dimensional-Core/lib/GLM)
 
 #ScriptCore is another CMakeProject
 add_subdirectory(${PROJECT_SOURCE_DIR}/../../../Scripting-Core/Native ${CMAKE_BINARY_DIR}/Scripting-Core/Native)

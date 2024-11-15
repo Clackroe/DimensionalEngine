@@ -8,6 +8,7 @@
 #include <ReflectionHelpers.hpp>
 
 extern EngineAPI* g_EngineAPI;
+extern ComponentAPI* g_CompAPI;
 
 namespace Input {
 
@@ -58,9 +59,11 @@ inline void Error(const char* msg)
 {
     g_EngineAPI->LogError(msg);
 }
-
 }
 
 namespace Time {
+}
+
+namespace Componants {
 }
 #endif

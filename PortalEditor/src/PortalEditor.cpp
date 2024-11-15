@@ -1,5 +1,6 @@
 #include "Asset/Asset.hpp"
 #include "Asset/MaterialSerializer.hpp"
+#include "Core/Application.hpp"
 #include "Rendering/SceneRenderer.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
 #include "ToolPanels/MaterialsPanel.hpp"
@@ -51,6 +52,7 @@ void PortalLayer::startRuntime()
     if (!m_ActiveScene) {
         return;
     }
+    Application::getApp().setSceneCTX(m_ActiveScene);
     m_ActiveScene->onSceneRuntimeStart();
     m_State = EditorState::PLAY;
 }
@@ -61,6 +63,7 @@ void PortalLayer::endRuntime()
     }
     m_ActiveScene->onSceneRuntimeEnd();
     m_State = EditorState::EDIT;
+    Application::getApp().setSceneCTX(nullptr);
 }
 
 void PortalLayer::OnDetatch() { }

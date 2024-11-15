@@ -1,7 +1,9 @@
 #ifndef DM_ENGINEAPI
 #define DM_ENGINEAPI
 #include <KeyCodes.hpp>
+#include <cstdint>
 #include <functional>
+#include <glm/glm.hpp>
 #include <string>
 #include <unordered_map>
 
@@ -11,7 +13,7 @@ class NativeScriptableEntity;
 struct ScriptableEntityData {
     // Class and Instance Data
     std::string className;
-    std::function<NativeScriptableEntity*(int)> classFactory = nullptr;
+    std::function<NativeScriptableEntity*(uint64_t)> classFactory = nullptr;
     std::function<void(NativeScriptableEntity*)> classDestructor = nullptr;
     // Events
     std::function<void(NativeScriptableEntity*)> onUpdate = nullptr;
@@ -23,8 +25,20 @@ struct NativeScriptRegistry {
     std::unordered_map<std::string, ScriptableEntityData> scriptRegistry = std::unordered_map<std::string, ScriptableEntityData>();
 };
 
+// OPAQUE POINTERS
+struct TransformCompHandle;
+
+struct ComponentAPI {
+    // TRANSFORM COMPONENT
+    void* _dummy;
+    std::function<TransformCompHandle*(uint64_t)> Transform_GetComp;
+    std::function<glm::vec3(TransformCompHandle*)> Transform_GetPosition;
+    std::function<void(TransformCompHandle*, glm::vec3)> Transform_SetPosition;
+};
+
 struct EngineAPI {
     // LOGGING
+    void* _dummy;
     std::function<void(const char*)> LogInfo;
     std::function<void(const char*)> LogWarn;
     std::function<void(const char*)> LogError;
@@ -42,5 +56,6 @@ struct EngineAPI {
 };
 
 extern "C" EngineAPI* getEngineAPI();
+extern "C" ComponentAPI* getComponentAPI();
 
 #endif

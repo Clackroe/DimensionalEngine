@@ -72,4 +72,11 @@ void Application::initializeSubSystems()
     m_Renderer.Init(m_Window->getLoadProc());
     m_ScriptManager.freeGameLibrary();
 }
+
+Ref<Scene> Application::getSceneCTX()
+{
+    DM_CORE_ASSERT(m_SceneCTX, "Tried to acces null scene context");
+    return m_SceneCTX;
+}
+
 }

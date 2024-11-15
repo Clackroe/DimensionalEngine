@@ -9,6 +9,7 @@
 #include <Scene/Components.hpp>
 #include <Scene/Entity.hpp>
 #include <Scene/Scene.hpp>
+#include <cstdint>
 
 namespace Dimensional {
 
@@ -30,7 +31,7 @@ void Scene::onSceneRuntimeStart()
         auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
         auto registry = app.getScriptManager().m_NativeScriptRegistry->scriptRegistry;
         ScriptableEntityData data = registry.at(comp.className);
-        comp.objectPointer = data.classFactory(id.ID);
+        comp.objectPointer = data.classFactory((uint64_t)id.ID);
         data.onCreate(comp.objectPointer);
     }
 }

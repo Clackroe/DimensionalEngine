@@ -1,7 +1,9 @@
 #ifndef DM_NATIVESCRIPTMANAGER
 #define DM_NATIVESCRIPTMANAGER
+#include "Scene/Scene.hpp"
 #include <EngineAPI.hpp>
-#include <functional>
+#include <core.hpp>
+
 #ifdef _WIN32
 #include <Windows.h>
 #define LoadLibraryFunc(name) LoadLibrary(name)
@@ -29,8 +31,6 @@ bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<Fu
     return true;
 }
 
-#include <core.hpp>
-
 namespace Dimensional {
 
 class NativeScriptManager {
@@ -44,7 +44,7 @@ public:
 private:
     void* m_GameLibraryHandle = nullptr;
 
-    std::function<NativeScriptRegistry*(EngineAPI*)> m_InitializeFunction = nullptr;
+    std::function<NativeScriptRegistry*(EngineAPI*, ComponentAPI*)> m_InitializeFunction = nullptr;
     NativeScriptRegistry* m_NativeScriptRegistry;
 
     friend class Scene;
