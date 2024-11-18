@@ -133,7 +133,6 @@ struct DMCORE_API NativeScriptComponent {
     NativeScriptComponent(const NativeScriptComponent&) = default;
 
     std::string className;
-    NativeScriptableEntity* objectPointer = nullptr;
 };
 
 template <typename... Component>

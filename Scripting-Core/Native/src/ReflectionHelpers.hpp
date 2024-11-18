@@ -5,6 +5,8 @@
 #include <EngineAPI.hpp>
 #include <NativeScriptableEntity.hpp>
 
+#include <cstring>
+
 extern NativeScriptRegistry g_ScriptRegistry;
 extern std::vector<std::function<void()>> g_RegistrationFunctions;
 
@@ -75,6 +77,7 @@ void registerClass()
             typedPointer->destroy();
         }
     };
+    data.memberData = Class::registerMembers();
     g_ScriptRegistry.scriptRegistry[data.className] = data;
 }
 
@@ -95,4 +98,48 @@ bool ClassRegistrar<Class>::registered = [] {
 }();
 
 #define REGISTER_SCRIPT(CLASS) static ClassRegistrar<CLASS> registrar_##CLASS;
+
+#define DM_GENERATED_BODY(Class)                                                   \
+public:                                                                            \
+    inline static std::vector<std::function<MemberData()>> s_RegisterMembersFuncs; \
+    static std::vector<MemberData> registerMembers()                               \
+    {                                                                              \
+        std::vector<MemberData> members;                                           \
+        for (auto& func : s_RegisterMembersFuncs) {                                \
+            MemberData d = func();                                                 \
+            members.push_back(d);                                                  \
+        }                                                                          \
+        return members;                                                            \
+    }                                                                              \
+    static void ReflectMembers()                                                   \
+    {                                                                              \
+    }
+
+#define DM_PROPERTY(Class, type, name, defaultValue)                                       \
+    type name = defaultValue;                                                              \
+    struct _MemberRegister_##name {                                                        \
+        _MemberRegister_##name()                                                           \
+        {                                                                                  \
+            size_t offset = offsetof(Class, name);                                         \
+            s_RegisterMembersFuncs.push_back([offset]() -> MemberData {                    \
+                MemberData data;                                                           \
+                data.varName = #name;                                                      \
+                data.offsetBytes = offset;                                                 \
+                data.dataType = g_SupportedMemebersToType.at(#type);                       \
+                data.getter = [offset](NativeScriptableEntity* entity) -> void* {          \
+                    auto* obj = static_cast<Class*>(entity);                               \
+                    return reinterpret_cast<void*>(reinterpret_cast<char*>(obj) + offset); \
+                };                                                                         \
+                data.setter = [offset](NativeScriptableEntity* entity, void* value) {      \
+                    auto* obj = static_cast<Class*>(entity);                               \
+                    auto* member = reinterpret_cast<void*>(                                \
+                        reinterpret_cast<char*>(obj) + offset);                            \
+                    std::memcpy(member, value, sizeof(type));                              \
+                };                                                                         \
+                return data;                                                               \
+            });                                                                            \
+        }                                                                                  \
+    };                                                                                     \
+    inline static _MemberRegister_##name _memberRegister_instance_##name;
+
 #endif

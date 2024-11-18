@@ -33,6 +33,38 @@ void Scene::onSceneRuntimeStart()
         ScriptableEntityData data = registry.at(comp.className);
         comp.objectPointer = data.classFactory((uint64_t)id.ID);
         data.onCreate(comp.objectPointer);
+
+        for (auto& member : data.memberData) {
+            if (!comp.members.contains(member.varName)) {
+                MemberInstanceData d {};
+                d.type = member.dataType;
+                d.data = member.getter(comp.objectPointer);
+                comp.members[member.varName] = d;
+            }
+        }
+
+        for (auto& member : data.memberData) {
+            void* instanceData = comp.members[member.varName].data;
+            switch (member.dataType) {
+            case ExposedMembers::FLOAT:
+                member.setter(comp.objectPointer, (float*)instanceData);
+                break;
+            case ExposedMembers::INT:
+                member.setter(comp.objectPointer, (int*)instanceData);
+                break;
+            case ExposedMembers::U32:
+                member.setter(comp.objectPointer, (uint32_t*)instanceData);
+                break;
+            case ExposedMembers::U64:
+                member.setter(comp.objectPointer, (uint64_t*)instanceData);
+                break;
+            case ExposedMembers::GLM_VEC3:
+                member.setter(comp.objectPointer, (glm::vec3*)instanceData);
+                break;
+            case ExposedMembers::NONE:
+                break;
+            }
+        }
     }
 }
 

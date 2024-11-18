@@ -1,5 +1,6 @@
 #include "Asset/AssetManager.hpp"
 #include "Asset/AssetMeta.hpp"
+#include "EngineAPI.hpp"
 #include "KeyCodes.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Material.hpp"
@@ -270,6 +271,17 @@ void SceneHierarchy::entityComponents(Entity entity)
                 std::strncpy(buffer, component.className.c_str(), sizeof(buffer) - 1);
                 if (ImGui::InputText("##Tag", buffer, sizeof(buffer))) {
                     component.className = std::string(buffer);
+                }
+
+                if (component.members.size() > 0) {
+                    for (auto [name, val] : component.members) {
+                        if (component.members.contains(name)) {
+                            auto& data = component.members.at(name);
+                            if (data.type == ExposedMembers::FLOAT) {
+                                ImGui::DragFloat(name.c_str(), (float*)data.data);
+                            }
+                        }
+                    }
                 }
             },
             true);

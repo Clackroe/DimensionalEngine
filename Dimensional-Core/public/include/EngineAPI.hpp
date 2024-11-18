@@ -4,10 +4,38 @@
 #include <cstdint>
 #include <functional>
 #include <glm/glm.hpp>
+#include <map>
 #include <string>
 #include <unordered_map>
 
 class NativeScriptableEntity;
+
+enum class ExposedMembers {
+    FLOAT,
+    INT,
+    U32,
+    U64,
+    GLM_VEC3,
+    NONE
+};
+
+static std::map<std::string, ExposedMembers> g_SupportedMemebersToType = {
+    { "float", ExposedMembers::FLOAT },
+    { "int", ExposedMembers::INT },
+    { "uint32_t", ExposedMembers::U32 },
+    { "u32", ExposedMembers::U32 },
+    { "uint64_t", ExposedMembers::U64 },
+    { "u64", ExposedMembers::U64 },
+    { "glm::vec3", ExposedMembers::GLM_VEC3 },
+};
+
+struct MemberData {
+    std::string varName;
+    size_t offsetBytes;
+    ExposedMembers dataType = ExposedMembers::NONE;
+    std::function<void*(NativeScriptableEntity*)> getter;
+    std::function<void(NativeScriptableEntity*, void*)> setter;
+};
 
 // Each Dimensional Script will require a constructor that takes in an entity handle
 struct ScriptableEntityData {
@@ -19,10 +47,11 @@ struct ScriptableEntityData {
     std::function<void(NativeScriptableEntity*)> onUpdate = nullptr;
     std::function<void(NativeScriptableEntity*)> onCreate = nullptr;
     std::function<void(NativeScriptableEntity*)> onDestroy = nullptr;
+    std::vector<MemberData> memberData;
 };
 
 struct NativeScriptRegistry {
-    std::unordered_map<std::string, ScriptableEntityData> scriptRegistry = std::unordered_map<std::string, ScriptableEntityData>();
+    std::unordered_map<std::string, ScriptableEntityData> scriptRegistry;
 };
 
 // OPAQUE POINTERS
