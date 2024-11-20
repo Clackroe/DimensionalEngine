@@ -69,6 +69,7 @@ private:
     friend class SceneSerializer;
     friend class SceneRenderer;
     friend class SceneHierarchy;
+    // friend class ScriptEngine;
 };
 
 }

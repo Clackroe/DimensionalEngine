@@ -21,3 +21,12 @@ DM_GAMEAPI NativeScriptRegistry* InitializeEngineAPI(EngineAPI* engineAPI, Compo
     g_CompAPI = componentAPI;
     return &g_ScriptRegistry;
 }
+
+DM_GAMEAPI void cleanupAPI()
+{
+    std::cout << "Cleaning Up GameLibrary" << std::endl;
+    g_EngineAPI = nullptr;
+    g_CompAPI = nullptr;
+    g_ScriptRegistry = NativeScriptRegistry();
+    g_RegistrationFunctions.clear();
+}

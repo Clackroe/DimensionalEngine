@@ -28,55 +28,55 @@ void Scene::onSceneRuntimeStart()
 
     auto view = m_Registry.view<IDComponent, NativeScriptComponent>();
     for (auto e : view) {
-        auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
-        auto registry = app.getScriptManager().m_NativeScriptRegistry->scriptRegistry;
-        ScriptableEntityData data = registry.at(comp.className);
-        comp.objectPointer = data.classFactory((uint64_t)id.ID);
-        data.onCreate(comp.objectPointer);
-
-        for (auto& member : data.memberData) {
-            if (!comp.members.contains(member.varName)) {
-                MemberInstanceData d {};
-                d.type = member.dataType;
-                d.data = member.getter(comp.objectPointer);
-                comp.members[member.varName] = d;
-            }
-        }
-
-        for (auto& member : data.memberData) {
-            void* instanceData = comp.members[member.varName].data;
-            switch (member.dataType) {
-            case ExposedMembers::FLOAT:
-                member.setter(comp.objectPointer, (float*)instanceData);
-                break;
-            case ExposedMembers::INT:
-                member.setter(comp.objectPointer, (int*)instanceData);
-                break;
-            case ExposedMembers::U32:
-                member.setter(comp.objectPointer, (uint32_t*)instanceData);
-                break;
-            case ExposedMembers::U64:
-                member.setter(comp.objectPointer, (uint64_t*)instanceData);
-                break;
-            case ExposedMembers::GLM_VEC3:
-                member.setter(comp.objectPointer, (glm::vec3*)instanceData);
-                break;
-            case ExposedMembers::NONE:
-                break;
-            }
-        }
+        // auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
+        // auto registry = app.getScriptManager().m_NativeScriptRegistry->scriptRegistry;
+        // ScriptableEntityData data = registry.at(comp.className);
+        // comp.objectPointer = data.classFactory((uint64_t)id.ID);
+        // data.onCreate(comp.objectPointer);
+        //
+        // for (auto& member : data.memberData) {
+        //     if (!comp.members.contains(member.varName)) {
+        //         MemberInstanceData d {};
+        //         d.type = member.dataType;
+        //         d.data = member.getter(comp.objectPointer);
+        //         comp.members[member.varName] = d;
+        //     }
+        // }
+        //
+        // for (auto& member : data.memberData) {
+        //     void* instanceData = comp.members[member.varName].data;
+        //     switch (member.dataType) {
+        //     case ScriptMemberType::FLOAT:
+        //         member.setter(comp.objectPointer, (float*)instanceData);
+        //         break;
+        //     case ScriptMemberType::INT:
+        //         member.setter(comp.objectPointer, (int*)instanceData);
+        //         break;
+        //     case ScriptMemberType::U32:
+        //         member.setter(comp.objectPointer, (uint32_t*)instanceData);
+        //         break;
+        //     case ScriptMemberType::U64:
+        //         member.setter(comp.objectPointer, (uint64_t*)instanceData);
+        //         break;
+        //     case ScriptMemberType::GLM_VEC3:
+        //         member.setter(comp.objectPointer, (glm::vec3*)instanceData);
+        //         break;
+        //     case ScriptMemberType::NONE:
+        //         break;
+        //     }
+        // }
     }
 }
 
 void Scene::updateSceneRuntime()
 {
     auto view = m_Registry.view<IDComponent, NativeScriptComponent>();
-    for (auto e : view) {
-        auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
-        auto registry = Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry;
-        ScriptableEntityData data = registry.at(comp.className);
-        data.onUpdate(comp.objectPointer);
-    }
+    // for (auto e : view) {
+    //     auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
+    //     auto registry = Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry;
+    //     ScriptableEntityData data = registry.at(comp.className);
+    //     data.onUpdate(comp.objectPointer);
+    // }
 }
 
 void Scene::onSceneRuntimeEnd()
@@ -85,10 +85,10 @@ void Scene::onSceneRuntimeEnd()
     for (auto e : view) {
         auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
         auto registry = Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry;
-        ScriptableEntityData data = registry.at(comp.className);
-        data.onDestroy(comp.objectPointer);
-        data.classDestructor(comp.objectPointer);
-        comp.objectPointer = nullptr;
+        // ScriptableEntityData data = registry.at(comp.className);
+        // data.onDestroy(comp.objectPointer);
+        // data.classDestructor(comp.objectPointer);
+        // comp.objectPointer = nullptr;
     }
 }
 
@@ -140,7 +140,7 @@ void Scene::destroyEntity(Entity entity)
 
     if (entity.hasComponent<NativeScriptComponent>()) {
         auto& comp = entity.getComponent<NativeScriptComponent>();
-        Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry[comp.className].classDestructor(comp.objectPointer);
+        // Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry[comp.className].classDestructor(comp.objectPointer);
     }
 
     m_EntityMap.erase(entity.getID());

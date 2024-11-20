@@ -10,7 +10,7 @@
 
 class NativeScriptableEntity;
 
-enum class ExposedMembers {
+enum class ScriptMemberType {
     FLOAT,
     INT,
     U32,
@@ -19,20 +19,21 @@ enum class ExposedMembers {
     NONE
 };
 
-static std::map<std::string, ExposedMembers> g_SupportedMemebersToType = {
-    { "float", ExposedMembers::FLOAT },
-    { "int", ExposedMembers::INT },
-    { "uint32_t", ExposedMembers::U32 },
-    { "u32", ExposedMembers::U32 },
-    { "uint64_t", ExposedMembers::U64 },
-    { "u64", ExposedMembers::U64 },
-    { "glm::vec3", ExposedMembers::GLM_VEC3 },
+static std::map<std::string, ScriptMemberType> g_StringToScriptMember = {
+    { "float", ScriptMemberType::FLOAT },
+    { "int", ScriptMemberType::INT },
+    { "uint32_t", ScriptMemberType::U32 },
+    { "u32", ScriptMemberType::U32 },
+    { "uint64_t", ScriptMemberType::U64 },
+    { "u64", ScriptMemberType::U64 },
+    { "glm::vec3", ScriptMemberType::GLM_VEC3 },
 };
 
 struct MemberData {
     std::string varName;
     size_t offsetBytes;
-    ExposedMembers dataType = ExposedMembers::NONE;
+    void* defaultVal = nullptr;
+    ScriptMemberType dataType = ScriptMemberType::NONE;
     std::function<void*(NativeScriptableEntity*)> getter;
     std::function<void(NativeScriptableEntity*, void*)> setter;
 };

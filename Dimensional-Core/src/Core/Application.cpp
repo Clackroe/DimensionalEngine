@@ -75,7 +75,10 @@ void Application::initializeSubSystems()
 
 Ref<Scene> Application::getSceneCTX()
 {
-    DM_CORE_ASSERT(m_SceneCTX, "Tried to acces null scene context");
+    if (!m_SceneCTX) {
+        DM_CORE_ERROR("Tried to acces null scene context");
+        return nullptr;
+    }
     return m_SceneCTX;
 }
 

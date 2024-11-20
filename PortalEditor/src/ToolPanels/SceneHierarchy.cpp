@@ -272,17 +272,6 @@ void SceneHierarchy::entityComponents(Entity entity)
                 if (ImGui::InputText("##Tag", buffer, sizeof(buffer))) {
                     component.className = std::string(buffer);
                 }
-
-                if (component.members.size() > 0) {
-                    for (auto [name, val] : component.members) {
-                        if (component.members.contains(name)) {
-                            auto& data = component.members.at(name);
-                            if (data.type == ExposedMembers::FLOAT) {
-                                ImGui::DragFloat(name.c_str(), (float*)data.data);
-                            }
-                        }
-                    }
-                }
             },
             true);
     }
