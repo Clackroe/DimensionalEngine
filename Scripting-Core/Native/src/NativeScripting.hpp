@@ -5,41 +5,61 @@
 #include <CoreScriptLib.hpp>
 #include <DefinesScriptLib.hpp>
 #include <KeyCodes.hpp>
-#include <ReflectionHelpers.hpp>
+#include <functional>
 
-extern EngineAPI* g_EngineAPI;
-extern ComponentAPI* g_CompAPI;
+class ScriptCoreLink {
+public:
+    static void Init(EngineAPI* eAPI, ComponentAPI* cAPI);
+    static void ShutDown();
+
+    static ScriptCoreLink* getInstance();
+
+    static EngineAPI* getEngineAPI() { return getInstance()->getEngineAPI(); }
+    static ComponentAPI* getComponentAPI() { return getInstance()->getComponentAPI(); }
+
+    inline static NativeScriptRegistry s_ScriptRegistry;
+    inline static std::vector<std::function<void()>> s_RegistrationFunctions;
+
+    ScriptCoreLink(EngineAPI* eAPI, ComponentAPI* cAPI);
+    ~ScriptCoreLink() = default;
+
+private:
+    static std::unique_ptr<ScriptCoreLink> s_Instance;
+
+    EngineAPI* m_EngineAPI = nullptr;
+    ComponentAPI* m_ComponentAPI = nullptr;
+};
 
 namespace Input {
 
 inline bool isKeyDown(Dimensional::KeyCode key)
 {
-    return g_EngineAPI->Input_IsKeyDown(key);
+    return ScriptCoreLink::getEngineAPI()->Input_IsKeyDown(key);
 }
 
 inline bool isKeyReleased(Dimensional::KeyCode key)
 {
-    return g_EngineAPI->Input_IsKeyUp(key);
+    return ScriptCoreLink::getEngineAPI()->Input_IsKeyUp(key);
 }
 
 inline bool isMouseDown(Dimensional::MouseCode key)
 {
-    return g_EngineAPI->Input_IsMouseDown(key);
+    return ScriptCoreLink::getEngineAPI()->Input_IsMouseDown(key);
 }
 
 inline bool isMouseReleased(Dimensional::MouseCode key)
 {
-    return g_EngineAPI->Input_IsMouseUp(key);
+    return ScriptCoreLink::getEngineAPI()->Input_IsMouseUp(key);
 }
 
 inline float getMouseX()
 {
-    return g_EngineAPI->Input_GetMouseX();
+    return ScriptCoreLink::getEngineAPI()->Input_GetMouseX();
 }
 
 inline float getMouseY()
 {
-    return g_EngineAPI->Input_GetMouseX();
+    return ScriptCoreLink::getEngineAPI()->Input_GetMouseX();
 }
 
 }
@@ -47,17 +67,17 @@ inline float getMouseY()
 namespace Log {
 inline void Info(const char* msg)
 {
-    g_EngineAPI->LogInfo(msg);
+    ScriptCoreLink::getEngineAPI()->LogInfo(msg);
 }
 
 inline void Warn(const char* msg)
 {
-    g_EngineAPI->LogWarn(msg);
+    ScriptCoreLink::getEngineAPI()->LogWarn(msg);
 }
 
 inline void Error(const char* msg)
 {
-    g_EngineAPI->LogError(msg);
+    ScriptCoreLink::getEngineAPI()->LogError(msg);
 }
 }
 

@@ -84,7 +84,7 @@ void Scene::onSceneRuntimeEnd()
     auto view = m_Registry.view<IDComponent, NativeScriptComponent>();
     for (auto e : view) {
         auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
-        auto registry = Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry;
+        // auto registry = Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry;
         // ScriptableEntityData data = registry.at(comp.className);
         // data.onDestroy(comp.objectPointer);
         // data.classDestructor(comp.objectPointer);

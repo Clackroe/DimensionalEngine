@@ -13,7 +13,7 @@
 #define LibError() nullptr
 #else
 #include <dlfcn.h>
-#define LoadLibraryFunc(name) dlopen(name, RTLD_NOW | RTLD_LOCAL)
+#define LoadLibraryFunc(name) dlopen(name, RTLD_LAZY | RTLD_LOCAL)
 #define GetFunctionAddress(lib, func) dlsym(lib, func)
 #define FreeLibraryFunc(lib) dlclose(lib)
 #define LibError() dlerror()
@@ -52,18 +52,17 @@ struct ScriptComponentMemberData {
     u8 data[MAX_MEMBERDATA_SIZE];
 };
 
-template <typename FuncT>
-bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<FuncT>& out)
-{
-    void* funcPTR = GetFunctionAddress(libHandle, funcName);
-    if (!funcPTR) {
-        DM_CORE_WARN("FAILED TO LOAD FUNCTION {}", funcName);
-        return false;
-    }
-    auto typedFunc = reinterpret_cast<FuncT*>(funcPTR);
-    out = std::function<FuncT>(*typedFunc);
-    return true;
-}
+// template <typename FuncT>
+// bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<FuncT>& out)
+// {
+//     if (!funcPTR) {
+//         DM_CORE_WARN("FAILED TO LOAD FUNCTION {}", funcName);
+//         return false;
+//     }
+//     auto typedFunc = reinterpret_cast<FuncT*>(funcPTR);
+//     out = std::function<FuncT>(*typedFunc);
+//     return true;
+// }
 
 namespace Dimensional {
 
@@ -83,8 +82,8 @@ private:
 
     UMap<UUID, std::vector<ScriptComponentMemberData>> m_ComponentMembers;
 
-    std::function<NativeScriptRegistry*(EngineAPI*, ComponentAPI*)> m_InitializeFunction = nullptr;
-    std::function<void(void)> m_CleanupFunction = nullptr;
+    NativeScriptRegistry* (*m_InitializeFunction)(EngineAPI*, ComponentAPI*) = nullptr;
+    void (*m_CleanupFunction)(void) = nullptr;
 
     // TODO: May be redundant. ATM its essentially an unecessary abstraction of m_ReflectedClassData
     NativeScriptRegistry* m_NativeScriptRegistry;

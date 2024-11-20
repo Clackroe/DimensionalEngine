@@ -10,12 +10,14 @@ public:
     DM_GENERATED_BODY(Player)
 
     TransformCompHandle* transform = 0;
-    DM_PROPERTY(Player, float, speed, 300);
+    DM_PROPERTY(Player, float, speed, 100);
+
+    float testThing = 2.0;
 
     Player(u64 id)
         : NativeScriptableEntity(id)
     {
-        transform = g_CompAPI->Transform_GetComp(m_EntityHandle);
+        transform = ScriptCoreLink::getComponentAPI()->Transform_GetComp(m_EntityHandle);
 
         Log::Info(("Offset of id: " + std::to_string(offsetof(Player, m_EntityHandle))).c_str());
 
@@ -26,9 +28,11 @@ public:
     void update()
     {
 
-        glm::vec3 pos = g_CompAPI->Transform_GetPosition(transform);
+        glm::vec3 pos = ScriptCoreLink::getComponentAPI()->Transform_GetPosition(transform);
 
         if (Input::isKeyDown(Key::Up)) {
+            Log::Info(("Test: " + std::to_string(testThing)).c_str());
+
             pos.z += 0.01 * speed;
         }
         if (Input::isKeyDown(Key::Down)) {
@@ -47,7 +51,7 @@ public:
             pos.y -= 0.01 * speed;
         }
 
-        g_CompAPI->Transform_SetPosition(transform, pos);
+        ScriptCoreLink::getComponentAPI()->Transform_SetPosition(transform, pos);
     };
 
     void create()

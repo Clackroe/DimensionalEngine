@@ -1,14 +1,12 @@
 #ifndef DM_SC_REGISTRATIONHELP
 #define DM_SC_REGISTRATIONHELP
 
+#include "NativeScripting.hpp"
 #include <CoreScriptLib.hpp>
 #include <EngineAPI.hpp>
 #include <NativeScriptableEntity.hpp>
 
 #include <cstring>
-
-extern NativeScriptRegistry g_ScriptRegistry;
-extern std::vector<std::function<void()>> g_RegistrationFunctions;
 
 template <typename Class, typename = void>
 struct has_create : std::false_type { };
@@ -46,7 +44,7 @@ inline std::string demangle(const char* name)
 }
 #endif
 template <typename Class>
-void registerClass()
+inline void registerClass()
 {
     ScriptableEntityData data {};
     data.className = demangle(typeid(Class).name());
@@ -78,7 +76,7 @@ void registerClass()
         }
     };
     data.memberData = Class::registerMembers();
-    g_ScriptRegistry.scriptRegistry[data.className] = data;
+    ScriptCoreLink::s_ScriptRegistry[data.className] = data;
 }
 
 template <typename Class>
@@ -87,7 +85,7 @@ struct ClassRegistrar {
 
     ClassRegistrar()
     {
-        g_RegistrationFunctions.push_back([]() { registerClass<Class>(); });
+        ScriptCoreLink::s_RegistrationFunctions.push_back([]() { registerClass<Class>(); });
     }
 };
 
@@ -110,9 +108,6 @@ public:                                                                         
             members.push_back(d);                                                  \
         }                                                                          \
         return members;                                                            \
-    }                                                                              \
-    static void ReflectMembers()                                                   \
-    {                                                                              \
     }
 
 #define DM_PROPERTY(Class, type, name, defaultValue)                                           \
@@ -131,7 +126,6 @@ public:                                                                         
                     return reinterpret_cast<void*>(reinterpret_cast<char*>(obj) + offset);     \
                 };                                                                             \
                 static type _defaultValue_##name = defaultValue;                               \
-                data.defaultVal = &_defaultValue_##name;                                       \
                 std::cout << "Default: " << std::to_string(defaultValue).c_str() << std::endl; \
                 data.setter = [offset](NativeScriptableEntity* entity, void* value) {          \
                     auto* obj = static_cast<Class*>(entity);                                   \

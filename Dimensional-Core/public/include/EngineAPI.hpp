@@ -19,20 +19,12 @@ enum class ScriptMemberType {
     NONE
 };
 
-static std::map<std::string, ScriptMemberType> g_StringToScriptMember = {
-    { "float", ScriptMemberType::FLOAT },
-    { "int", ScriptMemberType::INT },
-    { "uint32_t", ScriptMemberType::U32 },
-    { "u32", ScriptMemberType::U32 },
-    { "uint64_t", ScriptMemberType::U64 },
-    { "u64", ScriptMemberType::U64 },
-    { "glm::vec3", ScriptMemberType::GLM_VEC3 },
-};
+extern std::map<std::string, ScriptMemberType> g_StringToScriptMember;
 
 struct MemberData {
     std::string varName;
     size_t offsetBytes;
-    void* defaultVal = nullptr;
+    // void* defaultVal = nullptr;
     ScriptMemberType dataType = ScriptMemberType::NONE;
     std::function<void*(NativeScriptableEntity*)> getter;
     std::function<void(NativeScriptableEntity*, void*)> setter;
@@ -51,9 +43,7 @@ struct ScriptableEntityData {
     std::vector<MemberData> memberData;
 };
 
-struct NativeScriptRegistry {
-    std::unordered_map<std::string, ScriptableEntityData> scriptRegistry;
-};
+using NativeScriptRegistry = std::unordered_map<std::string, ScriptableEntityData>;
 
 // OPAQUE POINTERS
 struct TransformCompHandle;
@@ -84,8 +74,5 @@ struct EngineAPI {
 
     // ENTITY
 };
-
-extern "C" EngineAPI* getEngineAPI();
-extern "C" ComponentAPI* getComponentAPI();
 
 #endif

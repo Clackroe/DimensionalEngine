@@ -4,8 +4,6 @@
 #include <iostream>
 #include <string>
 
-extern EngineAPI* g_EngineAPI;
-
 class NativeScriptableEntity {
 public:
     NativeScriptableEntity(uint64_t entityHandle)

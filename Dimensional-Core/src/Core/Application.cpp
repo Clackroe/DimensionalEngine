@@ -28,7 +28,7 @@ Application::Application(const std::string& title, u32 width, u32 height)
     DM_CORE_INFO("Platform: {0}", DM_PLATFORM);
 
     initializeSubSystems();
-    m_ScriptManager.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+    // m_ScriptManager.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
 }
 
 static float frameTime = 0;

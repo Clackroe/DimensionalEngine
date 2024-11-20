@@ -2,6 +2,16 @@
 #include <EngineAPI.hpp>
 #include <core.hpp>
 
+std::map<std::string, ScriptMemberType> g_StringToScriptMember = {
+    { "float", ScriptMemberType::FLOAT },
+    { "int", ScriptMemberType::INT },
+    { "uint32_t", ScriptMemberType::U32 },
+    { "u32", ScriptMemberType::U32 },
+    { "uint64_t", ScriptMemberType::U64 },
+    { "u64", ScriptMemberType::U64 },
+    { "glm::vec3", ScriptMemberType::GLM_VEC3 },
+};
+
 void LogInfo(const char* message)
 {
     DM_INFO("FROM SCRIPT: {}", message);
