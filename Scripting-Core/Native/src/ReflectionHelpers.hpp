@@ -8,6 +8,8 @@
 
 #include <cstring>
 
+namespace ScriptingCore {
+
 template <typename Class, typename = void>
 struct has_create : std::false_type { };
 
@@ -44,7 +46,7 @@ inline std::string demangle(const char* name)
 }
 #endif
 template <typename Class>
-inline void registerClass()
+inline void registerClass(NativeScriptRegistry* reg)
 {
     ScriptableEntityData data {};
     data.className = demangle(typeid(Class).name());
@@ -75,8 +77,8 @@ inline void registerClass()
             typedPointer->destroy();
         }
     };
-    data.memberData = Class::registerMembers();
-    ScriptCoreLink::s_ScriptRegistry[data.className] = data;
+    // data.memberData = Class::registerMembers();
+    reg->insert({ data.className, data });
 }
 
 template <typename Class>
@@ -85,7 +87,7 @@ struct ClassRegistrar {
 
     ClassRegistrar()
     {
-        ScriptCoreLink::s_RegistrationFunctions.push_back([]() { registerClass<Class>(); });
+        ScriptCoreLink::s_RegistrationFunctions.push_back([](NativeScriptRegistry* reg) { registerClass<Class>(reg); });
     }
 };
 
@@ -95,7 +97,10 @@ bool ClassRegistrar<Class>::registered = [] {
     return true;
 }();
 
-#define REGISTER_SCRIPT(CLASS) static ClassRegistrar<CLASS> registrar_##CLASS;
+#define REGISTER_SCRIPT(CLASS)                          \
+    namespace ScriptingCore {                           \
+        static ClassRegistrar<CLASS> registrar_##CLASS; \
+    }
 
 #define DM_GENERATED_BODY(Class)                                                   \
 public:                                                                            \
@@ -110,33 +115,35 @@ public:                                                                         
         return members;                                                            \
     }
 
-#define DM_PROPERTY(Class, type, name, defaultValue)                                           \
-    type name = defaultValue;                                                                  \
-    struct _MemberRegister_##name {                                                            \
-        _MemberRegister_##name()                                                               \
-        {                                                                                      \
-            size_t offset = offsetof(Class, name);                                             \
-            s_RegisterMembersFuncs.push_back([offset]() -> MemberData {                        \
-                MemberData data;                                                               \
-                data.varName = #name;                                                          \
-                data.offsetBytes = offset;                                                     \
-                data.dataType = g_StringToScriptMember.at(#type);                              \
-                data.getter = [offset](NativeScriptableEntity* entity) -> void* {              \
-                    auto* obj = static_cast<Class*>(entity);                                   \
-                    return reinterpret_cast<void*>(reinterpret_cast<char*>(obj) + offset);     \
-                };                                                                             \
-                static type _defaultValue_##name = defaultValue;                               \
-                std::cout << "Default: " << std::to_string(defaultValue).c_str() << std::endl; \
-                data.setter = [offset](NativeScriptableEntity* entity, void* value) {          \
-                    auto* obj = static_cast<Class*>(entity);                                   \
-                    auto* member = reinterpret_cast<void*>(                                    \
-                        reinterpret_cast<char*>(obj) + offset);                                \
-                    std::memcpy(member, value, sizeof(type));                                  \
-                };                                                                             \
-                return data;                                                                   \
-            });                                                                                \
-        }                                                                                      \
-    };                                                                                         \
-    inline static _MemberRegister_##name _memberRegister_instance_##name;
+#define DM_PROPERTY(Class, type, name, defaultValue)                                               \
+    type name = defaultValue;                                                                      \
+    struct _MemberRegister_##name {                                                                \
+        _MemberRegister_##name()                                                                   \
+        {                                                                                          \
+            static bool registered = [] {                                                          \
+                size_t offset = offsetof(Class, name);                                             \
+                s_RegisterMembersFuncs.push_back([offset]() -> MemberData {                        \
+                    MemberData data;                                                               \
+                    data.varName = #name;                                                          \
+                    data.offsetBytes = offset;                                                     \
+                    data.getter = [offset](NativeScriptableEntity* entity) -> void* {              \
+                        auto* obj = static_cast<Class*>(entity);                                   \
+                        return reinterpret_cast<void*>(reinterpret_cast<char*>(obj) + offset);     \
+                    };                                                                             \
+                    static type _defaultValue_##name = defaultValue;                               \
+                    std::cout << "Default: " << std::to_string(defaultValue).c_str() << std::endl; \
+                    data.setter = [offset](NativeScriptableEntity* entity, void* value) {          \
+                        auto* obj = static_cast<Class*>(entity);                                   \
+                        auto* member = reinterpret_cast<void*>(                                    \
+                            reinterpret_cast<char*>(obj) + offset);                                \
+                        std::memcpy(member, value, sizeof(type));                                  \
+                    };                                                                             \
+                    return data;                                                                   \
+                });                                                                                \
+            };                                                                                     \
+        }                                                                                          \
+    } _memberRegister_instance_##name;
+
+}
 
 #endif

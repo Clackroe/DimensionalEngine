@@ -1,23 +1,30 @@
+#include <DefinesScriptLib.hpp>
 #include <EngineAPI.hpp>
 #include <NativeScripting.hpp>
 #include <ReflectionHelpers.hpp>
+#include <iostream>
 
-void registerScripts()
+namespace ScriptingCore {
+
+static void registerScripts(NativeScriptRegistry* reg)
 {
+
     for (auto& func : ScriptCoreLink::s_RegistrationFunctions) {
-        func();
+        std::cout << "Loading Script..." << std::endl;
+        func(reg);
     }
 }
 
-DM_GAMEAPI NativeScriptRegistry* InitializeEngineAPI(EngineAPI* engineAPI, ComponentAPI* componentAPI)
+DM_GAMEAPI void Initialize(EngineAPI* eAPI, ComponentAPI* compAPI, NativeScriptRegistry* registry)
 {
-    ScriptCoreLink::Init(engineAPI, componentAPI);
-    registerScripts();
-    return &ScriptCoreLink::s_ScriptRegistry;
+    std::cout << "Test: FROM LIBRARY -- ERM2 BOOGALOO" << std::endl;
+    ScriptCoreLink::Init(eAPI, compAPI);
+    registerScripts(registry);
 }
 
-DM_GAMEAPI void cleanupAPI()
+DM_GAMEAPI void Cleanup()
 {
-    std::cout << "Cleaning Up GameLibrary" << std::endl;
+    std::cout << "Cleaning Up Library" << std::endl;
     ScriptCoreLink::ShutDown();
+}
 }

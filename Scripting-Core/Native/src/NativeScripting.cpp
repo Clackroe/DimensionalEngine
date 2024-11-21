@@ -1,5 +1,9 @@
 #include <NativeScripting.hpp>
 
+namespace ScriptingCore {
+
+std::vector<std::function<void(NativeScriptRegistry*)>> ScriptCoreLink::s_RegistrationFunctions;
+
 std::unique_ptr<ScriptCoreLink> ScriptCoreLink::s_Instance = nullptr;
 
 void ScriptCoreLink::Init(EngineAPI* eAPI, ComponentAPI* cAPI)
@@ -12,7 +16,7 @@ void ScriptCoreLink::ShutDown()
     getInstance()->m_ComponentAPI = nullptr;
     getInstance()->m_EngineAPI = nullptr;
     s_RegistrationFunctions.clear();
-    s_ScriptRegistry.clear();
+    s_Instance.reset();
 }
 
 ScriptCoreLink* ScriptCoreLink::getInstance()
@@ -28,4 +32,5 @@ ScriptCoreLink::ScriptCoreLink(EngineAPI* eAPI, ComponentAPI* cAPI)
 {
     m_EngineAPI = eAPI;
     m_ComponentAPI = cAPI;
+}
 }

@@ -26,6 +26,7 @@ set_target_properties(ScriptingCore PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 
 add_library(GameApp SHARED ${APP_SOURCES})
+# target_link_libraries(GameApp PRIVATE ScriptingCore)
 target_link_libraries(GameApp PRIVATE "-Wl,--whole-archive" ScriptingCore "-Wl,--no-whole-archive")
 
 # target_link_options(GameApp PRIVATE "-Wl,--whole-archive" ScriptingCore "-Wl,--no-whole-archive")
