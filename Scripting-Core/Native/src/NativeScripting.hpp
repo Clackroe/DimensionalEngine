@@ -4,7 +4,7 @@
 #include "NativeScriptableEntity.hpp"
 #include <CoreScriptLib.hpp>
 #include <DefinesScriptLib.hpp>
-// #include <KeyCodes.hpp>
+#include <KeyCodes.hpp>
 #include <functional>
 #include <memory>
 
@@ -32,56 +32,56 @@ private:
     ComponentAPI* m_ComponentAPI = nullptr;
 };
 
-// namespace Input {
-//
-//     inline bool isKeyDown(Dimensional::KeyCode key)
-//     {
-//         return ScriptCoreLink::getEngineAPI()->Input_IsKeyDown(key);
-//     }
-//
-//     inline bool isKeyReleased(Dimensional::KeyCode key)
-//     {
-//         return ScriptCoreLink::getEngineAPI()->Input_IsKeyUp(key);
-//     }
-//
-//     inline bool isMouseDown(Dimensional::MouseCode key)
-//     {
-//         return ScriptCoreLink::getEngineAPI()->Input_IsMouseDown(key);
-//     }
-//
-//     inline bool isMouseReleased(Dimensional::MouseCode key)
-//     {
-//         return ScriptCoreLink::getEngineAPI()->Input_IsMouseUp(key);
-//     }
-//
-//     inline float getMouseX()
-//     {
-//         return ScriptCoreLink::getEngineAPI()->Input_GetMouseX();
-//     }
-//
-//     inline float getMouseY()
-//     {
-//         return ScriptCoreLink::getEngineAPI()->Input_GetMouseX();
-//     }
-//
-// }
-//
-// namespace Log {
-//     inline void Info(const char* msg)
-//     {
-//         ScriptCoreLink::getEngineAPI()->LogInfo(msg);
-//     }
-//
-//     inline void Warn(const char* msg)
-//     {
-//         ScriptCoreLink::getEngineAPI()->LogWarn(msg);
-//     }
-//
-//     inline void Error(const char* msg)
-//     {
-//         ScriptCoreLink::getEngineAPI()->LogError(msg);
-//     }
-// }
+namespace Input {
+
+    inline bool isKeyDown(Dimensional::KeyCode key)
+    {
+        return ScriptCoreLink::getEngineAPI()->Input_IsKeyDown(key);
+    }
+
+    inline bool isKeyReleased(Dimensional::KeyCode key)
+    {
+        return ScriptCoreLink::getEngineAPI()->Input_IsKeyUp(key);
+    }
+
+    inline bool isMouseDown(Dimensional::MouseCode key)
+    {
+        return ScriptCoreLink::getEngineAPI()->Input_IsMouseDown(key);
+    }
+
+    inline bool isMouseReleased(Dimensional::MouseCode key)
+    {
+        return ScriptCoreLink::getEngineAPI()->Input_IsMouseUp(key);
+    }
+
+    inline float getMouseX()
+    {
+        return ScriptCoreLink::getEngineAPI()->Input_GetMouseX();
+    }
+
+    inline float getMouseY()
+    {
+        return ScriptCoreLink::getEngineAPI()->Input_GetMouseX();
+    }
+
+}
+
+namespace Log {
+    inline void Info(const char* msg)
+    {
+        ScriptCoreLink::getEngineAPI()->LogInfo(msg);
+    }
+
+    inline void Warn(const char* msg)
+    {
+        ScriptCoreLink::getEngineAPI()->LogWarn(msg);
+    }
+
+    inline void Error(const char* msg)
+    {
+        ScriptCoreLink::getEngineAPI()->LogError(msg);
+    }
+}
 
 namespace Time {
 }

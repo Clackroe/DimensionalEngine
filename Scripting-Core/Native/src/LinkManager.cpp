@@ -17,7 +17,7 @@ static void registerScripts(NativeScriptRegistry* reg)
 
 DM_GAMEAPI void Initialize(EngineAPI* eAPI, ComponentAPI* compAPI, NativeScriptRegistry* registry)
 {
-    std::cout << "Test: FROM LIBRARY -- ERM2 BOOGALOO" << std::endl;
+    std::cout << "Test: FROM LIBRARY ------ ERM7 BO000O" << std::endl;
     ScriptCoreLink::Init(eAPI, compAPI);
     registerScripts(registry);
 }

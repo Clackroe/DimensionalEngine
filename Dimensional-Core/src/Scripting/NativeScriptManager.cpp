@@ -74,6 +74,13 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
     ComponentAPI* cAPI = ComponantScriptAPI::getComponentAPI();
     temp = new NativeScriptRegistry();
     initFunc(api, cAPI, temp);
+
+    for (auto& [k, v] : *temp) {
+        DM_INFO("Script: {}", v.className);
+        for (auto& m : v.memberData) {
+            DM_INFO("Member: {}", m.varName);
+        }
+    }
 }
 
 void NativeScriptManager::freeGameLibrary()
@@ -81,6 +88,23 @@ void NativeScriptManager::freeGameLibrary()
     if (!m_GameLibraryHandle) {
         return;
     }
+    for (auto& [k, v] : *temp) {
+        v.onCreate = nullptr;
+        v.onUpdate = nullptr;
+        v.onDestroy = nullptr;
+        v.className = "";
+        v.classFactory = nullptr;
+        v.classDestructor = nullptr;
+        for (auto& m : v.memberData) {
+            m.varName = "";
+            m.getter = nullptr;
+            m.setter = nullptr;
+            m.dataType = ScriptMemberType::NONE;
+            m.offsetBytes = 0;
+        }
+        v.memberData.clear();
+    }
+    temp->clear();
 
     std::function<void()> cleanupFunction;
     loadLibraryFunction(m_GameLibraryHandle, "Cleanup", cleanupFunction);

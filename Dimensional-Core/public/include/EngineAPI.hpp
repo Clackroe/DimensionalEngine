@@ -1,6 +1,6 @@
 #ifndef DM_ENGINEAPI
 #define DM_ENGINEAPI
-// #include <KeyCodes.hpp>
+#include <KeyCodes.hpp>
 #include <cstdint>
 #include <functional>
 #include <glm/glm.hpp>
@@ -71,11 +71,11 @@ struct EngineAPI {
     std::function<void(const char*)> LogWarn;
     std::function<void(const char*)> LogError;
     // INPUT
-    // std::function<bool(Dimensional::KeyCode)> Input_IsKeyDown;
-    // std::function<bool(Dimensional::KeyCode)> Input_IsKeyUp;
-    //
-    // std::function<bool(Dimensional::MouseCode)> Input_IsMouseDown;
-    // std::function<bool(Dimensional::MouseCode)> Input_IsMouseUp;
+    std::function<bool(Dimensional::KeyCode)> Input_IsKeyDown;
+    std::function<bool(Dimensional::KeyCode)> Input_IsKeyUp;
+
+    std::function<bool(Dimensional::MouseCode)> Input_IsMouseDown;
+    std::function<bool(Dimensional::MouseCode)> Input_IsMouseUp;
 
     std::function<float()> Input_GetMouseX;
     std::function<float()> Input_GetMouseY;
