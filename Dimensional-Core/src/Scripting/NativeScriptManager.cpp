@@ -45,7 +45,6 @@ static void printLibError(const char* message)
     return;
 };
 
-NativeScriptRegistry* temp;
 void NativeScriptManager::reloadGameLibrary(const std::string& path)
 {
 
@@ -72,15 +71,26 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
 
     EngineAPI* api = DimensionalScriptAPI::getEngineAPI();
     ComponentAPI* cAPI = ComponantScriptAPI::getComponentAPI();
-    temp = new NativeScriptRegistry();
-    initFunc(api, cAPI, temp);
+    m_NativeScriptRegistry = new NativeScriptRegistry();
+    initFunc(api, cAPI, m_NativeScriptRegistry);
 
-    for (auto& [k, v] : *temp) {
-        DM_INFO("Script: {}", v.className);
+    for (auto& [k, v] : *m_NativeScriptRegistry) {
+        DM_CORE_INFO("Script: {}", v.className);
         for (auto& m : v.memberData) {
-            DM_INFO("Member: {}", m.varName);
+            DM_CORE_INFO("Member: {0}", m.varName);
         }
+        m_Instances.push_back(new ScriptInstance(v, 0));
     }
+
+    DM_CORE_WARN("SIZE: {}", m_Instances.size());
+
+    std::string t = "speed";
+    DM_CORE_WARN("SPEED: {}", m_Instances[0]->getData<float>(t));
+
+    for (auto& t : m_Instances) {
+        delete t;
+    }
+    m_Instances.clear();
 }
 
 void NativeScriptManager::freeGameLibrary()
@@ -88,7 +98,7 @@ void NativeScriptManager::freeGameLibrary()
     if (!m_GameLibraryHandle) {
         return;
     }
-    for (auto& [k, v] : *temp) {
+    for (auto& [k, v] : *m_NativeScriptRegistry) {
         v.onCreate = nullptr;
         v.onUpdate = nullptr;
         v.onDestroy = nullptr;
@@ -104,13 +114,13 @@ void NativeScriptManager::freeGameLibrary()
         }
         v.memberData.clear();
     }
-    temp->clear();
+    m_NativeScriptRegistry->clear();
 
     std::function<void()> cleanupFunction;
     loadLibraryFunction(m_GameLibraryHandle, "Cleanup", cleanupFunction);
 
-    if (temp) {
-        delete temp;
+    if (m_NativeScriptRegistry) {
+        delete m_NativeScriptRegistry;
     }
 
     if (!cleanupFunction) {

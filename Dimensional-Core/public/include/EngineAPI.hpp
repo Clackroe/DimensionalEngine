@@ -19,14 +19,13 @@ enum class ScriptMemberType {
     NONE
 };
 
-// namespace Dimensional {
-// extern std::map<std::string, ScriptMemberType> g_StringToScriptMember;
-// }
+namespace Dimensional {
+extern std::map<std::string, ScriptMemberType> g_StringToScriptMember;
+}
 
 struct MemberData {
     std::string varName;
     size_t offsetBytes;
-    // void* defaultVal = nullptr;
     ScriptMemberType dataType = ScriptMemberType::NONE;
     std::function<void*(NativeScriptableEntity*)> getter;
     std::function<void(NativeScriptableEntity*, void*)> setter;

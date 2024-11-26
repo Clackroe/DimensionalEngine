@@ -4,6 +4,7 @@
 #include <EngineAPI.hpp>
 #include <core.hpp>
 #include <cstring>
+#include <vector>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -19,38 +20,93 @@
 #define LibError() dlerror()
 #endif
 
-// struct ScriptInstance {
-//
-//     NativeScriptableEntity* instancePTR;
-// };
-//
-// #define MAX_MEMBERDATA_SIZE 16
-// struct ScriptComponentMemberData {
-//
-//     template <typename T>
-//     T getData()
-//     {
-//         size_t size = sizeof(T);
-//         if (size > MAX_MEMBERDATA_SIZE) {
-//             DM_CORE_ERROR("Size Mismatch in Getting ComponentMemberData");
-//         }
-//         return *(T*)data;
-//     };
-//
-//     template <typename T>
-//     void setData(T iData)
-//     {
-//         size_t size = sizeof(T);
-//         if (size > MAX_MEMBERDATA_SIZE) {
-//             DM_CORE_ERROR("Size Mismatch in Setting ComponentMemberData");
-//         }
-//         memcpy(data, &iData, size);
-//     }
-//
-//     ScriptMemberType dataType = ScriptMemberType::NONE;
-//
-//     u8 data[MAX_MEMBERDATA_SIZE];
-// };
+namespace Dimensional {
+
+struct ScriptMember {
+
+    ScriptMember(MemberData* data)
+    {
+        m_MemberData = data;
+    }
+
+    ScriptMemberType getType() const { return m_MemberData->dataType; }
+    std::string getName() const { return m_MemberData->varName; }
+
+    template <typename T>
+    T getData(NativeScriptableEntity* instance)
+    {
+        return *reinterpret_cast<T*>(m_MemberData->getter(instance));
+    }
+
+    template <typename T>
+    void setData(NativeScriptableEntity* instance, T data)
+    {
+        m_MemberData->setter(instance, reinterpret_cast<void*>(&data));
+    }
+
+private:
+    MemberData* m_MemberData;
+};
+
+struct ScriptInstance {
+
+    ScriptInstance(ScriptableEntityData classData, u64 entityHandle)
+    {
+        m_ClassData = classData;
+        m_Instance = m_ClassData.classFactory(entityHandle);
+        for (auto& member : m_ClassData.memberData) {
+            members.insert({ member.varName, ScriptMember(&member) });
+        }
+        onCreate();
+    }
+
+    ~ScriptInstance()
+    {
+        onDestroy();
+        m_ClassData.classDestructor(m_Instance);
+    }
+
+    void onCreate()
+    {
+        m_ClassData.onCreate(m_Instance);
+    };
+    void onUpdate()
+    {
+        m_ClassData.onUpdate(m_Instance);
+    };
+    void onDestroy()
+    {
+        m_ClassData.onDestroy(m_Instance);
+    };
+
+    template <typename T>
+    T getData(std::string& varName)
+    {
+        if (members.contains(varName)) {
+            return members.at(varName).getData<T>(m_Instance);
+        }
+    }
+
+    template <typename T>
+    void setData(std::string& varName, T value)
+    {
+        if (members.contains(varName)) {
+            return members.at(varName).setData<T>(m_Instance, value);
+        }
+    }
+
+    UMap<std::string, ScriptMember> members;
+    std::string className;
+
+private:
+    NativeScriptableEntity* m_Instance;
+    ScriptableEntityData m_ClassData;
+};
+
+struct ScriptComponantData {
+
+    std::string className;
+};
 
 template <typename FuncT>
 bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<FuncT>& out)
@@ -64,8 +120,6 @@ bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<Fu
     out = std::function<FuncT>(*typedFunc);
     return true;
 }
-
-namespace Dimensional {
 
 class NativeScriptManager {
 public:
@@ -86,11 +140,12 @@ private:
     // TODO: Rework to use UUID (u64) for improved perfomance
     UMap<std::string, ScriptableEntityData> m_ReflectedClassData;
 
+    std::vector<ScriptInstance*> m_Instances;
+
     // UMap<UUID, std::vector<ScriptComponentMemberData>> m_ComponentMembers;
-    // NativeScriptRegistry* (*m_InitializeFunction)(EngineAPI*, ComponentAPI*) = nullptr;
-    // void (*m_CleanupFunction)(void) = nullptr;
+
     // TODO: May be redundant. ATM its essentially an unecessary abstraction of m_ReflectedClassData
-    // NativeScriptRegistry* m_NativeScriptRegistry;
+    NativeScriptRegistry* m_NativeScriptRegistry;
 
     friend class Scene;
     friend class Application;

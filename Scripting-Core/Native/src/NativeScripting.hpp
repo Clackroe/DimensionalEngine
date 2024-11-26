@@ -6,7 +6,6 @@
 #include <DefinesScriptLib.hpp>
 #include <KeyCodes.hpp>
 #include <functional>
-#include <memory>
 
 namespace ScriptingCore {
 
@@ -17,8 +16,8 @@ public:
 
     static ScriptCoreLink* getInstance();
 
-    static EngineAPI* getEngineAPI() { return getInstance()->getEngineAPI(); }
-    static ComponentAPI* getComponentAPI() { return getInstance()->getComponentAPI(); }
+    static EngineAPI* getEngineAPI() { return getInstance()->_getEngineAPI(); }
+    static ComponentAPI* getComponentAPI() { return getInstance()->_getComponentAPI(); }
 
     static std::vector<std::function<void(NativeScriptRegistry*)>> s_RegistrationFunctions;
 
@@ -26,7 +25,10 @@ public:
     ~ScriptCoreLink() = default;
 
 private:
-    static std::unique_ptr<ScriptCoreLink> s_Instance;
+    EngineAPI* _getEngineAPI() { return m_EngineAPI; }
+    ComponentAPI* _getComponentAPI() { return m_ComponentAPI; }
+
+    static ScriptCoreLink* s_Instance;
 
     EngineAPI* m_EngineAPI = nullptr;
     ComponentAPI* m_ComponentAPI = nullptr;

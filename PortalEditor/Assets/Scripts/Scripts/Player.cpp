@@ -11,14 +11,14 @@ public:
     DM_GENERATED_BODY(Player)
 
     TransformCompHandle* transform = 0;
-    DM_PROPERTY(Player, float, speed, 100);
+    DM_PROPERTY(Player, float, speed, 300);
 
     Player(uint64_t id)
         : NativeScriptableEntity(id)
     {
         // transform = ScriptCoreLink::getComponentAPI()->Transform_GetComp(m_EntityHandle);
 
-        // Log::Info(("Offset of id: " + std::to_string(offsetof(Player, m_EntityHandle))).c_str());
+        Log::Info("Hello from the constructor");
         //
         // Log::Info(("Offset of trans: " + std::to_string(offsetof(Player, transform))).c_str());
         // Log::Info(("Offset of speed: " + std::to_string(offsetof(Player, speed))).c_str());
@@ -53,13 +53,21 @@ public:
         ScriptCoreLink::getComponentAPI()->Transform_SetPosition(transform, pos);
     };
 
-    void create() {
+    void create()
+    {
+        Log::Info("Hello from the Create");
+
         // Log::Warn("Creating...");
     };
 
-    void destroy() {
+    void destroy()
+    {
+        Log::Info("Hello from the onDestroy");
+
         // Log::Warn("Destroying...");
     };
 };
+
+REGISTER_PROPERTY(Player, speed)
 
 REGISTER_SCRIPT(Player)
