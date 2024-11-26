@@ -24,72 +24,22 @@ Scene::~Scene()
 void Scene::onSceneRuntimeStart()
 {
     auto& app = Application::getApp();
-    app.getScriptManager().reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+    auto& t = app.getScriptManager();
+    t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
 
-    auto view = m_Registry.view<IDComponent, NativeScriptComponent>();
-    for (auto e : view) {
-        // auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
-        // auto registry = app.getScriptManager().m_NativeScriptRegistry->scriptRegistry;
-        // ScriptableEntityData data = registry.at(comp.className);
-        // comp.objectPointer = data.classFactory((uint64_t)id.ID);
-        // data.onCreate(comp.objectPointer);
-        //
-        // for (auto& member : data.memberData) {
-        //     if (!comp.members.contains(member.varName)) {
-        //         MemberInstanceData d {};
-        //         d.type = member.dataType;
-        //         d.data = member.getter(comp.objectPointer);
-        //         comp.members[member.varName] = d;
-        //     }
-        // }
-        //
-        // for (auto& member : data.memberData) {
-        //     void* instanceData = comp.members[member.varName].data;
-        //     switch (member.dataType) {
-        //     case ScriptMemberType::FLOAT:
-        //         member.setter(comp.objectPointer, (float*)instanceData);
-        //         break;
-        //     case ScriptMemberType::INT:
-        //         member.setter(comp.objectPointer, (int*)instanceData);
-        //         break;
-        //     case ScriptMemberType::U32:
-        //         member.setter(comp.objectPointer, (uint32_t*)instanceData);
-        //         break;
-        //     case ScriptMemberType::U64:
-        //         member.setter(comp.objectPointer, (uint64_t*)instanceData);
-        //         break;
-        //     case ScriptMemberType::GLM_VEC3:
-        //         member.setter(comp.objectPointer, (glm::vec3*)instanceData);
-        //         break;
-        //     case ScriptMemberType::NONE:
-        //         break;
-        //     }
-        // }
-    }
+    t.onSceneStart();
 }
 
 void Scene::updateSceneRuntime()
 {
-    auto view = m_Registry.view<IDComponent, NativeScriptComponent>();
-    // for (auto e : view) {
-    //     auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
-    //     auto registry = Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry;
-    //     ScriptableEntityData data = registry.at(comp.className);
-    //     data.onUpdate(comp.objectPointer);
-    // }
+    auto& t = Application::getApp().getScriptManager();
+    t.onSceneUpdate();
 }
 
 void Scene::onSceneRuntimeEnd()
 {
-    auto view = m_Registry.view<IDComponent, NativeScriptComponent>();
-    for (auto e : view) {
-        auto [id, comp] = view.get<IDComponent, NativeScriptComponent>(e);
-        // auto registry = Application::getApp().getScriptManager().m_NativeScriptRegistry->scriptRegistry;
-        // ScriptableEntityData data = registry.at(comp.className);
-        // data.onDestroy(comp.objectPointer);
-        // data.classDestructor(comp.objectPointer);
-        // comp.objectPointer = nullptr;
-    }
+    auto& t = Application::getApp().getScriptManager();
+    t.onSceneEnd();
 }
 
 Entity Scene::createEntity(const std::string& name)
@@ -132,6 +82,8 @@ Entity Scene::duplicateEntity(Entity e)
     std::string name = e.getComponent<TagComponent>().Tag;
     Entity outEntity = createEntity(name);
     CopyComponentIfExists(EveryComponent {}, outEntity, e);
+    auto& idComp = outEntity.getComponent<IDComponent>();
+    idComp.ID = UUID();
     return outEntity;
 }
 
