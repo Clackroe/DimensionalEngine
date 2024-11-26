@@ -23,6 +23,9 @@ Scene::~Scene()
 
 void Scene::onSceneRuntimeStart()
 {
+    // TODO: Probably a better spot to put this. Needs to happen on every reload
+    Application::getApp().getScriptManager().updateComponentMemberData();
+
     auto& app = Application::getApp();
     auto& t = app.getScriptManager();
     t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");

@@ -45,6 +45,31 @@ static void printLibError(const char* message)
     return;
 };
 
+void NativeScriptManager::updateComponentMemberData()
+{
+
+    Ref<Scene> sc = Application::getApp().getSceneCTX();
+    if (m_NativeScriptRegistry && sc) {
+        auto v = sc->getAllEntitiesWith<IDComponent, NativeScriptComponent>();
+        UMap<UUID, std::vector<ScriptComponentMember>> temp;
+        for (auto& e : v) {
+            auto [IDComp, SComp] = v.get<IDComponent, NativeScriptComponent>(e);
+            if (!m_NativeScriptRegistry->contains(SComp.className)) {
+                continue;
+            }
+            auto& classData = m_NativeScriptRegistry->at(SComp.className);
+
+            std::vector<ScriptComponentMember> tempMembers;
+            for (MemberData& data : classData.memberData) {
+                tempMembers.push_back({ .dataType = data.dataType, .name = data.varName });
+            }
+
+            temp.insert({ IDComp.ID, tempMembers });
+        }
+        m_ComponentMembers = temp;
+    }
+}
+
 void NativeScriptManager::reloadGameLibrary(const std::string& path)
 {
 
@@ -74,12 +99,7 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
     m_NativeScriptRegistry = new NativeScriptRegistry();
     initFunc(api, cAPI, m_NativeScriptRegistry);
 
-    for (auto& [k, v] : *m_NativeScriptRegistry) {
-        DM_CORE_INFO("Script: {0}:{1}", v.className, k);
-        for (auto& m : v.memberData) {
-            DM_CORE_INFO("Member: {0}", m.varName);
-        }
-    }
+    updateComponentMemberData();
 }
 
 void NativeScriptManager::onSceneStart()
@@ -89,7 +109,6 @@ void NativeScriptManager::onSceneStart()
     auto v = sc->getAllEntitiesWith<IDComponent, NativeScriptComponent>();
     DM_CORE_INFO("Size: {}", v.size_hint())
     for (auto& e : v) {
-
         auto [IDComp, SComp] = v.get<IDComponent, NativeScriptComponent>(e);
 
         if (m_NativeScriptRegistry->contains(SComp.className)) {
@@ -162,5 +181,4 @@ void NativeScriptManager::freeGameLibrary()
         printLibError("Cannot unload game library");
     }
 }
-
 }

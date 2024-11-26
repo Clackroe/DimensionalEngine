@@ -22,6 +22,34 @@
 
 namespace Dimensional {
 
+#define MAX_MEMBERDATA_SIZE 16
+struct ScriptComponentMember {
+    template <typename T>
+    T getData()
+    {
+        size_t size = sizeof(T);
+        if (size > MAX_MEMBERDATA_SIZE) {
+            DM_CORE_ERROR("Size Mismatch in Getting ComponentMemberData");
+        }
+        return *(T*)data;
+    };
+
+    template <typename T>
+    void setData(T iData)
+    {
+        size_t size = sizeof(T);
+        if (size > MAX_MEMBERDATA_SIZE) {
+            DM_CORE_ERROR("Size Mismatch in Setting ComponentMemberData");
+        }
+        memcpy(data, &iData, size);
+    }
+
+    ScriptMemberType dataType = ScriptMemberType::NONE;
+    std::string name = "NULL MEMBER";
+
+    char data[MAX_MEMBERDATA_SIZE];
+};
+
 struct ScriptMember {
 
     ScriptMember(MemberData* data)
@@ -129,6 +157,8 @@ public:
     void reloadGameLibrary(const std::string& path);
     void freeGameLibrary();
 
+    void updateComponentMemberData();
+
     void onSceneStart();
     void onSceneUpdate();
     void onSceneEnd();
@@ -144,9 +174,8 @@ private:
 
     std::vector<ScriptInstance*> m_Instances;
 
-    // UMap<UUID, std::vector<ScriptComponentMemberData>> m_ComponentMembers;
+    UMap<UUID, std::vector<ScriptComponentMember>> m_ComponentMembers;
 
-    // TODO: May be redundant. ATM its essentially an unecessary abstraction of m_ReflectedClassData
     NativeScriptRegistry* m_NativeScriptRegistry;
 
     friend class Scene;
