@@ -129,13 +129,15 @@ public:
     void reloadGameLibrary(const std::string& path);
     void freeGameLibrary();
 
+    void onSceneStart();
+    void onSceneUpdate();
+    void onSceneEnd();
+
 private:
     std::string replaceOldLibrary(const std::string& newPath);
 
 private:
     void* m_GameLibraryHandle = nullptr;
-
-    NativeScriptRegistry m_Registry;
 
     // TODO: Rework to use UUID (u64) for improved perfomance
     UMap<std::string, ScriptableEntityData> m_ReflectedClassData;

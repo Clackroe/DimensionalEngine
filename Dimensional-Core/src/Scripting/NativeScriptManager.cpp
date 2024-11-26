@@ -75,18 +75,41 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
     initFunc(api, cAPI, m_NativeScriptRegistry);
 
     for (auto& [k, v] : *m_NativeScriptRegistry) {
-        DM_CORE_INFO("Script: {}", v.className);
+        DM_CORE_INFO("Script: {0}:{1}", v.className, k);
         for (auto& m : v.memberData) {
             DM_CORE_INFO("Member: {0}", m.varName);
         }
-        m_Instances.push_back(new ScriptInstance(v, 0));
     }
+}
 
-    DM_CORE_WARN("SIZE: {}", m_Instances.size());
+void NativeScriptManager::onSceneStart()
+{
+    DM_CORE_WARN("SM Start")
+    Ref<Scene> sc = Application::getApp().getSceneCTX();
+    auto v = sc->getAllEntitiesWith<IDComponent, NativeScriptComponent>();
+    DM_CORE_INFO("Size: {}", v.size_hint())
+    for (auto& e : v) {
 
-    std::string t = "speed";
-    DM_CORE_WARN("SPEED: {}", m_Instances[0]->getData<float>(t));
+        auto [IDComp, SComp] = v.get<IDComponent, NativeScriptComponent>(e);
 
+        if (m_NativeScriptRegistry->contains(SComp.className)) {
+            DM_CORE_WARN("Creating : {}", SComp.className)
+
+            auto data = m_NativeScriptRegistry->at(SComp.className);
+            m_Instances.push_back(new ScriptInstance(data, IDComp.ID));
+        }
+    }
+}
+
+void NativeScriptManager::onSceneUpdate()
+{
+    for (auto& instance : m_Instances) {
+        instance->onUpdate();
+    }
+}
+
+void NativeScriptManager::onSceneEnd()
+{
     for (auto& t : m_Instances) {
         delete t;
     }
