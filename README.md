@@ -51,7 +51,7 @@ Eventually there will be another executable, the Application Build, that will be
 # Current Capabilities
 
 - PBR Rendering with HDR environment maps:
-  - Cubemaps, Prefiltered Maps, and Irradiance maps are all precalculated and generated using Compute shaders
+  -  Irradiance and Radiance maps are all precalculated and generated using Compute shaders
   - Point and Spot Lights that support in-editor customization of attenuation settings, color, and transform
   - WIP Model and Mesh System using [ASSIMP](https://github.com/assimp/assimp)
   - PBR Materials that support:
