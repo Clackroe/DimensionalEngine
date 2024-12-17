@@ -15,6 +15,8 @@ public:
 
     DM_PROPERTY(Player, uint64_t, testVar, 30);
 
+    DM_PROPERTY(Player, glm::vec3, testVec, glm::vec3(0, 22, 31));
+
     Player(uint64_t id)
         : NativeScriptableEntity(id)
     {
@@ -60,5 +62,6 @@ public:
 REGISTER_PROPERTY(Player, speed)
 REGISTER_PROPERTY(Player, testFloat)
 REGISTER_PROPERTY(Player, testVar)
+REGISTER_PROPERTY(Player, testVec)
 
 REGISTER_SCRIPT(Player)

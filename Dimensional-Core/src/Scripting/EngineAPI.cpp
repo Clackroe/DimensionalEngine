@@ -11,6 +11,7 @@ std::map<std::string, ScriptMemberType> g_StringToScriptMember = {
     { "uint64_t", ScriptMemberType::U64 },
     { "u64", ScriptMemberType::U64 },
     { "glm::vec3", ScriptMemberType::GLM_VEC3 },
+    { "vec3", ScriptMemberType::GLM_VEC3 }, // Just in case they use namespace glm
 };
 
 namespace DimensionalScriptAPI {

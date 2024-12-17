@@ -9,6 +9,7 @@
 #include "Scene/Components.hpp"
 #include "Scene/Scene.hpp"
 #include "Scene/SceneSerializer.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <ToolPanels/SceneHierarchy.hpp>
@@ -279,12 +280,51 @@ void SceneHierarchy::entityComponents(Entity entity)
                 if (scManager.m_ComponentMembers.contains(eID)) {
                     UMap<std::string, ScriptComponentMember>& members = scManager.m_ComponentMembers.at(eID);
                     for (auto& [name, mem] : members) {
-                        if (mem.dataType == ScriptMemberType::FLOAT) {
+
+                        // float data = mem.getData<float>();
+                        // ImGui::InputFloat(mem.name.c_str(), &data);
+                        // if (data != mem.getData<float>()) {
+                        //     mem.setData(data);
+                        // }
+
+                        switch (mem.dataType) {
+                        case ScriptMemberType::FLOAT: {
                             float data = mem.getData<float>();
                             ImGui::InputFloat(mem.name.c_str(), &data);
                             if (data != mem.getData<float>()) {
                                 mem.setData(data);
                             }
+                        } break;
+                        case ScriptMemberType::INT: {
+                            int data = mem.getData<int>();
+                            ImGui::InputInt(mem.name.c_str(), &data);
+                            if (data != mem.getData<float>()) {
+                                mem.setData(data);
+                            }
+                        } break;
+                        case ScriptMemberType::U32: {
+                            u32 data = mem.getData<u32>();
+                            ImGui::InputScalar(mem.name.c_str(), ImGuiDataType_U32, &data);
+                            if (data != mem.getData<float>()) {
+                                mem.setData(data);
+                            }
+                        } break;
+                        case ScriptMemberType::U64: {
+                            u64 data = mem.getData<u64>();
+                            ImGui::InputScalar(mem.name.c_str(), ImGuiDataType_U64, &data);
+                            if (data != mem.getData<float>()) {
+                                mem.setData(data);
+                            }
+                        } break;
+                        case ScriptMemberType::GLM_VEC3: {
+                            glm::vec3 data = mem.getData<glm::vec3>();
+                            ImGui::DragFloat3(mem.name.c_str(), glm::value_ptr(data));
+                            if (data != mem.getData<glm::vec3>()) {
+                                mem.setData(data);
+                            }
+                        } break;
+                        case ScriptMemberType::NONE:
+                            break;
                         }
                     }
                 }
