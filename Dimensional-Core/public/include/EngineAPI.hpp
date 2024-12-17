@@ -32,7 +32,7 @@ struct MemberData {
 };
 
 // Each Dimensional Script will require a constructor that takes in an entity handle
-struct ScriptableEntityData {
+struct ReflectedData {
     // Class and Instance Data
     std::string className;
 
@@ -47,7 +47,7 @@ struct ScriptableEntityData {
     std::vector<MemberData> memberData;
 };
 
-using NativeScriptRegistry = std::unordered_map<std::string, ScriptableEntityData>;
+using NativeScriptRegistry = std::unordered_map<std::string, ReflectedData>;
 
 // OPAQUE POINTERS
 struct TransformCompHandle;

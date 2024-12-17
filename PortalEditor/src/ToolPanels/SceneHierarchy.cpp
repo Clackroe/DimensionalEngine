@@ -1,5 +1,6 @@
 #include "Asset/AssetManager.hpp"
 #include "Asset/AssetMeta.hpp"
+#include "Core/Application.hpp"
 #include "EngineAPI.hpp"
 #include "KeyCodes.hpp"
 #include "Log/log.hpp"
@@ -262,8 +263,9 @@ void SceneHierarchy::entityComponents(Entity entity)
     }
 
     if (entity.hasComponent<NativeScriptComponent>()) {
+        UUID eID = entity.getID();
         componentNode<NativeScriptComponent>(
-            "Native Script", entity, [](NativeScriptComponent& component) {
+            "Native Script", entity, [eID](NativeScriptComponent& component) {
                 ImGui::Text("ClassName");
 
                 char buffer[256];
@@ -271,6 +273,20 @@ void SceneHierarchy::entityComponents(Entity entity)
                 std::strncpy(buffer, component.className.c_str(), sizeof(buffer) - 1);
                 if (ImGui::InputText("##Tag", buffer, sizeof(buffer))) {
                     component.className = std::string(buffer);
+                }
+
+                auto& scManager = Application ::getApp().getScriptManager();
+                if (scManager.m_ComponentMembers.contains(eID)) {
+                    UMap<std::string, ScriptComponentMember>& members = scManager.m_ComponentMembers.at(eID);
+                    for (auto& [name, mem] : members) {
+                        if (mem.dataType == ScriptMemberType::FLOAT) {
+                            float data = mem.getData<float>();
+                            ImGui::InputFloat(mem.name.c_str(), &data);
+                            if (data != mem.getData<float>()) {
+                                mem.setData(data);
+                            }
+                        }
+                    }
                 }
             },
             true);

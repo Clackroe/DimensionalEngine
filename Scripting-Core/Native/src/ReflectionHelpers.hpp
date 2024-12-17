@@ -48,7 +48,7 @@ inline std::string demangle(const char* name)
 template <typename Class>
 inline void registerClass(NativeScriptRegistry* reg)
 {
-    ScriptableEntityData data {};
+    ReflectedData data {};
     data.className = demangle(typeid(Class).name());
 
     data.classFactory = [](uint64_t id) { return new Class(id); };

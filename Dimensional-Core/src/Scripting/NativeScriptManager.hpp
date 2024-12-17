@@ -42,12 +42,14 @@ struct ScriptComponentMember {
             DM_CORE_ERROR("Size Mismatch in Setting ComponentMemberData");
         }
         memcpy(data, &iData, size);
+        sizeBytes = size;
     }
 
     ScriptMemberType dataType = ScriptMemberType::NONE;
     std::string name = "NULL MEMBER";
 
     char data[MAX_MEMBERDATA_SIZE];
+    int sizeBytes = MAX_MEMBERDATA_SIZE;
 };
 
 struct ScriptMember {
@@ -78,7 +80,7 @@ private:
 
 struct ScriptInstance {
 
-    ScriptInstance(ScriptableEntityData classData, u64 entityHandle)
+    ScriptInstance(ReflectedData classData, u64 entityHandle)
     {
         m_ClassData = classData;
         m_Instance = m_ClassData.classFactory(entityHandle);
@@ -128,7 +130,7 @@ struct ScriptInstance {
 
 private:
     NativeScriptableEntity* m_Instance;
-    ScriptableEntityData m_ClassData;
+    ReflectedData m_ClassData;
 };
 
 struct ScriptComponantData {
@@ -148,7 +150,6 @@ bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<Fu
     out = std::function<FuncT>(*typedFunc);
     return true;
 }
-
 class NativeScriptManager {
 public:
     NativeScriptManager();
@@ -170,16 +171,17 @@ private:
     void* m_GameLibraryHandle = nullptr;
 
     // TODO: Rework to use UUID (u64) for improved perfomance
-    UMap<std::string, ScriptableEntityData> m_ReflectedClassData;
+    UMap<std::string, ReflectedData> m_ReflectedClassData;
 
     std::vector<ScriptInstance*> m_Instances;
 
-    UMap<UUID, std::vector<ScriptComponentMember>> m_ComponentMembers;
+    UMap<UUID, UMap<std::string, ScriptComponentMember>> m_ComponentMembers;
 
     NativeScriptRegistry* m_NativeScriptRegistry;
 
     friend class Scene;
     friend class Application;
+    friend class SceneHierarchy;
 };
 }
 

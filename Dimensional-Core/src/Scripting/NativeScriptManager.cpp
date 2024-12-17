@@ -3,6 +3,7 @@
 #include "Log/log.hpp"
 #include "Scene/Components.hpp"
 #include <Scripting/NativeScriptManager.hpp>
+#include <cstring>
 #include <dlfcn.h>
 #include <filesystem>
 
@@ -50,23 +51,50 @@ void NativeScriptManager::updateComponentMemberData()
 
     Ref<Scene> sc = Application::getApp().getSceneCTX();
     if (m_NativeScriptRegistry && sc) {
-        auto v = sc->getAllEntitiesWith<IDComponent, NativeScriptComponent>();
-        UMap<UUID, std::vector<ScriptComponentMember>> temp;
-        for (auto& e : v) {
-            auto [IDComp, SComp] = v.get<IDComponent, NativeScriptComponent>(e);
+        auto entities = sc->getAllEntitiesWith<IDComponent, NativeScriptComponent>();
+
+        // Generate New Data | Just in case the user changed the members of scripts
+        UMap<UUID, UMap<std::string, ScriptComponentMember>> temp;
+        for (auto& e : entities) {
+            auto [IDComp, SComp] = entities.get<IDComponent, NativeScriptComponent>(e);
             if (!m_NativeScriptRegistry->contains(SComp.className)) {
                 continue;
             }
-            auto& classData = m_NativeScriptRegistry->at(SComp.className);
+            ReflectedData& classData = m_NativeScriptRegistry->at(SComp.className);
 
-            std::vector<ScriptComponentMember> tempMembers;
+            UMap<std::string, ScriptComponentMember> tempMembers;
             for (MemberData& data : classData.memberData) {
-                tempMembers.push_back({ .dataType = data.dataType, .name = data.varName });
+
+                ScriptComponentMember m = {
+                    .dataType = data.dataType,
+                    .name = data.varName
+                };
+                tempMembers.insert({ m.name, m });
             }
 
             temp.insert({ IDComp.ID, tempMembers });
         }
+
+        // Update values with edior set counterparts, if applicable.
+        for (auto& [id, scMembers] : temp) {
+            if (!m_ComponentMembers.contains(id))
+                continue;
+            for (auto& [name, scMem] : scMembers) {
+                if (!m_ComponentMembers.at(id).contains(name))
+                    continue;
+
+                auto& old = m_ComponentMembers.at(id).at(name);
+                if (scMem.dataType != old.dataType) {
+                    continue;
+                }
+                DM_CORE_WARN("UPDATING: {}", scMem.sizeBytes);
+                std::memcpy(&scMem.data, &old.data, scMem.sizeBytes);
+            }
+        }
+
         m_ComponentMembers = temp;
+    } else {
+        DM_CORE_WARN("No Scene Context");
     }
 }
 
@@ -100,6 +128,11 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
     initFunc(api, cAPI, m_NativeScriptRegistry);
 
     updateComponentMemberData();
+    for (auto& [id, data] : m_ComponentMembers) {
+        for (auto& [name, member] : data) {
+            DM_CORE_INFO("{}", member.name);
+        }
+    }
 }
 
 void NativeScriptManager::onSceneStart()
@@ -115,7 +148,12 @@ void NativeScriptManager::onSceneStart()
             DM_CORE_WARN("Creating : {}", SComp.className)
 
             auto data = m_NativeScriptRegistry->at(SComp.className);
-            m_Instances.push_back(new ScriptInstance(data, IDComp.ID));
+            ScriptInstance* instance = new ScriptInstance(data, IDComp.ID);
+            m_Instances.push_back(instance);
+            for (auto& [name, member] : m_ComponentMembers.at(IDComp.ID)) {
+                float data = m_ComponentMembers.at(IDComp.ID).at(name).getData<float>();
+                instance->setData(*(std::string*)(&name), data);
+            }
         }
     }
 }
