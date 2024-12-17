@@ -137,6 +137,8 @@ public:                                                                     \
                         reinterpret_cast<char*>(obj) + offset);                            \
                     std::memcpy(member, value, sizeof(type));                              \
                 };                                                                         \
+                type temp_##name = defaultValue;                                           \
+                memcpy(data.defaultVal, &temp_##name, MAX_MEMBERDATA_SIZE);                \
                 return data;                                                               \
             });                                                                            \
         }                                                                                  \

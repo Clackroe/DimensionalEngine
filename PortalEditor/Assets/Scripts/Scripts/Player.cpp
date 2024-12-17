@@ -11,6 +11,7 @@ public:
 
     TransformCompHandle* transform = 0;
     DM_PROPERTY(Player, float, speed, 30);
+    DM_PROPERTY(Player, float, testFloat, 10);
 
     DM_PROPERTY(Player, uint64_t, testVar, 30);
 
@@ -57,6 +58,7 @@ public:
 };
 
 REGISTER_PROPERTY(Player, speed)
-REGISTER_PROPERTY(Player, testVar);
+REGISTER_PROPERTY(Player, testFloat)
+REGISTER_PROPERTY(Player, testVar)
 
 REGISTER_SCRIPT(Player)

@@ -3,7 +3,6 @@
 #include "Log/log.hpp"
 #include "Scene/Components.hpp"
 #include <Scripting/NativeScriptManager.hpp>
-#include <cstring>
 #include <dlfcn.h>
 #include <filesystem>
 
@@ -69,6 +68,7 @@ void NativeScriptManager::updateComponentMemberData()
                     .dataType = data.dataType,
                     .name = data.varName
                 };
+                memcpy(m.data, &data.defaultVal, MAX_MEMBERDATA_SIZE);
                 tempMembers.insert({ m.name, m });
             }
 
@@ -87,8 +87,7 @@ void NativeScriptManager::updateComponentMemberData()
                 if (scMem.dataType != old.dataType) {
                     continue;
                 }
-                DM_CORE_WARN("UPDATING: {}", scMem.sizeBytes);
-                std::memcpy(&scMem.data, &old.data, scMem.sizeBytes);
+                memcpy(scMem.data, &old.data, scMem.sizeBytes);
             }
         }
 
@@ -128,25 +127,16 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
     initFunc(api, cAPI, m_NativeScriptRegistry);
 
     updateComponentMemberData();
-    for (auto& [id, data] : m_ComponentMembers) {
-        for (auto& [name, member] : data) {
-            DM_CORE_INFO("{}", member.name);
-        }
-    }
 }
 
 void NativeScriptManager::onSceneStart()
 {
-    DM_CORE_WARN("SM Start")
     Ref<Scene> sc = Application::getApp().getSceneCTX();
     auto v = sc->getAllEntitiesWith<IDComponent, NativeScriptComponent>();
-    DM_CORE_INFO("Size: {}", v.size_hint())
     for (auto& e : v) {
         auto [IDComp, SComp] = v.get<IDComponent, NativeScriptComponent>(e);
 
         if (m_NativeScriptRegistry->contains(SComp.className)) {
-            DM_CORE_WARN("Creating : {}", SComp.className)
-
             auto data = m_NativeScriptRegistry->at(SComp.className);
             ScriptInstance* instance = new ScriptInstance(data, IDComp.ID);
             m_Instances.push_back(instance);

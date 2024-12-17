@@ -23,9 +23,11 @@ namespace Dimensional {
 extern std::map<std::string, ScriptMemberType> g_StringToScriptMember;
 }
 
+#define MAX_MEMBERDATA_SIZE 16
 struct MemberData {
     std::string varName;
     size_t offsetBytes;
+    char defaultVal[MAX_MEMBERDATA_SIZE];
     ScriptMemberType dataType = ScriptMemberType::NONE;
     std::function<void*(NativeScriptableEntity*)> getter;
     std::function<void(NativeScriptableEntity*, void*)> setter;

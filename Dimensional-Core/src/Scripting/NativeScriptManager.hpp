@@ -22,7 +22,6 @@
 
 namespace Dimensional {
 
-#define MAX_MEMBERDATA_SIZE 16
 struct ScriptComponentMember {
     template <typename T>
     T getData()
@@ -52,9 +51,9 @@ struct ScriptComponentMember {
     int sizeBytes = MAX_MEMBERDATA_SIZE;
 };
 
-struct ScriptMember {
+struct ScriptInstanceMember {
 
-    ScriptMember(MemberData* data)
+    ScriptInstanceMember(MemberData* data)
     {
         m_MemberData = data;
     }
@@ -85,7 +84,7 @@ struct ScriptInstance {
         m_ClassData = classData;
         m_Instance = m_ClassData.classFactory(entityHandle);
         for (auto& member : m_ClassData.memberData) {
-            members.insert({ member.varName, ScriptMember(&member) });
+            members.insert({ member.varName, ScriptInstanceMember(&member) });
         }
         onCreate();
     }
@@ -125,7 +124,7 @@ struct ScriptInstance {
         }
     }
 
-    UMap<std::string, ScriptMember> members;
+    UMap<std::string, ScriptInstanceMember> members;
     std::string className;
 
 private:
