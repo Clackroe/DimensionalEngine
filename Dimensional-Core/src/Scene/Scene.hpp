@@ -34,6 +34,17 @@ public:
 
     void onSceneRuntimeEnd();
 
+    void deepCopy(Ref<Scene>& dest);
+
+    template <typename T>
+    void copyComponentOnAllEntities(entt::registry& destReg, entt::registry& srcReg, const UMap<UUID, entt::entity>& eMap);
+
+    template <typename... Components>
+    void copyAllEntitiesToNewReg(entt::registry& destReg, entt::registry& srcReg, const UMap<UUID, entt::entity>& eMap, ComponentGroup<Components...>)
+    {
+        (copyComponentOnAllEntities<Components>(destReg, srcReg, eMap), ...);
+    };
+
     virtual AssetType getAssetType() const { return AssetType::SCENE; }
 
 private:
@@ -62,7 +73,6 @@ private:
 #endif
 
     entt::registry m_Registry;
-
     UMap<UUID, entt::entity> m_EntityMap;
 
     friend class Entity;

@@ -19,6 +19,7 @@ Scene::Scene()
 
 Scene::~Scene()
 {
+    DM_CORE_INFO("Scene Deleted");
 }
 
 void Scene::onSceneRuntimeStart()
@@ -119,6 +120,31 @@ Entity Scene::getEntityByID(UUID id)
         return { m_EntityMap.at(id), this };
 
     return {};
+}
+
+template <typename T>
+void Scene::copyComponentOnAllEntities(entt::registry& destReg, entt::registry& srcReg, const UMap<UUID, entt::entity>& eMap)
+{
+    auto srcEnts = srcReg.view<T>();
+    for (auto& srcE : srcEnts) {
+        entt::entity dstE = eMap.at(srcReg.get<IDComponent>(srcE).ID);
+        auto& srcComp = srcReg.get<T>(srcE);
+        destReg.emplace_or_replace<T>(dstE, srcComp);
+    }
+}
+
+void Scene::deepCopy(Ref<Scene>& dest)
+{
+    UMap<UUID, entt::entity> newEntityMap;
+    auto idComps = getAllEntitiesWith<IDComponent>();
+    for (auto e : idComps) {
+        UUID uid = m_Registry.get<IDComponent>(e).ID;
+        std::string tag = m_Registry.get<TagComponent>(e).Tag;
+        auto newEntity = dest->createEntityWithUUID(uid, tag);
+        newEntityMap[uid] = newEntity.m_Handle;
+    }
+
+    copyAllEntitiesToNewReg(dest->m_Registry, m_Registry, newEntityMap, EveryComponentNoID {});
 }
 
 template <typename T>

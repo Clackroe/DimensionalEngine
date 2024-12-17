@@ -140,6 +140,7 @@ struct ComponentGroup {
 };
 
 using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent, DirectionalLightComponent, NativeScriptComponent>;
+using EveryComponentNoID = ComponentGroup<TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent, DirectionalLightComponent, NativeScriptComponent>;
 
 }
 #endif

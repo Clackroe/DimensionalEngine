@@ -1,6 +1,7 @@
 #include "Asset/Asset.hpp"
 #include "Asset/MaterialSerializer.hpp"
 #include "Core/Application.hpp"
+#include "Log/log.hpp"
 #include "Rendering/SceneRenderer.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
 #include "ToolPanels/MaterialsPanel.hpp"
@@ -39,12 +40,27 @@ void PortalLayer::OnAttatch()
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
-    m_ActiveScene = CreateRef<Scene>();
+    s_Browser = CreateRef<ContentBrowser>("Assets");
+    s_MatPanel = CreateRef<MaterialsPanel>();
+
+    m_EditorScene = CreateRef<Scene>();
+    m_ActiveScene = m_EditorScene;
+
+    Application::getApp().setSceneCTX(m_ActiveScene);
     m_SceneRenderer = CreateRef<SceneRenderer>(m_ActiveScene);
     m_HierarchyPanel.setSceneContext(m_ActiveScene);
 
-    s_Browser = CreateRef<ContentBrowser>("Assets");
-    s_MatPanel = CreateRef<MaterialsPanel>();
+    auto& app = Application::getApp();
+    auto& t = app.getScriptManager();
+    t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+}
+
+void PortalLayer::setActiveScene(Ref<Scene> sc)
+{
+    m_ActiveScene = sc;
+    m_SceneRenderer->setScene(sc);
+    m_HierarchyPanel.setSceneContext(sc);
+    Application::getApp().setSceneCTX(sc);
 }
 
 void PortalLayer::startRuntime()
@@ -52,7 +68,11 @@ void PortalLayer::startRuntime()
     if (!m_ActiveScene) {
         return;
     }
-    Application::getApp().setSceneCTX(m_ActiveScene);
+
+    m_RuntimeScene = CreateRef<Scene>();
+    m_EditorScene->deepCopy(m_RuntimeScene);
+    setActiveScene(m_RuntimeScene);
+
     m_ActiveScene->onSceneRuntimeStart();
     m_State = EditorState::PLAY;
 }
@@ -62,8 +82,12 @@ void PortalLayer::endRuntime()
         return;
     }
     m_ActiveScene->onSceneRuntimeEnd();
+
     m_State = EditorState::EDIT;
-    Application::getApp().setSceneCTX(nullptr);
+
+    m_RuntimeScene = nullptr;
+
+    setActiveScene(m_EditorScene);
 }
 
 void PortalLayer::OnDetatch() { }
@@ -93,9 +117,8 @@ void PortalLayer::openScene(AssetHandle sceneHandle)
     Ref<Scene> nScene = AssetManager::getInstance().getAsset<Scene>(sceneHandle);
     if (nScene) {
         m_ActiveSceneHandle = sceneHandle;
-        m_ActiveScene = nScene;
-        m_SceneRenderer->setScene(m_ActiveScene);
-        m_HierarchyPanel.setSceneContext(m_ActiveScene);
+        m_EditorScene = nScene;
+        setActiveScene(m_EditorScene);
     }
 }
 void PortalLayer::saveCurrentScene()
@@ -161,6 +184,13 @@ void PortalLayer::OnImGuiRender()
     ImGui::Begin("Test Saving");
     if (ImGui::Button("Save")) {
         saveCurrentScene();
+    }
+
+    if (ImGui::Button("Reload Game Code")) {
+        Application::getApp().setSceneCTX(m_ActiveScene);
+        auto& app = Application::getApp();
+        auto& t = app.getScriptManager();
+        t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
     }
 
     if (ImGui::Button("Start/Stop")) {

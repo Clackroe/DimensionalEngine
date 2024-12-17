@@ -24,6 +24,8 @@ public:
     void saveCurrentScene();
 
 private:
+    void setActiveScene(Ref<Scene> sc);
+
     SceneHierarchy m_HierarchyPanel;
 
     EditorState m_State = EditorState::EDIT;
@@ -36,7 +38,9 @@ private:
     Ref<SceneRenderer> m_SceneRenderer;
 
     AssetHandle m_ActiveSceneHandle = 0;
-    Ref<Scene> m_ActiveScene;
+    Ref<Scene> m_ActiveScene = nullptr;
+    Ref<Scene> m_EditorScene = nullptr;
+    Ref<Scene> m_RuntimeScene = nullptr;
 };
 }
 #endif
