@@ -11,7 +11,7 @@ public:
 
     TransformCompHandle* transform = 0;
     DM_PROPERTY(Player, float, speed, 30);
-    DM_PROPERTY(Player, float, testFloat, 10);
+    DM_PROPERTY(Player, float, testFloat, 20);
 
     DM_PROPERTY(Player, uint64_t, testVar, 30);
 

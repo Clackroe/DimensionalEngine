@@ -40,7 +40,6 @@ static void printLibError(const char* message)
     if (error) {
         DM_CORE_WARN("{0}: {1}", message, error);
     } else {
-        DM_CORE_WARN("{0}: Unknown Error", message);
     }
     return;
 };
