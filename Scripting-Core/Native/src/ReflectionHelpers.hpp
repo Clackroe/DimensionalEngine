@@ -86,7 +86,7 @@ struct ClassRegistrar {
 
     ClassRegistrar()
     {
-        ScriptCoreLink::s_RegistrationFunctions.push_back([](NativeScriptRegistry* reg) { registerClass<Class>(reg); });
+        ScriptCoreLink::getRegFuncs().push_back([](NativeScriptRegistry* reg) { registerClass<Class>(reg); });
     }
 };
 
@@ -96,24 +96,26 @@ bool ClassRegistrar<Class>::registered = [] {
     return true;
 }();
 
-#define REGISTER_SCRIPT(CLASS)                                              \
-    std::vector<std::function<MemberData()>> CLASS::s_RegisterMembersFuncs; \
-                                                                            \
-    namespace ScriptingCore {                                               \
-        static ClassRegistrar<CLASS> registrar_##CLASS;                     \
+#define REGISTER_SCRIPT(CLASS)                          \
+    namespace ScriptingCore {                           \
+        static ClassRegistrar<CLASS> registrar_##CLASS; \
     }
 
-#define DM_GENERATED_BODY(Class)                                            \
-public:                                                                     \
-    static std::vector<std::function<MemberData()>> s_RegisterMembersFuncs; \
-    static std::vector<MemberData> registerMembers()                        \
-    {                                                                       \
-        std::vector<MemberData> members;                                    \
-        for (auto& func : s_RegisterMembersFuncs) {                         \
-            MemberData d = func();                                          \
-            members.push_back(d);                                           \
-        }                                                                   \
-        return members;                                                     \
+#define DM_GENERATED_BODY(Class)                                                \
+public:                                                                         \
+    static std::vector<std::function<MemberData()>>& getMemberRegFuncs()        \
+    {                                                                           \
+        static std::vector<std::function<MemberData()>> s_RegisterMembersFuncs; \
+        return s_RegisterMembersFuncs;                                          \
+    }                                                                           \
+    static std::vector<MemberData> registerMembers()                            \
+    {                                                                           \
+        std::vector<MemberData> members;                                        \
+        for (auto& func : getMemberRegFuncs()) {                                \
+            MemberData d = func();                                              \
+            members.push_back(d);                                               \
+        }                                                                       \
+        return members;                                                         \
     }
 
 #define DM_PROPERTY(Class, type, name, defaultValue)                                       \
@@ -122,7 +124,7 @@ public:                                                                     \
         _MemberRegister_##name()                                                           \
         {                                                                                  \
             size_t offset = offsetof(Class, name);                                         \
-            s_RegisterMembersFuncs.push_back([offset]() -> MemberData {                    \
+            getMemberRegFuncs().push_back([offset]() -> MemberData {                       \
                 MemberData data;                                                           \
                 data.varName = #name;                                                      \
                 data.offsetBytes = offset;                                                 \

@@ -9,15 +9,16 @@ namespace ScriptingCore {
 static void registerScripts(NativeScriptRegistry* reg)
 {
 
-    for (auto& func : ScriptCoreLink::s_RegistrationFunctions) {
-        std::cout << "Loading Script..." << std::endl;
+    std::cout << "Registering Scripts..." << std::endl;
+
+    for (auto& func : ScriptCoreLink::getRegFuncs()) {
         func(reg);
     }
 }
 
 DM_GAMEAPI void Initialize(EngineAPI* eAPI, ComponentAPI* compAPI, NativeScriptRegistry* registry)
 {
-    std::cout << "Test: FROM LIBRARY ------ ERM7 BO000O!!!" << std::endl;
+    std::cout << "Test: FROM LIBRARY ------ Hello!" << std::endl;
     ScriptCoreLink::Init(eAPI, compAPI);
     registerScripts(registry);
 }
