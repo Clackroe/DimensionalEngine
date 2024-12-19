@@ -179,7 +179,6 @@ void NativeScriptManager::freeGameLibrary()
             m.getter = nullptr;
             m.setter = nullptr;
             m.dataType = ScriptMemberType::NONE;
-            m.offsetBytes = 0;
         }
         v.memberData.clear();
     }
