@@ -8,8 +8,6 @@
 #include <string>
 #include <unordered_map>
 
-class NativeScriptableEntity;
-
 enum class ScriptMemberType {
     FLOAT,
     INT,
@@ -23,13 +21,17 @@ namespace Dimensional {
 extern std::map<std::string, ScriptMemberType> g_StringToScriptMember;
 }
 
+namespace ScriptingCore {
+class NativeScriptableEntity;
+}
+
 #define MAX_MEMBERDATA_SIZE 16
 struct MemberData {
     std::string varName;
     char defaultVal[MAX_MEMBERDATA_SIZE];
     ScriptMemberType dataType = ScriptMemberType::NONE;
-    std::function<void*(NativeScriptableEntity*)> getter;
-    std::function<void(NativeScriptableEntity*, void*)> setter;
+    std::function<void*(ScriptingCore::NativeScriptableEntity*)> getter;
+    std::function<void(ScriptingCore::NativeScriptableEntity*, void*)> setter;
 };
 
 // Each Dimensional Script will require a constructor that takes in an entity handle
@@ -37,13 +39,13 @@ struct ReflectedData {
     // Class and Instance Data
     std::string className;
 
-    std::function<NativeScriptableEntity*(uint64_t)> classFactory = nullptr;
-    std::function<void(NativeScriptableEntity*)> classDestructor = nullptr;
+    std::function<ScriptingCore::NativeScriptableEntity*(uint64_t)> classFactory = nullptr;
+    std::function<void(ScriptingCore::NativeScriptableEntity*)> classDestructor = nullptr;
 
     // Events
-    std::function<void(NativeScriptableEntity*)> onUpdate = nullptr;
-    std::function<void(NativeScriptableEntity*)> onCreate = nullptr;
-    std::function<void(NativeScriptableEntity*)> onDestroy = nullptr;
+    std::function<void(ScriptingCore::NativeScriptableEntity*)> onUpdate = nullptr;
+    std::function<void(ScriptingCore::NativeScriptableEntity*)> onCreate = nullptr;
+    std::function<void(ScriptingCore::NativeScriptableEntity*)> onDestroy = nullptr;
 
     std::vector<MemberData> memberData;
 };
@@ -51,14 +53,25 @@ struct ReflectedData {
 using NativeScriptRegistry = std::unordered_map<std::string, ReflectedData>;
 
 // OPAQUE POINTERS
-struct TransformCompHandle;
+struct ComponentHandle;
+
+using TransformCompHandle = ComponentHandle;
 
 struct ComponentAPI {
     // TRANSFORM COMPONENT
     void* _dummy;
     std::function<TransformCompHandle*(uint64_t)> Transform_GetComp;
+
     std::function<glm::vec3(TransformCompHandle*)> Transform_GetPosition;
     std::function<void(TransformCompHandle*, glm::vec3)> Transform_SetPosition;
+
+    std::function<glm::vec3(TransformCompHandle*)> Transform_GetRotationRadians;
+    std::function<glm::vec3(TransformCompHandle*)> Transform_GetRotationDegrees;
+    std::function<void(TransformCompHandle*, glm::vec3)> Transform_SetRotationRadians;
+    std::function<void(TransformCompHandle*, glm::vec3)> Transform_SetRotationDegrees;
+
+    std::function<glm::vec3(TransformCompHandle*)> Transform_GetScale;
+    std::function<void(TransformCompHandle*, glm::vec3)> Transform_SetScale;
 
     // Camera
     // DirectionalLight

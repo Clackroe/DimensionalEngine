@@ -62,13 +62,13 @@ struct ScriptInstanceMember {
     std::string getName() const { return m_MemberData->varName; }
 
     template <typename T>
-    T getData(NativeScriptableEntity* instance)
+    T getData(ScriptingCore::NativeScriptableEntity* instance)
     {
         return *reinterpret_cast<T*>(m_MemberData->getter(instance));
     }
 
     template <typename T>
-    void setData(NativeScriptableEntity* instance, T data)
+    void setData(ScriptingCore::NativeScriptableEntity* instance, T data)
     {
         m_MemberData->setter(instance, reinterpret_cast<void*>(&data));
     }
@@ -128,7 +128,7 @@ struct ScriptInstance {
     std::string className;
 
 private:
-    NativeScriptableEntity* m_Instance;
+    ScriptingCore::NativeScriptableEntity* m_Instance;
     ReflectedData m_ClassData;
 };
 

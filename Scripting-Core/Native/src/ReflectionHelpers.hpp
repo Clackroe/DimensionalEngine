@@ -118,29 +118,29 @@ public:                                                                         
         return members;                                                         \
     }
 
-#define DM_PROPERTY(Class, type, name, defaultValue)                            \
-    type name = defaultValue;                                                   \
-    struct _MemberRegister_##name {                                             \
-        _MemberRegister_##name()                                                \
-        {                                                                       \
-            getMemberRegFuncs().push_back([]() -> MemberData {                  \
-                MemberData data;                                                \
-                data.varName = #name;                                           \
-                data.getter = [](NativeScriptableEntity* entity) -> void* {     \
-                    auto* obj = static_cast<Class*>(entity);                    \
-                    return &(obj->name);                                        \
-                };                                                              \
-                data.dataType = Dimensional::g_StringToScriptMember.at(#type);  \
-                data.setter = [](NativeScriptableEntity* entity, void* value) { \
-                    auto* obj = static_cast<Class*>(entity);                    \
-                    obj->name = *static_cast<type*>(value);                     \
-                };                                                              \
-                type temp_##name = defaultValue;                                \
-                memcpy(data.defaultVal, &temp_##name, MAX_MEMBERDATA_SIZE);     \
-                return data;                                                    \
-            });                                                                 \
-        }                                                                       \
-    };                                                                          \
+#define DM_PROPERTY(Class, type, name, defaultValue)                                           \
+    type name = defaultValue;                                                                  \
+    struct _MemberRegister_##name {                                                            \
+        _MemberRegister_##name()                                                               \
+        {                                                                                      \
+            getMemberRegFuncs().push_back([]() -> MemberData {                                 \
+                MemberData data;                                                               \
+                data.varName = #name;                                                          \
+                data.getter = [](ScriptingCore::NativeScriptableEntity* entity) -> void* {     \
+                    auto* obj = static_cast<Class*>(entity);                                   \
+                    return &(obj->name);                                                       \
+                };                                                                             \
+                data.dataType = Dimensional::g_StringToScriptMember.at(#type);                 \
+                data.setter = [](ScriptingCore::NativeScriptableEntity* entity, void* value) { \
+                    auto* obj = static_cast<Class*>(entity);                                   \
+                    obj->name = *static_cast<type*>(value);                                    \
+                };                                                                             \
+                type temp_##name = defaultValue;                                               \
+                memcpy(data.defaultVal, &temp_##name, sizeof(temp_##name));                    \
+                return data;                                                                   \
+            });                                                                                \
+        }                                                                                      \
+    };                                                                                         \
     static _MemberRegister_##name _memberRegister_instance_##name;
 
 }

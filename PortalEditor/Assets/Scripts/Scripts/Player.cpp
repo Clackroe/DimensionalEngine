@@ -1,16 +1,19 @@
 #include "EngineAPI.hpp"
 #include "ReflectionHelpers.hpp"
+#include <NativeScriptableEntity.hpp>
 #include <NativeScripting.hpp>
 
 using namespace ScriptingCore;
 using namespace Dimensional;
 
-class Player : public NativeScriptableEntity {
+class Player : public ScriptingCore::NativeScriptableEntity {
 public:
     DM_GENERATED_BODY(Player)
 
-    TransformCompHandle* transform = 0;
     DM_PROPERTY(Player, float, speed, 30);
+
+    DM_PROPERTY(Player, float, rotSpeed, 40);
+
     DM_PROPERTY(Player, float, testFloat, 20);
 
     DM_PROPERTY(Player, uint64_t, testVar, 30);
@@ -20,13 +23,13 @@ public:
     Player(uint64_t id)
         : NativeScriptableEntity(id)
     {
-        transform = ScriptCoreLink::getComponentAPI()->Transform_GetComp(m_EntityHandle);
     }
 
     void update()
     {
 
-        glm::vec3 pos = ScriptCoreLink::getComponentAPI()->Transform_GetPosition(transform);
+        glm::vec3 pos = transform.getPosition();
+        glm::vec3 rot = transform.getRotationDegrees();
 
         if (Input::isKeyDown(Key::Up)) {
             pos.z += 0.01 * speed;
@@ -46,8 +49,15 @@ public:
         if (Input::isKeyDown(Key::L)) {
             pos.y -= 0.01 * speed;
         }
+        if (Input::isKeyDown(Key::N1)) {
+            rot.y -= 0.01 * rotSpeed;
+        }
+        if (Input::isKeyDown(Key::N3)) {
+            rot.y += 0.01 * rotSpeed;
+        }
 
-        ScriptCoreLink::getComponentAPI()->Transform_SetPosition(transform, pos);
+        transform.setPosition(pos);
+        transform.setRotationDegrees(rot);
     };
 
     void create() {
@@ -60,6 +70,7 @@ public:
 };
 
 REGISTER_PROPERTY(Player, speed)
+REGISTER_PROPERTY(Player, rotSpeed)
 REGISTER_PROPERTY(Player, testFloat)
 REGISTER_PROPERTY(Player, testVar)
 REGISTER_PROPERTY(Player, testVec)

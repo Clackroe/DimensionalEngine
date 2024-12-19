@@ -1,4 +1,5 @@
 #include <NativeScripting.hpp>
+#include <iostream>
 
 namespace ScriptingCore {
 
