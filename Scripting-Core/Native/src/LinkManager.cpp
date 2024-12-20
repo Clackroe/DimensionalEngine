@@ -11,7 +11,7 @@ static void registerScripts(NativeScriptRegistry* reg)
 
     std::cout << "Registering Scripts..." << std::endl;
 
-    for (auto& func : ScriptCoreLink::getRegFuncs()) {
+    for (auto& func : ScriptCoreLink::s_RegistrationFunctions) {
         func(reg);
     }
 }

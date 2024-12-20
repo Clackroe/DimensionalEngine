@@ -75,6 +75,7 @@ struct ScriptInstanceMember {
 
 private:
     MemberData* m_MemberData;
+    friend class NativeScriptManager;
 };
 
 struct ScriptInstance {
@@ -130,6 +131,8 @@ struct ScriptInstance {
 private:
     ScriptingCore::NativeScriptableEntity* m_Instance;
     ReflectedData m_ClassData;
+
+    friend class NativeScriptManager;
 };
 
 struct ScriptComponantData {

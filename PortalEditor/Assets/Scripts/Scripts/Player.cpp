@@ -50,10 +50,10 @@ public:
             pos.y -= 0.01 * speed;
         }
         if (Input::isKeyDown(Key::N1)) {
-            rot.y -= 0.01 * rotSpeed;
+            rot.y -= 0.01 * rotSpeed * 100;
         }
         if (Input::isKeyDown(Key::N3)) {
-            rot.y += 0.01 * rotSpeed;
+            rot.y += 0.01 * rotSpeed * 100;
         }
 
         transform.setPosition(pos);

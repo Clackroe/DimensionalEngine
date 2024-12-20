@@ -5,6 +5,7 @@
 #include <Scripting/NativeScriptManager.hpp>
 #include <dlfcn.h>
 #include <filesystem>
+#include <sys/socket.h>
 
 namespace Dimensional {
 namespace DimensionalScriptAPI {
@@ -179,10 +180,32 @@ void NativeScriptManager::freeGameLibrary()
             m.getter = nullptr;
             m.setter = nullptr;
             m.dataType = ScriptMemberType::NONE;
+            memset(m.defaultVal, 0, MAX_MEMBERDATA_SIZE);
         }
         v.memberData.clear();
     }
     m_NativeScriptRegistry->clear();
+
+    for (auto& v : m_Instances) {
+        v->m_Instance = nullptr;
+
+        v->m_ClassData.onCreate = nullptr;
+        v->m_ClassData.onUpdate = nullptr;
+        v->m_ClassData.onDestroy = nullptr;
+        v->m_ClassData.className = "";
+        v->m_ClassData.classFactory = nullptr;
+        v->m_ClassData.classDestructor = nullptr;
+        for (auto& m : v->m_ClassData.memberData) {
+            m.varName = "";
+            m.getter = nullptr;
+            m.setter = nullptr;
+            m.dataType = ScriptMemberType::NONE;
+        }
+        v->m_ClassData.memberData.clear();
+        v->members.clear();
+    }
+
+    m_Instances.clear();
 
     std::function<void()> cleanupFunction;
     loadLibraryFunction(m_GameLibraryHandle, "Cleanup", cleanupFunction);
