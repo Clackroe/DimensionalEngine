@@ -42,10 +42,14 @@ struct ScriptComponentMember {
         }
         memcpy(data, &iData, size);
         sizeBytes = size;
+
+        dataChanged = true;
     }
 
     ScriptMemberType dataType = ScriptMemberType::NONE;
     std::string name = "NULL MEMBER";
+
+    bool dataChanged = false;
 
     char data[MAX_MEMBERDATA_SIZE];
     int sizeBytes = MAX_MEMBERDATA_SIZE;
@@ -173,13 +177,11 @@ private:
     void* m_GameLibraryHandle = nullptr;
 
     // TODO: Rework to use UUID (u64) for improved perfomance
-    UMap<std::string, ReflectedData> m_ReflectedClassData;
+    NativeScriptRegistry* m_NativeScriptRegistry;
 
     std::vector<ScriptInstance*> m_Instances;
 
     UMap<UUID, UMap<std::string, ScriptComponentMember>> m_ComponentMembers;
-
-    NativeScriptRegistry* m_NativeScriptRegistry;
 
     friend class Scene;
     friend class Application;

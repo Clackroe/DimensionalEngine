@@ -18,7 +18,7 @@ static void registerScripts(NativeScriptRegistry* reg)
 
 DM_GAMEAPI void Initialize(EngineAPI* eAPI, ComponentAPI* compAPI, NativeScriptRegistry* registry)
 {
-    std::cout << "Test: FROM LIBRARY ------ Hello!" << std::endl;
+    std::cout << "Test: FROM LIBRARY ------ Hello There Again!" << std::endl;
     ScriptCoreLink::Init(eAPI, compAPI);
     registerScripts(registry);
 }

@@ -2,6 +2,7 @@
 #include "EngineAPI.hpp"
 #include "Log/log.hpp"
 #include "Scene/Components.hpp"
+#include "Scene/Entity.hpp"
 #include <Scripting/NativeScriptManager.hpp>
 #include <dlfcn.h>
 #include <filesystem>
@@ -47,8 +48,8 @@ static void printLibError(const char* message)
 
 void NativeScriptManager::updateComponentMemberData()
 {
-
     Ref<Scene> sc = Application::getApp().getSceneCTX();
+
     if (m_NativeScriptRegistry && sc) {
         auto entities = sc->getAllEntitiesWith<IDComponent, NativeScriptComponent>();
 
@@ -56,11 +57,16 @@ void NativeScriptManager::updateComponentMemberData()
         UMap<UUID, UMap<std::string, ScriptComponentMember>> temp;
         for (auto& e : entities) {
             auto [IDComp, SComp] = entities.get<IDComponent, NativeScriptComponent>(e);
+
+            // inputed clas doesnt exist in game library
             if (!m_NativeScriptRegistry->contains(SComp.className)) {
                 continue;
             }
+
+            // Meta data for inputted class
             ReflectedData& classData = m_NativeScriptRegistry->at(SComp.className);
 
+            // Update members in script component to abide by reflected data
             UMap<std::string, ScriptComponentMember> tempMembers;
             for (MemberData& data : classData.memberData) {
 
@@ -68,34 +74,47 @@ void NativeScriptManager::updateComponentMemberData()
                     .dataType = data.dataType,
                     .name = data.varName
                 };
+
                 memcpy(m.data, &data.defaultVal, MAX_MEMBERDATA_SIZE);
+
                 tempMembers.insert({ m.name, m });
             }
 
+            // Insert default member data
             temp.insert({ IDComp.ID, tempMembers });
         }
 
-        // Update values with edior set counterparts, if applicable.
-        for (auto& [id, scMembers] : temp) {
-            if (!m_ComponentMembers.contains(id))
-                continue;
-            for (auto& [name, scMem] : scMembers) {
-                if (!m_ComponentMembers.at(id).contains(name))
-                    continue;
+        // Update the member data if the user has changed it in the editor
+        for (auto& [id, members] : temp) {
 
-                auto& old = m_ComponentMembers.at(id).at(name);
-                if (scMem.dataType != old.dataType) {
+            if (!m_ComponentMembers.contains(id)) {
+                continue;
+            }
+
+            // Loop through members
+            for (auto& [name, mData] : members) {
+                // Could be a new member or data type could have changed
+                if (!m_ComponentMembers.at(id).contains(name)) {
                     continue;
                 }
-                memcpy(scMem.data, &old.data, scMem.sizeBytes);
+                ScriptComponentMember& oldMember = m_ComponentMembers.at(id).at(name);
+                ScriptComponentMember& newMember = temp.at(id).at(name);
+
+                if (oldMember.dataType != newMember.dataType) {
+                    continue;
+                }
+
+                if (oldMember.dataChanged) {
+                    newMember = oldMember;
+                }
             }
         }
 
         m_ComponentMembers = temp;
     } else {
-        DM_CORE_WARN("No Scene Context");
+        DM_CORE_WARN("No Scene Context")
     }
-}
+};
 
 void NativeScriptManager::reloadGameLibrary(const std::string& path)
 {
@@ -123,6 +142,9 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
 
     EngineAPI* api = DimensionalScriptAPI::getEngineAPI();
     ComponentAPI* cAPI = ComponantScriptAPI::getComponentAPI();
+
+    NativeScriptRegistry* oldReg = m_NativeScriptRegistry;
+
     m_NativeScriptRegistry = new NativeScriptRegistry();
     initFunc(api, cAPI, m_NativeScriptRegistry);
 
