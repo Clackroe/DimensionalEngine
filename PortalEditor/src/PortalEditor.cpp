@@ -46,13 +46,8 @@ void PortalLayer::OnAttatch()
     m_EditorScene = CreateRef<Scene>();
     m_ActiveScene = m_EditorScene;
 
-    Application::getApp().setSceneCTX(m_ActiveScene);
     m_SceneRenderer = CreateRef<SceneRenderer>(m_ActiveScene);
-    m_HierarchyPanel.setSceneContext(m_ActiveScene);
-
-    auto& app = Application::getApp();
-    auto& t = app.getScriptManager();
-    t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+    setActiveScene(m_ActiveScene);
 }
 
 void PortalLayer::setActiveScene(Ref<Scene> sc)
@@ -60,7 +55,12 @@ void PortalLayer::setActiveScene(Ref<Scene> sc)
     m_ActiveScene = sc;
     m_SceneRenderer->setScene(sc);
     m_HierarchyPanel.setSceneContext(sc);
-    Application::getApp().setSceneCTX(sc);
+
+    auto& app = Application::getApp();
+    app.setSceneCTX(sc);
+
+    auto& t = app.getScriptManager();
+    t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
 }
 
 void PortalLayer::startRuntime()

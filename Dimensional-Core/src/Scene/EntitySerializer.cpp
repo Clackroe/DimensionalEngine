@@ -1,9 +1,16 @@
 #include "Scene/EntitySerializer.hpp"
 #include "Asset/AssetManager.hpp"
+#include "Core/Application.hpp"
+#include "EngineAPI.hpp"
+#include "Log/log.hpp"
 #include "Scene/Components.hpp"
 #include "Scene/Entity.hpp"
+#include "Scripting/NativeScriptManager.hpp"
+#include "yaml-cpp/binary.h"
 #include "yaml-cpp/emitter.h"
 #include "yaml-cpp/emittermanip.h"
+#include "yaml-cpp/node/detail/iterator_fwd.h"
+#include <cstring>
 #include <yaml-cpp/yaml.h>
 
 namespace YAML {
@@ -73,12 +80,15 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
     out << YAML::BeginMap;
     out << YAML::Key << "Entity" << YAML::Value << entity.getID();
 
+    UUID id = -1;
+
     if (entity.hasComponent<IDComponent>()) {
         auto& comp = entity.getComponent<IDComponent>();
         out << YAML::Key << "IDComponent";
         out << YAML::BeginMap;
 
         out << YAML::Key << "ID" << YAML::Value << comp.ID;
+        id = comp.ID;
 
         out << YAML::EndMap;
     }
@@ -177,6 +187,30 @@ void EntitySerialzer::Serialize(YAML::Emitter& out, Entity entity)
 
         out << YAML::Key << "ClassName" << YAML::Value << comp.className;
 
+        NativeScriptManager& manager = Application::getApp().getScriptManager();
+
+        if (manager.m_ComponentMembers.contains(id)) {
+
+            out << YAML::Key << "ExposedVariables" << YAML::BeginMap;
+
+            auto& members = manager.m_ComponentMembers.at(id);
+            for (auto& [name, data] : members) {
+                out << YAML::Key << name << YAML::BeginMap;
+
+                out << YAML::Key << "DataType" << YAML::Value << g_ScriptMemberToString[data.dataType];
+                out << YAML::Key << "Name" << YAML::Value << data.name;
+                out << YAML::Key << "IsChanged" << YAML::Value << data.dataChanged;
+                out << YAML::Key << "DataSize" << YAML::Value << data.sizeBytes;
+                out << YAML::Key << "DataRawBytes" << YAML::Value << YAML::Binary(data.data, data.sizeBytes);
+
+                out << YAML::EndMap;
+            }
+
+            out << YAML::EndMap;
+        } else {
+            DM_CORE_WARN("Tried to serialize Script Component that doesn't exist: {}", comp.className)
+        }
+
         out << YAML::EndMap;
     }
 
@@ -261,12 +295,72 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
         SetValue(dComp.intensity, dirComp["Intensity"]);
     }
 
+    /*
+ *         out << YAML::Key << "NativeScriptComponent";
+        out << YAML::BeginMap;
+
+        out << YAML::Key << "ClassName" << YAML::Value << comp.className;
+
+        NativeScriptManager& manager = Application::getApp().getScriptManager();
+
+            out << YAML::Key << "ExposedVariables" << YAML::BeginMap;
+
+            auto& members = manager.m_ComponentMembers.at(id);
+            for (auto& [name, data] : members) {
+                out << YAML::Key << name << YAML::BeginMap;
+
+                out << YAML::Key << "DataType" << YAML::Value << g_ScriptMemberToString[data.dataType];
+                out << YAML::Key << "Name" << YAML::Value << data.name;
+                out << YAML::Key << "IsChanged" << YAML::Value << data.dataChanged;
+                out << YAML::Key << "DataSize" << YAML::Value << data.sizeBytes;
+
+
+                out << YAML::Key << "DataRawBytes" << YAML::Value << YAML::Binary(data.data, data.sizeBytes);
+
+                out << YAML::EndMap;
+            }
+
+            out << YAML::EndMap;
+
+        out << YAML::EndMap;
+
+     * */
+
     auto nsComp = node["NativeScriptComponent"];
     if (nsComp) {
 
         auto& comp = loadedEntity.addComponent<NativeScriptComponent>();
-
         SetValue(comp.className, nsComp["ClassName"]);
+
+        NativeScriptManager& manager = Application::getApp().getScriptManager();
+
+        UMap<std::string, ScriptComponentMember> members;
+
+        auto membersYaml = nsComp["ExposedVariables"];
+        for (YAML::const_iterator it = membersYaml.begin(); it != membersYaml.end(); ++it) {
+            std::string name = it->first.as<std::string>();
+            auto yam = it->second;
+
+            //             out << YAML::Key << "DataType" << YAML::Value << g_ScriptMemberToString[data.dataType];
+            // out << YAML::Key << "Name" << YAML::Value << data.name;
+            // out << YAML::Key << "IsChanged" << YAML::Value << data.dataChanged;
+            // out << YAML::Key << "DataSize" << YAML::Value << data.sizeBytes;
+
+            ScriptComponentMember member;
+            SetValue(member.name, yam["Name"]);
+            std::string typeString;
+            SetValue(typeString, yam["DataType"]);
+            member.dataType = g_StringToScriptMember[typeString];
+            SetValue(member.dataChanged, yam["IsChanged"]);
+            SetValue(member.sizeBytes, yam["DataSize"]);
+
+            YAML::Binary bin = yam["DataRawBytes"].as<YAML::Binary>();
+            mempcpy(member.data, bin.data(), member.sizeBytes);
+
+            members[name] = member;
+        }
+
+        manager.m_ComponentMembers[id] = members;
     }
 
     return loadedEntity.getID();

@@ -10,7 +10,7 @@ class Player : public ScriptingCore::NativeScriptableEntity {
 public:
     DM_GENERATED_BODY(Player)
 
-    DM_PROPERTY(Player, float, speed, 40);
+    DM_PROPERTY(Player, float, speed, 400);
 
     DM_PROPERTY(Player, float, rotSpeed, 20);
 

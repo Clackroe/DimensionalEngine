@@ -281,11 +281,9 @@ void SceneHierarchy::entityComponents(Entity entity)
                     UMap<std::string, ScriptComponentMember>& members = scManager.m_ComponentMembers.at(eID);
                     for (auto& [name, mem] : members) {
 
-                        // float data = mem.getData<float>();
-                        // ImGui::InputFloat(mem.name.c_str(), &data);
-                        // if (data != mem.getData<float>()) {
-                        //     mem.setData(data);
-                        // }
+                        if (mem.dataChanged) {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(0, 200, 10, 255)));
+                        }
 
                         switch (mem.dataType) {
                         case ScriptMemberType::FLOAT: {
@@ -298,21 +296,21 @@ void SceneHierarchy::entityComponents(Entity entity)
                         case ScriptMemberType::INT: {
                             int data = mem.getData<int>();
                             ImGui::InputInt(mem.name.c_str(), &data);
-                            if (data != mem.getData<float>()) {
+                            if (data != mem.getData<int>()) {
                                 mem.setData(data);
                             }
                         } break;
                         case ScriptMemberType::U32: {
                             u32 data = mem.getData<u32>();
                             ImGui::InputScalar(mem.name.c_str(), ImGuiDataType_U32, &data);
-                            if (data != mem.getData<float>()) {
+                            if (data != mem.getData<u32>()) {
                                 mem.setData(data);
                             }
                         } break;
                         case ScriptMemberType::U64: {
                             u64 data = mem.getData<u64>();
                             ImGui::InputScalar(mem.name.c_str(), ImGuiDataType_U64, &data);
-                            if (data != mem.getData<float>()) {
+                            if (data != mem.getData<u64>()) {
                                 mem.setData(data);
                             }
                         } break;
@@ -325,6 +323,10 @@ void SceneHierarchy::entityComponents(Entity entity)
                         } break;
                         case ScriptMemberType::NONE:
                             break;
+                        }
+
+                        if (mem.dataChanged) {
+                            ImGui::PopStyleColor();
                         }
                     }
                 }

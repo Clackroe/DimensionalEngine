@@ -19,13 +19,15 @@ enum class ScriptMemberType {
 
 namespace Dimensional {
 extern std::map<std::string, ScriptMemberType> g_StringToScriptMember;
+extern std::map<ScriptMemberType, std::string> g_ScriptMemberToString;
+extern std::map<ScriptMemberType, size_t> g_ScriptMemberToSize;
 }
 
 namespace ScriptingCore {
 class NativeScriptableEntity;
 }
 
-#define MAX_MEMBERDATA_SIZE 16
+#define MAX_MEMBERDATA_SIZE 16 // Bytes
 struct MemberData {
     std::string varName;
     char defaultVal[MAX_MEMBERDATA_SIZE];

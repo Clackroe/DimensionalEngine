@@ -4,7 +4,6 @@
 #include "Scene/Components.hpp"
 #include "Scene/Entity.hpp"
 #include <Scripting/NativeScriptManager.hpp>
-#include <dlfcn.h>
 #include <filesystem>
 #include <sys/socket.h>
 
@@ -38,7 +37,7 @@ std::string NativeScriptManager::replaceOldLibrary(const std::string& newPath)
 
 static void printLibError(const char* message)
 {
-    const char* error = dlerror();
+    const char* error = LibError();
     if (error) {
         DM_CORE_WARN("{0}: {1}", message, error);
     } else {
@@ -72,7 +71,8 @@ void NativeScriptManager::updateComponentMemberData()
 
                 ScriptComponentMember m = {
                     .dataType = data.dataType,
-                    .name = data.varName
+                    .name = data.varName,
+                    .sizeBytes = (int)g_ScriptMemberToSize[data.dataType],
                 };
 
                 memcpy(m.data, &data.defaultVal, MAX_MEMBERDATA_SIZE);
@@ -122,7 +122,7 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
     freeGameLibrary();
     std::string newPath = replaceOldLibrary(path);
 
-    m_GameLibraryHandle = dlopen(newPath.c_str(), RTLD_NOW | RTLD_DEEPBIND);
+    m_GameLibraryHandle = LoadLibraryFunc(newPath.c_str());
 
     if (!m_GameLibraryHandle) {
         printLibError("FAILED TO LOAD GAME LIBRARY");
@@ -134,7 +134,7 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
     if (!initFunc) {
         printLibError("Cannot retrieve initializeFunction from game library");
         if (m_GameLibraryHandle) {
-            dlclose(m_GameLibraryHandle);
+            FreeLibraryFunc(m_GameLibraryHandle);
         }
         m_GameLibraryHandle = nullptr;
         return;
@@ -239,7 +239,7 @@ void NativeScriptManager::freeGameLibrary()
     if (!cleanupFunction) {
         printLibError("Cannot retrieve cleanup from game library");
         if (m_GameLibraryHandle) {
-            dlclose(m_GameLibraryHandle);
+            FreeLibraryFunc(m_GameLibraryHandle);
         }
         m_GameLibraryHandle = nullptr;
         return;
@@ -248,7 +248,7 @@ void NativeScriptManager::freeGameLibrary()
     cleanupFunction = nullptr;
 
     if (m_GameLibraryHandle) {
-        dlclose(m_GameLibraryHandle);
+        FreeLibraryFunc(m_GameLibraryHandle);
         printLibError("Cannot unload game library");
     }
 }

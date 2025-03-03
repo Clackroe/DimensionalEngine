@@ -14,6 +14,22 @@ std::map<std::string, ScriptMemberType> g_StringToScriptMember = {
     { "vec3", ScriptMemberType::GLM_VEC3 }, // Just in case they use namespace glm
 };
 
+std::map<ScriptMemberType, std::string> g_ScriptMemberToString = {
+    { ScriptMemberType::FLOAT, "float" },
+    { ScriptMemberType::INT, "int" },
+    { ScriptMemberType::U32, "u32" },
+    { ScriptMemberType::U64, "u64" },
+    { ScriptMemberType::GLM_VEC3, "glm::vec3" },
+};
+
+std::map<ScriptMemberType, size_t> g_ScriptMemberToSize = {
+    { ScriptMemberType::FLOAT, sizeof(float) },
+    { ScriptMemberType::INT, sizeof(int) },
+    { ScriptMemberType::U32, sizeof(u32) },
+    { ScriptMemberType::U64, sizeof(u64) },
+    { ScriptMemberType::GLM_VEC3, sizeof(glm::vec3) },
+};
+
 namespace DimensionalScriptAPI {
 
     void LogInfo(const char* message)

@@ -1,6 +1,7 @@
 #ifndef DM_NATIVESCRIPTMANAGER
 #define DM_NATIVESCRIPTMANAGER
 #include "Scene/Scene.hpp"
+#include "Scene/SceneSerializer.hpp"
 #include <EngineAPI.hpp>
 #include <core.hpp>
 #include <cstring>
@@ -51,8 +52,8 @@ struct ScriptComponentMember {
 
     bool dataChanged = false;
 
-    char data[MAX_MEMBERDATA_SIZE];
-    int sizeBytes = MAX_MEMBERDATA_SIZE;
+    unsigned char data[MAX_MEMBERDATA_SIZE];
+    int sizeBytes = 0;
 };
 
 struct ScriptInstanceMember {
@@ -147,7 +148,7 @@ struct ScriptComponantData {
 template <typename FuncT>
 bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<FuncT>& out)
 {
-    void* funcPTR = dlsym(libHandle, funcName);
+    void* funcPTR = GetFunctionAddress(libHandle, funcName);
     if (!funcPTR) {
         DM_CORE_WARN("FAILED TO LOAD FUNCTION {}", funcName);
         return false;
@@ -186,6 +187,7 @@ private:
     friend class Scene;
     friend class Application;
     friend class SceneHierarchy;
+    friend class EntitySerialzer;
 };
 }
 
