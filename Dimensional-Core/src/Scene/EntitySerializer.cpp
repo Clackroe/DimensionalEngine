@@ -355,7 +355,7 @@ UUID EntitySerialzer::Deserialize(const YAML::Node& node, Ref<Scene>& scene)
             SetValue(member.sizeBytes, yam["DataSize"]);
 
             YAML::Binary bin = yam["DataRawBytes"].as<YAML::Binary>();
-            mempcpy(member.data, bin.data(), member.sizeBytes);
+            memcpy(member.data, bin.data(), member.sizeBytes);
 
             members[name] = member;
         }

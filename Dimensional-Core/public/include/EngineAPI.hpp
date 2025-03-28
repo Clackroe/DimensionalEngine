@@ -18,9 +18,37 @@ enum class ScriptMemberType {
 };
 
 namespace Dimensional {
-extern std::map<std::string, ScriptMemberType> g_StringToScriptMember;
-extern std::map<ScriptMemberType, std::string> g_ScriptMemberToString;
-extern std::map<ScriptMemberType, size_t> g_ScriptMemberToSize;
+ //static std::map<std::string, ScriptMemberType> g_StringToScriptMember;
+ //static std::map<ScriptMemberType, std::string> g_ScriptMemberToString;
+ //static std::map<ScriptMemberType, size_t> g_ScriptMemberToSize;
+
+
+static std::map<std::string, ScriptMemberType> g_StringToScriptMember = {
+    { "float", ScriptMemberType::FLOAT },
+    { "int", ScriptMemberType::INT },
+    { "uint32_t", ScriptMemberType::U32 },
+    { "u32", ScriptMemberType::U32 },
+    { "uint64_t", ScriptMemberType::U64 },
+    { "u64", ScriptMemberType::U64 },
+    { "glm::vec3", ScriptMemberType::GLM_VEC3 },
+    { "vec3", ScriptMemberType::GLM_VEC3 }, // Just in case they use namespace glm
+};
+
+static std::map<ScriptMemberType, std::string> g_ScriptMemberToString = {
+    { ScriptMemberType::FLOAT, "float" },
+    { ScriptMemberType::INT, "int" },
+    { ScriptMemberType::U32, "u32" },
+    { ScriptMemberType::U64, "u64" },
+    { ScriptMemberType::GLM_VEC3, "glm::vec3" },
+};
+
+static std::map<ScriptMemberType, size_t> g_ScriptMemberToSize = {
+    { ScriptMemberType::FLOAT, sizeof(float) },
+    { ScriptMemberType::INT, sizeof(int) },
+    { ScriptMemberType::U32, sizeof(unsigned int) },
+    { ScriptMemberType::U64, sizeof(unsigned long) },
+    { ScriptMemberType::GLM_VEC3, sizeof(glm::vec3) },
+};
 }
 
 namespace ScriptingCore {

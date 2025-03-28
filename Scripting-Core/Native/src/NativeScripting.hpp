@@ -18,7 +18,8 @@ public:
     static EngineAPI* getEngineAPI() { return getInstance()->_getEngineAPI(); }
     static ComponentAPI* getComponentAPI() { return getInstance()->_getComponentAPI(); }
 
-    static std::vector<std::function<void(NativeScriptRegistry*)>> s_RegistrationFunctions;
+    static DM_GAME_EXPORT std::vector<std::function<void(NativeScriptRegistry*)>> s_RegistrationFunctions;
+    static DM_GAME_EXPORT std::vector<std::function<void(NativeScriptRegistry*)>>& getRegFuncs() { return s_RegistrationFunctions; };
 
     ScriptCoreLink(EngineAPI* eAPI, ComponentAPI* cAPI);
     ~ScriptCoreLink() = default;

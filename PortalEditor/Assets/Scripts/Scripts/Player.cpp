@@ -6,6 +6,7 @@
 using namespace ScriptingCore;
 using namespace Dimensional;
 
+
 class Player : public ScriptingCore::NativeScriptableEntity {
 public:
     DM_GENERATED_BODY(Player)

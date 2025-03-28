@@ -5,7 +5,6 @@
 #include "Scene/Entity.hpp"
 #include <Scripting/NativeScriptManager.hpp>
 #include <filesystem>
-#include <sys/socket.h>
 
 namespace Dimensional {
 namespace DimensionalScriptAPI {
@@ -25,7 +24,8 @@ NativeScriptManager::~NativeScriptManager()
 
 std::string NativeScriptManager::replaceOldLibrary(const std::string& newPath)
 {
-    std::string uniqueLibPath = "Assets/.bin/Game/libGameApp_" + std::to_string(std::time(nullptr)) + ".so";
+    std::string uniqueLibPath = "Assets/.bin/Game/GameApp_" + std::to_string(std::time(nullptr)) + ".dll";
+    //std::string uniqueLibPath = "Assets/.bin/Game/libGameApp_" + std::to_string(std::time(nullptr)) + ".so";
 
     if (std::filesystem::exists("Assets/.bin/Game")) {
         std::filesystem::remove_all("Assets/.bin/Game");

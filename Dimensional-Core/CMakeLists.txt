@@ -35,6 +35,9 @@ set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
 set_target_properties(assimp PROPERTIES POSITION_INDEPENDENT_CODE ON LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(assimp PRIVATE -Wno-unknown-warning-option)
+    target_compile_options(assimp PRIVATE -Wno-unreachable-code-break)
+    target_compile_options(assimp PRIVATE -Wno-shorten-64-to-32)
+
 endif()
 
 

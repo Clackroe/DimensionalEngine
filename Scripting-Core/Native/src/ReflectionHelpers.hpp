@@ -8,6 +8,7 @@
 
 #include <cstring>
 
+
 namespace ScriptingCore {
 
 template <typename Class, typename = void>
@@ -86,7 +87,10 @@ struct ClassRegistrar {
 
     ClassRegistrar()
     {
+        std::cout << "ClassRegistration Macro" << std::endl;
         ScriptCoreLink::s_RegistrationFunctions.push_back([](NativeScriptRegistry* reg) { registerClass<Class>(reg); });
+    std::cout << "Sizeof FuncList Macro: " << ScriptCoreLink::s_RegistrationFunctions.size() << std::endl;
+
     }
 };
 

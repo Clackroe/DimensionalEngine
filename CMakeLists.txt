@@ -12,4 +12,5 @@ set(CMAKE_BUILD_PARALLEL_LEVEL 12)
 
 add_subdirectory(Dimensional-Core)
 add_subdirectory(PortalEditor)
+add_subdirectory(PortalEditor/Assets/Scripts)
 add_subdirectory(TestBed)

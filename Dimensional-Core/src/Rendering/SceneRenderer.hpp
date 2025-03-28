@@ -31,8 +31,8 @@ struct alignas(16) CameraData {
     glm::mat4 view;
     glm::mat4 proj;
     float fov;
-    float near;
-    float far;
+    float nearPlane;
+    float farPlane;
 };
 
 struct alignas(16) DirectionalLightData {

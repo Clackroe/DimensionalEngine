@@ -68,7 +68,7 @@ private:
     template <>
     void onComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component);
     template <>
-    void onComponentAdded<NatNativeScriptComponent>(Entity entity, NaNativeScriptComponent& component);
+    void onComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component);
 
 #endif
 

@@ -12,7 +12,7 @@
 #define LoadLibraryFunc(name) LoadLibrary(name)
 #define GetFunctionAddress(lib, func) GetProcAddress((HMODULE)lib, func)
 #define FreeLibraryFunc(lib) FreeLibrary((HMODULE)lib)
-#define LibError() nullptr
+#define LibError() std::to_string(GetLastError()).c_str()
 #else
 #include <dlfcn.h>
 #define LoadLibraryFunc(name) dlopen(name, RTLD_LAZY | RTLD_LOCAL)
@@ -157,7 +157,7 @@ bool loadLibraryFunction(void* libHandle, const char* funcName, std::function<Fu
     out = std::function<FuncT>(*typedFunc);
     return true;
 }
-class NativeScriptManager {
+class DMCORE_API NativeScriptManager {
 public:
     NativeScriptManager();
     ~NativeScriptManager();
