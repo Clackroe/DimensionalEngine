@@ -60,8 +60,8 @@ void PortalLayer::setActiveScene(Ref<Scene> sc)
     app.setSceneCTX(sc);
 
     auto& t = app.getScriptManager();
-    t.reloadGameLibrary("GameAppd.dll");
-    //t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+    // t.reloadGameLibrary("GameAppd.dll");
+    t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
 }
 
 void PortalLayer::startRuntime()
@@ -191,8 +191,8 @@ void PortalLayer::OnImGuiRender()
         Application::getApp().setSceneCTX(m_ActiveScene);
         auto& app = Application::getApp();
         auto& t = app.getScriptManager();
-        t.reloadGameLibrary("GameAppd.dll");
-        //t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+        // t.reloadGameLibrary("GameAppd.dll");
+        t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
     }
 
     if (ImGui::Button("Start/Stop")) {

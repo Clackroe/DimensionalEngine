@@ -23,7 +23,4 @@ include_directories(${PROJECT_SOURCE_DIR}/../../Dimensional-Core/lib/ENTT/single
 add_library(ScriptingCore STATIC ${APP_SOURCES})
 
 
-target_compile_definitions(ScriptingCore PRIVATE MYLIB_BUILD)
-target_compile_definitions(ScriptingCore PRIVATE MYLIB_BUILD_EXPORT)
-
 target_include_directories(ScriptingCore PRIVATE ./ PRIVATE ${PROJECT_SOURCE_DIR}/../../Dimensional-Core/public/include)

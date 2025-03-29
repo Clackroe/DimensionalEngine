@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 20)
 # Source files
 file(GLOB_RECURSE APP_SOURCES "src/*.cpp")
 
+
 # Include directories
 include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/src)
 include_directories(${PROJECT_SOURCE_DIR}/../Dimensional-Core/public/include)

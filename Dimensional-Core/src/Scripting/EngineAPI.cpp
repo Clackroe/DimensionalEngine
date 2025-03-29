@@ -3,32 +3,6 @@
 #include <core.hpp>
 
 namespace Dimensional {
-//std::map<std::string, ScriptMemberType> g_StringToScriptMember = {
-//    { "float", ScriptMemberType::FLOAT },
-//    { "int", ScriptMemberType::INT },
-//    { "uint32_t", ScriptMemberType::U32 },
-//    { "u32", ScriptMemberType::U32 },
-//    { "uint64_t", ScriptMemberType::U64 },
-//    { "u64", ScriptMemberType::U64 },
-//    { "glm::vec3", ScriptMemberType::GLM_VEC3 },
-//    { "vec3", ScriptMemberType::GLM_VEC3 }, // Just in case they use namespace glm
-//};
-//
-//std::map<ScriptMemberType, std::string> g_ScriptMemberToString = {
-//    { ScriptMemberType::FLOAT, "float" },
-//    { ScriptMemberType::INT, "int" },
-//    { ScriptMemberType::U32, "u32" },
-//    { ScriptMemberType::U64, "u64" },
-//    { ScriptMemberType::GLM_VEC3, "glm::vec3" },
-//};
-//
-//std::map<ScriptMemberType, size_t> g_ScriptMemberToSize = {
-//    { ScriptMemberType::FLOAT, sizeof(float) },
-//    { ScriptMemberType::INT, sizeof(int) },
-//    { ScriptMemberType::U32, sizeof(u32) },
-//    { ScriptMemberType::U64, sizeof(u64) },
-//    { ScriptMemberType::GLM_VEC3, sizeof(glm::vec3) },
-//};
 
 namespace DimensionalScriptAPI {
 

@@ -29,7 +29,8 @@ void Scene::onSceneRuntimeStart()
 
     auto& app = Application::getApp();
     auto& t = app.getScriptManager();
-    t.reloadGameLibrary("GameAppd.dll");
+    t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+    // t.reloadGameLibrary("GameAppd.dll");
 
     t.onSceneStart();
 }

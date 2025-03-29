@@ -1,25 +1,27 @@
 #include "EngineAPI.hpp"
-#include "ReflectionHelpers.hpp"
 #include <NativeScriptableEntity.hpp>
 #include <NativeScripting.hpp>
 
 using namespace ScriptingCore;
 using namespace Dimensional;
 
-
+// DM-CLASS
 class Player : public ScriptingCore::NativeScriptableEntity {
 public:
-    DM_GENERATED_BODY(Player)
+    // DM-PROPERTY
+    float speed = 400;
 
-    DM_PROPERTY(Player, float, speed, 400);
+    // DM-PROPERTY
+    float rotSpeed = 20;
 
-    DM_PROPERTY(Player, float, rotSpeed, 20);
+    // DM-PROPERTY
+    float testFloat = 20;
 
-    DM_PROPERTY(Player, float, testFloat, 20);
+    // DM-PROPERTY
+    uint64_t testVar = 30;
 
-    DM_PROPERTY(Player, uint64_t, testVar, 30);
-
-    DM_PROPERTY(Player, glm::vec3, testVec, glm::vec3(0, 22, 31));
+    // DM-PROPERTY
+    glm::vec3 testVec = glm::vec3(0, 22, 31);
 
     Player(uint64_t id)
         : NativeScriptableEntity(id)
@@ -62,18 +64,9 @@ public:
     };
 
     void create() {
-
     };
 
     void destroy() {
 
     };
 };
-
-REGISTER_PROPERTY(Player, speed)
-REGISTER_PROPERTY(Player, rotSpeed)
-REGISTER_PROPERTY(Player, testFloat)
-REGISTER_PROPERTY(Player, testVar)
-REGISTER_PROPERTY(Player, testVec)
-
-REGISTER_SCRIPT(Player)

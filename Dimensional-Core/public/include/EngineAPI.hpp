@@ -1,64 +1,30 @@
 #ifndef DM_ENGINEAPI
 #define DM_ENGINEAPI
+#include "glm/fwd.hpp"
 #include <KeyCodes.hpp>
 #include <cstdint>
 #include <functional>
 #include <glm/glm.hpp>
-#include <map>
-#include <string>
-#include <unordered_map>
 
-enum class ScriptMemberType {
-    FLOAT,
-    INT,
-    U32,
-    U64,
-    GLM_VEC3,
-    NONE
-};
-
-namespace Dimensional {
- //static std::map<std::string, ScriptMemberType> g_StringToScriptMember;
- //static std::map<ScriptMemberType, std::string> g_ScriptMemberToString;
- //static std::map<ScriptMemberType, size_t> g_ScriptMemberToSize;
-
-
-static std::map<std::string, ScriptMemberType> g_StringToScriptMember = {
-    { "float", ScriptMemberType::FLOAT },
-    { "int", ScriptMemberType::INT },
-    { "uint32_t", ScriptMemberType::U32 },
-    { "u32", ScriptMemberType::U32 },
-    { "uint64_t", ScriptMemberType::U64 },
-    { "u64", ScriptMemberType::U64 },
-    { "glm::vec3", ScriptMemberType::GLM_VEC3 },
-    { "vec3", ScriptMemberType::GLM_VEC3 }, // Just in case they use namespace glm
-};
-
-static std::map<ScriptMemberType, std::string> g_ScriptMemberToString = {
-    { ScriptMemberType::FLOAT, "float" },
-    { ScriptMemberType::INT, "int" },
-    { ScriptMemberType::U32, "u32" },
-    { ScriptMemberType::U64, "u64" },
-    { ScriptMemberType::GLM_VEC3, "glm::vec3" },
-};
-
-static std::map<ScriptMemberType, size_t> g_ScriptMemberToSize = {
-    { ScriptMemberType::FLOAT, sizeof(float) },
-    { ScriptMemberType::INT, sizeof(int) },
-    { ScriptMemberType::U32, sizeof(unsigned int) },
-    { ScriptMemberType::U64, sizeof(unsigned long) },
-    { ScriptMemberType::GLM_VEC3, sizeof(glm::vec3) },
-};
-}
+#include <ReflectionData.hpp>
 
 namespace ScriptingCore {
 class NativeScriptableEntity;
 }
 
 #define MAX_MEMBERDATA_SIZE 16 // Bytes
+union MemberDataValue {
+    char bytes[MAX_MEMBERDATA_SIZE];
+    int intValue;
+    float floatValue;
+    uint32_t u32Value;
+    uint64_t u64Value;
+    glm::vec3 vec3Value;
+};
+
 struct MemberData {
     std::string varName;
-    char defaultVal[MAX_MEMBERDATA_SIZE];
+    MemberDataValue defaultVal;
     ScriptMemberType dataType = ScriptMemberType::NONE;
     std::function<void*(ScriptingCore::NativeScriptableEntity*)> getter;
     std::function<void(ScriptingCore::NativeScriptableEntity*, void*)> setter;

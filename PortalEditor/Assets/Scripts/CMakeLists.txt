@@ -10,11 +10,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+
 # Source files
 file(GLOB_RECURSE APP_SOURCES "*.cpp" "*.hpp")
 
 # Include directories
 include_directories(./)
+include_directories(./Scripts)
 include_directories(${PROJECT_SOURCE_DIR}/../../../Scripting-Core/Native/src)
 include_directories(${PROJECT_SOURCE_DIR}/../../../Dimensional-Core/public/include)
 include_directories(${PROJECT_SOURCE_DIR}/../../../Dimensional-Core/lib/GLM)
@@ -24,18 +26,24 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/../../../Scripting-Core/Native ${CMAKE_BI
 set_target_properties(ScriptingCore PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/../../../DReflect ${CMAKE_BINARY_DIR}/DReflect)
 
-add_library(GameApp SHARED ${APP_SOURCES})
+
+
+add_library(GameApp SHARED ${APP_SOURCES} Scripts/generated.cpp)
 target_link_libraries(GameApp PRIVATE ScriptingCore)
 
+add_dependencies(GameApp DReflect)
 
-target_compile_definitions(GameApp PRIVATE MYLIB_BUILD)
-# target_link_libraries(GameApp PRIVATE "-Wl,--whole-archive" ScriptingCore "-Wl,--no-whole-archive")
+if(WIN32)
+    add_custom_command(TARGET GameApp PRE_BUILD
+    COMMAND ${PROJECT_SOURCE_DIR}/preprocess.bat)
+else()
+    add_custom_command(TARGET GameApp PRE_BUILD
+    COMMAND ${PROJECT_SOURCE_DIR}/preprocess.sh)
+endif()
 
 
-# target_link_options(GameApp PRIVATE "-Wl,--whole-archive" ScriptingCore "-Wl,--no-whole-archive")
-
-# target_link_libraries(GameApp ScriptingCore)
 
 # Link include directories specifically to GameApp
 target_include_directories(GameApp PRIVATE ./ PRIVATE ${PROJECT_SOURCE_DIR}/../../../Dimensional-Core/public/include)

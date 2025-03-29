@@ -24,8 +24,8 @@ NativeScriptManager::~NativeScriptManager()
 
 std::string NativeScriptManager::replaceOldLibrary(const std::string& newPath)
 {
-    std::string uniqueLibPath = "Assets/.bin/Game/GameApp_" + std::to_string(std::time(nullptr)) + ".dll";
-    //std::string uniqueLibPath = "Assets/.bin/Game/libGameApp_" + std::to_string(std::time(nullptr)) + ".so";
+    // std::string uniqueLibPath = "Assets/.bin/Game/GameApp_" + std::to_string(std::time(nullptr)) + ".dll";
+    std::string uniqueLibPath = "Assets/.bin/Game/libGameApp_" + std::to_string(std::time(nullptr)) + ".so";
 
     if (std::filesystem::exists("Assets/.bin/Game")) {
         std::filesystem::remove_all("Assets/.bin/Game");
@@ -128,7 +128,7 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
         printLibError("FAILED TO LOAD GAME LIBRARY");
     }
 
-    std::function<void(EngineAPI*, ComponentAPI*, NativeScriptRegistry*)> initFunc;
+    std::function<NativeScriptRegistry*(EngineAPI*, ComponentAPI*)> initFunc;
     loadLibraryFunction(m_GameLibraryHandle, "Initialize", initFunc);
 
     if (!initFunc) {
@@ -145,8 +145,7 @@ void NativeScriptManager::reloadGameLibrary(const std::string& path)
 
     NativeScriptRegistry* oldReg = m_NativeScriptRegistry;
 
-    m_NativeScriptRegistry = new NativeScriptRegistry();
-    initFunc(api, cAPI, m_NativeScriptRegistry);
+    m_NativeScriptRegistry = initFunc(api, cAPI);
 
     updateComponentMemberData();
 }
@@ -155,10 +154,12 @@ void NativeScriptManager::onSceneStart()
 {
     Ref<Scene> sc = Application::getApp().getSceneCTX();
     auto v = sc->getAllEntitiesWith<IDComponent, NativeScriptComponent>();
+
     for (auto& e : v) {
         auto [IDComp, SComp] = v.get<IDComponent, NativeScriptComponent>(e);
 
         if (m_NativeScriptRegistry->contains(SComp.className)) {
+            DM_CORE_WARN("Reg Contains: {}", SComp.className);
             auto data = m_NativeScriptRegistry->at(SComp.className);
             ScriptInstance* instance = new ScriptInstance(data, IDComp.ID);
             m_Instances.push_back(instance);
@@ -202,7 +203,7 @@ void NativeScriptManager::freeGameLibrary()
             m.getter = nullptr;
             m.setter = nullptr;
             m.dataType = ScriptMemberType::NONE;
-            memset(m.defaultVal, 0, MAX_MEMBERDATA_SIZE);
+            memset(m.defaultVal.bytes, 0, MAX_MEMBERDATA_SIZE);
         }
         v.memberData.clear();
     }
@@ -232,9 +233,7 @@ void NativeScriptManager::freeGameLibrary()
     std::function<void()> cleanupFunction;
     loadLibraryFunction(m_GameLibraryHandle, "Cleanup", cleanupFunction);
 
-    if (m_NativeScriptRegistry) {
-        delete m_NativeScriptRegistry;
-    }
+    m_NativeScriptRegistry = nullptr;
 
     if (!cleanupFunction) {
         printLibError("Cannot retrieve cleanup from game library");

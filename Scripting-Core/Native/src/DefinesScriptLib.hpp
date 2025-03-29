@@ -1,5 +1,5 @@
-#ifndef DM_SC_DEFINES
-#define DM_SC_DEFINES
+// #ifndef DM_SC_DEFINES
+// #define DM_SC_DEFINES
 //
 // // Core Defines
 //
@@ -38,45 +38,45 @@
 // #define DM_STRINGIFY_MACRO(x) #x
 //
 // //----SYSTEM INFO----
- #if defined(_WIN32) || defined(_WIN64)
- #define DM_WINDOWS
- #define DM_PLATFORM "WINDOWS"
-
- #elif defined(__linux__)
- #define DM_LINUX
- #define DM_PLATFORM "LINUX"
-
- #elif defined(__APPLE__) && defined(__MACH__)
- #define DM_MACOS
- #define DM_PLATFORM "MACOS"
-
- #else
- #error UNKNOWN_PLATFORM
- #endif
-
-
-#if defined(DM_WINDOWS)
-#ifdef MYLIB_BUILD
-#define DM_GAMEAPI extern "C" __declspec(dllexport)
-#else
-#define DM_GAMEAPI 
-
-#endif
-
-#ifdef MYLIB_BUILD_EXPORT
-#define DM_GAME_EXPORT __declspec(dllexport)
-#else
-#define DM_GAME_EXPORT __declspec(dllimport)
-
-#endif
-
-#elif defined(DM_LINUX)
-#ifdef MYLIB_BUILD
-#define DM_GAMEAPI __attribute__((visibility("default")))
-#else
-#define DM_GAMEAPI
-#endif
-#else
-#define DM_GAMEAPI
-#endif//
-#endif
+//  #if defined(_WIN32) || defined(_WIN64)
+//  #define DM_WINDOWS
+//  #define DM_PLATFORM "WINDOWS"
+//
+//  #elif defined(__linux__)
+//  #define DM_LINUX
+//  #define DM_PLATFORM "LINUX"
+//
+//  #elif defined(__APPLE__) && defined(__MACH__)
+//  #define DM_MACOS
+//  #define DM_PLATFORM "MACOS"
+//
+//  #else
+//  #error UNKNOWN_PLATFORM
+//  #endif
+//
+//
+// #if defined(DM_WINDOWS)
+// #ifdef MYLIB_BUILD
+// #define DM_GAMEAPI extern "C" __declspec(dllexport)
+// #else
+// #define DM_GAMEAPI
+//
+// #endif
+//
+// #ifdef MYLIB_BUILD_EXPORT
+// #define DM_GAME_EXPORT __declspec(dllexport)
+// #else
+// #define DM_GAME_EXPORT __declspec(dllimport)
+//
+// #endif
+//
+// #elif defined(DM_LINUX)
+// #ifdef MYLIB_BUILD
+// #define DM_GAMEAPI __attribute__((visibility("default")))
+// #else
+// #define DM_GAMEAPI
+// #endif
+// #else
+// #define DM_GAMEAPI
+// #endif//
+// #endif
