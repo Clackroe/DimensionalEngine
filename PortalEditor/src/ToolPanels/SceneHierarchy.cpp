@@ -1,12 +1,15 @@
 #include "Asset/AssetManager.hpp"
 #include "Asset/AssetMeta.hpp"
-#include "Input/KeyCodes.hpp"
+#include "Core/Application.hpp"
+#include "EngineAPI.hpp"
+#include "KeyCodes.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelSource.hpp"
 #include "Scene/Components.hpp"
 #include "Scene/Scene.hpp"
 #include "Scene/SceneSerializer.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <ToolPanels/SceneHierarchy.hpp>
@@ -198,6 +201,10 @@ void SceneHierarchy::entityComponents(Entity entity)
             entity.addComponent<DirectionalLightComponent>();
         }
 
+        if (ImGui::Button("Native Script")) {
+            entity.addComponent<NativeScriptComponent>();
+        }
+
         ImGui::EndPopup();
     }
 
@@ -252,6 +259,79 @@ void SceneHierarchy::entityComponents(Entity entity)
                     std::filesystem::path(AssetManager::getInstance().getMetaData(component.envMap).sourcePath).stem().string());
 
                 ImGui::DragFloat("Linear", &component.lod, 0.01f, 0.0f, 4.0f);
+            },
+            true);
+    }
+
+    if (entity.hasComponent<NativeScriptComponent>()) {
+        UUID eID = entity.getID();
+        componentNode<NativeScriptComponent>(
+            "Native Script", entity, [eID](NativeScriptComponent& component) {
+                ImGui::Text("ClassName");
+
+                char buffer[256];
+                std::memset(buffer, 0, sizeof(buffer));
+                std::strncpy(buffer, component.className.c_str(), sizeof(buffer) - 1);
+                if (ImGui::InputText("##Tag", buffer, sizeof(buffer))) {
+                    component.className = std::string(buffer);
+                }
+
+                auto& scManager = Application ::getApp().getScriptManager();
+                if (scManager.m_ComponentMembers.contains(eID)) {
+                    UMap<std::string, ScriptComponentMember>& members = scManager.m_ComponentMembers.at(eID);
+                    for (auto& [name, mem] : members) {
+
+                        bool isChanged = false;
+                        if (mem.dataChanged) {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(0, 200, 10, 255)));
+                             isChanged = true;
+                        }
+
+                        switch (mem.dataType) {
+                        case ScriptMemberType::FLOAT: {
+                            float data = mem.getData<float>();
+                            ImGui::InputFloat(mem.name.c_str(), &data);
+                            if (data != mem.getData<float>()) {
+                                mem.setData(data);
+                            }
+                        } break;
+                        case ScriptMemberType::INT: {
+                            int data = mem.getData<int>();
+                            ImGui::InputInt(mem.name.c_str(), &data);
+                            if (data != mem.getData<int>()) {
+                                mem.setData(data);
+                            }
+                        } break;
+                        case ScriptMemberType::U32: {
+                            u32 data = mem.getData<u32>();
+                            ImGui::InputScalar(mem.name.c_str(), ImGuiDataType_U32, &data);
+                            if (data != mem.getData<u32>()) {
+                                mem.setData(data);
+                            }
+                        } break;
+                        case ScriptMemberType::U64: {
+                            u64 data = mem.getData<u64>();
+                            ImGui::InputScalar(mem.name.c_str(), ImGuiDataType_U64, &data);
+                            if (data != mem.getData<u64>()) {
+                                mem.setData(data);
+                            }
+                        } break;
+                        case ScriptMemberType::GLM_VEC3: {
+                            glm::vec3 data = mem.getData<glm::vec3>();
+                            ImGui::DragFloat3(mem.name.c_str(), glm::value_ptr(data));
+                            if (data != mem.getData<glm::vec3>()) {
+                                mem.setData(data);
+                            }
+                        } break;
+                        case ScriptMemberType::NONE:
+                            break;
+                        }
+
+                        if (mem.dataChanged && isChanged) {
+                            ImGui::PopStyleColor();
+                        }
+                    }
+                }
             },
             true);
     }

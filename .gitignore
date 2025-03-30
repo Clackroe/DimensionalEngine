@@ -11,8 +11,17 @@ CTestTestfile.cmake
 _deps
 imgui.ini
 Assets
+Assets/Scripts/build/
+Assets/Scripts/out/
+Assets/Scripts/.cache/
 !Assets/shaders
+!Assets/Scripts
 .vs
 out
 Builds
+build
+builds
+.cache
+
+CMakeSettings.json
 

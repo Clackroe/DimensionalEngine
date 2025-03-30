@@ -16,10 +16,6 @@ public:
     Scene();
     ~Scene();
 
-    void updateEditor();
-
-    void beginScene();
-
     Entity createEntity(const std::string& name = std::string());
     Entity createEntityWithUUID(UUID uuid, const std::string& name = std::string());
     Entity duplicateEntity(Entity);
@@ -31,6 +27,23 @@ public:
 
     template <typename... Components>
     auto getAllEntitiesWith() { return m_Registry.view<Components...>(); }
+
+    void onSceneRuntimeStart();
+
+    void updateSceneRuntime();
+
+    void onSceneRuntimeEnd();
+
+    void deepCopy(Ref<Scene>& dest);
+
+    template <typename T>
+    void copyComponentOnAllEntities(entt::registry& destReg, entt::registry& srcReg, const UMap<UUID, entt::entity>& eMap);
+
+    template <typename... Components>
+    void copyAllEntitiesToNewReg(entt::registry& destReg, entt::registry& srcReg, const UMap<UUID, entt::entity>& eMap, ComponentGroup<Components...>)
+    {
+        (copyComponentOnAllEntities<Components>(destReg, srcReg, eMap), ...);
+    };
 
     virtual AssetType getAssetType() const { return AssetType::SCENE; }
 
@@ -54,17 +67,19 @@ private:
     void onComponentAdded<SkyLight>(Entity entity, SkyLight& component);
     template <>
     void onComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component);
+    template <>
+    void onComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component);
 
 #endif
 
     entt::registry m_Registry;
-
     UMap<UUID, entt::entity> m_EntityMap;
 
     friend class Entity;
     friend class SceneSerializer;
     friend class SceneRenderer;
     friend class SceneHierarchy;
+    // friend class ScriptEngine;
 };
 
 }

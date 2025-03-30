@@ -1,6 +1,6 @@
 #ifndef DM_EVENTH
 #define DM_EVENTH
-#include <Input/KeyCodes.hpp>
+#include <KeyCodes.hpp>
 #include <core.hpp>
 
 namespace Dimensional {

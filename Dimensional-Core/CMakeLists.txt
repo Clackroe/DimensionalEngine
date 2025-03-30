@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 project(Dimensional-Core)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 
@@ -11,6 +10,7 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Include directories
 include_directories(src)
+include_directories(public/include)
 
 # STB
 include_directories(lib/STB)
@@ -32,6 +32,13 @@ set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
 set_target_properties(assimp PROPERTIES POSITION_INDEPENDENT_CODE ON LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(assimp PRIVATE -Wno-unknown-warning-option)
+    target_compile_options(assimp PRIVATE -Wno-unreachable-code-break)
+    target_compile_options(assimp PRIVATE -Wno-shorten-64-to-32)
+
+endif()
+
 
 # YAML
 add_subdirectory(lib/YAML)
@@ -54,7 +61,6 @@ add_library(glad STATIC lib/GLAD/src/glad.c)
 set_target_properties(glad PROPERTIES POSITION_INDEPENDENT_CODE ON)
 include_directories(lib/GLAD/include)
 include_directories(lib/GLAD/include/glad)
-# include_directories(lib/GLAD/include)
 
 # GLM
 include_directories(lib/GLM)

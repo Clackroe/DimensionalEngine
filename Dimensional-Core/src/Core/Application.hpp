@@ -4,6 +4,7 @@
 
 #include "ImGui/ImGuiLayer.hpp"
 #include "Rendering/RendererAPI.hpp"
+#include "Scripting/NativeScriptManager.hpp"
 #include <Core/LayerStack.hpp>
 #include <Core/Window.hpp>
 
@@ -27,11 +28,15 @@ public:
 
     static Application& getApp() { return *s_Application; }
     inline Window& getWindowDM() { return *m_Window; };
+    NativeScriptManager& getScriptManager() { return m_ScriptManager; };
 
     ImGuiContext* getImGuiContext()
     {
         return ImGui::GetCurrentContext();
     }
+
+    Ref<Scene> getSceneCTX();
+    void setSceneCTX(Ref<Scene> scene) { m_SceneCTX = scene; };
 
     // ---
 
@@ -41,9 +46,12 @@ private:
 private:
     EventSystem m_EventSystem;
     RendererAPI m_Renderer = RendererAPI::getInstance();
+    NativeScriptManager m_ScriptManager;
 
 private:
     Scope<Window> m_Window;
+
+    Ref<Scene> m_SceneCTX = nullptr;
 
     LayerStack m_LayerStack;
 

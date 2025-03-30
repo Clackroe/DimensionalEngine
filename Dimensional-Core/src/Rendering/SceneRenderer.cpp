@@ -172,7 +172,7 @@ void SceneRenderer::setupCameraData()
 
 void SceneRenderer::setupLightData()
 {
-    std::vector<float> cascadeSplits = splitCascadesPracticalSplitSum(CASCADES, m_CameraData.near, m_CameraData.far);
+    std::vector<float> cascadeSplits = splitCascadesPracticalSplitSum(CASCADES, m_CameraData.nearPlane, m_CameraData.farPlane);
     std::vector<float> paddedSplits;
     paddedSplits.resize(cascadeSplits.size() * 4);
     for (int i = 0; i < cascadeSplits.size(); i++) {
@@ -193,7 +193,7 @@ void SceneRenderer::setupLightData()
 
             glm::vec3 dir = glm::normalize(glm::quat(transform.Rotation) * glm::vec3(0, 0, -1));
 
-            std::vector<glm::mat4> cascades = getCascadedLightMatricies(m_CameraData.view, dir, m_CameraData.aspectRatio, m_CameraData.fov, cascadeSplits, m_CameraData.near, m_CameraData.far, 10.0);
+            std::vector<glm::mat4> cascades = getCascadedLightMatricies(m_CameraData.view, dir, m_CameraData.aspectRatio, m_CameraData.fov, cascadeSplits, m_CameraData.nearPlane, m_CameraData.farPlane, 10.0);
             for (glm::mat4& vp : cascades) {
                 DirectionalLightData data = {
                     .direction = glm::vec4(dir, 0.0f),

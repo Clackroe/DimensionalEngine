@@ -1,6 +1,7 @@
 #ifndef DM_COMPONENTS_H
 #define DM_COMPONENTS_H
 #include "Asset/AssetManager.hpp"
+#include "EngineAPI.hpp"
 #include "Rendering/FrameBuffer.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
@@ -127,11 +128,19 @@ struct DMCORE_API DirectionalLightComponent {
     Ref<TextureView> shadowTextureView = CreateRef<TextureView>();
 };
 
+struct DMCORE_API NativeScriptComponent {
+    NativeScriptComponent() {};
+    NativeScriptComponent(const NativeScriptComponent&) = default;
+
+    std::string className;
+};
+
 template <typename... Component>
 struct ComponentGroup {
 };
 
-using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent, DirectionalLightComponent>;
+using EveryComponent = ComponentGroup<IDComponent, TagComponent, TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent, DirectionalLightComponent, NativeScriptComponent>;
+using EveryComponentNoID = ComponentGroup<TransformComponent, MeshRenderer, PointLightComponent, SpotLightComponent, DirectionalLightComponent, NativeScriptComponent>;
 
 }
 #endif

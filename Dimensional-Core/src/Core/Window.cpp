@@ -3,7 +3,7 @@
 #include <glad.h>
 
 #include "GLFW/glfw3.h"
-#include "Input/KeyCodes.hpp"
+#include "KeyCodes.hpp"
 
 namespace Dimensional {
 

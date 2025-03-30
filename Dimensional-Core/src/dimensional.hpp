@@ -20,7 +20,7 @@
 
 // ---- INPUT
 #include <Input/Input.hpp>
-#include <Input/KeyCodes.hpp>
+#include <KeyCodes.hpp>
 
 // ---- ASSETS
 #include <Asset/Asset.hpp>

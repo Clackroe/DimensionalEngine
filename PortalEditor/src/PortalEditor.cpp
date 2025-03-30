@@ -1,12 +1,14 @@
 #include "Asset/Asset.hpp"
 #include "Asset/MaterialSerializer.hpp"
+#include "Core/Application.hpp"
+#include "Log/log.hpp"
 #include "Rendering/SceneRenderer.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
 #include "ToolPanels/MaterialsPanel.hpp"
 #include "core.hpp"
 #include "imgui.h"
 #include <Asset/AssetRegistrySerializer.hpp>
-#include <Input/KeyCodes.hpp>
+#include <KeyCodes.hpp>
 #include <PortalEditor.hpp>
 #include <Scene/Components.hpp>
 #include <Scene/SceneSerializer.hpp>
@@ -38,13 +40,57 @@ void PortalLayer::OnAttatch()
     m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
-    m_ActiveScene = CreateRef<Scene>();
-    m_SceneRenderer = CreateRef<SceneRenderer>(m_ActiveScene);
-    m_HierarchyPanel.setSceneContext(m_ActiveScene);
-
     s_Browser = CreateRef<ContentBrowser>("Assets");
     s_MatPanel = CreateRef<MaterialsPanel>();
+
+    m_EditorScene = CreateRef<Scene>();
+    m_ActiveScene = m_EditorScene;
+
+    m_SceneRenderer = CreateRef<SceneRenderer>(m_ActiveScene);
+    setActiveScene(m_ActiveScene);
 }
+
+void PortalLayer::setActiveScene(Ref<Scene> sc)
+{
+    m_ActiveScene = sc;
+    m_SceneRenderer->setScene(sc);
+    m_HierarchyPanel.setSceneContext(sc);
+
+    auto& app = Application::getApp();
+    app.setSceneCTX(sc);
+
+    auto& t = app.getScriptManager();
+     t.reloadGameLibrary("GameAppd.dll");
+    //t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+}
+
+void PortalLayer::startRuntime()
+{
+    if (!m_ActiveScene) {
+        return;
+    }
+
+    m_RuntimeScene = CreateRef<Scene>();
+    m_EditorScene->deepCopy(m_RuntimeScene);
+    setActiveScene(m_RuntimeScene);
+
+    m_ActiveScene->onSceneRuntimeStart();
+    m_State = EditorState::PLAY;
+}
+void PortalLayer::endRuntime()
+{
+    if (!m_ActiveScene) {
+        return;
+    }
+    m_ActiveScene->onSceneRuntimeEnd();
+
+    m_State = EditorState::EDIT;
+
+    m_RuntimeScene = nullptr;
+
+    setActiveScene(m_EditorScene);
+}
+
 void PortalLayer::OnDetatch() { }
 
 void PortalLayer::OnUpdate()
@@ -53,13 +99,13 @@ void PortalLayer::OnUpdate()
     glm::vec3 p = m_EditorCamera.getPosition();
 
     if (m_ActiveScene) {
-        // m_ActiveScene->beginScene();
+
+        if (m_State == EditorState::PLAY) {
+            m_ActiveScene->updateSceneRuntime();
+        }
 
         m_SceneRenderer->beginScene(CameraData { m_EditorCamera.getViewProj(), p, m_EditorCamera.getAspectRatio(), m_EditorCamera.getViewMtx(), m_EditorCamera.getProjection(), m_EditorCamera.getFOV(), m_EditorCamera.m_NearClipPlane, m_EditorCamera.m_FarClipPlane });
-
         m_SceneRenderer->render();
-        // m_ActiveScene->updateEditor();
-
         m_SceneRenderer->endScene();
     }
 
@@ -72,10 +118,8 @@ void PortalLayer::openScene(AssetHandle sceneHandle)
     Ref<Scene> nScene = AssetManager::getInstance().getAsset<Scene>(sceneHandle);
     if (nScene) {
         m_ActiveSceneHandle = sceneHandle;
-        m_ActiveScene = nScene;
-        m_SceneRenderer->setScene(m_ActiveScene);
-        // tempSceneRenderer = SceneRenderer(m_ActiveScene);
-        m_HierarchyPanel.setSceneContext(m_ActiveScene);
+        m_EditorScene = nScene;
+        setActiveScene(m_EditorScene);
     }
 }
 void PortalLayer::saveCurrentScene()
@@ -142,12 +186,34 @@ void PortalLayer::OnImGuiRender()
     if (ImGui::Button("Save")) {
         saveCurrentScene();
     }
-    // if (ImGui::Button("Load")) {
-    //     Ref<Scene> nScene = CreateRef<Scene>();
-    //     SceneSerializer::Deserialize(scenePath, nScene);
-    //     m_ActiveScene = nScene;
-    //     m_HierarchyPanel.setSceneContext(m_ActiveScene);
-    // }
+
+    if (ImGui::Button("Reload Game Code")) {
+        Application::getApp().setSceneCTX(m_ActiveScene);
+        auto& app = Application::getApp();
+        auto& t = app.getScriptManager();
+         t.reloadGameLibrary("GameAppd.dll");
+        //t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+    }
+
+    if (ImGui::Button("Start/Stop")) {
+        switch (m_State) {
+        case EditorState::EDIT:
+            startRuntime();
+            break;
+        case EditorState::PLAY:
+            endRuntime();
+            break;
+        }
+    }
+
+    switch (m_State) {
+    case EditorState::EDIT:
+        ImGui::Text("Editing");
+        break;
+    case EditorState::PLAY:
+        ImGui::Text("Playing");
+        break;
+    }
 
     ImGui::End();
 
