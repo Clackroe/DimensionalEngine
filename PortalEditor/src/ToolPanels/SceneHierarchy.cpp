@@ -281,10 +281,10 @@ void SceneHierarchy::entityComponents(Entity entity)
                     UMap<std::string, ScriptComponentMember>& members = scManager.m_ComponentMembers.at(eID);
                     for (auto& [name, mem] : members) {
 
-                        bool notChangedThisFrame = true;
+                        bool isChanged = false;
                         if (mem.dataChanged) {
                             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(0, 200, 10, 255)));
-                            notChangedThisFrame = false;
+                             isChanged = true;
                         }
 
                         switch (mem.dataType) {
@@ -327,7 +327,7 @@ void SceneHierarchy::entityComponents(Entity entity)
                             break;
                         }
 
-                        if (mem.dataChanged &&  !notChangedThisFrame) {
+                        if (mem.dataChanged && isChanged) {
                             ImGui::PopStyleColor();
                         }
                     }
