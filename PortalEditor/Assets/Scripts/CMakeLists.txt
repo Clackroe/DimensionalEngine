@@ -30,7 +30,36 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/../../../DReflect ${CMAKE_BINARY_DIR}/DRe
 
 
 
-add_library(GameApp SHARED ${APP_SOURCES} Scripts/generated.cpp)
+set(GENERATED_FILE ${PROJECT_SOURCE_DIR}/Scripts/generated.cpp)
+
+if(WIN32)
+    add_custom_command(
+        OUTPUT ${GENERATED_FILE}
+        COMMAND ${PROJECT_SOURCE_DIR}/preprocess.bat ${GENERATED_FILE}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        DEPENDS ${PROJECT_SOURCE_DIR}/preprocess.bat
+        COMMENT "Generating ${GENERATED_FILE} on Windows"
+        VERBATIM
+    )
+else()
+    # Custom command to generate the file
+add_custom_command(
+    OUTPUT ${GENERATED_FILE}
+    COMMAND ${CMAKE_COMMAND} -E echo "Running preprocessing script..."
+    COMMAND ${CMAKE_COMMAND} -E remove -f ${GENERATED_FILE} # Remove old file
+    COMMAND ${PROJECT_SOURCE_DIR}/preprocess.sh ${GENERATED_FILE}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS ${PROJECT_SOURCE_DIR}/preprocess.sh
+    COMMENT "Generating ${GENERATED_FILE}"
+    VERBATIM
+)
+
+endif()
+
+
+# Ensure the generated file is included in the build
+add_library(GameApp SHARED ${APP_SOURCES} ${GENERATED_FILE})
+
 target_link_libraries(GameApp PRIVATE ScriptingCore)
 
 add_dependencies(GameApp DReflect)
