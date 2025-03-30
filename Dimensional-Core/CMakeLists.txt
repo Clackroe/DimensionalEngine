@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 project(Dimensional-Core)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 
@@ -62,7 +61,6 @@ add_library(glad STATIC lib/GLAD/src/glad.c)
 set_target_properties(glad PROPERTIES POSITION_INDEPENDENT_CODE ON)
 include_directories(lib/GLAD/include)
 include_directories(lib/GLAD/include/glad)
-# include_directories(lib/GLAD/include)
 
 # GLM
 include_directories(lib/GLM)
