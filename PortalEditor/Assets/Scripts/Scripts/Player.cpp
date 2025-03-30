@@ -9,7 +9,7 @@ using namespace Dimensional;
 class Player : public ScriptingCore::NativeScriptableEntity {
 public:
     // DM-PROPERTY
-    float speed = 400;
+    float speed = 2;
 
     // DM-PROPERTY
     float rotSpeed = 20;

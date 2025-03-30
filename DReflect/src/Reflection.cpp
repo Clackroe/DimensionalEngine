@@ -68,7 +68,7 @@ void Reflection::parseFile(const std::string& filePath, const std::string& absSo
 
         ClassMeta cls;
         cls.name = className;
-        cls.path = std::filesystem::relative(std::filesystem::absolute(filePath), absSourcePath);
+        cls.path = std::filesystem::relative(std::filesystem::absolute(filePath), absSourcePath).string();
         parseBody(classBody, cls);
 
         classes.push_back(cls);
@@ -163,7 +163,7 @@ void Reflection::parseDirectory(const std::filesystem::path& sourceDir, std::vec
         if (file.is_directory()) {
             continue;
         }
-        parseFile(file.path().string(), absSourcePath, classes);
+        parseFile(file.path().string(), absSourcePath.string(), classes);
     }
 }
 

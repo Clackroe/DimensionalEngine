@@ -1,3 +1,2 @@
 @echo off
-cd /D "%~dp0"  
-call "DReflect\DReflect" "..\Scripts\"
+call ".\DReflect.exe" "%1"
