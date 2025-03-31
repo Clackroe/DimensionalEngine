@@ -22,6 +22,8 @@ struct RenderTargetManager {
     static void SetSize(UUID id, u32 width, u32 height);
     static void ReBuild(UUID id);
 
+    static void BindAttachment(UUID id, u32 index, u32 slot);
+
     static void Destroy(UUID id);
 
 private:

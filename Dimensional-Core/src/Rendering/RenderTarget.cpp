@@ -20,6 +20,11 @@ void RenderTarget::UnBind()
     RenderTargetManager::UnBind(m_UUID);
 }
 
+void RenderTarget::BindAttachment(u32 index, u32 slot)
+{
+    RenderTargetManager::BindAttachment(m_UUID, index, slot);
+}
+
 void RenderTarget::SetSize(u32 width, u32 height)
 {
     RenderTargetManager::SetSize(m_UUID, width, height);

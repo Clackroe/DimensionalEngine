@@ -17,6 +17,8 @@ struct OpenGLRenderTarget {
     void SetSize(u32 width, u32 height);
     void ReBuild();
 
+    void BindAttachment(u32 index, u32 slot);
+
     void Destroy();
 
     u32 m_GLID;

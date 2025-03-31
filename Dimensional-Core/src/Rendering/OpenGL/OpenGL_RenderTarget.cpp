@@ -1,3 +1,4 @@
+#include "Core/Application.hpp"
 #include "Rendering/Texture2D.hpp"
 #include "Rendering/Texture2DManager.hpp"
 #include "Rendering/TextureEnums.hpp"
@@ -16,6 +17,12 @@ OpenGLRenderTarget OpenGLRenderTarget::Create(const RenderTargetData& data)
     return target;
 }
 
+void OpenGLRenderTarget::BindAttachment(u32 index, u32 slot)
+{
+    DM_CORE_ASSERT(index < m_ColorBuffs.size(), "Attatchment Index Out of Range");
+    m_ColorBuffs[index]->Bind(slot);
+}
+
 void OpenGLRenderTarget::Bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_GLID);
@@ -24,6 +31,7 @@ void OpenGLRenderTarget::Bind()
 void OpenGLRenderTarget::UnBind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight());
 }
 
 void OpenGLRenderTarget::SetSize(u32 width, u32 height)

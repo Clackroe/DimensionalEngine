@@ -26,8 +26,8 @@ public:
 
     void update();
 
-    u32 getWidth() { return m_Settings.Height; }
-    u32 getHeight() { return m_Settings.Width; }
+    u32 getWidth() { return m_Settings.Width; }
+    u32 getHeight() { return m_Settings.Height; }
 
     void setVsync(bool enabled);
     bool vsyncEnabled() { return m_Settings.VSync; }

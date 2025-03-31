@@ -42,6 +42,27 @@ void RenderTargetManager::Bind(UUID id)
     }
     }
 }
+
+void RenderTargetManager::BindAttachment(UUID id, u32 index, u32 slot)
+{
+    bool exists = s_RTMap.contains(id);
+    if (!exists) {
+        DM_CORE_WARN("Tried to BindAttachment on non-existant RenderTarget");
+        return;
+    };
+
+    switch (Application::getGraphicsAPI()) {
+    case GraphicsAPI::OPENGL: {
+        OpenGLRenderTarget target = std::get<OpenGLRenderTarget>(s_RTMap.at(id).glTarget);
+        target.BindAttachment(index, slot);
+        break;
+    }
+    case GraphicsAPI::UNKOWN: {
+        break;
+    }
+    }
+}
+
 void RenderTargetManager::UnBind(UUID id)
 {
     bool exists = s_RTMap.contains(id);

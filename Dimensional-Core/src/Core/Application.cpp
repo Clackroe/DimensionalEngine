@@ -21,7 +21,11 @@ namespace Dimensional {
 
 Ref<VAO> vao;
 
+Ref<VAO> quadVAO;
+
 Ref<Shader> shader;
+
+Ref<Shader> screenShader;
 
 Ref<Texture2D> tex;
 
@@ -53,6 +57,29 @@ static void testBedStart()
         1, 2, 3 // second Triangle
     };
 
+    std::vector<float> quadVertices = {
+        // positions   // texCoords
+        1.0f, 1.0f, 1.0f, 0.0f, // top-right
+        1.0f, -1.0f, 1.0f, 1.0f, // bottom-right
+        -1.0f, -1.0f, 0.0f, 1.0f, // bottom-left
+        -1.0f, 1.0f, 0.0f, 0.0f, // top-left
+    };
+    std::vector<u32> quadIndices = {
+        // note that we start from 0!
+        0, 1, 3, // first Triangle
+        1, 2, 3 // second Triangle
+    };
+
+    quadVAO = VAO::Create();
+    VAOData dataQuad;
+    dataQuad.indexBuffer = quadIndices;
+    dataQuad.data = (const char*)quadVertices.data();
+    dataQuad.dataSizeBytes = quadVertices.size() * sizeof(float);
+    dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = false });
+    dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
+
+    quadVAO->SetData(dataQuad);
+
     vao = VAO::Create();
 
     VAOData data;
@@ -66,7 +93,8 @@ static void testBedStart()
     vao->SetData(data);
 
     shader = Shader::Create("Assets/Shaders/testshader.glsl");
-    shader->Bind();
+
+    screenShader = Shader::Create("Assets/Shaders/Screen.glsl");
 
     Texture2DData texData;
     texData.data = stbi_load("Assets/Textures/Albedo.png", (int*)&texData.width, (int*)&texData.height, (int*)&texData.channels, 0);
@@ -86,13 +114,20 @@ static void testBedStart()
     rtData.depthAttachment = { TextureFormat::DEPTH16 };
     target = RenderTarget::Create(rtData);
     target->Bind();
+    target->BindAttachment(0, 2);
 }
 
 static void testBedUpdate()
 {
+    target->Bind();
+    shader->Bind();
     Renderer::ClearScreen(ClearBuffer::BOTH);
-
     Renderer::DrawIndexed(vao, shader);
+    target->UnBind();
+
+    screenShader->Bind();
+    Renderer::ClearScreen(ClearBuffer::BOTH);
+    Renderer::DrawIndexed(quadVAO, screenShader);
 }
 
 Application* Application::s_Application = nullptr;
