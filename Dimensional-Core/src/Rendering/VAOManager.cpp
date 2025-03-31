@@ -97,6 +97,7 @@ void VAOManager::DeleteVAO(UUID id)
     case GraphicsAPI::OPENGL: {
         OpenGLVAO vao = s_VAOMap.at(id).glVAO;
         vao.Destroy();
+        s_VAOMap.erase(id);
         break;
     }
     case GraphicsAPI::UNKOWN: {

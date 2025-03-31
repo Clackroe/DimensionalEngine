@@ -1,6 +1,8 @@
 #ifndef TEXTURE_ENUMS
 #define TEXTURE_ENUMS
+namespace Dimensional {
 enum class TextureFormat {
+    NONE,
     // Single Channel
     R8, // 8-bit red
     R16, // 16-bit red (integer) R16F, // 16-bit floating point red
@@ -47,4 +49,37 @@ enum class TextureWrapMode {
     ClampToBorder, // Clamps and uses a specified border color
     DEFAULT = ClampToEdge
 };
+
+static UMap<TextureFormat, u32> TextureFormatToChannels = {
+    // Single Channel
+    { TextureFormat::R8, 1 },
+    { TextureFormat::R16, 1 },
+    { TextureFormat::R32F, 1 },
+
+    // Two Channel
+    { TextureFormat::RG8, 2 },
+    { TextureFormat::RG16, 2 },
+    { TextureFormat::RG16F, 2 },
+    { TextureFormat::RG32F, 2 },
+
+    // Three Channel
+    { TextureFormat::RGB8, 3 },
+    { TextureFormat::RGB16, 3 },
+    { TextureFormat::RGB16F, 3 },
+    { TextureFormat::RGB32F, 3 },
+
+    // Four Channel
+    { TextureFormat::RGBA8, 4 },
+    { TextureFormat::RGBA16, 4 },
+    { TextureFormat::RGBA16F, 4 },
+    { TextureFormat::RGBA32F, 4 },
+
+    // Depth / Stencil Formats
+    { TextureFormat::DEPTH16, 1 },
+    { TextureFormat::DEPTH32F, 1 },
+    { TextureFormat::DEPTH24_STENCIL8, 2 },
+    { TextureFormat::DEPTH32F_STENCIL8, 2 }
+};
+}
+
 #endif // TEXTURE_ENUMS

@@ -16,10 +16,10 @@ struct OpenGLTexture2D {
 
     void SetFiletering(TextureFiltering tf);
     void SetWrap(TextureWrapMode tf);
+    void SetBorderColor(glm::vec4 col);
 
     void Destroy();
 
-private:
     u32 m_GLID;
     Texture2DData m_Data;
 };

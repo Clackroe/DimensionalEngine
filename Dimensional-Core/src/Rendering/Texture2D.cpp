@@ -41,4 +41,10 @@ void Texture2D::SetWrap(TextureWrapMode tf)
 {
     Texture2DManager::SetWrap(m_UUID, tf);
 }
+
+void Texture2D::SetBorderColor(glm::vec4 col)
+{
+    Texture2DManager::SetBorderColor(m_UUID, col);
+}
+
 }

@@ -8,7 +8,7 @@ namespace Dimensional {
 
 struct Texture2DData {
     u32 width, height, channels;
-    u8* data;
+    u8* data = nullptr;
     TextureFormat format = TextureFormat::DEFAULT;
     TextureWrapMode wrap = TextureWrapMode::DEFAULT;
     TextureFiltering filtering = TextureFiltering::DEFAULT;
@@ -29,8 +29,12 @@ struct Texture2D {
 
     void SetFiletering(TextureFiltering tf);
     void SetWrap(TextureWrapMode tf);
+    void SetBorderColor(glm::vec4 col);
 
-    UUID GetUUID() { return m_UUID; }
+    UUID GetUUID()
+    {
+        return m_UUID;
+    }
 
 private:
     UUID m_UUID;

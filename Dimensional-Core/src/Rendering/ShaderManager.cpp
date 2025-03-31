@@ -77,6 +77,7 @@ void ShaderManager::DeleteShader(UUID id)
     case GraphicsAPI::OPENGL: {
         OpenGLShader shad = s_ShaderMap.at(id).glShader;
         shad.Destroy();
+        s_ShaderMap.erase(id);
         break;
     }
     case GraphicsAPI::UNKOWN: {

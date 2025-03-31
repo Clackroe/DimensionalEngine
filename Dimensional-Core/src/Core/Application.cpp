@@ -1,6 +1,7 @@
 #include "EngineAPI.hpp"
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
+#include "Rendering/RenderTarget.hpp"
 #include "Rendering/Renderer.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Texture2D.hpp"
@@ -23,6 +24,8 @@ Ref<VAO> vao;
 Ref<Shader> shader;
 
 Ref<Texture2D> tex;
+
+Ref<RenderTarget> target;
 
 static void testBedStart()
 {
@@ -72,6 +75,17 @@ static void testBedStart()
     tex->Bind(1);
 
     Renderer::SetClearColor({ 0.18, 0.18, 0.18 });
+
+    RenderTargetData rtData;
+    rtData.width = Application::getApp().getWindowDM().getWidth();
+    rtData.height = Application::getApp().getWindowDM().getHeight();
+
+    rtData.hdr = false;
+    rtData.attachments.push_back({ TextureFormat::DEFAULT });
+    rtData.attachments.push_back({ TextureFormat::DEFAULT });
+    rtData.depthAttachment = { TextureFormat::DEPTH16 };
+    target = RenderTarget::Create(rtData);
+    target->Bind();
 }
 
 static void testBedUpdate()
@@ -138,6 +152,10 @@ void Application::runApplication()
 
         frameTime = Time::getTime() - frameStartTime;
     }
+
+    tex = nullptr;
+    target = nullptr;
+    vao = nullptr;
 }
 
 void Application::initializeSubSystems()

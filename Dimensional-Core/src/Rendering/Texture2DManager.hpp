@@ -22,6 +22,9 @@ struct Texture2DManager {
 
     static void SetFiletering(UUID id, TextureFiltering tf);
     static void SetWrap(UUID id, TextureWrapMode tf);
+    static void SetBorderColor(UUID id, glm::vec4 col);
+
+    static OpenGLTexture2D GetOpenGLTexture(UUID id);
 
     static void DeleteTexture2D(UUID id);
 

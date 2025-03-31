@@ -173,6 +173,7 @@ void Texture2DManager::DeleteTexture2D(UUID id)
     case GraphicsAPI::OPENGL: {
         OpenGLTexture2D tex = s_Texture2DMap.at(id).glTexture2D;
         tex.Destroy();
+        s_Texture2DMap.erase(id);
         break;
     }
     case GraphicsAPI::UNKOWN: {
@@ -180,4 +181,35 @@ void Texture2DManager::DeleteTexture2D(UUID id)
     }
     }
 }
+
+void Texture2DManager::SetBorderColor(UUID id, glm::vec4 col)
+{
+    bool exists = s_Texture2DMap.contains(id);
+    if (!exists) {
+        DM_CORE_WARN("Tried to SetBorderColor on non-existant Texture");
+        return;
+    };
+
+    switch (Application::getGraphicsAPI()) {
+    case GraphicsAPI::OPENGL: {
+        OpenGLTexture2D tex = s_Texture2DMap.at(id).glTexture2D;
+        tex.SetBorderColor(col);
+        break;
+    }
+    case GraphicsAPI::UNKOWN: {
+        break;
+    }
+    }
+}
+
+OpenGLTexture2D Texture2DManager::GetOpenGLTexture(UUID id)
+{
+    bool exists = s_Texture2DMap.contains(id);
+    if (!exists) {
+        DM_CORE_WARN("Tried to Get OpenGL Texture on non-existant Texture");
+        return OpenGLTexture2D();
+    };
+    return s_Texture2DMap.at(id).glTexture2D;
+}
+
 }
