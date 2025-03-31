@@ -16,21 +16,21 @@ Ref<Asset> AssetImporter::importAsset(const AssetMetaData& data)
     }
     Ref<Asset> out = nullptr;
     switch (data.type) {
-    case (AssetType::TEXTURE):
-        out = TextureImporter::importTexture(data);
-        break;
-    case (AssetType::MODELSOURCE):
-        out = ModelSourceImporter::importModelSource(data);
-        break;
-    case (AssetType::MODEL):
-        out = ModelImporter::importModel(data);
-        break;
-    case (AssetType::MATERIAL):
-        out = MaterialImporter::importMaterial(data);
-        break;
-    case (AssetType::ENVIRONMENTMAP):
-        out = EnvironmentMapImporter::importEnvironment(data);
-        break;
+    // case (AssetType::TEXTURE):
+    //     out = TextureImporter::importTexture(data);
+    //     break;
+    // case (AssetType::MODELSOURCE):
+    //     out = ModelSourceImporter::importModelSource(data);
+    //     break;
+    // case (AssetType::MODEL):
+    //     out = ModelImporter::importModel(data);
+    //     break;
+    // case (AssetType::MATERIAL):
+    //     out = MaterialImporter::importMaterial(data);
+    //     break;
+    // case (AssetType::ENVIRONMENTMAP):
+    //     out = EnvironmentMapImporter::importEnvironment(data);
+    //     break;
     case (AssetType::SCENE):
         out = SceneImporter::importScene(data);
         break;

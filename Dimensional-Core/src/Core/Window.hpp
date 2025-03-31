@@ -1,5 +1,8 @@
 #ifndef DM_WINDOWH
 #define DM_WINDOWH
+
+#include "Rendering/Renderer.hpp"
+
 #include <core.hpp>
 
 class GLFWwindow;
@@ -12,7 +15,7 @@ struct WindowSettings {
 
     u32 Width, Height;
     std::string Title;
-
+    GraphicsAPI gApi;
     bool VSync = false;
 };
 
@@ -29,9 +32,9 @@ public:
     void setVsync(bool enabled);
     bool vsyncEnabled() { return m_Settings.VSync; }
 
-    GLFWwindow* getGLFWWindow() { return m_Window; }
+    GraphicsAPI getGraphicsAPI() { return m_Settings.gApi; };
 
-    GLADloadproc getLoadProc() { return m_GLLoadProc; };
+    GLFWwindow* getGLFWWindow() { return m_Window; }
 
 private:
     void initWindow(const WindowSettings& settings);
@@ -40,8 +43,6 @@ private:
     void initCallbacks();
 
     GLFWwindow* m_Window;
-
-    GLADloadproc m_GLLoadProc;
 
     WindowSettings m_Settings;
 };

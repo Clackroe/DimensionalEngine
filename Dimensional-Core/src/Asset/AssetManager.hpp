@@ -4,7 +4,7 @@
 #include "Asset/Asset.hpp"
 #include "Asset/AssetImporter.hpp"
 #include "Asset/AssetMeta.hpp"
-#include "Rendering/Texture.hpp"
+// #include "Rendering/Texture.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 

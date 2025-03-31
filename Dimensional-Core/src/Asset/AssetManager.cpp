@@ -1,9 +1,9 @@
 #include "Asset/AssetMeta.hpp"
 #include "Log/log.hpp"
-#include "Rendering/EnvironmentMap.hpp"
-#include "Rendering/Material.hpp"
-#include "Rendering/Model.hpp"
-#include "Rendering/Texture.hpp"
+// #include "Rendering/EnvironmentMap.hpp"
+// #include "Rendering/Material.hpp"
+// #include "Rendering/Model.hpp"
+// #include "Rendering/Texture.hpp"
 #include <Asset/AssetImporter.hpp>
 #include <Asset/AssetManager.hpp>
 #include <Asset/AssetRegistrySerializer.hpp>

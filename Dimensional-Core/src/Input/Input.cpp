@@ -61,9 +61,9 @@ void Input::mouseMoved(float x, float y)
 // ----
 static void mouseMovedCallback(GLFWwindow* window, double xPos, double yPos)
 {
-    ImGui_ImplGlfw_CursorPosCallback(window, xPos, yPos);
-
-    ImGuiIO& io = ImGui::GetIO();
+    // ImGui_ImplGlfw_CursorPosCallback(window, xPos, yPos);
+    //
+    // ImGuiIO& io = ImGui::GetIO();
     // if (!io.WantCaptureMouse) {
     Input::getInstance().mouseMoved(xPos, yPos);
     // }
@@ -71,8 +71,8 @@ static void mouseMovedCallback(GLFWwindow* window, double xPos, double yPos)
 
 static void keyCallBack(GLFWwindow* window, int key, int scanCode, int action, int mods)
 {
-    ImGuiIO& io = ImGui::GetIO();
-    ImGui_ImplGlfw_KeyCallback(window, key, scanCode, action, mods);
+    // ImGuiIO& io = ImGui::GetIO();
+    // ImGui_ImplGlfw_KeyCallback(window, key, scanCode, action, mods);
 
     // if (io.WantCaptureKeyboard) {
     //     return;
@@ -101,7 +101,7 @@ static void keyCallBack(GLFWwindow* window, int key, int scanCode, int action, i
 
 static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+    // ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
     Mode mode = -1;
     switch (action) {
     case GLFW_REPEAT:

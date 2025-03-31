@@ -1,8 +1,8 @@
 #include "Core/Application.hpp"
 #include "EngineAPI.hpp"
 #include "Log/log.hpp"
-#include "Rendering/EnvironmentMap.hpp"
-#include "Rendering/Mesh.hpp"
+// #include "Rendering/EnvironmentMap.hpp"
+// #include "Rendering/Mesh.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
 #include <Asset/AssetManager.hpp>
@@ -29,8 +29,8 @@ void Scene::onSceneRuntimeStart()
 
     auto& app = Application::getApp();
     auto& t = app.getScriptManager();
-    //t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
-     t.reloadGameLibrary("GameAppd.dll");
+    t.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+    // t.reloadGameLibrary("GameAppd.dll");
 
     t.onSceneStart();
 }

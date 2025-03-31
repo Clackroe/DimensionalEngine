@@ -1,9 +1,9 @@
 #include "Window.hpp"
 #include <Event/EventSystem.hpp>
+#include <Rendering/Renderer.hpp>
 #include <glad.h>
 
 #include "GLFW/glfw3.h"
-#include "KeyCodes.hpp"
 
 namespace Dimensional {
 
@@ -13,6 +13,7 @@ Window::Window(const WindowSettings settings)
     m_Settings.Title = settings.Title;
     m_Settings.Width = settings.Width;
     m_Settings.Height = settings.Height;
+    m_Settings.gApi = settings.gApi;
 
     initWindow(settings);
 }
@@ -30,25 +31,18 @@ void Window::initWindow(const WindowSettings& settings)
     int glfwSuccess = glfwInit();
     DM_CORE_ASSERT(glfwSuccess, "Failed to initialize GLFW")
 
-    // define openGL version and profile
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    Renderer::SetWindowHints();
 
     m_Window = glfwCreateWindow(settings.Width, settings.Height, settings.Title.c_str(), nullptr, nullptr);
-
     DM_CORE_ASSERT(m_Window, "Failed to create GLFW window. Terminating.");
-
     glfwMakeContextCurrent(m_Window);
 
-    m_GLLoadProc = (GLADloadproc)glfwGetProcAddress;
-    // int glLoaded = gladLoadGLLoader(();
-    // DM_CORE_ASSERT(glLoaded, "Failed to initialize GLAD. Aborting");
-    // glEnable(GL_DEPTH_TEST);
+    Renderer::Init(settings.gApi, *this);
 
     glfwSetWindowUserPointer(m_Window, &m_Settings);
     initCallbacks();
 }
+
 void Window::shutdown() { }
 
 void Window::initCallbacks()

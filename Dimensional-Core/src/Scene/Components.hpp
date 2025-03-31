@@ -2,15 +2,15 @@
 #define DM_COMPONENTS_H
 #include "Asset/AssetManager.hpp"
 #include "EngineAPI.hpp"
-#include "Rendering/FrameBuffer.hpp"
+// #include "Rendering/FrameBuffer.hpp"
 #include <Core/UUID.hpp>
 #include <core.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <Rendering/Material.hpp>
-#include <Rendering/Model.hpp>
+// #include <Rendering/Material.hpp>
+// #include <Rendering/Model.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -63,25 +63,25 @@ struct DMCORE_API MeshRenderer {
 
     void setModelHandle(AssetHandle newHandle)
     {
-        if (model == newHandle) {
-            return;
-        }
-        model = newHandle;
-        Ref<Model> modelObj = AssetManager::getInstance().getAsset<Model>(model);
-        if (!modelObj) {
-            model = 0;
-            return;
-        }
-        Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(modelObj->getSource());
-        if (source) {
-            materialOverrides.clear();
-            for (u32 i = 0; i < source->getMaterialHandles().size(); i++) {
-                materialOverrides.push_back(0);
-            }
-            return;
-        }
-        model = 0;
-        return;
+        // if (model == newHandle) {
+        //     return;
+        // }
+        // model = newHandle;
+        // Ref<Model> modelObj = AssetManager::getInstance().getAsset<Model>(model);
+        // if (!modelObj) {
+        //     model = 0;
+        //     return;
+        // }
+        // Ref<ModelSource> source = AssetManager::getInstance().getAsset<ModelSource>(modelObj->getSource());
+        // if (source) {
+        //     materialOverrides.clear();
+        //     for (u32 i = 0; i < source->getMaterialHandles().size(); i++) {
+        //         materialOverrides.push_back(0);
+        //     }
+        //     return;
+        // }
+        // model = 0;
+        // return;
     }
 
     AssetHandle model = 0;
@@ -125,7 +125,7 @@ struct DMCORE_API DirectionalLightComponent {
     glm::vec3 color = glm::vec3(1.0f);
     float intensity;
 
-    Ref<TextureView> shadowTextureView = CreateRef<TextureView>();
+    // Ref<TextureView> shadowTextureView = CreateRef<TextureView>();
 };
 
 struct DMCORE_API NativeScriptComponent {

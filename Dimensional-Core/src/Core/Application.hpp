@@ -3,12 +3,12 @@
 #include <core.hpp>
 
 #include "ImGui/ImGuiLayer.hpp"
-#include "Rendering/RendererAPI.hpp"
+#include "Rendering/Renderer.hpp"
 #include "Scripting/NativeScriptManager.hpp"
 #include <Core/LayerStack.hpp>
 #include <Core/Window.hpp>
 
-#include <Rendering/FrameBuffer.hpp>
+// #include <Rendering/FrameBuffer.hpp>
 
 #include <Event/EventSystem.hpp>
 
@@ -38,6 +38,8 @@ public:
     Ref<Scene> getSceneCTX();
     void setSceneCTX(Ref<Scene> scene) { m_SceneCTX = scene; };
 
+    static GraphicsAPI getGraphicsAPI() { return getApp().getWindowDM().getGraphicsAPI(); };
+
     // ---
 
 private:
@@ -45,7 +47,6 @@ private:
 
 private:
     EventSystem m_EventSystem;
-    RendererAPI m_Renderer = RendererAPI::getInstance();
     NativeScriptManager m_ScriptManager;
 
 private:

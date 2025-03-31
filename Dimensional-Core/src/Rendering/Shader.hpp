@@ -1,49 +1,38 @@
-#ifndef DM_SHADERH
-#define DM_SHADERH
+#ifndef SHADER_AGNOST_HPP
+#define SHADER_AGNOST_HPP
 
-#include <core.hpp>
-
-#include "Asset/Asset.hpp"
-
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
+#include "Core/UUID.hpp"
+#include <vector>
 namespace Dimensional {
-enum DMCORE_API ShaderType {
-    NONE = 0,
-    RENDER,
-    COMPUTE,
 
-    // for internal use only
+enum ShaderType {
+    NONE = 0,
+    COMPUTE,
     VERTEX,
     FRAGMENT,
     GEOMETRY
 };
 
-class DMCORE_API Shader : public Asset {
-public:
-    unsigned int ID;
+struct ShaderData {
+    std::string name;
+    UMap<ShaderType, std::string> programs;
+};
 
-    Shader(const std::string& path, enum ShaderType type = RENDER);
+struct Shader {
 
-    void use();
+    // static Ref<Shader> CreateCompute(const std::string& path);
+    static Ref<Shader> Create(const std::string& path);
 
-    void dispatchCompute(u32 width, u32 height, u32 depth = 1);
+    void Bind();
+    void UnBind();
 
-    void setMat4(const std::string& name, glm::mat4 value);
-    void setMat3(const std::string& name, glm::mat3 value);
-    void setVec3(const std::string& name, float x, float y, float z);
-    void setBool(const std::string& name, bool value) const;
-    void setFloat(const std::string& name, float value) const;
-    void setInt(const std::string& name, int value) const;
-
-    virtual AssetType getAssetType() const override { return AssetType::SHADER; };
+    UUID GetUUID() { return m_ID; };
 
 private:
-    u32 compile(const char* shaderProg, enum ShaderType type, const std::filesystem::path& path);
-    void link(std::vector<u32> programs);
-    enum ShaderType m_Type;
+    UUID m_ID;
+    Shader() = default;
 };
+
 }
 
-#endif
+#endif // SHADER_AGNOST_HPP

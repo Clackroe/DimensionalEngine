@@ -1,14 +1,85 @@
 #include "EngineAPI.hpp"
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
+#include "Rendering/Renderer.hpp"
+#include "Rendering/Shader.hpp"
+#include "Rendering/Texture2D.hpp"
+#include "Rendering/TextureEnums.hpp"
+#include "Rendering/VAO.hpp"
 #include "Scripting/NativeScriptManager.hpp"
 #include "core.hpp"
 #include <Core/Application.hpp>
 
+#include <stb_image.hpp>
+
 #include <Core/Time.hpp>
-#include <filesystem>
+
+#include <glad.h>
 
 namespace Dimensional {
+
+Ref<VAO> vao;
+
+Ref<Shader> shader;
+
+Ref<Texture2D> tex;
+
+static void testBedStart()
+{
+    std::vector<float> vertices = {
+        0.5f, 0.5f, 0.0f, // top right
+        1.0f, 0.0f, 0.0f, // top right
+        1.0, 1.0,
+        //
+        0.5f, -0.5f, 0.0f, // bottom right
+        0.0f, 1.0f, 0.0f, // top right
+        1.0, 0.0,
+        //
+        -0.5f, -0.5f, 0.0f, // bottom left
+        0.0f, 0.0f, 1.0f, // top right
+        0.0, 0.0,
+        //
+        -0.5f, 0.5f, 0.0f, // top left
+        1.0f, 0.0f, 1.0f, // top right
+        0.0, 1.0,
+        //
+    };
+    std::vector<u32> indices = {
+        // note that we start from 0!
+        0, 1, 3, // first Triangle
+        1, 2, 3 // second Triangle
+    };
+
+    vao = VAO::Create();
+
+    VAOData data;
+    data.indexBuffer = indices;
+    data.data = (const char*)vertices.data();
+    data.dataSizeBytes = vertices.size() * sizeof(float);
+    data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
+    data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
+    data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
+
+    vao->SetData(data);
+
+    shader = Shader::Create("Assets/Shaders/testshader.glsl");
+    shader->Bind();
+
+    Texture2DData texData;
+    texData.data = stbi_load("Assets/Textures/Albedo.png", (int*)&texData.width, (int*)&texData.height, (int*)&texData.channels, 0);
+    texData.format = TextureFormat::RGBA8;
+    tex = Texture2D::Create(texData);
+    tex->Bind(1);
+
+    Renderer::SetClearColor({ 0.18, 0.18, 0.18 });
+}
+
+static void testBedUpdate()
+{
+    Renderer::ClearScreen(ClearBuffer::BOTH);
+
+    Renderer::DrawIndexed(vao, shader);
+}
 
 Application* Application::s_Application = nullptr;
 
@@ -22,13 +93,15 @@ Application::Application(const std::string& title, u32 width, u32 height)
     s_Application = this;
 
     m_Window = CreateScope<Window>(WindowSettings { width, height, title });
-    m_ImGuiOverlay = new ImGuiLayer();
-    m_LayerStack.pushOverlay(m_ImGuiOverlay);
+
+    // m_ImGuiOverlay = new ImGuiLayer();
+    // m_LayerStack.pushOverlay(m_ImGuiOverlay);
 
     DM_CORE_INFO("Platform: {0}", DM_PLATFORM);
 
     initializeSubSystems();
     // m_ScriptManager.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
+    testBedStart();
 }
 
 static float frameTime = 0;
@@ -47,20 +120,22 @@ void Application::runApplication()
         }
 
         //------Update imgui Layers-------
-        m_ImGuiOverlay->beginFrame();
-
-        // ImGui::Begin("Stats");
-        // ImGui::Text("FPS: %f", 1 / Time::deltaTime());
-        // ImGui::End();
-
-        for (Layer* layer : m_LayerStack) {
-            layer->OnImGuiRender();
-        }
-
-        m_ImGuiOverlay->endFrame();
+        // m_ImGuiOverlay->beginFrame();
+        //
+        // // ImGui::Begin("Stats");
+        // // ImGui::Text("FPS: %f", 1 / Time::deltaTime());
+        // // ImGui::End();
+        //
+        // for (Layer* layer : m_LayerStack) {
+        //     layer->OnImGuiRender();
+        // }
+        //
+        // m_ImGuiOverlay->endFrame();
 
         //------
+        testBedUpdate();
         m_Window->update();
+
         frameTime = Time::getTime() - frameStartTime;
     }
 }
@@ -69,7 +144,7 @@ void Application::initializeSubSystems()
 {
     m_EventSystem.Init();
     Input::Init();
-    m_Renderer.Init(m_Window->getLoadProc());
+
     m_ScriptManager.freeGameLibrary();
 }
 

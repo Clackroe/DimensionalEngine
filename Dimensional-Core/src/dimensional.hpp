@@ -28,12 +28,15 @@
 
 // ---- RENDERING
 #include <Core/EditorCamera.hpp>
-#include <Rendering/CubeMap.hpp>
-#include <Rendering/FrameBuffer.hpp>
-#include <Rendering/Material.hpp>
-#include <Rendering/Model.hpp>
-#include <Rendering/ModelSource.hpp>
-#include <Rendering/SceneRenderer.hpp>
-#include <Rendering/Shader.hpp>
-#include <Rendering/Texture.hpp>
+#include <Rendering/Renderer.hpp>
+#include <Rendering/VAO.hpp>
+#include <Rendering/VAOManager.hpp>
+// #include <Rendering/CubeMap.hpp>
+// #include <Rendering/FrameBuffer.hpp>
+// #include <Rendering/Material.hpp>
+// #include <Rendering/Model.hpp>
+// #include <Rendering/ModelSource.hpp>
+// #include <Rendering/SceneRenderer.hpp>
+// #include <Rendering/Shader.hpp>
+// #include <Rendering/Texture.hpp>
 #endif
