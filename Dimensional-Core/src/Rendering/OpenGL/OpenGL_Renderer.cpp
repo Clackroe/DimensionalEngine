@@ -1,4 +1,7 @@
 #include "Rendering/OpenGL/OpenGL_Renderer.hpp"
+#include <Rendering/Texture2DManager.hpp>
+
+#include <imgui.h>
 
 #include "glad/glad.h"
 
@@ -45,6 +48,12 @@ namespace OpenGLRenderer {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    }
+
+    void ImGuiDrawTexture(Ref<Texture2D> tex, u32 width, u32 height)
+    {
+        OpenGLTexture2D t = Texture2DManager::GetOpenGLTexture(tex->GetUUID());
+        ImGui::Image(reinterpret_cast<ImTextureID>(t.m_GLID), ImVec2 { (float)width, (float)height }, { 0, 1 }, { 1, 0 });
     }
 
     void Init(Window& window)

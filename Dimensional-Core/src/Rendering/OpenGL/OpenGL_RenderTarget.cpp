@@ -87,6 +87,12 @@ void OpenGLRenderTarget::ReBuild()
     DM_CORE_ASSERT(fbStatus == GL_FRAMEBUFFER_COMPLETE, "Framebuffer Failed To Create And Is Incomplete! Status Code: " + std::to_string(fbStatus));
 }
 
+Ref<Texture2D> OpenGLRenderTarget::GetAttachment(u32 index)
+{
+    DM_CORE_ASSERT(index < m_ColorBuffs.size(), "Attatchment Index Out of Range");
+    return m_ColorBuffs[index];
+}
+
 void OpenGLRenderTarget::Destroy() { }
 
 }

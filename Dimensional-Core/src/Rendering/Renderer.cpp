@@ -61,6 +61,18 @@ void Renderer::SetWindowHints()
     }
 }
 
+void Renderer::ImGuiDrawTexture(Ref<Texture2D> tex, u32 width, u32 height)
+{
+    switch (s_API.api) {
+    case GraphicsAPI::OPENGL:
+        OpenGLRenderer::ImGuiDrawTexture(tex, width, height);
+        break;
+    case GraphicsAPI::UNKOWN:
+        DM_CORE_WARN("Tried to set Window Hints with Uninitialized API");
+        break;
+    }
+}
+
 void Renderer::SetAPI(GraphicsAPI api)
 {
     switch (api) {

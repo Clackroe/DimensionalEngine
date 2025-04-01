@@ -1,82 +1,81 @@
 #include "Asset/AssetManager.hpp"
 #include "Asset/AssetMeta.hpp"
 #include "Log/log.hpp"
-#include "Rendering/Material.hpp"
+// #include "Rendering/Material.hpp"
 #include "imgui.h"
 #include <ToolPanels/MaterialsPanel.hpp>
 #include <ToolPanels/Utils.hpp>
 #include <imgui_internal.h>
 namespace Dimensional {
 
-static void renderMaterialTool(AssetHandle handle)
-{
-    Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(handle);
-    if (!mat) {
-        return;
-    }
-    AssetMetaData meta = AssetManager::getInstance().getMetaData(handle);
-
-    ImGui::Text("%s", meta.sourcePath.c_str());
-    ImGui::Separator();
-
-    AssetHandle alb = mat->getTexture(MaterialTexture::Albedo);
-    ImGui::TextWrapped("Albedo");
-    std::string label = std::filesystem::path(AssetManager::getInstance().getMetaData(alb).sourcePath).stem().string();
-    UI::assetDragDrop(alb, AssetType::TEXTURE, label);
-    mat->setTexture(MaterialTexture::Albedo, alb);
-
-    glm::vec3 color = mat->getColor();
-    ImGui::ColorEdit3("Color", glm::value_ptr(color));
-    if (color != mat->getColor()) {
-        mat->setColor(color);
-    }
-
-    AssetHandle Normal = mat->getTexture(MaterialTexture::Normal);
-    ImGui::TextWrapped("Normal");
-    label = std::filesystem::path(AssetManager::getInstance().getMetaData(Normal).sourcePath).stem().string();
-    UI::assetDragDrop(Normal, AssetType::TEXTURE, label);
-    mat->setTexture(MaterialTexture::Normal, Normal);
-
-    AssetHandle Metal = mat->getTexture(MaterialTexture::Metalness);
-    ImGui::TextWrapped("Metalness");
-    label = std::filesystem::path(AssetManager::getInstance().getMetaData(Metal).sourcePath).stem().string();
-    UI::assetDragDrop(Metal, AssetType::TEXTURE, label);
-    mat->setTexture(MaterialTexture::Metalness, Metal);
-
-    float metalness = mat->getMetalness();
-    ImGui::DragFloat("Metalness", &metalness);
-    if (metalness != mat->getMetalness()) {
-        mat->setMetalness(metalness);
-    }
-    bool useMetalMap = mat->getUseMetalMap();
-    ImGui::Checkbox("Use MetalMap", &useMetalMap);
-    if (useMetalMap != mat->getUseMetalMap()) {
-        mat->setUseMetalness(useMetalMap);
-    }
-
-    AssetHandle Rough = mat->getTexture(MaterialTexture::Roughness);
-    ImGui::TextWrapped("Roughness");
-    label = std::filesystem::path(AssetManager::getInstance().getMetaData(Rough).sourcePath).stem().string();
-    UI::assetDragDrop(Rough, AssetType::TEXTURE, label);
-    mat->setTexture(MaterialTexture::Roughness, Rough);
-
-    bool useRoughMap = mat->getUseRoughMap();
-    ImGui::Checkbox("Use RoughMap", &useRoughMap);
-    if (useRoughMap != mat->getUseRoughMap()) {
-        mat->setUseRoughness(useRoughMap);
-    }
-
-    float roughness = mat->getRoughness();
-    ImGui::DragFloat("Roughness", &roughness);
-    if (roughness != mat->getRoughness()) {
-        mat->setRoughness(roughness);
-    }
-
-    AssetHandle AO = mat->getTexture(MaterialTexture::AO);
-    ImGui::TextWrapped("AO");
-    label = std::filesystem::path(AssetManager::getInstance().getMetaData(AO).sourcePath).stem().string();
-    UI::assetDragDrop(AO, AssetType::TEXTURE, label);
-    mat->setTexture(MaterialTexture::AO, AO);
+static void renderMaterialTool(AssetHandle handle) {
+    // Ref<Material> mat = AssetManager::getInstance().getAsset<Material>(handle);
+    // if (!mat) {
+    //     return;
+    // }
+    // AssetMetaData meta = AssetManager::getInstance().getMetaData(handle);
+    //
+    // ImGui::Text("%s", meta.sourcePath.c_str());
+    // ImGui::Separator();
+    //
+    // AssetHandle alb = mat->getTexture(MaterialTexture::Albedo);
+    // ImGui::TextWrapped("Albedo");
+    // std::string label = std::filesystem::path(AssetManager::getInstance().getMetaData(alb).sourcePath).stem().string();
+    // UI::assetDragDrop(alb, AssetType::TEXTURE, label);
+    // mat->setTexture(MaterialTexture::Albedo, alb);
+    //
+    // glm::vec3 color = mat->getColor();
+    // ImGui::ColorEdit3("Color", glm::value_ptr(color));
+    // if (color != mat->getColor()) {
+    //     mat->setColor(color);
+    // }
+    //
+    // AssetHandle Normal = mat->getTexture(MaterialTexture::Normal);
+    // ImGui::TextWrapped("Normal");
+    // label = std::filesystem::path(AssetManager::getInstance().getMetaData(Normal).sourcePath).stem().string();
+    // UI::assetDragDrop(Normal, AssetType::TEXTURE, label);
+    // mat->setTexture(MaterialTexture::Normal, Normal);
+    //
+    // AssetHandle Metal = mat->getTexture(MaterialTexture::Metalness);
+    // ImGui::TextWrapped("Metalness");
+    // label = std::filesystem::path(AssetManager::getInstance().getMetaData(Metal).sourcePath).stem().string();
+    // UI::assetDragDrop(Metal, AssetType::TEXTURE, label);
+    // mat->setTexture(MaterialTexture::Metalness, Metal);
+    //
+    // float metalness = mat->getMetalness();
+    // ImGui::DragFloat("Metalness", &metalness);
+    // if (metalness != mat->getMetalness()) {
+    //     mat->setMetalness(metalness);
+    // }
+    // bool useMetalMap = mat->getUseMetalMap();
+    // ImGui::Checkbox("Use MetalMap", &useMetalMap);
+    // if (useMetalMap != mat->getUseMetalMap()) {
+    //     mat->setUseMetalness(useMetalMap);
+    // }
+    //
+    // AssetHandle Rough = mat->getTexture(MaterialTexture::Roughness);
+    // ImGui::TextWrapped("Roughness");
+    // label = std::filesystem::path(AssetManager::getInstance().getMetaData(Rough).sourcePath).stem().string();
+    // UI::assetDragDrop(Rough, AssetType::TEXTURE, label);
+    // mat->setTexture(MaterialTexture::Roughness, Rough);
+    //
+    // bool useRoughMap = mat->getUseRoughMap();
+    // ImGui::Checkbox("Use RoughMap", &useRoughMap);
+    // if (useRoughMap != mat->getUseRoughMap()) {
+    //     mat->setUseRoughness(useRoughMap);
+    // }
+    //
+    // float roughness = mat->getRoughness();
+    // ImGui::DragFloat("Roughness", &roughness);
+    // if (roughness != mat->getRoughness()) {
+    //     mat->setRoughness(roughness);
+    // }
+    //
+    // AssetHandle AO = mat->getTexture(MaterialTexture::AO);
+    // ImGui::TextWrapped("AO");
+    // label = std::filesystem::path(AssetManager::getInstance().getMetaData(AO).sourcePath).stem().string();
+    // UI::assetDragDrop(AO, AssetType::TEXTURE, label);
+    // mat->setTexture(MaterialTexture::AO, AO);
 };
 
 void MaterialsPanel::renderImGui()

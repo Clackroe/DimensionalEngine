@@ -1,5 +1,5 @@
 #include "Asset/AssetMeta.hpp"
-#include "Rendering/Model.hpp"
+// #include "Rendering/Model.hpp"
 #include "imgui.h"
 #include <Asset/AssetManager.hpp>
 #include <Asset/ModelSerializer.hpp>
@@ -67,14 +67,14 @@ static std::vector<std::filesystem::directory_entry> getSortedDirectory(std::fil
     return files;
 }
 
-static void renderItem(Ref<Texture> texture, glm::vec2 size, const std::string& name, BrowserItem item)
-{
-    ImGui::ImageButton((ImTextureID)(uintptr_t)texture->getID(), ImVec2(size.x, size.y), { 0, 1 }, { 1, 0 });
-    if (ImGui::BeginDragDropSource()) {
-        ImGui::SetDragDropPayload("CONTENT_BROWSER_ASSET", &item.handle, sizeof(item.handle));
-        ImGui::EndDragDropSource();
-    }
-}
+// static void renderItem(Ref<Texture> texture, glm::vec2 size, const std::string& name, BrowserItem item)
+// {
+//     ImGui::ImageButton((ImTextureID)(uintptr_t)texture->getID(), ImVec2(size.x, size.y), { 0, 1 }, { 1, 0 });
+//     if (ImGui::BeginDragDropSource()) {
+//         ImGui::SetDragDropPayload("CONTENT_BROWSER_ASSET", &item.handle, sizeof(item.handle));
+//         ImGui::EndDragDropSource();
+//     }
+// }
 
 void ContentBrowser::renderImGui()
 {
@@ -113,9 +113,9 @@ void ContentBrowser::renderImGui()
         ImGui::PushID(itemPath.string().c_str());
 
         if (isDirectory) {
-            if (ImGui::ImageButton((ImTextureID)(uintptr_t)m_FolderIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 })) {
-                m_CurrentPath /= p.path().filename();
-            }
+            // if (ImGui::ImageButton((ImTextureID)(uintptr_t)m_FolderIcon->getID(), ImVec2(iconSize, iconSize), { 0, 1 }, { 1, 0 })) {
+            //     m_CurrentPath /= p.path().filename();
+            // }
             ImGui::TextWrapped("%s", fileName.string().c_str());
 
             // Move on
@@ -131,19 +131,19 @@ void ContentBrowser::renderImGui()
         BrowserItem currentItem;
         currentItem.handle = manager.getAssetHandleFromPath(itemPath.string());
         currentItem.type = manager.getMetaData(currentItem.handle).type;
-        renderItem(m_FileIcon, glm::vec2(iconSize), fileName.string(), currentItem);
-        if (ImGui::BeginPopupContextItem("FileContext")) {
-            if (currentItem.type == AssetType::MODELSOURCE) {
-                if (ImGui::MenuItem("Generate Model")) {
-                    ModelLoadSettings set;
-                    set.modelSource = currentItem.handle;
-                    auto pp = itemPath.parent_path() / (stem.string() + ".dmod");
-                    ModelSerializer::Serialize(pp, CreateRef<Model>(set));
-                    AssetManager::getInstance().registerAsset(pp);
-                }
-            }
-            ImGui::EndPopup();
-        }
+        // renderItem(m_FileIcon, glm::vec2(iconSize), fileName.string(), currentItem);
+        // if (ImGui::BeginPopupContextItem("FileContext")) {
+        //     if (currentItem.type == AssetType::MODELSOURCE) {
+        //         if (ImGui::MenuItem("Generate Model")) {
+        //             ModelLoadSettings set;
+        //             set.modelSource = currentItem.handle;
+        //             auto pp = itemPath.parent_path() / (stem.string() + ".dmod");
+        //             ModelSerializer::Serialize(pp, CreateRef<Model>(set));
+        //             AssetManager::getInstance().registerAsset(pp);
+        //         }
+        //     }
+        //     ImGui::EndPopup();
+        // }
         ImGui::TextWrapped("%s", fileName.string().c_str());
 
         // Move on

@@ -4,7 +4,6 @@
 #include "Asset/Asset.hpp"
 #include "Asset/AssetMeta.hpp"
 #include "Asset/TextureImporter.hpp"
-#include "Rendering/Texture.hpp"
 #include <core.hpp>
 #include <imgui.h>
 
@@ -21,8 +20,8 @@ public:
         : m_RootPath(rootPath)
         , m_CurrentPath(rootPath)
     {
-        m_FileIcon = TextureImporter::loadAssetFromPath("Assets/Resources/File.png");
-        m_FolderIcon = TextureImporter::loadAssetFromPath("Assets/Resources/Folder.png");
+        // m_FileIcon = TextureImporter::loadAssetFromPath("Assets/Resources/File.png");
+        // m_FolderIcon = TextureImporter::loadAssetFromPath("Assets/Resources/Folder.png");
     }
 
     void renderImGui();
@@ -31,8 +30,8 @@ private:
     std::filesystem::path m_RootPath;
     std::filesystem::path m_CurrentPath;
 
-    Ref<Texture> m_FileIcon;
-    Ref<Texture> m_FolderIcon;
+    // Ref<Texture> m_FileIcon;
+    // Ref<Texture> m_FolderIcon;
 };
 }
 

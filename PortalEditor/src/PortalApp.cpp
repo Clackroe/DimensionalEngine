@@ -8,28 +8,12 @@
 #include <Entry.hpp>
 namespace Dimensional {
 
-class TestLayer : public Layer {
-public:
-    TestLayer() = default;
-    virtual void OnDetatch() override {};
-
-    virtual void OnAttatch() override {
-    };
-    virtual void OnUpdate() override
-    {
-        if (Input::isKeyDown(Key::Escape)) {
-            Application::getApp().stopApplication();
-        }
-    };
-    virtual void OnImGuiRender() override {};
-};
-
 class PortalApp : public Application {
 public:
     PortalApp()
         : Application("Portal Editor", 1920, 1080)
     {
-        PushLayer(new TestLayer());
+        PushLayer(new PortalLayer());
     }
 
     ~PortalApp()
@@ -40,7 +24,7 @@ public:
 Application* EXT_InitApplication()
 {
     Application* app = new PortalApp();
-    // ImGui::SetCurrentContext(app->getImGuiContext());
+    ImGui::SetCurrentContext(app->getImGuiContext());
     return app;
 }
 }

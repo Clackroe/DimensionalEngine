@@ -2,6 +2,7 @@
 #define RENDERTARGET_AGNOST_HPP
 
 #include "Core/UUID.hpp"
+#include "Rendering/Texture2D.hpp"
 #include "TextureEnums.hpp"
 
 namespace Dimensional {
@@ -28,6 +29,8 @@ struct RenderTarget {
     void ReBuild();
 
     void BindAttachment(u32 index, u32 slot);
+
+    Ref<Texture2D> GetAttachment(u32 index);
 
     void Destroy();
 

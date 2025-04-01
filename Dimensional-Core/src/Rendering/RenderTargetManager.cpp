@@ -122,6 +122,27 @@ void RenderTargetManager::ReBuild(UUID id)
     }
 }
 
+Ref<Texture2D> RenderTargetManager::GetAttachment(UUID id, u32 index)
+{
+    bool exists = s_RTMap.contains(id);
+    if (!exists) {
+        DM_CORE_WARN("Tried to GetAttachment on non-existant RenderTarget");
+        return nullptr;
+    };
+
+    switch (Application::getGraphicsAPI()) {
+    case GraphicsAPI::OPENGL: {
+        OpenGLRenderTarget target = std::get<OpenGLRenderTarget>(s_RTMap.at(id).glTarget);
+        return target.GetAttachment(index);
+        break;
+    }
+    case GraphicsAPI::UNKOWN: {
+        break;
+    }
+    }
+    return nullptr;
+}
+
 void RenderTargetManager::Destroy(UUID id)
 {
     bool exists = s_RTMap.contains(id);

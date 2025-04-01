@@ -7,7 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 
 # Source files
-# file(GLOB_RECURSE APP_SOURCES "src/*.cpp")
+file(GLOB_RECURSE APP_SOURCES "src/*.cpp")
 
 
 # Include directories
@@ -20,7 +20,7 @@ include_directories(src)
 
 # Executable
 # add_executable(Portal ${APP_SOURCES})
-add_executable(Portal src/PortalApp.cpp)
+add_executable(Portal ${APP_SOURCES})
 target_link_libraries(Portal Dimensional-Core)
 
 if(WIN32)

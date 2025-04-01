@@ -2,6 +2,7 @@
 #define AGNOST_RENDERER_HPP
 
 #include "Rendering/Shader.hpp"
+#include "Rendering/Texture2D.hpp"
 #include "Rendering/VAO.hpp"
 namespace Dimensional {
 
@@ -36,6 +37,8 @@ struct Renderer {
     static void ClearScreen(ClearBuffer cb);
 
     static void DrawIndexed(Ref<VAO> vao, Ref<Shader> shader);
+
+    static void ImGuiDrawTexture(Ref<Texture2D> tex, u32 width, u32 height);
 
     static void SetClearColor(glm::vec3 color);
 

@@ -24,6 +24,8 @@ struct RenderTargetManager {
 
     static void BindAttachment(UUID id, u32 index, u32 slot);
 
+    static Ref<Texture2D> GetAttachment(UUID id, u32 index);
+
     static void Destroy(UUID id);
 
 private:

@@ -17,6 +17,8 @@ namespace OpenGLRenderer {
 
     void DrawIndexed(Ref<VAO> vao, Ref<Shader> shader);
 
+    void ImGuiDrawTexture(Ref<Texture2D> tex, u32 width, u32 height);
+
     RendererAPI GetAPI();
 };
 

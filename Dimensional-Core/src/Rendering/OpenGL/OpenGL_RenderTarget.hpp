@@ -19,6 +19,8 @@ struct OpenGLRenderTarget {
 
     void BindAttachment(u32 index, u32 slot);
 
+    Ref<Texture2D> GetAttachment(u32 index);
+
     void Destroy();
 
     u32 m_GLID;

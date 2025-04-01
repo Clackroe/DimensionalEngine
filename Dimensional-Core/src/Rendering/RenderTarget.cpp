@@ -34,6 +34,11 @@ void RenderTarget::ReBuild()
     RenderTargetManager::ReBuild(m_UUID);
 }
 
+Ref<Texture2D> RenderTarget::GetAttachment(u32 index)
+{
+    return RenderTargetManager::GetAttachment(m_UUID, index);
+}
+
 void RenderTarget::Destroy()
 {
     RenderTargetManager::Destroy(m_UUID);
