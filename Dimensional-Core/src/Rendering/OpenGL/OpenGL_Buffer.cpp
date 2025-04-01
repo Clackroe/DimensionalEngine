@@ -1,5 +1,6 @@
 #include "Rendering/OpenGL/OpenGL_Buffer.hpp"
 #include "Log/log.hpp"
+#include "Rendering/GPUBuffer.hpp"
 #include "Rendering/VAO.hpp"
 
 #include <glad.h>
@@ -73,6 +74,36 @@ void OpenGLVAO::SetData(const VAOData& data)
         glNamedBufferStorage(m_EBO, data.indexBuffer.size() * sizeof(u32), data.indexBuffer.data(), GL_MAP_READ_BIT);
         glVertexArrayElementBuffer(m_VAO, m_EBO);
     }
+}
+
+//====================================
+//===========GPU BUFFER===============
+//====================================
+
+OpenGLGPUBuffer OpenGLGPUBuffer::Create(const GPUBufferData& data)
+{
+    OpenGLGPUBuffer buff;
+    glCreateBuffers(1, &buff.m_GLID);
+    buff.m_Data = data;
+    buff.SetData(data.data, data.sizeBytes);
+    return buff;
+}
+
+void OpenGLGPUBuffer::Bind(u32 slot)
+{
+    GLenum target = (m_Data.type == GPUBufferType::UNIFORM) ? GL_UNIFORM_BUFFER : GL_SHADER_STORAGE_BUFFER;
+    glBindBufferBase(target, slot, m_GLID);
+}
+
+void OpenGLGPUBuffer::SetData(const void* data, size_t sizeBytes)
+{
+    u32 usage = (m_Data.usage == GPUBufferUsage::STATIC) ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+    glNamedBufferData(m_GLID, sizeBytes, data, usage);
+}
+
+void OpenGLGPUBuffer::Destroy()
+{
+    glDeleteBuffers(1, &m_GLID);
 }
 
 }

@@ -1,6 +1,7 @@
 #include "EngineAPI.hpp"
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
+#include "Rendering/GPUBuffer.hpp"
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/Renderer.hpp"
 #include "Rendering/Shader.hpp"
@@ -30,6 +31,10 @@ Ref<Shader> screenShader;
 Ref<Texture2D> tex;
 
 Ref<RenderTarget> target;
+
+Ref<GPUBuffer> buff;
+
+Ref<GPUBuffer> buffSS;
 
 static void testBedStart()
 {
@@ -89,12 +94,9 @@ static void testBedStart()
     data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
     data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
     data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
-
     vao->SetData(data);
 
     shader = Shader::Create("Assets/Shaders/testshader.glsl");
-
-    screenShader = Shader::Create("Assets/Shaders/Screen.glsl");
 
     Texture2DData texData;
     texData.data = stbi_load("Assets/Textures/Albedo.png", (int*)&texData.width, (int*)&texData.height, (int*)&texData.channels, 0);
@@ -115,6 +117,33 @@ static void testBedStart()
     target = RenderTarget::Create(rtData);
     target->Bind();
     target->BindAttachment(0, 2);
+
+    screenShader = Shader::Create("Assets/Shaders/Screen.glsl");
+
+    struct alignas(16) Color {
+        glm::vec3 col = glm::vec3(1.0, 0.0, 0.0);
+        float _pad2;
+    };
+
+    Color c;
+    GPUBufferData buffd;
+    buffd.usage = GPUBufferUsage::STATIC;
+    buffd.type = GPUBufferType::UNIFORM;
+    buffd.sizeBytes = sizeof(Color);
+    buffd.data = &c;
+    buff = GPUBuffer::Create(buffd);
+    buff->Bind(2);
+
+    Color c2;
+    c2.col = glm::vec3(0, 1.0, 0);
+
+    GPUBufferData buffd2;
+    buffd2.usage = GPUBufferUsage::DYNAMIC;
+    buffd2.type = GPUBufferType::STORAGE;
+    buffd2.sizeBytes = sizeof(Color);
+    buffd2.data = &c2;
+    buffSS = GPUBuffer::Create(buffd2);
+    buffSS->Bind(3);
 }
 
 static void testBedUpdate()

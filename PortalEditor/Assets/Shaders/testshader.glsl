@@ -18,6 +18,14 @@ void main()
 ##FRAGSHADER
 #version 450 core
 
+layout(std140, binding = 2) uniform Color {
+    vec3 color;
+};
+
+layout(std430, binding = 3) buffer Color2 {
+    vec3 color2;
+};
+
 out vec4 FragColor;
 in vec3 col;
 in vec2 uv;
@@ -25,5 +33,5 @@ layout(binding = 1) uniform sampler2D tex;
 
 void main()
 {
-    FragColor = vec4(texture(tex, uv).rgb, 1);
+    FragColor = vec4(texture(tex, uv).rgb * color2, 1);
 }
