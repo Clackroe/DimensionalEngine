@@ -2,6 +2,7 @@
 #include "Asset/MaterialSerializer.hpp"
 #include "Core/Application.hpp"
 #include "Log/log.hpp"
+#include "Rendering/SceneRenderer.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.hpp>
 // #include "Rendering/SceneRenderer.hpp"
@@ -46,6 +47,8 @@ Ref<RenderTarget> target;
 Ref<GPUBuffer> buff;
 
 Ref<GPUBuffer> buffSS;
+
+Ref<SceneRenderer> renderer;
 
 static void testBedStart()
 {
@@ -127,7 +130,7 @@ static void testBedStart()
     rtData.depthAttachment = { TextureFormat::DEPTH16 };
     target = RenderTarget::Create(rtData);
     target->Bind();
-    target->BindAttachment(0, 2);
+    // target->BindAttachment(0, 2);
 
     screenShader = Shader::Create("Assets/Shaders/Screen.glsl");
 
@@ -160,7 +163,7 @@ static void testBedStart()
 
 static void testBedUpdate()
 {
-    // target->Bind();
+    target->Bind();
     // shader->Bind();
     Renderer::ClearScreen(ClearBuffer::BOTH);
     Renderer::DrawIndexed(vao, shader);
@@ -183,7 +186,8 @@ void PortalLayer::OnAttatch()
     }
 
     m_EditorCamera = EditorCamera(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
-    m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
+    m_EditorCamera.setPosition(glm::vec3 { 0, 0, 0 });
+    // m_EditorCamera.setPosition(glm::vec3 { -8.0, 4.0, 10.0 });
     m_EditorCamera.setRotation(glm::quat(glm::radians(glm::vec3 { -15.0f, -30.0f, 0.0f })));
 
     s_Browser = CreateRef<ContentBrowser>("Assets");
@@ -196,6 +200,8 @@ void PortalLayer::OnAttatch()
 
     // m_SceneRenderer = CreateRef<SceneRenderer>(m_ActiveScene);
     setActiveScene(m_ActiveScene);
+
+    renderer = CreateRef<SceneRenderer>(m_ActiveScene);
 }
 
 void PortalLayer::setActiveScene(Ref<Scene> sc)
@@ -247,6 +253,18 @@ void PortalLayer::OnUpdate()
     testBedUpdate();
     m_EditorCamera.Update();
     glm::vec3 p = m_EditorCamera.getPosition();
+
+    CameraData data;
+    data.uCameraPosition = m_EditorCamera.getPosition();
+    data.fov = m_EditorCamera.getFOV();
+    data.proj = m_EditorCamera.getProjection();
+    data.view = m_EditorCamera.getViewMtx();
+    data.viewProj = m_EditorCamera.getViewProj();
+    data.farPlane = m_EditorCamera.m_FarClipPlane;
+    data.nearPlane = m_EditorCamera.m_NearClipPlane;
+    data.aspectRatio = m_EditorCamera.getAspectRatio();
+
+    renderer->BeginFrame(data);
 
     if (m_ActiveScene) {
 
