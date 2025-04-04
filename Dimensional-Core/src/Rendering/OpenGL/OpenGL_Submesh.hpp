@@ -15,6 +15,6 @@ struct OpenGLSubMesh {
     void Destroy();
 
 private:
-    SubMeshData m_SubMeshData;
+    SubMeshIndexData m_SubMeshData;
 };
 }

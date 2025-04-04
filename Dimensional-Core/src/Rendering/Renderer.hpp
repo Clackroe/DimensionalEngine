@@ -38,10 +38,6 @@ struct Renderer {
     static void SetWindowHints();
     static void ClearScreen(ClearBuffer cb);
 
-    static void AddMesh(Ref<Mesh> mesh);
-
-    static void UnloadMesh(u32 index);
-
     static void DrawIndexed(Ref<VAO> vao, Ref<Shader> shader);
 
     static void ImGuiDrawTexture(Ref<Texture2D> tex, u32 width, u32 height);

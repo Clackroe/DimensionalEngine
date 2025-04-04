@@ -3,6 +3,7 @@
 
 #include "Core/Window.hpp"
 #include "Rendering/Renderer.hpp"
+#include "Rendering/SubMeshManager.hpp"
 namespace Dimensional {
 
 namespace OpenGLRenderer {
@@ -16,6 +17,8 @@ namespace OpenGLRenderer {
     void ClearScreen(ClearBuffer cb);
 
     void DrawIndexed(Ref<VAO> vao, Ref<Shader> shader);
+
+    SubMeshIndexData AddSubMesh(const SubMeshData& data);
 
     void ImGuiDrawTexture(Ref<Texture2D> tex, u32 width, u32 height);
 

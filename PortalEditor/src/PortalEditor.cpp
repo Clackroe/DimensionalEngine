@@ -1,8 +1,10 @@
 #include "Asset/Asset.hpp"
 #include "Asset/MaterialSerializer.hpp"
+#include "Asset/ModelSourceImporter.hpp"
 #include "Core/Application.hpp"
 #include "Log/log.hpp"
 #include "Rendering/SceneRenderer.hpp"
+#include "Rendering/SubMesh.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.hpp>
 // #include "Rendering/SceneRenderer.hpp"
@@ -50,6 +52,8 @@ Ref<GPUBuffer> buffSS;
 
 Ref<SceneRenderer> renderer;
 
+Ref<SubMesh> sMesh;
+
 static void testBedStart()
 {
     std::vector<float> vertices = {
@@ -75,6 +79,25 @@ static void testBedStart()
         0, 1, 3, // first Triangle
         1, 2, 3 // second Triangle
     };
+
+    SubMeshData sData;
+
+    std::vector<Vertex> vs;
+    for (int i = 0; i < 4; i++) {
+        Vertex v;
+        v.Tangent = glm::vec3(0);
+        v.Position = glm::vec3({ vertices[i * 8 + 0], vertices[i * 8 + 1], vertices[i * 8 + 2] });
+        v.Normal = glm::vec3(0);
+        v.BiTangent = glm::vec3(0);
+        v.TexCoords = glm::vec2({ vertices[i * 8 + 6], vertices[i * 8 + 7] });
+
+        vs.push_back(v);
+    }
+    sData.vertices = vs;
+    sData.indices = indices;
+    sMesh = SubMesh::Create(sData);
+
+    Ref<SubMesh> test = ModelSourceImporter::loadModelSourceFromPath("Assets/Models/Cube.obj");
 
     std::vector<float> quadVertices = {
         // positions   // texCoords

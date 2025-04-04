@@ -4,6 +4,7 @@
 #include "Rendering/VAO.hpp"
 
 #include <glad.h>
+#include <iterator>
 namespace Dimensional {
 
 static UMap<AttributeType, GLuint> AttributeTypeToGLType = {
@@ -113,6 +114,7 @@ void OpenGLGPUBuffer::SetData(const void* data, size_t offset, size_t sizeBytes)
     DM_CORE_ASSERT(offset + sizeBytes <= m_Data.sizeBytes, "Tried to setdata on buffer, bufferoverflow");
 
     if (m_IsPersistant) {
+        DM_CORE_INFO("SIZE: {0} | OFFSET: {1}", sizeBytes, offset);
         memcpy((char*)m_MappedPtr + offset, data, sizeBytes);
 
     } else {
