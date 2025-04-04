@@ -32,7 +32,7 @@ OpenGLSubMesh SubMeshManager::GetOpenGLSubmesh(UUID id)
         DM_CORE_WARN("Tried to Get OpenGL SubMesh on non-existant SubMesh");
         return OpenGLSubMesh();
     };
-    return s_SubmeshMap.at(id).glSubmesh;
+    return std::get<OpenGLSubMesh>(s_SubmeshMap.at(id).glSubmesh);
 }
 void SubMeshManager::DeleteSubmesh(UUID id)
 {
@@ -44,7 +44,7 @@ void SubMeshManager::DeleteSubmesh(UUID id)
 
     switch (Application::getGraphicsAPI()) {
     case GraphicsAPI::OPENGL: {
-        OpenGLSubMesh mesh = s_SubmeshMap.at(id).glSubmesh;
+        OpenGLSubMesh mesh = std::get<OpenGLSubMesh>(s_SubmeshMap.at(id).glSubmesh);
         mesh.Destroy();
         s_SubmeshMap.erase(id);
         break;

@@ -158,7 +158,7 @@ static void testBedStart()
     buffd2.data = &c2;
 
     buffSS = GPUBuffer::Create(buffd2);
-    buffSS->Bind(3);
+    buffSS->Bind(4);
 }
 
 static void testBedUpdate()

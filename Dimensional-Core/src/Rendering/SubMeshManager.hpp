@@ -5,11 +5,12 @@
 #include "Core/UUID.hpp"
 #include "Rendering/SubMesh.hpp"
 #include <Rendering/OpenGL/OpenGL_Submesh.hpp>
+#include <variant>
 
 namespace Dimensional {
 
-union GraphicsSubmesh {
-    OpenGLSubMesh glSubmesh;
+struct GraphicsSubmesh {
+    std::variant<std::monostate, OpenGLSubMesh> glSubmesh;
 };
 
 // Maybe have set data, could add for custom memory only meshes

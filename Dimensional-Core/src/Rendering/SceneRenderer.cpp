@@ -12,8 +12,8 @@ SceneRenderer::SceneRenderer(Ref<Scene> sc)
     data.type = GPUBufferType::UNIFORM;
     data.sizeBytes = sizeof(CameraData);
     data.data = 0;
+    data.slot = 0;
     m_CameraBuffer = GPUBuffer::Create(data);
-    m_CameraBuffer->Bind(0);
 
     //====
 
@@ -29,8 +29,8 @@ SceneRenderer::SceneRenderer(Ref<Scene> sc)
     data2.type = GPUBufferType::UNIFORM;
     data2.sizeBytes = sizeof(Temp);
     data2.data = &m;
+    data2.slot = 1;
     m_Temp = GPUBuffer::Create(data2);
-    m_Temp->Bind(1);
 }
 
 void SceneRenderer::BeginFrame(const CameraData& camData)

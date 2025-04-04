@@ -96,6 +96,8 @@ OpenGLGPUBuffer OpenGLGPUBuffer::Create(const GPUBufferData& data)
         buff.SetData(data.data, 0, data.sizeBytes);
     }
 
+    buff.Bind(data.slot);
+
     return buff;
 }
 
@@ -125,6 +127,7 @@ void OpenGLGPUBuffer::Resize(size_t sizeBytes)
         u32 flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
         glNamedBufferStorage(m_GLID, sizeBytes, 0, flags);
         m_MappedPtr = glMapNamedBufferRange(m_GLID, 0, sizeBytes, flags);
+        memset((char*)m_MappedPtr, 0, sizeBytes);
 
     } else {
         u32 usage = (m_Data.usage == GPUBufferUsage::STATIC) ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;

@@ -8,6 +8,18 @@ layout(location = 2) in vec2 aUV;
 out vec3 col;
 out vec2 uv;
 
+struct Vertex {
+    vec3 Position; // offset 0
+    vec3 Normal; // offset 16
+    vec3 Tangent; // offset 32
+    vec3 BiTangent; // offset 48
+    vec2 TexCoords; // offset 64
+};
+
+layout(std430, binding = 3) readonly buffer Vertices {
+    Vertex vertices[];
+};
+
 layout(std140, binding = 0) uniform CameraBlock {
     mat4 viewProj;
     vec3 uCameraPosition;
@@ -39,7 +51,7 @@ layout(std140, binding = 2) uniform Color {
     vec3 color;
 };
 
-layout(std430, binding = 3) buffer Color2 {
+layout(std430, binding = 4) buffer Color2 {
     vec3 color2;
 };
 

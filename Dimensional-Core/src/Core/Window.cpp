@@ -37,8 +37,6 @@ void Window::initWindow(const WindowSettings& settings)
     DM_CORE_ASSERT(m_Window, "Failed to create GLFW window. Terminating.");
     glfwMakeContextCurrent(m_Window);
 
-    Renderer::Init(settings.gApi, *this);
-
     glfwSetWindowUserPointer(m_Window, &m_Settings);
     initCallbacks();
 }

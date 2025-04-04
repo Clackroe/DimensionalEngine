@@ -33,6 +33,8 @@ Application::Application(const std::string& title, u32 width, u32 height)
 
     m_Window = CreateScope<Window>(WindowSettings { width, height, title });
 
+    Renderer::Init(GraphicsAPI::OPENGL, *m_Window);
+
     m_ImGuiOverlay = new ImGuiLayer();
     m_LayerStack.pushOverlay(m_ImGuiOverlay);
 

@@ -3,6 +3,8 @@
 
 #include <imgui.h>
 
+#include "Rendering/GPUBuffer.hpp"
+#include "Rendering/SubMesh.hpp"
 #include "glad/glad.h"
 
 #include "GLFW/glfw3.h"
@@ -10,6 +12,14 @@
 #include <GL/gl.h>
 
 namespace Dimensional {
+
+// Global persistant buffers, to support multidraw indirect,
+// and reduce draw-calls significantly
+
+#define INITIAL_MAX_VERTEX_COUNT 1024
+
+Ref<GPUBuffer> g_VertexBuffer;
+Ref<GPUBuffer> g_IndexBuffer;
 
 namespace OpenGLRenderer {
 
@@ -59,9 +69,56 @@ namespace OpenGLRenderer {
     void Init(Window& window)
     {
         gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+        // Persistant Buffers
+
+        {
+            GPUBufferData data;
+            data.slot = 3;
+            data.usage = GPUBufferUsage::DYNAMIC_PERSIST;
+            data.type = GPUBufferType::STORAGE;
+            data.sizeBytes = INITIAL_MAX_VERTEX_COUNT * sizeof(Vertex);
+            data.data = nullptr;
+
+            g_VertexBuffer = GPUBuffer::Create(data);
+
+            std::vector<Vertex> vs(20);
+            for (int i = 0; i < 30; i++) {
+                Vertex v;
+                v.Tangent = glm::vec3(2);
+                v.Position = glm::vec3(10);
+                v.Normal = glm::vec3(0.5);
+                v.BiTangent = glm::vec3(0.2);
+                v.TexCoords = glm::vec2(0.9);
+                vs.push_back(v);
+            }
+
+            Vertex v;
+            v.Tangent = glm::vec3(420);
+            v.Position = glm::vec3(69);
+            v.Normal = glm::vec3(1);
+            v.BiTangent = glm::vec3(420);
+            v.TexCoords = glm::vec2(60);
+            vs[19] = v;
+
+            g_VertexBuffer->SetData(vs.data(), 0, vs.size() * sizeof(Vertex));
+        }
+
+        {
+            GPUBufferData data;
+            data.slot = 4;
+            data.usage = GPUBufferUsage::DYNAMIC_PERSIST;
+            data.type = GPUBufferType::STORAGE;
+            data.sizeBytes = INITIAL_MAX_VERTEX_COUNT * sizeof(u32);
+            data.data = nullptr;
+
+            g_IndexBuffer = GPUBuffer::Create(data);
+        }
     }
     void Shutdown()
     {
+        g_IndexBuffer = nullptr;
+        g_VertexBuffer = nullptr;
     }
 
     void DrawIndexed(Ref<VAO> vao, Ref<Shader> shader)
@@ -70,6 +127,5 @@ namespace OpenGLRenderer {
         vao->Bind();
         glDrawElements(GL_TRIANGLES, vao->GetElementCount(), GL_UNSIGNED_INT, 0);
     }
-
 }
 }
