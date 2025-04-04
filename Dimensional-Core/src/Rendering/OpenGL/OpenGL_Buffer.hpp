@@ -3,6 +3,7 @@
 
 #include "Rendering/GPUBuffer.hpp"
 #include "Rendering/VAO.hpp"
+#include <vector>
 
 namespace Dimensional {
 
@@ -28,12 +29,18 @@ struct OpenGLGPUBuffer {
 
     void Bind(u32 slot);
 
-    void SetData(const void* data, size_t sizeBytes);
+    void SetData(const void* data, size_t offset, size_t sizeBytes);
+
+    void Resize(size_t sizeBytes);
+
+    void* GetPersistPTR();
 
     void Destroy();
 
 private:
     u32 m_GLID;
+    void* m_MappedPtr = nullptr;
+    bool m_IsPersistant = false;
     GPUBufferData m_Data;
 };
 

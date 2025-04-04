@@ -15,10 +15,15 @@ void GPUBuffer::Bind(u32 slot)
     GPUBufferManager::Bind(m_UUID, slot);
 }
 
-void GPUBuffer::SetData(const void* data, size_t sizeBytes)
+void GPUBuffer::Resize(size_t sizeBytes)
 {
-    GPUBufferManager::SetData(m_UUID, data, sizeBytes);
+    GPUBufferManager::Resize(m_UUID, sizeBytes);
 }
+
+void GPUBuffer::SetData(const void* data, size_t offset, size_t sizeBytes)
+{
+    GPUBufferManager::SetData(m_UUID, data, offset, sizeBytes);
+};
 
 void GPUBuffer::Destroy()
 {

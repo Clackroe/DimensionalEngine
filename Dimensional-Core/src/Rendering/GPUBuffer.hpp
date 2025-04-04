@@ -1,6 +1,8 @@
 #ifndef GPU_BUFFER_AGNOST_HPP
 #define GPU_BUFFER_AGNOST_HPP
+
 #include "Core/UUID.hpp"
+#include <vector>
 namespace Dimensional {
 
 enum class GPUBufferType {
@@ -10,15 +12,19 @@ enum class GPUBufferType {
 
 enum class GPUBufferUsage {
     STATIC,
-    DYNAMIC
+    DYNAMIC,
+    DYNAMIC_PERSIST
 };
 
 struct GPUBufferData {
     GPUBufferType type;
     GPUBufferUsage usage;
-    const void* data;
+    const void* data = nullptr;
     size_t sizeBytes;
+    u32 slot;
 };
+
+static std::vector<GPUBufferData> vec(10);
 
 struct GPUBuffer {
 
@@ -26,7 +32,9 @@ struct GPUBuffer {
 
     void Bind(u32 slot);
 
-    void SetData(const void* data, size_t sizeBytes);
+    void SetData(const void* data, size_t offset, size_t sizeBytes);
+
+    void Resize(size_t sizeBytes);
 
     void Destroy();
 

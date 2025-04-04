@@ -35,7 +35,7 @@ SceneRenderer::SceneRenderer(Ref<Scene> sc)
 
 void SceneRenderer::BeginFrame(const CameraData& camData)
 {
-    m_CameraBuffer->SetData(&camData, sizeof(camData));
+    m_CameraBuffer->SetData(&camData, 0, sizeof(camData));
 }
 
 void SceneRenderer::EndFrame()

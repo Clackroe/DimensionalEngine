@@ -5,7 +5,7 @@
 
 namespace Dimensional {
 
-UMap<UUID, GraphicsGPUBuffer> GPUBufferManager::s_RTMap;
+UMap<UUID, GraphicsGPUBuffer> GPUBufferManager::s_GPUBuffMap;
 
 UUID GPUBufferManager::CreateGPUBuffer(const GPUBufferData& data)
 {
@@ -14,7 +14,7 @@ UUID GPUBufferManager::CreateGPUBuffer(const GPUBufferData& data)
 
     switch (Application::getGraphicsAPI()) {
     case GraphicsAPI::OPENGL: {
-        s_RTMap[id].glBuffer = OpenGLGPUBuffer::Create(data);
+        s_GPUBuffMap[id].glBuffer = OpenGLGPUBuffer::Create(data);
         break;
     }
     case GraphicsAPI::UNKOWN: {
@@ -27,7 +27,7 @@ UUID GPUBufferManager::CreateGPUBuffer(const GPUBufferData& data)
 
 void GPUBufferManager::Bind(UUID id, u32 slot)
 {
-    bool exists = s_RTMap.contains(id);
+    bool exists = s_GPUBuffMap.contains(id);
     if (!exists) {
         DM_CORE_WARN("Tried to Bind non-existan GPUBuffer");
         return;
@@ -35,7 +35,7 @@ void GPUBufferManager::Bind(UUID id, u32 slot)
 
     switch (Application::getGraphicsAPI()) {
     case GraphicsAPI::OPENGL: {
-        OpenGLGPUBuffer buff = s_RTMap.at(id).glBuffer;
+        OpenGLGPUBuffer buff = std::get<OpenGLGPUBuffer>(s_GPUBuffMap.at(id).glBuffer);
         buff.Bind(slot);
         break;
     }
@@ -45,9 +45,29 @@ void GPUBufferManager::Bind(UUID id, u32 slot)
     }
 }
 
-void GPUBufferManager::SetData(UUID id, const void* data, size_t sizeBytes)
+void GPUBufferManager::Resize(UUID id, size_t sizeBytes)
 {
-    bool exists = s_RTMap.contains(id);
+    bool exists = s_GPUBuffMap.contains(id);
+    if (!exists) {
+        DM_CORE_WARN("Tried to Resuze on non-existan GPUBuffer");
+        return;
+    };
+
+    switch (Application::getGraphicsAPI()) {
+    case GraphicsAPI::OPENGL: {
+        OpenGLGPUBuffer buff = std::get<OpenGLGPUBuffer>(s_GPUBuffMap.at(id).glBuffer);
+        buff.Resize(sizeBytes);
+        break;
+    }
+    case GraphicsAPI::UNKOWN: {
+        break;
+    }
+    }
+}
+
+void GPUBufferManager::SetData(UUID id, const void* data, size_t offset, size_t sizeBytes)
+{
+    bool exists = s_GPUBuffMap.contains(id);
     if (!exists) {
         DM_CORE_WARN("Tried to SetData on non-existan GPUBuffer");
         return;
@@ -55,8 +75,8 @@ void GPUBufferManager::SetData(UUID id, const void* data, size_t sizeBytes)
 
     switch (Application::getGraphicsAPI()) {
     case GraphicsAPI::OPENGL: {
-        OpenGLGPUBuffer buff = s_RTMap.at(id).glBuffer;
-        buff.SetData(data, sizeBytes);
+        OpenGLGPUBuffer buff = std::get<OpenGLGPUBuffer>(s_GPUBuffMap.at(id).glBuffer);
+        buff.SetData(data, offset, sizeBytes);
         break;
     }
     case GraphicsAPI::UNKOWN: {
@@ -67,7 +87,7 @@ void GPUBufferManager::SetData(UUID id, const void* data, size_t sizeBytes)
 
 void GPUBufferManager::Destroy(UUID id)
 {
-    bool exists = s_RTMap.contains(id);
+    bool exists = s_GPUBuffMap.contains(id);
     if (!exists) {
         DM_CORE_WARN("Tried to Destroy non-existan GPUBuffer");
         return;
@@ -75,7 +95,7 @@ void GPUBufferManager::Destroy(UUID id)
 
     switch (Application::getGraphicsAPI()) {
     case GraphicsAPI::OPENGL: {
-        OpenGLGPUBuffer buff = s_RTMap.at(id).glBuffer;
+        OpenGLGPUBuffer buff = std::get<OpenGLGPUBuffer>(s_GPUBuffMap.at(id).glBuffer);
         buff.Destroy();
         break;
     }

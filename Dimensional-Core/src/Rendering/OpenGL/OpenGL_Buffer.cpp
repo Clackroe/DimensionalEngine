@@ -85,7 +85,17 @@ OpenGLGPUBuffer OpenGLGPUBuffer::Create(const GPUBufferData& data)
     OpenGLGPUBuffer buff;
     glCreateBuffers(1, &buff.m_GLID);
     buff.m_Data = data;
-    buff.SetData(data.data, data.sizeBytes);
+
+    if (data.usage == GPUBufferUsage::DYNAMIC_PERSIST) {
+        buff.m_IsPersistant = true;
+    }
+
+    buff.Resize(data.sizeBytes);
+
+    if (data.data) {
+        buff.SetData(data.data, 0, data.sizeBytes);
+    }
+
     return buff;
 }
 
@@ -95,10 +105,42 @@ void OpenGLGPUBuffer::Bind(u32 slot)
     glBindBufferBase(target, slot, m_GLID);
 }
 
-void OpenGLGPUBuffer::SetData(const void* data, size_t sizeBytes)
+void OpenGLGPUBuffer::SetData(const void* data, size_t offset, size_t sizeBytes)
 {
-    u32 usage = (m_Data.usage == GPUBufferUsage::STATIC) ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
-    glNamedBufferData(m_GLID, sizeBytes, data, usage);
+
+    DM_CORE_ASSERT(offset + sizeBytes <= m_Data.sizeBytes, "Tried to setdata on buffer, bufferoverflow");
+
+    if (m_IsPersistant) {
+        memcpy((char*)m_MappedPtr + offset, data, sizeBytes);
+
+    } else {
+        glNamedBufferSubData(m_GLID, offset, sizeBytes, data);
+    }
+}
+
+void OpenGLGPUBuffer::Resize(size_t sizeBytes)
+{
+    if (m_IsPersistant) {
+
+        u32 flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+        glNamedBufferStorage(m_GLID, sizeBytes, 0, flags);
+        m_MappedPtr = glMapNamedBufferRange(m_GLID, 0, sizeBytes, flags);
+
+    } else {
+        u32 usage = (m_Data.usage == GPUBufferUsage::STATIC) ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+        glNamedBufferData(m_GLID, sizeBytes, 0, usage);
+    }
+    m_Data.sizeBytes = sizeBytes;
+}
+
+void* OpenGLGPUBuffer::GetPersistPTR()
+{
+    if (m_IsPersistant) {
+        return m_MappedPtr;
+    } else {
+        DM_CORE_WARN("Attempted to get a persistant pointer on an non-persistant Buffer")
+        return nullptr;
+    }
 }
 
 void OpenGLGPUBuffer::Destroy()

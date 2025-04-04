@@ -165,7 +165,7 @@ void Texture2DManager::DeleteTexture2D(UUID id)
 {
     bool exists = s_Texture2DMap.contains(id);
     if (!exists) {
-        DM_CORE_WARN("Tried to Delete non-existant shader");
+        DM_CORE_WARN("Tried to Delete non-existant texture 2d");
         return;
     };
 

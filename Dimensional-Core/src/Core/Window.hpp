@@ -2,7 +2,6 @@
 #define DM_WINDOWH
 
 #include "Rendering/Renderer.hpp"
-
 #include <core.hpp>
 
 class GLFWwindow;

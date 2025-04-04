@@ -2,10 +2,11 @@
 #define GPU_BUFFER_MANAGER_AGNOST_HPP
 #include "Rendering/GPUBuffer.hpp"
 #include "Rendering/OpenGL/OpenGL_Buffer.hpp"
+#include <variant>
 namespace Dimensional {
 
-union GraphicsGPUBuffer {
-    OpenGLGPUBuffer glBuffer;
+struct GraphicsGPUBuffer {
+    std::variant<std::monostate, OpenGLGPUBuffer> glBuffer;
 };
 
 struct GPUBufferManager {
@@ -14,12 +15,14 @@ struct GPUBufferManager {
 
     static void Bind(UUID id, u32 slot);
 
-    static void SetData(UUID id, const void* data, size_t sizeBytes);
+    static void SetData(UUID id, const void* data, size_t offset, size_t sizeBytes);
+
+    static void Resize(UUID id, size_t sizeBytes);
 
     static void Destroy(UUID id);
 
 private:
-    static UMap<UUID, GraphicsGPUBuffer> s_RTMap;
+    static UMap<UUID, GraphicsGPUBuffer> s_GPUBuffMap;
 };
 
 }

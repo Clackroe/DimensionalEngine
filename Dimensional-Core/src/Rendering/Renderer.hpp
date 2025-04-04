@@ -1,6 +1,8 @@
 #ifndef AGNOST_RENDERER_HPP
 #define AGNOST_RENDERER_HPP
 
+// #include "Asset/Mesh.hpp"
+#include "Rendering/Mesh.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Texture2D.hpp"
 #include "Rendering/VAO.hpp"
@@ -35,6 +37,10 @@ struct Renderer {
     static void SetAPI(GraphicsAPI api);
     static void SetWindowHints();
     static void ClearScreen(ClearBuffer cb);
+
+    static void AddMesh(Ref<Mesh> mesh);
+
+    static void UnloadMesh(u32 index);
 
     static void DrawIndexed(Ref<VAO> vao, Ref<Shader> shader);
 
