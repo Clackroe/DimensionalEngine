@@ -87,7 +87,7 @@ OpenGLGPUBuffer OpenGLGPUBuffer::Create(const GPUBufferData& data)
     glCreateBuffers(1, &buff.m_GLID);
     buff.m_Data = data;
 
-    if (data.usage == GPUBufferUsage::DYNAMIC_PERSIST) {
+    if (data.persistant) {
         buff.m_IsPersistant = true;
     }
 
@@ -105,7 +105,16 @@ OpenGLGPUBuffer OpenGLGPUBuffer::Create(const GPUBufferData& data)
 void OpenGLGPUBuffer::Bind(u32 slot)
 {
     GLenum target = (m_Data.type == GPUBufferType::UNIFORM) ? GL_UNIFORM_BUFFER : GL_SHADER_STORAGE_BUFFER;
-    glBindBufferBase(target, slot, m_GLID);
+
+    if (m_Data.type == GPUBufferType::COMMAND) {
+        target = GL_DRAW_INDIRECT_BUFFER;
+        glBindBuffer(target, m_GLID);
+    } else if (m_Data.type == GPUBufferType::ELEMENT) {
+        target = GL_ELEMENT_ARRAY_BUFFER;
+        glBindBuffer(target, m_GLID);
+    } else {
+        glBindBufferBase(target, slot, m_GLID);
+    }
 }
 
 void OpenGLGPUBuffer::SetData(const void* data, size_t offset, size_t sizeBytes)
@@ -122,6 +131,17 @@ void OpenGLGPUBuffer::SetData(const void* data, size_t offset, size_t sizeBytes)
     }
 }
 
+void OpenGLGPUBuffer::ZeroData()
+{
+
+    if (m_IsPersistant) {
+        memset(m_MappedPtr, 0, m_Data.sizeBytes);
+
+    } else {
+        glNamedBufferSubData(m_GLID, 0, m_Data.sizeBytes, 0);
+    }
+}
+
 void OpenGLGPUBuffer::Resize(size_t sizeBytes)
 {
     if (m_IsPersistant) {
@@ -129,11 +149,11 @@ void OpenGLGPUBuffer::Resize(size_t sizeBytes)
         u32 flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
         glNamedBufferStorage(m_GLID, sizeBytes, 0, flags);
         m_MappedPtr = glMapNamedBufferRange(m_GLID, 0, sizeBytes, flags);
-        memset((char*)m_MappedPtr, 0, sizeBytes);
-
+        ZeroData();
     } else {
         u32 usage = (m_Data.usage == GPUBufferUsage::STATIC) ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
         glNamedBufferData(m_GLID, sizeBytes, 0, usage);
+        ZeroData();
     }
     m_Data.sizeBytes = sizeBytes;
 }

@@ -1,4 +1,5 @@
 #include "Core/Application.hpp"
+#include "Log/log.hpp"
 #include "Rendering/Texture2D.hpp"
 #include "Rendering/Texture2DManager.hpp"
 #include "Rendering/TextureEnums.hpp"
@@ -82,8 +83,20 @@ void OpenGLRenderTarget::ReBuild()
         u32 glID = Texture2DManager::GetOpenGLTexture(m_Depth->GetUUID()).m_GLID;
         glNamedFramebufferTexture(m_GLID, GL_DEPTH_ATTACHMENT, glID, 0);
     }
-    Bind();
-    GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+    if (m_ColorBuffs.size() > 1) {
+        DM_CORE_ASSERT(m_ColorBuffs.size() <= 5, "Too Many FrameBuffer Attachments Provided");
+        std::vector<GLenum> buffers(m_ColorBuffs.size());
+        for (u32 i = 0; i < buffers.size(); i++) {
+            buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+        }
+        glNamedFramebufferDrawBuffers(m_GLID, (int)(m_ColorBuffs.size()), buffers.data());
+    } else if (m_ColorBuffs.size() == 0) {
+        glNamedFramebufferDrawBuffer(m_GLID, GL_NONE);
+        glNamedFramebufferReadBuffer(m_GLID, GL_NONE);
+    }
+
+    GLenum fbStatus = glCheckNamedFramebufferStatus(m_GLID, GL_FRAMEBUFFER);
     DM_CORE_ASSERT(fbStatus == GL_FRAMEBUFFER_COMPLETE, "Framebuffer Failed To Create And Is Incomplete! Status Code: " + std::to_string(fbStatus));
 }
 

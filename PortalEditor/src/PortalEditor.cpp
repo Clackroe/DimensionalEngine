@@ -97,7 +97,7 @@ static void testBedStart()
     sData.indices = indices;
     sMesh = SubMesh::Create(sData);
 
-    Ref<SubMesh> test = ModelSourceImporter::loadModelSourceFromPath("Assets/Models/Cube.obj");
+    // Ref<SubMesh> test = ModelSourceImporter::loadModelSourceFromPath("Assets/Models/Cube.obj");
 
     std::vector<float> quadVertices = {
         // positions   // texCoords
@@ -114,24 +114,24 @@ static void testBedStart()
 
     quadVAO = VAO::Create();
     VAOData dataQuad;
-    dataQuad.indexBuffer = quadIndices;
-    dataQuad.data = (const char*)quadVertices.data();
-    dataQuad.dataSizeBytes = quadVertices.size() * sizeof(float);
-    dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = false });
-    dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
+    // dataQuad.indexBuffer = quadIndices;
+    // dataQuad.data = (const char*)quadVertices.data();
+    // dataQuad.dataSizeBytes = quadVertices.size() * sizeof(float);
+    // dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = false });
+    // dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
 
-    quadVAO->SetData(dataQuad);
+    // quadVAO->SetData(dataQuad);
 
     vao = VAO::Create();
 
-    VAOData data;
-    data.indexBuffer = indices;
-    data.data = (const char*)vertices.data();
-    data.dataSizeBytes = vertices.size() * sizeof(float);
-    data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
-    data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
-    data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
-    vao->SetData(data);
+    // VAOData data;
+    // data.indexBuffer = indices;
+    // data.data = (const char*)vertices.data();
+    // data.dataSizeBytes = vertices.size() * sizeof(float);
+    // data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
+    // data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
+    // data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
+    // vao->SetData(data);
 
     shader = Shader::Create("Assets/Shaders/testshader.glsl");
 
@@ -150,9 +150,11 @@ static void testBedStart()
     rtData.hdr = false;
     rtData.attachments.push_back({ TextureFormat::DEFAULT });
     rtData.attachments.push_back({ TextureFormat::DEFAULT });
+    rtData.attachments.push_back({ TextureFormat::DEFAULT });
     rtData.depthAttachment = { TextureFormat::DEPTH16 };
     target = RenderTarget::Create(rtData);
-    target->Bind();
+
+    // target->Bind();
     // target->BindAttachment(0, 2);
 
     screenShader = Shader::Create("Assets/Shaders/Screen.glsl");
@@ -161,39 +163,21 @@ static void testBedStart()
         glm::vec3 col = glm::vec3(1.0, 0.0, 0.0);
         float _pad2;
     };
-
-    Color c;
-    GPUBufferData buffd;
-    buffd.usage = GPUBufferUsage::STATIC;
-    buffd.type = GPUBufferType::UNIFORM;
-    buffd.sizeBytes = sizeof(Color);
-    buffd.data = &c;
-    buff = GPUBuffer::Create(buffd);
-    buff->Bind(2);
-
-    Color c2;
-    c2.col = glm::vec3(0, 1.0, 0);
-
-    GPUBufferData buffd2;
-    buffd2.usage = GPUBufferUsage::DYNAMIC;
-    buffd2.type = GPUBufferType::STORAGE;
-    buffd2.sizeBytes = sizeof(Color);
-    buffd2.data = &c2;
-
-    buffSS = GPUBuffer::Create(buffd2);
-    buffSS->Bind(4);
 }
 
 static void testBedUpdate()
 {
     target->Bind();
-    // shader->Bind();
+    // vao->Bind();
+    shader->Bind();
     Renderer::ClearScreen(ClearBuffer::BOTH);
     Renderer::DrawIndexed(vao, shader);
+    // vao->UnBind();
     target->UnBind();
 
+    // target->BindAttachment(0, 2);
     // screenShader->Bind();
-    // Renderer::ClearScreen(ClearBuffer::BOTH);
+    // // Renderer::ClearScreen(ClearBuffer::BOTH);
     // Renderer::DrawIndexed(quadVAO, screenShader);
 }
 

@@ -25,6 +25,11 @@ void GPUBuffer::SetData(const void* data, size_t offset, size_t sizeBytes)
     GPUBufferManager::SetData(m_UUID, data, offset, sizeBytes);
 };
 
+void GPUBuffer::ZeroData()
+{
+    GPUBufferManager::ZeroData(m_UUID);
+}
+
 void GPUBuffer::Destroy()
 {
     GPUBufferManager::Destroy(m_UUID);

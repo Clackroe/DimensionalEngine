@@ -1,6 +1,7 @@
 #include "Rendering/SceneRenderer.hpp"
 #include "Rendering/GPUBuffer.hpp"
 #include "glm/ext/matrix_transform.hpp"
+
 namespace Dimensional {
 
 SceneRenderer::SceneRenderer(Ref<Scene> sc)

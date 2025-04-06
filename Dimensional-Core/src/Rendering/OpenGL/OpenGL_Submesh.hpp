@@ -4,7 +4,7 @@ namespace Dimensional {
 
 struct SubMeshIndexData {
     u32 count; // num indices
-    u32 firstIndex; // first index in element buffer?
+    u32 firstIndex; // first index in element buffer
     int baseVertex; // First index of mesh
     u32 baseInstance;
 };

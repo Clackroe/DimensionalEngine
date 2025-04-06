@@ -33,6 +33,8 @@ struct OpenGLGPUBuffer {
 
     void Resize(size_t sizeBytes);
 
+    void ZeroData();
+
     void* GetPersistPTR();
 
     void Destroy();

@@ -1,9 +1,9 @@
 ##VERTEXSHADER
 #version 450 core
 
-layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec3 aCol;
-layout(location = 2) in vec2 aUV;
+// layout(location = 0) in vec3 aPos;
+// layout(location = 1) in vec3 aCol;
+// layout(location = 2) in vec2 aUV;
 
 out vec3 col;
 out vec2 uv;
@@ -37,9 +37,11 @@ layout(std140, binding = 1) uniform Temp {
 
 void main()
 {
+    vec3 aPos = vertices[gl_VertexID].Position;
+    vec2 aUV = vertices[gl_VertexID].TexCoords;
     vec3 WorldPos = vec3(model * vec4(aPos, 1.0));
 
-    col = aCol;
+    col = vec3(1, 1, 0);
     uv = aUV;
     gl_Position = viewProj * vec4(WorldPos, 1.0);
 }
@@ -55,24 +57,17 @@ layout(std430, binding = 4) buffer Color2 {
     vec3 color2;
 };
 
-// struct Vertex {
-//     vec3 Position; // offset 0
-//     vec3 Normal; // offset 16
-//     vec3 Tangent; // offset 32
-//     vec3 BiTangent; // offset 48
-//     vec2 TexCoords; // offset 64
-// };
-//
-// layout(std430, binding = 8) readonly buffer Vertices {
-//     Vertex vertices[];
-// };
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 attachment1;
+layout(location = 2) out vec4 attachment2;
 
-out vec4 FragColor;
 in vec3 col;
 in vec2 uv;
 layout(binding = 1) uniform sampler2D tex;
 
 void main()
 {
-    FragColor = vec4(texture(tex, uv).rgb * color2, 1);
+    FragColor = vec4(texture(tex, uv).rgb, 1);
+    attachment1 = vec4(1, 0, 0, 1);
+    attachment2 = vec4(1, 1, 0, 1);
 }

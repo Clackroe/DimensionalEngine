@@ -17,6 +17,8 @@ struct GPUBufferManager {
 
     static void SetData(UUID id, const void* data, size_t offset, size_t sizeBytes);
 
+    static void ZeroData(UUID id);
+
     static void Resize(UUID id, size_t sizeBytes);
 
     static void Destroy(UUID id);

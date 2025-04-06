@@ -14,6 +14,40 @@
 
 namespace Dimensional {
 
+GLenum glCheckError_(const char* file, int line)
+{
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR) {
+        std::string error;
+        switch (errorCode) {
+        case GL_INVALID_ENUM:
+            error = "INVALID_ENUM";
+            break;
+        case GL_INVALID_VALUE:
+            error = "INVALID_VALUE";
+            break;
+        case GL_INVALID_OPERATION:
+            error = "INVALID_OPERATION";
+            break;
+        case GL_STACK_OVERFLOW:
+            error = "STACK_OVERFLOW";
+            break;
+        case GL_STACK_UNDERFLOW:
+            error = "STACK_UNDERFLOW";
+            break;
+        case GL_OUT_OF_MEMORY:
+            error = "OUT_OF_MEMORY";
+            break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            error = "INVALID_FRAMEBUFFER_OPERATION";
+            break;
+        }
+        std::cout << error << " | " << file << " (" << line << ")" << std::endl;
+    }
+    return errorCode;
+}
+#define glCheckError() glCheckError_(__FILE__, __LINE__)
+
 // Global persistant buffers, to support multidraw indirect,
 // and reduce draw-calls significantly
 
@@ -24,6 +58,8 @@ size_t tempVertexHead = 0;
 
 Ref<GPUBuffer> g_IndexBuffer;
 size_t tempIndexHead = 0;
+
+Ref<GPUBuffer> g_CommandBuffer;
 
 namespace OpenGLRenderer {
 
@@ -79,7 +115,8 @@ namespace OpenGLRenderer {
         {
             GPUBufferData data;
             data.slot = 8;
-            data.usage = GPUBufferUsage::DYNAMIC_PERSIST;
+            data.usage = GPUBufferUsage::DYNAMIC;
+            data.persistant = true;
             data.type = GPUBufferType::STORAGE;
             data.sizeBytes = INITIAL_MAX_VERTEX_COUNT * sizeof(Vertex);
             data.data = nullptr;
@@ -110,19 +147,44 @@ namespace OpenGLRenderer {
 
         {
             GPUBufferData data;
-            data.slot = 4;
-            data.usage = GPUBufferUsage::DYNAMIC_PERSIST;
-            data.type = GPUBufferType::STORAGE;
+            data.slot = 0;
+            data.usage = GPUBufferUsage::DYNAMIC;
+            data.persistant = true;
+            data.type = GPUBufferType::ELEMENT;
             data.sizeBytes = INITIAL_MAX_VERTEX_COUNT * sizeof(u32);
             data.data = nullptr;
 
             g_IndexBuffer = GPUBuffer::Create(data);
+        }
+
+        {
+            GPUBufferData data;
+            data.slot = 0;
+            data.usage = GPUBufferUsage::DYNAMIC;
+            data.persistant = true;
+            data.type = GPUBufferType::COMMAND;
+            data.sizeBytes = INITIAL_MAX_VERTEX_COUNT * sizeof(u32);
+            data.data = nullptr;
+
+            g_CommandBuffer = GPUBuffer::Create(data);
+
+            std::vector<DrawElementsIndirectCommand> cm;
+            DrawElementsIndirectCommand cmd;
+            cmd.count = 6;
+            cmd.baseVertex = 0;
+            cmd.firstIndex = 0;
+            cmd.baseInstance = 0;
+            cmd.instanceCount = 1;
+            cm.push_back(cmd);
+
+            g_CommandBuffer->SetData(cm.data(), 0, cm.size() * sizeof(DrawElementsIndirectCommand));
         }
     }
     void Shutdown()
     {
         g_IndexBuffer = nullptr;
         g_VertexBuffer = nullptr;
+        g_CommandBuffer = nullptr;
     }
 
     SubMeshIndexData AddSubMesh(const SubMeshData& data)
@@ -143,9 +205,13 @@ namespace OpenGLRenderer {
 
     void DrawIndexed(Ref<VAO> vao, Ref<Shader> shader)
     {
-        shader->Bind();
         vao->Bind();
-        glDrawElements(GL_TRIANGLES, vao->GetElementCount(), GL_UNSIGNED_INT, 0);
+        // shader->Bind();
+        g_IndexBuffer->Bind(0);
+        glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, 1, 0);
+
+        // glCheckError();
+        // glDrawElements(GL_TRIANGLES, vao->GetElementCount(), GL_UNSIGNED_INT, 0);
     }
 }
 }

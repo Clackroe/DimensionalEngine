@@ -6,6 +6,14 @@
 #include "Rendering/SubMeshManager.hpp"
 namespace Dimensional {
 
+struct DrawElementsIndirectCommand {
+    uint count;
+    uint instanceCount;
+    uint firstIndex;
+    int baseVertex;
+    uint baseInstance;
+};
+
 namespace OpenGLRenderer {
 
     void Init(Window& window);

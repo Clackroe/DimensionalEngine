@@ -7,18 +7,20 @@ namespace Dimensional {
 
 enum class GPUBufferType {
     UNIFORM,
-    STORAGE
+    STORAGE,
+    COMMAND,
+    ELEMENT
 };
 
 enum class GPUBufferUsage {
     STATIC,
     DYNAMIC,
-    DYNAMIC_PERSIST
 };
 
 struct GPUBufferData {
     GPUBufferType type;
     GPUBufferUsage usage;
+    bool persistant = false;
     const void* data = nullptr;
     size_t sizeBytes;
     u32 slot;
@@ -33,6 +35,8 @@ struct GPUBuffer {
     void Bind(u32 slot);
 
     void SetData(const void* data, size_t offset, size_t sizeBytes);
+
+    void ZeroData();
 
     void Resize(size_t sizeBytes);
 

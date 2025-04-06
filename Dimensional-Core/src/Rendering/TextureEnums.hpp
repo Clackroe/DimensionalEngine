@@ -31,7 +31,7 @@ enum class TextureFormat {
     DEPTH32F, // 32-bit floating point depth
     DEPTH24_STENCIL8, // 24-bit depth, 8-bit stencil
     DEPTH32F_STENCIL8, // 32-bit floating point depth, 8-bit stencil
-    DEFAULT = RGBA16
+    DEFAULT = RGBA16F
 };
 
 enum class TextureFiltering {

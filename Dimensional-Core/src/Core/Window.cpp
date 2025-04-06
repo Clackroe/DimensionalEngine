@@ -9,7 +9,7 @@ namespace Dimensional {
 
 Window::Window(const WindowSettings settings)
 {
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
     m_Settings.Title = settings.Title;
     m_Settings.Width = settings.Width;
     m_Settings.Height = settings.Height;

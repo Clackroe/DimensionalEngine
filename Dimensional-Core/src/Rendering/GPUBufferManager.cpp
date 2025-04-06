@@ -1,5 +1,6 @@
 #include "Rendering/GPUBufferManager.hpp"
 #include "Core/UUID.hpp"
+#include "Rendering/GPUBuffer.hpp"
 #include "Rendering/OpenGL/OpenGL_Buffer.hpp"
 #include <Core/Application.hpp>
 
@@ -77,6 +78,26 @@ void GPUBufferManager::SetData(UUID id, const void* data, size_t offset, size_t 
     case GraphicsAPI::OPENGL: {
         OpenGLGPUBuffer buff = std::get<OpenGLGPUBuffer>(s_GPUBuffMap.at(id).glBuffer);
         buff.SetData(data, offset, sizeBytes);
+        break;
+    }
+    case GraphicsAPI::UNKOWN: {
+        break;
+    }
+    }
+}
+
+void GPUBufferManager::ZeroData(UUID id)
+{
+    bool exists = s_GPUBuffMap.contains(id);
+    if (!exists) {
+        DM_CORE_WARN("Tried to ZeroData on non-existan GPUBuffer");
+        return;
+    };
+
+    switch (Application::getGraphicsAPI()) {
+    case GraphicsAPI::OPENGL: {
+        OpenGLGPUBuffer buff = std::get<OpenGLGPUBuffer>(s_GPUBuffMap.at(id).glBuffer);
+        buff.ZeroData();
         break;
     }
     case GraphicsAPI::UNKOWN: {
