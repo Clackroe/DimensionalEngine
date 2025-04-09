@@ -1,11 +1,10 @@
-[19:53:43] [info] DIMENSIONAL: TEST
-[19:53:43] [info] DIMENSIONAL: Platform: LINUX
-[19:53:43] [info] DIMENSIONAL: Event System Initialized.
-[19:53:43] [info] DIMENSIONAL: Input System Initialized
-[19:53:43] [info] APP: Portal Initialized
-[19:53:43] [info] DIMENSIONAL: SIZE: 320 | OFFSET: 0
-[19:53:43] [info] DIMENSIONAL: SIZE: 24 | OFFSET: 0
-[19:53:43] [info] DIMENSIONAL: SIZE: 2880 | OFFSET: 320
-[19:53:43] [info] DIMENSIONAL: SIZE: 144 | OFFSET: 24
-[19:53:43] [info] DIMENSIONAL: Setting VAO Data
-[19:53:43] [info] DIMENSIONAL: Setting VAO Data
+[01:05:49] [info] DIMENSIONAL: TEST
+[01:05:49] [info] DIMENSIONAL: Enabled Vulkan instance extensions:
+[01:05:49] [info] DIMENSIONAL:     VK_EXT_debug_utils
+[01:05:49] [info] DIMENSIONAL:     VK_KHR_xcb_surface
+[01:05:49] [info] DIMENSIONAL:     VK_KHR_surface
+[01:05:49] [info] DIMENSIONAL:     VK_KHR_get_physical_device_properties2
+[01:05:49] [info] DIMENSIONAL: Enabled Vulkan layers:
+[01:05:49] [info] DIMENSIONAL: Enabled Vulkan device extensions:
+[01:05:49] [info] DIMENSIONAL:     VK_KHR_maintenance1
+[01:05:49] [info] DIMENSIONAL: Created Vulkan device: NVIDIA GeForce RTX 3070

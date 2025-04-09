@@ -22,3 +22,9 @@
 [submodule "Dimensional-Core/lib/YAML"]
 	path = Dimensional-Core/lib/YAML
 	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "Dimensional-Core/lib/NVHRI"]
+	path = Dimensional-Core/lib/NVHRI
+	url = https://github.com/NVIDIA-RTX/NVRHI.git
+[submodule "Dimensional-Core/lib/vk-bootstrap"]
+	path = Dimensional-Core/lib/vk-bootstrap
+	url = https://github.com/charles-lunarg/vk-bootstrap

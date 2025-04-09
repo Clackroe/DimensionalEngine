@@ -1,39 +1,85 @@
 #include "Window.hpp"
 #include <Event/EventSystem.hpp>
 #include <Rendering/Renderer.hpp>
-#include <glad.h>
+// #include <glad.h>
 
 #include "GLFW/glfw3.h"
+
+#include "Log/log.hpp"
+#include "Rendering/DeviceManager.hpp"
+#include "Rendering/Vulkan/VulkanDevice.hpp"
+#include "core.hpp"
+#include "nvrhi/nvrhi.h"
+#include "nvrhi/utils.h"
 
 namespace Dimensional {
 
 Window::Window(const WindowSettings settings)
 {
-    glfwSwapInterval(1);
     m_Settings.Title = settings.Title;
     m_Settings.Width = settings.Width;
     m_Settings.Height = settings.Height;
-    m_Settings.gApi = settings.gApi;
 
     initWindow(settings);
 }
 
-void Window::update()
-{
-    glfwSwapBuffers(m_Window);
+nvrhi::GraphicsState graphicsState;
+nvrhi::Color clearColor = nvrhi::Color(0.1f, 0.1f, 0.3f, 1.0f);
 
+void Window::BeginFrame()
+{
     glfwPollEvents();
+    device->UpdateWindowSize();
+    device->BeginFrame();
+
+    CommandList->open();
+    graphicsState.framebuffer = device->GetCurrentFramebuffer();
+    nvrhi::utils::ClearColorAttachment(CommandList, device->GetCurrentFramebuffer(), 0, clearColor);
+}
+
+int cnt = 0;
+void Window::EndFrame()
+{
+
+    if (cnt % 10 == 0) {
+        DM_CORE_INFO("AVG FrameTime: {}", device->GetAverageFrameTimeSeconds())
+    }
+    cnt += 1;
+    CommandList->close();
+    device->GetDevice()->executeCommandList(CommandList);
+
+    bool succ = device->RenderPresent();
+    if (!succ) {
+        DM_CORE_ERROR("Failed to Present")
+    }
+    bool waitSuccess = device->GetDevice()->waitForIdle();
 }
 
 void Window::initWindow(const WindowSettings& settings)
 {
 
-    int glfwSuccess = glfwInit();
-    DM_CORE_ASSERT(glfwSuccess, "Failed to initialize GLFW")
+    DM_CORE_ASSERT(glfwInit(), "Failed to initialize GLFW")
 
-    Renderer::SetWindowHints();
+    // DeviceCreateProps props;
+    // props.enableValidation = true;
+    // props.windowHeight = settings.Height;
+    // props.windowWidth = settings.Width;
+    // props.maxFramesInFlight = 2;
+    // props.title = settings.Title;
 
-    m_Window = glfwCreateWindow(settings.Width, settings.Height, settings.Title.c_str(), nullptr, nullptr);
+    device = DeviceManager::Create(nvrhi::GraphicsAPI::VULKAN);
+
+    DeviceCreationParameters params;
+    params.vsyncEnabled = false;
+    device->CreateWindowDeviceAndSwapChain(params, "Test Title");
+
+    CommandList = device->GetDevice()->createCommandList();
+
+    // DM_CORE_ASSERT(vkd.initialize(props) == true, "Failed to initialize GraphicsDevice");
+    m_Window = device->GetWindow();
+
+    // Renderer::SetWindowHints();
+
     DM_CORE_ASSERT(m_Window, "Failed to create GLFW window. Terminating.");
     glfwMakeContextCurrent(m_Window);
 
@@ -53,7 +99,7 @@ void Window::initCallbacks()
         WindowSettings& settings = *(WindowSettings*)glfwGetWindowUserPointer(window);
         settings.Height = height;
         settings.Width = width;
-        glViewport(0, 0, width, height);
+        // glViewport(0, 0, width, height);
     });
 }
 

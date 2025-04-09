@@ -38,7 +38,7 @@ public:
     Ref<Scene> getSceneCTX();
     void setSceneCTX(Ref<Scene> scene) { m_SceneCTX = scene; };
 
-    static GraphicsAPI getGraphicsAPI() { return getApp().getWindowDM().getGraphicsAPI(); };
+    // static GraphicsAPI getGraphicsAPI() { return getApp().getWindowDM().getGraphicsAPI(); };
 
     // ---
 

@@ -1,7 +1,5 @@
 #include "Core/Application.hpp"
 #include "KeyCodes.hpp"
-#include "Rendering/Shader.hpp"
-#include "Rendering/VAO.hpp"
 #include <PortalEditor.hpp>
 #include <dimensional.hpp>
 

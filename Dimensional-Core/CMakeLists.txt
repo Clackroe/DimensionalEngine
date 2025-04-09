@@ -12,6 +12,25 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 include_directories(src)
 include_directories(public/include)
 
+# Vulkan
+add_subdirectory(lib/vk-bootstrap)
+include_directories(lib/vk-bootstrap/src)
+set(VK_BOOTSTRAP_VULKAN_HEADER_DIR "lib/NVHRI/thirdparty/Vulkan-Headers")
+set(VK_BOOTSTRAP_TEST OFF)
+
+
+
+find_package(Vulkan REQUIRED)
+include_directories(${Vulkan_INCLUDE_DIRS})
+
+# NVHRI
+add_subdirectory(lib/NVHRI)
+include_directories(lib/NVHRI/include)
+set(NVHRI_WITH_VULKAN ON)
+set_target_properties(nvrhi PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(nvrhi_vk PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+
 # STB
 include_directories(lib/STB)
 
@@ -92,8 +111,11 @@ set_source_files_properties(${PCH_HEADER} PROPERTIES HEADER_FILE_ONLY ON)
 
 # Shared Library
 add_library(Dimensional-Core SHARED ${SOURCES})
-target_link_libraries(Dimensional-Core glfw glad imgui spdlog yaml-cpp assimp)
+target_link_libraries(Dimensional-Core glfw glad imgui spdlog yaml-cpp assimp nvrhi nvrhi_vk vk-bootstrap::vk-bootstrap ${Vulkan_LIBRARIES} )
 target_compile_definitions(Dimensional-Core PRIVATE MYLIB_BUILD)
+
+target_compile_definitions(Dimensional-Core PRIVATE DIMENSIONAL_VULKAN_RENDERER)
+
 
 target_precompile_headers(Dimensional-Core PRIVATE ${PCH_HEADER})
 

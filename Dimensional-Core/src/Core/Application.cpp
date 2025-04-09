@@ -2,12 +2,6 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
 #include "Rendering/GPUBuffer.hpp"
-#include "Rendering/RenderTarget.hpp"
-#include "Rendering/Renderer.hpp"
-#include "Rendering/Shader.hpp"
-#include "Rendering/Texture2D.hpp"
-#include "Rendering/TextureEnums.hpp"
-#include "Rendering/VAO.hpp"
 #include "Scripting/NativeScriptManager.hpp"
 #include "core.hpp"
 #include <Core/Application.hpp>
@@ -15,8 +9,6 @@
 #include <stb_image.hpp>
 
 #include <Core/Time.hpp>
-
-#include <glad.h>
 
 namespace Dimensional {
 
@@ -32,8 +24,6 @@ Application::Application(const std::string& title, u32 width, u32 height)
     s_Application = this;
 
     m_Window = CreateScope<Window>(WindowSettings { width, height, title });
-
-    Renderer::Init(GraphicsAPI::OPENGL, *m_Window);
 
     m_ImGuiOverlay = new ImGuiLayer();
     m_LayerStack.pushOverlay(m_ImGuiOverlay);
@@ -52,6 +42,8 @@ void Application::runApplication()
         float frameStartTime = Time::getTime();
         Time::Update();
 
+        m_Window->BeginFrame();
+
         EventSystem::ProcessEvents();
 
         //------Update Layers-------
@@ -60,20 +52,20 @@ void Application::runApplication()
         }
 
         //------Update imgui Layers-------
-        m_ImGuiOverlay->beginFrame();
-
-        // ImGui::Begin("Stats");
-        // ImGui::Text("FPS: %f", 1 / Time::deltaTime());
-        // ImGui::End();
-
-        for (Layer* layer : m_LayerStack) {
-            layer->OnImGuiRender();
-        }
-
-        m_ImGuiOverlay->endFrame();
+        // m_ImGuiOverlay->beginFrame();
+        //
+        // // ImGui::Begin("Stats");
+        // // ImGui::Text("FPS: %f", 1 / Time::deltaTime());
+        // // ImGui::End();
+        //
+        // for (Layer* layer : m_LayerStack) {
+        //     layer->OnImGuiRender();
+        // }
+        //
+        // m_ImGuiOverlay->endFrame();
 
         //------
-        m_Window->update();
+        m_Window->EndFrame();
 
         frameTime = Time::getTime() - frameStartTime;
     }

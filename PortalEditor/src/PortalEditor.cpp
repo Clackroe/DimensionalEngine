@@ -3,15 +3,15 @@
 #include "Asset/ModelSourceImporter.hpp"
 #include "Core/Application.hpp"
 #include "Log/log.hpp"
-#include "Rendering/SceneRenderer.hpp"
-#include "Rendering/SubMesh.hpp"
+// #include "Rendering/SceneRenderer.hpp"
+// #include "Rendering/SubMesh.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.hpp>
 // #include "Rendering/SceneRenderer.hpp"
-#include "Rendering/OpenGL/OpenGL_Texture2D.hpp"
-#include "Rendering/RenderTarget.hpp"
-#include "Rendering/Texture2D.hpp"
-#include "Rendering/Texture2DManager.hpp"
+// #include "Rendering/OpenGL/OpenGL_Texture2D.hpp"
+// #include "Rendering/RenderTarget.hpp"
+// #include "Rendering/Texture2D.hpp"
+// #include "Rendering/Texture2DManager.hpp"
 #include "ToolPanels/ContentBrowser.hpp"
 #include "ToolPanels/MaterialsPanel.hpp"
 #include "core.hpp"
@@ -34,25 +34,25 @@ static std::string scenePath = "Assets/TestScene.dims";
 static Ref<ContentBrowser> s_Browser;
 static Ref<MaterialsPanel> s_MatPanel;
 
-Ref<VAO> vao;
-
-Ref<VAO> quadVAO;
-
-Ref<Shader> shader;
-
-Ref<Shader> screenShader;
-
-Ref<Texture2D> tex;
-
-Ref<RenderTarget> target;
-
-Ref<GPUBuffer> buff;
-
-Ref<GPUBuffer> buffSS;
-
-Ref<SceneRenderer> renderer;
-
-Ref<SubMesh> sMesh;
+// Ref<VAO> vao;
+//
+// Ref<VAO> quadVAO;
+//
+// Ref<Shader> shader;
+//
+// Ref<Shader> screenShader;
+//
+// Ref<Texture2D> tex;
+//
+// Ref<RenderTarget> target;
+//
+// Ref<GPUBuffer> buff;
+//
+// Ref<GPUBuffer> buffSS;
+//
+// Ref<SceneRenderer> renderer;
+//
+// Ref<SubMesh> sMesh;
 
 static void testBedStart()
 {
@@ -80,105 +80,105 @@ static void testBedStart()
         1, 2, 3 // second Triangle
     };
 
-    SubMeshData sData;
-
-    std::vector<Vertex> vs;
-    for (int i = 0; i < 4; i++) {
-        Vertex v;
-        v.Tangent = glm::vec3(0);
-        v.Position = glm::vec3({ vertices[i * 8 + 0], vertices[i * 8 + 1], vertices[i * 8 + 2] });
-        v.Normal = glm::vec3(0);
-        v.BiTangent = glm::vec3(0);
-        v.TexCoords = glm::vec2({ vertices[i * 8 + 6], vertices[i * 8 + 7] });
-
-        vs.push_back(v);
-    }
-    sData.vertices = vs;
-    sData.indices = indices;
-    sMesh = SubMesh::Create(sData);
-
-    // Ref<SubMesh> test = ModelSourceImporter::loadModelSourceFromPath("Assets/Models/Cube.obj");
-
-    std::vector<float> quadVertices = {
-        // positions   // texCoords
-        1.0f, 1.0f, 1.0f, 0.0f, // top-right
-        1.0f, -1.0f, 1.0f, 1.0f, // bottom-right
-        -1.0f, -1.0f, 0.0f, 1.0f, // bottom-left
-        -1.0f, 1.0f, 0.0f, 0.0f, // top-left
-    };
-    std::vector<u32> quadIndices = {
-        // note that we start from 0!
-        0, 1, 3, // first Triangle
-        1, 2, 3 // second Triangle
-    };
-
-    quadVAO = VAO::Create();
-    VAOData dataQuad;
-    // dataQuad.indexBuffer = quadIndices;
-    // dataQuad.data = (const char*)quadVertices.data();
-    // dataQuad.dataSizeBytes = quadVertices.size() * sizeof(float);
-    // dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = false });
-    // dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
-
-    // quadVAO->SetData(dataQuad);
-
-    vao = VAO::Create();
-
-    // VAOData data;
-    // data.indexBuffer = indices;
-    // data.data = (const char*)vertices.data();
-    // data.dataSizeBytes = vertices.size() * sizeof(float);
-    // data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
-    // data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
-    // data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
-    // vao->SetData(data);
-
-    shader = Shader::Create("Assets/Shaders/testshader.glsl");
-
-    Texture2DData texData;
-    texData.data = stbi_load("Assets/Textures/Albedo.png", (int*)&texData.width, (int*)&texData.height, (int*)&texData.channels, 0);
-    texData.format = TextureFormat::RGBA8;
-    tex = Texture2D::Create(texData);
-    tex->Bind(1);
-
-    Renderer::SetClearColor({ 0.18, 0.18, 0.18 });
-
-    RenderTargetData rtData;
-    rtData.width = Application::getApp().getWindowDM().getWidth();
-    rtData.height = Application::getApp().getWindowDM().getHeight();
-
-    rtData.hdr = false;
-    rtData.attachments.push_back({ TextureFormat::DEFAULT });
-    rtData.attachments.push_back({ TextureFormat::DEFAULT });
-    rtData.attachments.push_back({ TextureFormat::DEFAULT });
-    rtData.depthAttachment = { TextureFormat::DEPTH16 };
-    target = RenderTarget::Create(rtData);
-
-    // target->Bind();
-    // target->BindAttachment(0, 2);
-
-    screenShader = Shader::Create("Assets/Shaders/Screen.glsl");
-
-    struct alignas(16) Color {
-        glm::vec3 col = glm::vec3(1.0, 0.0, 0.0);
-        float _pad2;
-    };
+    // SubMeshData sData;
+    //
+    // std::vector<Vertex> vs;
+    // for (int i = 0; i < 4; i++) {
+    //     Vertex v;
+    //     v.Tangent = glm::vec3(0);
+    //     v.Position = glm::vec3({ vertices[i * 8 + 0], vertices[i * 8 + 1], vertices[i * 8 + 2] });
+    //     v.Normal = glm::vec3(0);
+    //     v.BiTangent = glm::vec3(0);
+    //     v.TexCoords = glm::vec2({ vertices[i * 8 + 6], vertices[i * 8 + 7] });
+    //
+    //     vs.push_back(v);
+    // }
+    // sData.vertices = vs;
+    // sData.indices = indices;
+    // sMesh = SubMesh::Create(sData);
+    //
+    // // Ref<SubMesh> test = ModelSourceImporter::loadModelSourceFromPath("Assets/Models/Cube.obj");
+    //
+    // std::vector<float> quadVertices = {
+    //     // positions   // texCoords
+    //     1.0f, 1.0f, 1.0f, 0.0f, // top-right
+    //     1.0f, -1.0f, 1.0f, 1.0f, // bottom-right
+    //     -1.0f, -1.0f, 0.0f, 1.0f, // bottom-left
+    //     -1.0f, 1.0f, 0.0f, 0.0f, // top-left
+    // };
+    // std::vector<u32> quadIndices = {
+    //     // note that we start from 0!
+    //     0, 1, 3, // first Triangle
+    //     1, 2, 3 // second Triangle
+    // };
+    //
+    // quadVAO = VAO::Create();
+    // VAOData dataQuad;
+    // // dataQuad.indexBuffer = quadIndices;
+    // // dataQuad.data = (const char*)quadVertices.data();
+    // // dataQuad.dataSizeBytes = quadVertices.size() * sizeof(float);
+    // // dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = false });
+    // // dataQuad.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
+    //
+    // // quadVAO->SetData(dataQuad);
+    //
+    // vao = VAO::Create();
+    //
+    // // VAOData data;
+    // // data.indexBuffer = indices;
+    // // data.data = (const char*)vertices.data();
+    // // data.dataSizeBytes = vertices.size() * sizeof(float);
+    // // data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
+    // // data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 3, .normalized = false });
+    // // data.layout.push_back({ .type = AttributeType::FLOAT, .elementsCnt = 2, .normalized = true });
+    // // vao->SetData(data);
+    //
+    // shader = Shader::Create("Assets/Shaders/testshader.glsl");
+    //
+    // Texture2DData texData;
+    // texData.data = stbi_load("Assets/Textures/Albedo.png", (int*)&texData.width, (int*)&texData.height, (int*)&texData.channels, 0);
+    // texData.format = TextureFormat::RGBA8;
+    // tex = Texture2D::Create(texData);
+    // tex->Bind(1);
+    //
+    // Renderer::SetClearColor({ 0.18, 0.18, 0.18 });
+    //
+    // RenderTargetData rtData;
+    // rtData.width = Application::getApp().getWindowDM().getWidth();
+    // rtData.height = Application::getApp().getWindowDM().getHeight();
+    //
+    // rtData.hdr = false;
+    // rtData.attachments.push_back({ TextureFormat::DEFAULT });
+    // rtData.attachments.push_back({ TextureFormat::DEFAULT });
+    // rtData.attachments.push_back({ TextureFormat::DEFAULT });
+    // rtData.depthAttachment = { TextureFormat::DEPTH16 };
+    // target = RenderTarget::Create(rtData);
+    //
+    // // target->Bind();
+    // // target->BindAttachment(0, 2);
+    //
+    // screenShader = Shader::Create("Assets/Shaders/Screen.glsl");
+    //
+    // struct alignas(16) Color {
+    //     glm::vec3 col = glm::vec3(1.0, 0.0, 0.0);
+    //     float _pad2;
+    // };
 }
 
 static void testBedUpdate()
 {
-    target->Bind();
-    // vao->Bind();
-    shader->Bind();
-    Renderer::ClearScreen(ClearBuffer::BOTH);
-    Renderer::DrawIndexed(vao, shader);
-    // vao->UnBind();
-    target->UnBind();
-
-    // target->BindAttachment(0, 2);
-    // screenShader->Bind();
-    // // Renderer::ClearScreen(ClearBuffer::BOTH);
-    // Renderer::DrawIndexed(quadVAO, screenShader);
+    // target->Bind();
+    // // vao->Bind();
+    // shader->Bind();
+    // Renderer::ClearScreen(ClearBuffer::BOTH);
+    // Renderer::DrawIndexed(vao, shader);
+    // // vao->UnBind();
+    // target->UnBind();
+    //
+    // // target->BindAttachment(0, 2);
+    // // screenShader->Bind();
+    // // // Renderer::ClearScreen(ClearBuffer::BOTH);
+    // // Renderer::DrawIndexed(quadVAO, screenShader);
 }
 
 void PortalLayer::OnAttatch()
@@ -208,7 +208,7 @@ void PortalLayer::OnAttatch()
     // m_SceneRenderer = CreateRef<SceneRenderer>(m_ActiveScene);
     setActiveScene(m_ActiveScene);
 
-    renderer = CreateRef<SceneRenderer>(m_ActiveScene);
+    // renderer = CreateRef<SceneRenderer>(m_ActiveScene);
 }
 
 void PortalLayer::setActiveScene(Ref<Scene> sc)
@@ -261,17 +261,17 @@ void PortalLayer::OnUpdate()
     m_EditorCamera.Update();
     glm::vec3 p = m_EditorCamera.getPosition();
 
-    CameraData data;
-    data.uCameraPosition = m_EditorCamera.getPosition();
-    data.fov = m_EditorCamera.getFOV();
-    data.proj = m_EditorCamera.getProjection();
-    data.view = m_EditorCamera.getViewMtx();
-    data.viewProj = m_EditorCamera.getViewProj();
-    data.farPlane = m_EditorCamera.m_FarClipPlane;
-    data.nearPlane = m_EditorCamera.m_NearClipPlane;
-    data.aspectRatio = m_EditorCamera.getAspectRatio();
-
-    renderer->BeginFrame(data);
+    // CameraData data;
+    // data.uCameraPosition = m_EditorCamera.getPosition();
+    // data.fov = m_EditorCamera.getFOV();
+    // data.proj = m_EditorCamera.getProjection();
+    // data.view = m_EditorCamera.getViewMtx();
+    // data.viewProj = m_EditorCamera.getViewProj();
+    // data.farPlane = m_EditorCamera.m_FarClipPlane;
+    // data.nearPlane = m_EditorCamera.m_NearClipPlane;
+    // data.aspectRatio = m_EditorCamera.getAspectRatio();
+    //
+    // renderer->BeginFrame(data);
 
     if (m_ActiveScene) {
 
@@ -432,8 +432,8 @@ void PortalLayer::OnImGuiRender()
         att = 1;
     }
 
-    Ref<Texture2D> rtex = target->GetAttachment(att);
-    Renderer::ImGuiDrawTexture(rtex, viewportPanelSize.x, viewportPanelSize.y);
+    // Ref<Texture2D> rtex = target->GetAttachment(att);
+    // Renderer::ImGuiDrawTexture(rtex, viewportPanelSize.x, viewportPanelSize.y);
 
     AssetHandle newHandle = m_ActiveSceneHandle;
     UI::assetDragDrop(newHandle, AssetType::SCENE);

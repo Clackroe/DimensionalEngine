@@ -28,9 +28,9 @@
 
 // ---- RENDERING
 #include <Core/EditorCamera.hpp>
-#include <Rendering/Renderer.hpp>
-#include <Rendering/VAO.hpp>
-#include <Rendering/VAOManager.hpp>
+// #include <Rendering/Renderer.hpp>
+// #include <Rendering/VAO.hpp>
+// #include <Rendering/VAOManager.hpp>
 // #include <Rendering/CubeMap.hpp>
 // #include <Rendering/FrameBuffer.hpp>
 // #include <Rendering/Material.hpp>
