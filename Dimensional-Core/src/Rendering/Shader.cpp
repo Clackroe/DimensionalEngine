@@ -5,6 +5,7 @@
 #include "nvrhi/nvrhi.h"
 #include <Rendering/Shader.hpp>
 #include <Rendering/ShaderHelpersAndEnums.hpp>
+#include <functional>
 #include <shaderc/shaderc.h>
 #include <shaderc/shaderc.hpp>
 #include <shaderc/status.h>
@@ -68,6 +69,55 @@ static ShaderData parseProgramSources(const std::string& path)
     return data;
 }
 
+/*
+ * struct ShaderSetReflectionData {
+    // Set -> List of Layouts(Bindings in Set)
+    UMap<u32, std::vector<nvrhi::BindingLayoutDesc>> bindingSetItems;
+    u32 maxSet = 0;
+};
+ * */
+
+static void ReflectOnDescriptors(ShaderSetReflectionData& reflectionData, const std::vector<u32>& bin, nvrhi::ShaderType visibility)
+{
+    spirv_cross::CompilerGLSL compiler(bin);
+    const auto& resources = compiler.get_shader_resources();
+
+    auto handleResource = [&](const spirv_cross::Resource& res, nvrhi::ResourceType resType, const char* resTypeName) {
+        uint32_t set = compiler.get_decoration(res.id, spv::DecorationDescriptorSet);
+        uint32_t slot = compiler.get_decoration(res.id, spv::DecorationBinding);
+
+        auto& bindingSet = reflectionData.bindingSetDescs[set];
+
+        bindingSet.visibility = (nvrhi::ShaderType)((u32)(bindingSet.visibility) | (u32)(visibility));
+
+        DM_CORE_INFO("\t Reflecting: Name = '{}', Set = {}, Binding = {}, Type = {}", res.name, set, slot, resTypeName);
+
+        nvrhi::BindingLayoutItem item;
+        item.slot = slot;
+        item.type = resType;
+        bindingSet.addItem(item);
+    };
+
+    for (const auto& ubo : resources.uniform_buffers)
+        handleResource(ubo, nvrhi::ResourceType::ConstantBuffer, "Uniform Buffer");
+
+    for (const auto& ssbo : resources.storage_buffers) {
+        bool isWritten = compiler.has_decoration(ssbo.type_id, spv::DecorationNonReadable);
+        nvrhi::ResourceType t = isWritten ? nvrhi::ResourceType::RawBuffer_UAV : nvrhi::ResourceType::RawBuffer_SRV;
+        handleResource(ssbo, t, "SSBO");
+    }
+
+    for (const auto& image : resources.sampled_images) {
+        handleResource(image, nvrhi::ResourceType::Texture_SRV, "Sampled Images (SRV)");
+    }
+
+    for (const auto& uav : resources.storage_images)
+        handleResource(uav, nvrhi::ResourceType::Texture_UAV, "Storage Images (UAV)");
+
+    for (const auto& sampler : resources.separate_samplers)
+        handleResource(sampler, nvrhi::ResourceType::Sampler, "Seperate Samplers");
+}
+
 Ref<Shader> Shader::Create(const std::string& path)
 {
 
@@ -83,6 +133,10 @@ Ref<Shader> Shader::Create(const std::string& path)
         return nullptr;
     }
     if (!shader->GenerateInputLayouts()) {
+        return nullptr;
+    }
+    DM_CORE_INFO("Shader Resource Data: ({})", sources.name);
+    if (!shader->GenerateBindingLayouts()) {
         return nullptr;
     }
 
@@ -127,6 +181,32 @@ bool Shader::CreateNVRHIShaders()
             return false;
         }
         m_Shaders[type] = shade;
+    }
+
+    return true;
+}
+
+bool Shader::GenerateBindingLayouts()
+{
+
+    ShaderSetReflectionData data;
+    for (auto& [type, bin] : m_Assemblies) {
+        ReflectOnDescriptors(data, bin, ShaderTypeToNVRHI(type));
+    }
+    std::vector<nvrhi::BindingLayoutDesc> sortedDescs;
+    int index = 0;
+    while (data.bindingSetDescs.contains(index)) {
+        sortedDescs.push_back(data.bindingSetDescs.at(index));
+        index++;
+    }
+
+    for (auto& desc : sortedDescs) {
+        auto b = Application::getDevice()->createBindingLayout(desc);
+        if (!b) {
+            DM_CORE_WARN("Failed to create Binding Layout for shader: {}", m_Name);
+            continue;
+        }
+        m_BindingLayouts.push_back(b);
     }
 
     return true;
@@ -221,5 +301,4 @@ spirv_cross::ShaderResources Shader::GetShaderResources(ShaderType type)
     DM_CORE_WARN("Tried to access ShaderResource on shader that doesnt contain it: {0}: {1}", m_Name, ShaderTypeToSpecifier(type))
     return spirv_cross::ShaderResources();
 }
-
 }

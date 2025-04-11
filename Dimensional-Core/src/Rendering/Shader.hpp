@@ -23,6 +23,11 @@ struct ShaderData {
     UMap<ShaderType, std::string> programs;
 };
 
+struct ShaderSetReflectionData {
+    // Set -> List of Layouts(Bindings in Set)
+    UMap<u32, nvrhi::BindingLayoutDesc> bindingSetDescs;
+};
+
 struct Shader {
 
     static Ref<Shader> Create(const std::string& path);
@@ -31,10 +36,14 @@ struct Shader {
     nvrhi::InputLayoutHandle GetInputLayout() { return m_InputLayout; };
     spirv_cross::ShaderResources GetShaderResources(ShaderType type);
 
+    std::vector<nvrhi::BindingLayoutHandle> GetBindingLayouts() { return m_BindingLayouts; }
+
 private:
     bool Compile(const ShaderData& sources);
     bool CreateNVRHIShaders();
     bool GenerateInputLayouts();
+
+    bool GenerateBindingLayouts();
 
     Shader() = default;
 
@@ -42,6 +51,8 @@ private:
     std::map<ShaderType, nvrhi::ShaderHandle> m_Shaders;
 
     std::map<ShaderType, spirv_cross::ShaderResources> m_ShaderResources;
+
+    std::vector<nvrhi::BindingLayoutHandle> m_BindingLayouts;
 
     nvrhi::InputLayoutHandle m_InputLayout;
 

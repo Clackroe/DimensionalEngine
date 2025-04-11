@@ -1,13 +1,18 @@
-[23:02:02] [info] DIMENSIONAL: Enabled Vulkan instance extensions:
-[23:02:02] [info] DIMENSIONAL:     VK_EXT_debug_utils
-[23:02:02] [info] DIMENSIONAL:     VK_KHR_xcb_surface
-[23:02:02] [info] DIMENSIONAL:     VK_KHR_surface
-[23:02:02] [info] DIMENSIONAL:     VK_KHR_get_physical_device_properties2
-[23:02:02] [info] DIMENSIONAL: Enabled Vulkan layers:
-[23:02:02] [info] DIMENSIONAL: Enabled Vulkan device extensions:
-[23:02:02] [info] DIMENSIONAL:     VK_KHR_maintenance1
-[23:02:02] [info] DIMENSIONAL: Created Vulkan device: NVIDIA GeForce RTX 3070
-[23:02:02] [info] DIMENSIONAL: Platform: LINUX
-[23:02:02] [info] DIMENSIONAL: Event System Initialized.
-[23:02:02] [info] DIMENSIONAL: Input System Initialized
-[23:02:02] [info] DIMENSIONAL: SHADER INPUTS: (Default Shader Name)
+[00:54:10] [info] DIMENSIONAL: Enabled Vulkan instance extensions:
+[00:54:10] [info] DIMENSIONAL:     VK_EXT_debug_utils
+[00:54:10] [info] DIMENSIONAL:     VK_KHR_xcb_surface
+[00:54:10] [info] DIMENSIONAL:     VK_KHR_surface
+[00:54:10] [info] DIMENSIONAL:     VK_KHR_get_physical_device_properties2
+[00:54:10] [info] DIMENSIONAL: Enabled Vulkan layers:
+[00:54:10] [info] DIMENSIONAL: Enabled Vulkan device extensions:
+[00:54:10] [info] DIMENSIONAL:     VK_KHR_maintenance1
+[00:54:10] [info] DIMENSIONAL: Created Vulkan device: NVIDIA GeForce RTX 3070
+[00:54:10] [info] DIMENSIONAL: Platform: LINUX
+[00:54:10] [info] DIMENSIONAL: Event System Initialized.
+[00:54:10] [info] DIMENSIONAL: Input System Initialized
+[00:54:10] [info] DIMENSIONAL: SHADER INPUTS: (nvrhi-test)
+[00:54:10] [info] DIMENSIONAL: 	Name: a_Pos
+[00:54:10] [info] DIMENSIONAL: 		Location: 0
+[00:54:10] [info] DIMENSIONAL: 		Format: RGB32_FLOAT
+[00:54:10] [info] DIMENSIONAL: 		Offset: 0
+[00:54:10] [info] DIMENSIONAL: 		Stride: 12

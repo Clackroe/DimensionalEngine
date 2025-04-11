@@ -46,15 +46,6 @@ static void tempInit()
 
     shader = Shader::Create("Assets/Shaders/nvrhi-test.glsl");
 
-    auto layoutDesc = nvrhi::BindingLayoutDesc()
-                          .setVisibility(nvrhi::ShaderType::All);
-
-    nvrhi::BindingLayoutHandle bindingLayout = dev->createBindingLayout(layoutDesc);
-
-    if (!bindingLayout) {
-        DM_CORE_ERROR("Failed to create binding layout")
-    }
-
     nvrhi::TextureDesc td;
     td.debugName = "Att 1";
     td.setFormat(nvrhi::Format::RGB32_FLOAT);
@@ -85,9 +76,13 @@ static void tempInit()
     auto pipelineDesc = nvrhi::GraphicsPipelineDesc()
                             .setInputLayout(shader->GetInputLayout())
                             .setVertexShader(shader->GetShaderHandle(ShaderType::VERTEX))
-                            .setPixelShader(shader->GetShaderHandle(ShaderType::FRAGMENT))
-                            .addBindingLayout(bindingLayout);
-    pipelineDesc.primType = nvrhi::PrimitiveType::TriangleList;
+                            .setPixelShader(shader->GetShaderHandle(ShaderType::FRAGMENT));
+    for (auto& b : shader->GetBindingLayouts()) {
+        pipelineDesc.addBindingLayout(b);
+    }
+
+    pipelineDesc.primType
+        = nvrhi::PrimitiveType::TriangleList;
     pipelineDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
     pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
 
@@ -107,7 +102,7 @@ static void tempInit()
 
     auto bindingSetDesc = nvrhi::BindingSetDesc();
 
-    bindingSet = dev->createBindingSet(bindingSetDesc, bindingLayout);
+    // bindingSet = dev->createBindingSet(bindingSetDesc, shader->GetBindingLayouts());
 };
 
 static void tempUpdate()
@@ -130,7 +125,7 @@ static void tempUpdate()
                              .setPipeline(graphicsPipeline)
                              .setFramebuffer(fb)
                              .setViewport(nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport(Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight())))
-                             .addBindingSet(bindingSet)
+                             // .addBindingSet(bindingSet)
                              .addVertexBuffer(t);
     cmd->setGraphicsState(graphicsState);
 
