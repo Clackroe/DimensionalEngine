@@ -5,6 +5,7 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include "Rendering/Renderer.hpp"
 #include "Scripting/NativeScriptManager.hpp"
+#include "nvrhi/nvrhi.h"
 #include <Core/LayerStack.hpp>
 #include <Core/Window.hpp>
 
@@ -29,6 +30,9 @@ public:
     static Application& getApp() { return *s_Application; }
     inline Window& getWindowDM() { return *m_Window; };
     NativeScriptManager& getScriptManager() { return m_ScriptManager; };
+
+    static Ref<DeviceManager> getDeviceManager() { return getApp().getWindowDM().GetDeviceManager(); };
+    static nvrhi::DeviceHandle getDevice() { return getApp().getWindowDM().GetDeviceManager()->GetDevice(); };
 
     ImGuiContext* getImGuiContext()
     {

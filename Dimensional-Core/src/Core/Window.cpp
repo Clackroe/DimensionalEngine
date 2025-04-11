@@ -32,21 +32,21 @@ void Window::BeginFrame()
     device->UpdateWindowSize();
     device->BeginFrame();
 
-    CommandList->open();
-    graphicsState.framebuffer = device->GetCurrentFramebuffer();
-    nvrhi::utils::ClearColorAttachment(CommandList, device->GetCurrentFramebuffer(), 0, clearColor);
+    // CommandList->open();
+    // graphicsState.framebuffer = device->GetCurrentFramebuffer();
+    // nvrhi::utils::ClearColorAttachment(CommandList, device->GetCurrentFramebuffer(), 0, clearColor);
 }
 
 int cnt = 0;
 void Window::EndFrame()
 {
 
-    if (cnt % 10 == 0) {
+    if (cnt % 60 == 0) {
         DM_CORE_INFO("AVG FrameTime: {}", device->GetAverageFrameTimeSeconds())
     }
     cnt += 1;
-    CommandList->close();
-    device->GetDevice()->executeCommandList(CommandList);
+    // CommandList->close();
+    // device->GetDevice()->executeCommandList(CommandList);
 
     bool succ = device->RenderPresent();
     if (!succ) {
@@ -70,7 +70,7 @@ void Window::initWindow(const WindowSettings& settings)
     device = DeviceManager::Create(nvrhi::GraphicsAPI::VULKAN);
 
     DeviceCreationParameters params;
-    params.vsyncEnabled = false;
+    params.vsyncEnabled = true;
     device->CreateWindowDeviceAndSwapChain(params, "Test Title");
 
     CommandList = device->GetDevice()->createCommandList();

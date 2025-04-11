@@ -36,6 +36,8 @@ public:
 
     GLFWwindow* getGLFWWindow() { return m_Window; }
 
+    Ref<DeviceManager> GetDeviceManager() { return device; };
+
     // TEMP
     nvrhi::CommandListHandle CommandList;
 

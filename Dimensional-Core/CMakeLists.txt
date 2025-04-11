@@ -18,10 +18,23 @@ include_directories(lib/vk-bootstrap/src)
 set(VK_BOOTSTRAP_VULKAN_HEADER_DIR "lib/NVHRI/thirdparty/Vulkan-Headers")
 set(VK_BOOTSTRAP_TEST OFF)
 
-
-
 find_package(Vulkan REQUIRED)
+if (DEFINED VULKAN_SDK_PATH)
+  set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK_PATH}/Include") # 1.1 Make sure this include path is correct
+  set(Vulkan_LIBRARIES "${VULKAN_SDK_PATH}/Lib") # 1.2 Make sure lib path is correct
+  set(Vulkan_FOUND "True")
+else()
+  find_package(Vulkan REQUIRED) # throws error if could not find Vulkan
+  message(STATUS "Found Vulkan: $ENV{VULKAN_SDK}")
+endif()
+find_package(spirv_cross_core REQUIRED)
+find_package(spirv_cross_glsl REQUIRED)
+find_package(spirv_cross_cpp REQUIRED)
+
+
 include_directories(${Vulkan_INCLUDE_DIRS})
+
+
 
 # NVHRI
 add_subdirectory(lib/NVHRI)
@@ -111,7 +124,8 @@ set_source_files_properties(${PCH_HEADER} PROPERTIES HEADER_FILE_ONLY ON)
 
 # Shared Library
 add_library(Dimensional-Core SHARED ${SOURCES})
-target_link_libraries(Dimensional-Core glfw glad imgui spdlog yaml-cpp assimp nvrhi nvrhi_vk vk-bootstrap::vk-bootstrap ${Vulkan_LIBRARIES} )
+target_link_libraries(Dimensional-Core glfw glad imgui spdlog yaml-cpp assimp nvrhi nvrhi_vk vk-bootstrap::vk-bootstrap Vulkan::Vulkan shaderc_combined spirv-cross-cpp)
+ 
 target_compile_definitions(Dimensional-Core PRIVATE MYLIB_BUILD)
 
 target_compile_definitions(Dimensional-Core PRIVATE DIMENSIONAL_VULKAN_RENDERER)
