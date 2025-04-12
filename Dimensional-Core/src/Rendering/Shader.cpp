@@ -2,6 +2,7 @@
 #include "Core/Application.hpp"
 #include "Log/log.hpp"
 #include "Rendering/Enums.hpp"
+#include "Rendering/GlslIncluder.hpp"
 #include "nvrhi/nvrhi.h"
 #include <Rendering/Shader.hpp>
 #include <Rendering/ShaderHelpersAndEnums.hpp>
@@ -150,10 +151,13 @@ Ref<Shader> Shader::Create(const std::string& path)
     return shader;
 }
 
+static GLSLIncluder includer("./Assets/Shaders");
+
 bool Shader::Compile(const ShaderData& sources)
 {
     shaderc::Compiler comp;
     shaderc::CompileOptions opt;
+    opt.SetIncluder(CreateScope<GLSLIncluder>(includer));
 
     for (auto [type, source] : sources.programs) {
 
