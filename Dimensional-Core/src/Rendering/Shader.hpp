@@ -37,6 +37,8 @@ struct Shader {
     nvrhi::InputLayoutHandle GetInputLayout() { return m_InputLayout; };
     spirv_cross::ShaderResources GetShaderResources(ShaderType type);
 
+    nvrhi::ShaderHandle GetShader(ShaderType type);
+
     std::vector<nvrhi::BindingLayoutHandle> GetBindingLayouts() { return m_BindingLayouts; }
 
 private:

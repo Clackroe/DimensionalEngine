@@ -24,11 +24,9 @@ Ref<DeviceManager> dm_dev;
 nvrhi::IDevice* dev;
 
 Ref<Shader> shader;
-
 Ref<Pipeline> pipe;
 
 nvrhi::FramebufferHandle fb;
-
 nvrhi::TextureHandle textureTest1;
 
 struct Vertex {
@@ -44,7 +42,6 @@ static const Vertex g_Vertices[] = {
 };
 
 nvrhi::BufferHandle vertexBuffer;
-nvrhi::GraphicsPipelineHandle graphicsPipeline;
 static void tempInit()
 {
     cmd = dev->createCommandList();
@@ -60,7 +57,17 @@ static void tempInit()
     td.setKeepInitialState(true);
     td.arraySize = 1;
 
-    textureTest1 = dev->createTexture(td);
+    nvrhi::SamplerDesc t;
+    t.setReductionType(nvrhi::SamplerReductionType::Minimum);
+
+    auto sampler = dev->createSampler(t);
+
+    if (!sampler) {
+        DM_CORE_ERROR("Failed to create tex1")
+    }
+
+    textureTest1
+        = dev->createTexture(td);
     if (!textureTest1) {
         DM_CORE_ERROR("Failed to create tex1")
     }
@@ -82,8 +89,10 @@ static void tempInit()
     {
         PipelineCreateInfo info;
         info.shader = shader;
+        info.debugName = "TestPipeline";
         pipe = Pipeline::Create(info);
         pipe->SetInput(0, 0, textureTest1);
+        // pipe->SetSampler(4, 2, sampler);
         pipe->Compile(framebuffer);
     }
 
@@ -103,10 +112,16 @@ static void tempInit()
 
     // Create a buffer filled with green (0.0f, 1.0f, 0.0f)
     std::vector<float> textureData(width * height * 3, 0.0f);
-    for (size_t i = 0; i < width * height; ++i) {
-        textureData[i * 3 + 0] = 0.0f; // R
-        textureData[i * 3 + 1] = 1.0f; // G
-        textureData[i * 3 + 2] = 0.0f; // B
+    for (size_t y = 0; y < height; ++y) {
+        for (size_t x = 0; x < width; ++x) {
+            size_t index = y * width + x;
+            float fx = static_cast<float>(x) / static_cast<float>(width);
+            float fy = static_cast<float>(y) / static_cast<float>(height);
+
+            textureData[index * 3 + 0] = fx; // R
+            textureData[index * 3 + 1] = fy; // G
+            textureData[index * 3 + 2] = 0.5f * (fx + fy); // B
+        }
     }
 
     // Then write it to the texture

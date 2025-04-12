@@ -6,6 +6,7 @@ namespace Dimensional {
 
 struct PipelineCreateInfo {
     Ref<Shader> shader;
+    std::string debugName = "Untitled Pipeline";
     // Culling, Depth funcs/Test, etc
     //
     // RenderTarget
@@ -33,6 +34,8 @@ private:
     std::vector<nvrhi::BindingSetHandle> m_BindingSets;
 
     std::map<u32, std::vector<nvrhi::BindingSetItem>> m_BindingSetItemBySet;
+
+    std::string m_Name;
 };
 }
 #endif // DM_PIPELINE_HPP

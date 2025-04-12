@@ -3,6 +3,9 @@
 #include "nvrhi/nvrhi.h"
 namespace Dimensional {
 
+enum class WrapMode {
+};
+
 enum class Format {
 
     Unknown,

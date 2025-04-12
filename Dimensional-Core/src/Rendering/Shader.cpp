@@ -112,11 +112,14 @@ static void ReflectOnDescriptors(ShaderSetReflectionData& reflectionData, const 
     }
 
     for (const auto& image : resources.sampled_images) {
-        handleResource(image, nvrhi::ResourceType::Texture_SRV, "Sampled Images (SRV)");
+        handleResource(image, nvrhi::ResourceType::Texture_SRV, "Combined Sampler Images (SRV)");
     }
 
     for (const auto& uav : resources.storage_images)
         handleResource(uav, nvrhi::ResourceType::Texture_UAV, "Storage Images (UAV)");
+
+    for (const auto& sepimg : resources.separate_images)
+        handleResource(sepimg, nvrhi::ResourceType::Texture_SRV, "Separate Images (UAV)");
 
     for (const auto& sampler : resources.separate_samplers)
         handleResource(sampler, nvrhi::ResourceType::Sampler, "Seperate Samplers");
@@ -217,6 +220,7 @@ bool Shader::GenerateBindingLayouts()
         nvrhi::BindingLayoutDesc desc;
 
         if (items.size() <= 0) {
+            desc.setVisibility(nvrhi::ShaderType::All);
             auto b = Application::getDevice()->createBindingLayout(desc);
             if (!b) {
                 DM_CORE_WARN("Failed to create filler Binding Layout for shader: {}", m_Name);
@@ -335,4 +339,15 @@ spirv_cross::ShaderResources Shader::GetShaderResources(ShaderType type)
     DM_CORE_WARN("Tried to access ShaderResource on shader that doesnt contain it: {0}: {1}", m_Name, ShaderTypeToSpecifier(type))
     return spirv_cross::ShaderResources();
 }
+
+nvrhi::ShaderHandle Shader::GetShader(ShaderType type)
+{
+    if (m_ShaderResources.contains(type)) {
+        return m_Shaders.at(type);
+    }
+
+    DM_CORE_WARN("Tried to access Shader on shader that doesnt contain it: {0}: {1}", m_Name, ShaderTypeToSpecifier(type))
+    return nullptr;
+}
+
 }
