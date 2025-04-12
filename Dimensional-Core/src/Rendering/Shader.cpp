@@ -69,14 +69,6 @@ static ShaderData parseProgramSources(const std::string& path)
     return data;
 }
 
-/*
- * struct ShaderSetReflectionData {
-    // Set -> List of Layouts(Bindings in Set)
-    UMap<u32, std::vector<nvrhi::BindingLayoutDesc>> bindingSetItems;
-    u32 maxSet = 0;
-};
- * */
-
 static void ReflectOnDescriptors(ShaderSetReflectionData& reflectionData, const std::vector<u32>& bin, nvrhi::ShaderType visibility)
 {
     spirv_cross::CompilerGLSL compiler(bin);
@@ -86,16 +78,28 @@ static void ReflectOnDescriptors(ShaderSetReflectionData& reflectionData, const 
         uint32_t set = compiler.get_decoration(res.id, spv::DecorationDescriptorSet);
         uint32_t slot = compiler.get_decoration(res.id, spv::DecorationBinding);
 
-        auto& bindingSet = reflectionData.bindingSetDescs[set];
+        auto& bindingSet = reflectionData.bindingSetToLayoutItems[set];
+        auto& vis = reflectionData.bindingSetToVis[set];
 
-        bindingSet.visibility = (nvrhi::ShaderType)((u32)(bindingSet.visibility) | (u32)(visibility));
+        vis = (nvrhi::ShaderType)((u32)(vis) | (u32)(visibility));
+        // vis = nvrhi::ShaderType::All;
 
         DM_CORE_INFO("\t Reflecting: Name = '{}', Set = {}, Binding = {}, Type = {}", res.name, set, slot, resTypeName);
+
+        bool existsAlready = false;
+        for (auto& bs : bindingSet) {
+            if (bs.slot == slot && bs.type == resType) { // Already exists
+                existsAlready = true;
+            }
+        }
+        if (existsAlready) {
+            return;
+        }
 
         nvrhi::BindingLayoutItem item;
         item.slot = slot;
         item.type = resType;
-        bindingSet.addItem(item);
+        bindingSet.push_back(item);
     };
 
     for (const auto& ubo : resources.uniform_buffers)
@@ -193,14 +197,44 @@ bool Shader::GenerateBindingLayouts()
     for (auto& [type, bin] : m_Assemblies) {
         ReflectOnDescriptors(data, bin, ShaderTypeToNVRHI(type));
     }
-    std::vector<nvrhi::BindingLayoutDesc> sortedDescs;
-    int index = 0;
-    while (data.bindingSetDescs.contains(index)) {
-        sortedDescs.push_back(data.bindingSetDescs.at(index));
-        index++;
+    std::vector<std::vector<nvrhi::BindingLayoutItem>> sortedItems;
+    u32 maxSet = 0;
+    for (auto& [set, items] : data.bindingSetToLayoutItems) {
+        maxSet = std::max(maxSet, set);
+    }
+    sortedItems.resize(maxSet + 1);
+
+    // Should be sorted, using std::map
+    for (auto& [set, items] : data.bindingSetToLayoutItems) {
+        std::stable_sort(items.begin(), items.end(), [](const auto& a, const auto& b) {
+            return a.slot < b.slot;
+        });
+        sortedItems[set] = (items);
     }
 
-    for (auto& desc : sortedDescs) {
+    for (u32 i = 0; i < sortedItems.size(); i++) {
+        auto& items = sortedItems[i];
+        nvrhi::BindingLayoutDesc desc;
+
+        if (items.size() <= 0) {
+            auto b = Application::getDevice()->createBindingLayout(desc);
+            if (!b) {
+                DM_CORE_WARN("Failed to create filler Binding Layout for shader: {}", m_Name);
+                return false;
+            }
+            m_BindingLayouts.push_back(b);
+            continue;
+        }
+        if (data.bindingSetToVis.contains(i)) {
+            desc.setVisibility(data.bindingSetToVis.at(i));
+        } else {
+            desc.setVisibility(nvrhi::ShaderType::All);
+        }
+
+        for (auto& item : items) {
+            desc.addItem(item);
+        }
+
         auto b = Application::getDevice()->createBindingLayout(desc);
         if (!b) {
             DM_CORE_WARN("Failed to create Binding Layout for shader: {}", m_Name);

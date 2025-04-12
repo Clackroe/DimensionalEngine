@@ -25,7 +25,8 @@ struct ShaderData {
 
 struct ShaderSetReflectionData {
     // Set -> List of Layouts(Bindings in Set)
-    UMap<u32, nvrhi::BindingLayoutDesc> bindingSetDescs;
+    std::map<u32, std::vector<nvrhi::BindingLayoutItem>> bindingSetToLayoutItems;
+    std::map<u32, nvrhi::ShaderType> bindingSetToVis;
 };
 
 struct Shader {

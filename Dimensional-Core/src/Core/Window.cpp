@@ -7,7 +7,6 @@
 
 #include "Log/log.hpp"
 #include "Rendering/DeviceManager.hpp"
-#include "Rendering/Vulkan/VulkanDevice.hpp"
 #include "core.hpp"
 #include "nvrhi/nvrhi.h"
 #include "nvrhi/utils.h"
@@ -71,6 +70,7 @@ void Window::initWindow(const WindowSettings& settings)
 
     DeviceCreationParameters params;
     params.vsyncEnabled = true;
+    params.enableNvrhiValidationLayer = true;
     device->CreateWindowDeviceAndSwapChain(params, "Test Title");
 
     CommandList = device->GetDevice()->createCommandList();

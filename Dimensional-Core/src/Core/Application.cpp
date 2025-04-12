@@ -3,6 +3,7 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
 #include "Rendering/GPUBuffer.hpp"
+#include "Rendering/Pipeline.hpp"
 #include "Rendering/Shader.hpp"
 #include "Scripting/NativeScriptManager.hpp"
 #include "core.hpp"
@@ -24,22 +25,26 @@ nvrhi::IDevice* dev;
 
 Ref<Shader> shader;
 
+Ref<Pipeline> pipe;
+
 nvrhi::FramebufferHandle fb;
+
+nvrhi::TextureHandle textureTest1;
 
 struct Vertex {
     glm::vec3 pos;
+    glm::vec2 uv;
 };
 
 static const Vertex g_Vertices[] = {
     //  position
-    { { 0.f, -0.5f, 0.f } },
-    { { 0.5f, 0.5f, 0.f } },
-    { { -0.5f, 0.5f, 0.f } },
+    { { 0.f, -0.5f, 0.f }, { 0, 1 } },
+    { { 0.5f, 0.5f, 0.f }, { 1, 0 } },
+    { { -0.5f, 0.5f, 0.f }, { 1, 1 } },
 };
 
 nvrhi::BufferHandle vertexBuffer;
 nvrhi::GraphicsPipelineHandle graphicsPipeline;
-nvrhi::BindingSetHandle bindingSet;
 static void tempInit()
 {
     cmd = dev->createCommandList();
@@ -51,9 +56,11 @@ static void tempInit()
     td.setFormat(nvrhi::Format::RGB32_FLOAT);
     td.setWidth(Application::getApp().getWindowDM().getWidth());
     td.setHeight(Application::getApp().getWindowDM().getHeight());
+    td.setInitialState(nvrhi::ResourceStates::ShaderResource);
+    td.setKeepInitialState(true);
     td.arraySize = 1;
 
-    auto textureTest1 = dev->createTexture(td);
+    textureTest1 = dev->createTexture(td);
     if (!textureTest1) {
         DM_CORE_ERROR("Failed to create tex1")
     }
@@ -65,7 +72,6 @@ static void tempInit()
     }
 
     auto framebufferDesc = nvrhi::FramebufferDesc()
-                               .addColorAttachment(textureTest1)
                                .addColorAttachment(textureTest2);
 
     nvrhi::FramebufferHandle framebuffer = dev->createFramebuffer(framebufferDesc);
@@ -73,22 +79,12 @@ static void tempInit()
         DM_CORE_ERROR("Failed to create framebuff")
     }
 
-    auto pipelineDesc = nvrhi::GraphicsPipelineDesc()
-                            .setInputLayout(shader->GetInputLayout())
-                            .setVertexShader(shader->GetShaderHandle(ShaderType::VERTEX))
-                            .setPixelShader(shader->GetShaderHandle(ShaderType::FRAGMENT));
-    for (auto& b : shader->GetBindingLayouts()) {
-        pipelineDesc.addBindingLayout(b);
-    }
-
-    pipelineDesc.primType
-        = nvrhi::PrimitiveType::TriangleList;
-    pipelineDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
-    pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
-
-    graphicsPipeline = dev->createGraphicsPipeline(pipelineDesc, framebuffer);
-    if (!graphicsPipeline) {
-        DM_CORE_ERROR("Failed to create Pipeline")
+    {
+        PipelineCreateInfo info;
+        info.shader = shader;
+        pipe = Pipeline::Create(info);
+        pipe->SetInput(0, 0, textureTest1, nvrhi::ResourceType::Texture_SRV);
+        pipe->Compile(framebuffer);
     }
 
     auto vertexBufferDesc = nvrhi::BufferDesc()
@@ -100,18 +96,37 @@ static void tempInit()
 
     vertexBuffer = dev->createBuffer(vertexBufferDesc);
 
-    auto bindingSetDesc = nvrhi::BindingSetDesc();
+    cmd->open();
+    const uint32_t width = 1920;
+    const uint32_t height = 1080;
+    const size_t textureRowPitch = width * 3 * sizeof(float); // 3 floats per pixel
 
-    // bindingSet = dev->createBindingSet(bindingSetDesc, shader->GetBindingLayouts());
-};
+    // Create a buffer filled with green (0.0f, 1.0f, 0.0f)
+    std::vector<float> textureData(width * height * 3, 0.0f);
+    for (size_t i = 0; i < width * height; ++i) {
+        textureData[i * 3 + 0] = 0.0f; // R
+        textureData[i * 3 + 1] = 1.0f; // G
+        textureData[i * 3 + 2] = 0.0f; // B
+    }
 
-static void tempUpdate()
-{
+    // Then write it to the texture
+    cmd->writeTexture(textureTest1,
+        /* arraySlice = */ 0,
+        /* mipLevel = */ 0,
+        textureData.data(),
+        textureRowPitch);
+
+    cmd->close();
+    dev->executeCommandList(cmd);
 
     cmd->open();
     cmd->writeBuffer(vertexBuffer, g_Vertices, sizeof(g_Vertices));
     cmd->close();
     dev->executeCommandList(cmd);
+};
+
+static void tempUpdate()
+{
     cmd->open();
 
     fb = dm_dev->GetCurrentFramebuffer();
@@ -121,17 +136,21 @@ static void tempUpdate()
     t.setSlot(0);
     t.setBuffer(vertexBuffer);
     t.setOffset(0);
-    auto graphicsState = nvrhi::GraphicsState()
-                             .setPipeline(graphicsPipeline)
-                             .setFramebuffer(fb)
-                             .setViewport(nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport(Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight())))
-                             // .addBindingSet(bindingSet)
-                             .addVertexBuffer(t);
+
+    auto graphicsState = nvrhi::GraphicsState();
+
+    pipe->Compile(fb);
+    graphicsState = pipe->Bind(graphicsState);
+
+    graphicsState.setFramebuffer(fb).setViewport(nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport(Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight())));
+    graphicsState.addVertexBuffer(t);
+
     cmd->setGraphicsState(graphicsState);
 
     // Draw our geometry
     auto drawArguments = nvrhi::DrawArguments()
                              .setVertexCount(std::size(g_Vertices));
+
     cmd->draw(drawArguments);
 
     // Close and execute the command list

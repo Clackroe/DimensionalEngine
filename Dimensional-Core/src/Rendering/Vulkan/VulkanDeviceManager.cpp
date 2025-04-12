@@ -574,6 +574,7 @@ bool DeviceManager_VK::CreateDevice()
     m_NvrhiDevice = nvrhi::vulkan::createDevice(deviceDesc);
 
     if (m_DeviceParams.enableNvrhiValidationLayer) {
+        DM_CORE_WARN("VALIDATION")
         m_ValidationLayer = nvrhi::validation::createValidationLayer(m_NvrhiDevice);
     }
 

@@ -1,18 +1,26 @@
-[00:54:10] [info] DIMENSIONAL: Enabled Vulkan instance extensions:
-[00:54:10] [info] DIMENSIONAL:     VK_EXT_debug_utils
-[00:54:10] [info] DIMENSIONAL:     VK_KHR_xcb_surface
-[00:54:10] [info] DIMENSIONAL:     VK_KHR_surface
-[00:54:10] [info] DIMENSIONAL:     VK_KHR_get_physical_device_properties2
-[00:54:10] [info] DIMENSIONAL: Enabled Vulkan layers:
-[00:54:10] [info] DIMENSIONAL: Enabled Vulkan device extensions:
-[00:54:10] [info] DIMENSIONAL:     VK_KHR_maintenance1
-[00:54:10] [info] DIMENSIONAL: Created Vulkan device: NVIDIA GeForce RTX 3070
-[00:54:10] [info] DIMENSIONAL: Platform: LINUX
-[00:54:10] [info] DIMENSIONAL: Event System Initialized.
-[00:54:10] [info] DIMENSIONAL: Input System Initialized
-[00:54:10] [info] DIMENSIONAL: SHADER INPUTS: (nvrhi-test)
-[00:54:10] [info] DIMENSIONAL: 	Name: a_Pos
-[00:54:10] [info] DIMENSIONAL: 		Location: 0
-[00:54:10] [info] DIMENSIONAL: 		Format: RGB32_FLOAT
-[00:54:10] [info] DIMENSIONAL: 		Offset: 0
-[00:54:10] [info] DIMENSIONAL: 		Stride: 12
+[21:45:41] [info] DIMENSIONAL: Enabled Vulkan instance extensions:
+[21:45:41] [info] DIMENSIONAL:     VK_EXT_debug_utils
+[21:45:41] [info] DIMENSIONAL:     VK_KHR_xcb_surface
+[21:45:41] [info] DIMENSIONAL:     VK_KHR_surface
+[21:45:41] [info] DIMENSIONAL:     VK_KHR_get_physical_device_properties2
+[21:45:41] [info] DIMENSIONAL: Enabled Vulkan layers:
+[21:45:41] [info] DIMENSIONAL: Enabled Vulkan device extensions:
+[21:45:41] [info] DIMENSIONAL:     VK_KHR_maintenance1
+[21:45:41] [info] DIMENSIONAL: Created Vulkan device: NVIDIA GeForce RTX 3070
+[21:45:41] [warning] DIMENSIONAL: VALIDATION
+[21:45:41] [info] DIMENSIONAL: Platform: LINUX
+[21:45:41] [info] DIMENSIONAL: Event System Initialized.
+[21:45:41] [info] DIMENSIONAL: Input System Initialized
+[21:45:41] [info] DIMENSIONAL: SHADER INPUTS: (nvrhi-test)
+[21:45:41] [info] DIMENSIONAL: 	Name: a_Pos
+[21:45:41] [info] DIMENSIONAL: 		Location: 0
+[21:45:41] [info] DIMENSIONAL: 		Format: RGB32_FLOAT
+[21:45:41] [info] DIMENSIONAL: 		Offset: 0
+[21:45:41] [info] DIMENSIONAL: 		Stride: 20
+[21:45:41] [info] DIMENSIONAL: 	Name: a_UV
+[21:45:41] [info] DIMENSIONAL: 		Location: 1
+[21:45:41] [info] DIMENSIONAL: 		Format: RG32_FLOAT
+[21:45:41] [info] DIMENSIONAL: 		Offset: 12
+[21:45:41] [info] DIMENSIONAL: 		Stride: 20
+[21:45:41] [info] DIMENSIONAL: Shader Resource Data: (nvrhi-test)
+[21:45:41] [info] DIMENSIONAL: 	 Reflecting: Name = 'tex', Set = 0, Binding = 0, Type = Sampled Images (SRV)

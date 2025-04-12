@@ -2,7 +2,6 @@
 #define DM_WINDOWH
 
 #include "Rendering/DeviceManager.hpp"
-#include "Rendering/Vulkan/VulkanDevice.hpp"
 #include "nvrhi/nvrhi.h"
 #include <core.hpp>
 
