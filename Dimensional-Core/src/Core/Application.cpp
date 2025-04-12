@@ -83,7 +83,7 @@ static void tempInit()
         PipelineCreateInfo info;
         info.shader = shader;
         pipe = Pipeline::Create(info);
-        pipe->SetInput(0, 0, textureTest1, nvrhi::ResourceType::Texture_SRV);
+        pipe->SetInput(0, 0, textureTest1);
         pipe->Compile(framebuffer);
     }
 

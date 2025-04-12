@@ -15,7 +15,7 @@ struct Pipeline {
 
     static Ref<Pipeline> Create(const PipelineCreateInfo& info);
 
-    void SetInput(u32 set, u32 binding, const nvrhi::TextureHandle res, nvrhi::ResourceType type);
+    void SetInput(u32 set, u32 binding, const nvrhi::ResourceHandle res);
 
     nvrhi::GraphicsState Bind(nvrhi::GraphicsState state);
 

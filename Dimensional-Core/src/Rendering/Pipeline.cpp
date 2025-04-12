@@ -12,9 +12,20 @@ Ref<Pipeline> Pipeline::Create(const PipelineCreateInfo& info)
     return pipe;
 }
 
-void Pipeline::SetInput(u32 set, u32 binding, const nvrhi::TextureHandle res, nvrhi::ResourceType type)
+void Pipeline::SetInput(u32 set, u32 binding, const nvrhi::ResourceHandle res)
 {
-    nvrhi::BindingSetItem item = nvrhi::BindingSetItem::Texture_SRV(0, res);
+
+    auto& expectedType = m_Shader->GetBindingLayouts()[set]->getDesc()->bindings[binding].type;
+
+    nvrhi::BindingSetItem item;
+    item.slot = binding;
+    item.type = expectedType;
+    item.resourceHandle = res;
+    item.format = nvrhi::Format::UNKNOWN;
+    item.dimension = nvrhi::TextureDimension::Unknown;
+    item.subresources = nvrhi::AllSubresources;
+    item.unused = 0;
+
     m_BindingSetItemBySet[set].push_back(item);
     // Should probably Flag the dirty flag to ensure this gets bound properly
 }
