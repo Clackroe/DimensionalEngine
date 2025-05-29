@@ -4,6 +4,7 @@
 #include "Log/log.hpp"
 #include "Rendering/GPUBuffer.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/ShaderCompiler.hpp"
 #include "Scripting/NativeScriptManager.hpp"
 #include "core.hpp"
 #include "nvrhi/nvrhi.h"
@@ -23,6 +24,9 @@ Ref<DeviceManager> dm_dev;
 nvrhi::IDevice* dev;
 
 Ref<Shader> shader;
+
+ShaderVarient vs;
+ShaderVarient ps;
 
 nvrhi::FramebufferHandle fb;
 
@@ -44,7 +48,31 @@ static void tempInit()
 {
     cmd = dev->createCommandList();
 
-    shader = Shader::Create("Assets/Shaders/nvrhi-test.glsl");
+    ShaderCompiler comp;
+
+    // Compile vertex shader with debug info
+    ShaderCompileOptions opts;
+    opts.entryPoint = { "mainVS", nvrhi::ShaderType::Vertex };
+    opts.optimizationLevel = 3; // Disable optimizations for debugging
+    opts.enableDebugInfo = false;
+    opts.includePaths = { "Assets/Shaders" };
+
+    DM_CORE_INFO("Compiling vertex shader...");
+    vs = comp.compileShader(dev, "Assets/Shaders/helloworld.slang", opts);
+    if (!vs.handle) {
+        DM_CORE_ERROR("Failed to compile vertex shader");
+        return;
+    }
+
+    // Compile pixel shader with debug info
+    opts.entryPoint = { "mainPS", nvrhi::ShaderType::Pixel };
+    DM_CORE_INFO("Compiling pixel shader...");
+    ps = comp.compileShader(dev, "Assets/Shaders/helloworld.slang", opts);
+    if (!ps.handle) {
+        DM_CORE_ERROR("Failed to compile pixel shader");
+        return;
+    }
+    // shader = Shader::Create("Assets/Shaders/nvrhi-test.glsl");
 
     nvrhi::TextureDesc td;
     td.debugName = "Att 1";
@@ -73,16 +101,25 @@ static void tempInit()
         DM_CORE_ERROR("Failed to create framebuff")
     }
 
-    auto pipelineDesc = nvrhi::GraphicsPipelineDesc()
-                            .setInputLayout(shader->GetInputLayout())
-                            .setVertexShader(shader->GetShaderHandle(ShaderType::VERTEX))
-                            .setPixelShader(shader->GetShaderHandle(ShaderType::FRAGMENT));
-    for (auto& b : shader->GetBindingLayouts()) {
-        pipelineDesc.addBindingLayout(b);
-    }
+    std::vector<nvrhi::VertexAttributeDesc> vertexLayout = {
+        nvrhi::VertexAttributeDesc()
+            .setName("POSITION")
+            .setFormat(nvrhi::Format::RGB32_FLOAT)
+            .setOffset(0)
+            .setElementStride(sizeof(Vertex))
+    };
+    nvrhi::InputLayoutHandle inputLayout = dev->createInputLayout(
+        vertexLayout.data(), 1, vs.handle);
 
-    pipelineDesc.primType
-        = nvrhi::PrimitiveType::TriangleList;
+    auto pipelineDesc = nvrhi::GraphicsPipelineDesc()
+                            .setInputLayout(inputLayout)
+                            .setVertexShader(vs.handle)
+                            .setPixelShader(ps.handle);
+    // for (auto& b : shader->GetBindingLayouts()) {
+    //     pipelineDesc.addBindingLayout(b);
+    // }
+
+    pipelineDesc.primType = nvrhi::PrimitiveType::TriangleList;
     pipelineDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
     pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
 

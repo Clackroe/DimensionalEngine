@@ -143,9 +143,11 @@ bool DeviceManager_VK::createInstance()
     auto layerVec = stringSetToVector(enabledExtensions.layers);
 
     auto applicationInfo = vk::ApplicationInfo();
+    applicationInfo.apiVersion = VK_MAKE_API_VERSION(0, 1, 3, 0);
 
     // Query the Vulkan API version supported on the system to make sure we use at least 1.3 when that's present.
-    vk::Result res = vk::enumerateInstanceVersion(&applicationInfo.apiVersion);
+    vk::Result res
+        = vk::enumerateInstanceVersion(&applicationInfo.apiVersion);
     if (res != vk::Result::eSuccess) {
         DM_CORE_ERROR("Call to vkEnumerateInstanceVersion failed, error code = {}", nvrhi::vulkan::resultToString(VkResult(res)));
         return false;

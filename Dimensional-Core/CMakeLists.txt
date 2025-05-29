@@ -15,8 +15,10 @@ include_directories(public/include)
 # Vulkan
 add_subdirectory(lib/vk-bootstrap)
 include_directories(lib/vk-bootstrap/src)
+
 set(VK_BOOTSTRAP_VULKAN_HEADER_DIR "lib/NVHRI/thirdparty/Vulkan-Headers")
 set(VK_BOOTSTRAP_TEST OFF)
+set_target_properties(vk-bootstrap PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 find_package(Vulkan REQUIRED)
 if (DEFINED VULKAN_SDK_PATH)
@@ -124,7 +126,7 @@ set_source_files_properties(${PCH_HEADER} PROPERTIES HEADER_FILE_ONLY ON)
 
 # Shared Library
 add_library(Dimensional-Core SHARED ${SOURCES})
-target_link_libraries(Dimensional-Core glfw glad imgui spdlog yaml-cpp assimp nvrhi nvrhi_vk vk-bootstrap::vk-bootstrap Vulkan::Vulkan shaderc_combined spirv-cross-cpp)
+target_link_libraries(Dimensional-Core glfw glad imgui spdlog yaml-cpp assimp nvrhi nvrhi_vk vk-bootstrap::vk-bootstrap Vulkan::Vulkan shaderc_combined spirv-cross-cpp slang)
  
 target_compile_definitions(Dimensional-Core PRIVATE MYLIB_BUILD)
 

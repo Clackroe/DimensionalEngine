@@ -2,7 +2,6 @@
 #define SHADER_HELPERS_HPP
 #include "Rendering/Shader.hpp"
 #include "nvrhi/nvrhi.h"
-#include <spirv_common.hpp>
 namespace Dimensional {
 
 inline std::string ShaderTypeToSpecifier(const ShaderType type)
@@ -38,23 +37,6 @@ inline std::string ShaderTypeToString(const ShaderType type)
     }
 };
 
-inline shaderc_shader_kind ShaderTypeToShaderC(const ShaderType type)
-{
-    switch (type) {
-    case COMPUTE:
-        return shaderc_compute_shader;
-    case VERTEX:
-        return shaderc_vertex_shader;
-    case FRAGMENT:
-        return shaderc_fragment_shader;
-    case GEOMETRY:
-        return shaderc_geometry_shader;
-    case NONE:
-        return shaderc_geometry_shader;
-        break;
-    }
-};
-
 inline nvrhi::ShaderType ShaderTypeToNVRHI(const ShaderType type)
 {
     switch (type) {
@@ -72,47 +54,26 @@ inline nvrhi::ShaderType ShaderTypeToNVRHI(const ShaderType type)
     }
 };
 
-inline nvrhi::Format getSpirvToNvrhiFormat(const spirv_cross::SPIRType& type)
+inline nvrhi::ShaderType SlangStageToNVRHI(SlangStage stage)
 {
-    if (type.basetype == spirv_cross::SPIRType::Float) {
-        if (type.vecsize == 1)
-            return nvrhi::Format::R32_FLOAT;
-        if (type.vecsize == 2)
-            return nvrhi::Format::RG32_FLOAT;
-        if (type.vecsize == 3)
-            return nvrhi::Format::RGB32_FLOAT;
-        if (type.vecsize == 4)
-            return nvrhi::Format::RGBA32_FLOAT;
-    } else if (type.basetype == spirv_cross::SPIRType::Int) {
-        if (type.vecsize == 1)
-            return nvrhi::Format::R32_SINT;
-        if (type.vecsize == 2)
-            return nvrhi::Format::RG32_SINT;
-        if (type.vecsize == 3)
-            return nvrhi::Format::RGB32_SINT;
-        if (type.vecsize == 4)
-            return nvrhi::Format::RGBA32_SINT;
-    } else if (type.basetype == spirv_cross::SPIRType::UInt) {
-        if (type.vecsize == 1)
-            return nvrhi::Format::R32_UINT;
-        if (type.vecsize == 2)
-            return nvrhi::Format::RG32_UINT;
-        if (type.vecsize == 3)
-            return nvrhi::Format::RGB32_UINT;
-        if (type.vecsize == 4)
-            return nvrhi::Format::RGBA32_UINT;
+    switch (stage) {
+    case SLANG_STAGE_VERTEX:
+        return nvrhi::ShaderType::Vertex;
+    case SLANG_STAGE_PIXEL:
+        return nvrhi::ShaderType::Pixel;
+    case SLANG_STAGE_COMPUTE:
+        return nvrhi::ShaderType::Compute;
+    case SLANG_STAGE_GEOMETRY:
+        return nvrhi::ShaderType::Geometry;
+    case SLANG_STAGE_HULL:
+        return nvrhi::ShaderType::Hull;
+    case SLANG_STAGE_DOMAIN:
+        return nvrhi::ShaderType::Domain;
+    default:
+        return nvrhi::ShaderType::None;
     }
-    return nvrhi::Format::UNKNOWN;
 }
 
-inline u32 spirvTypeToSize(const spirv_cross::SPIRType& type)
-{
-
-    if (type.basetype == spirv_cross::SPIRType::Float || type.basetype == spirv_cross::SPIRType::Int || type.basetype == spirv_cross::SPIRType::UInt) {
-        return 4 * type.vecsize;
-    }
-    return 0;
-}
 };
 
 #endif // SHADER_HELPERS_HPP
