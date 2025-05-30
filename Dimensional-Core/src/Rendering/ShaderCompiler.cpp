@@ -1,4 +1,5 @@
 #include "ShaderCompiler.hpp"
+#include "Rendering/ShaderReflection.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -36,12 +37,12 @@ ShaderVarient ShaderCompiler::compileShader(nvrhi::IDevice* device, const std::s
         return ShaderVarient {};
     }
 
-    nvrhi::ShaderHandle handle = createShaderFromBlob(device, shaderBlob, options.entryPoint);
+    nvrhi::ShaderHandle handle = createShaderFromBlob(device, shaderBlob, options.entryPointDesc);
 
     ShaderVarient varient;
-    varient.entryPoint = options.entryPoint.entryPoint;
+    varient.entryPoint = options.entryPointDesc.name;
     varient.handle = handle;
-    varient.type = options.entryPoint.type;
+    varient.type = options.entryPointDesc.type;
 
     return varient;
 }
@@ -108,10 +109,10 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
     }
 
     Slang::ComPtr<slang::IEntryPoint> entryPoint;
-    module->findEntryPointByName(options.entryPoint.entryPoint.c_str(), entryPoint.writeRef());
+    module->findEntryPointByName(options.entryPointDesc.name.c_str(), entryPoint.writeRef());
 
     if (!entryPoint) {
-        DM_CORE_ERROR("Entry point '{0}' not found in shader: {1}", options.entryPoint.entryPoint, filePath);
+        DM_CORE_ERROR("Entry point '{0}' not found in shader: {1}", options.entryPointDesc.name, filePath);
         return {};
     }
 
@@ -121,7 +122,7 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
 
     if (diagnostics && diagnostics->getBufferSize() > 1) {
         DM_CORE_WARN("Linking diagnostics for {0}:\n{1}",
-            options.entryPoint.entryPoint, static_cast<const char*>(diagnostics->getBufferPointer()));
+            options.entryPointDesc.name, static_cast<const char*>(diagnostics->getBufferPointer()));
     }
 
     if (SLANG_FAILED(linkResult)) {
@@ -129,8 +130,17 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
         return {};
     }
 
+    // ==== TEMPORARY ====
+    auto t = ShaderReflection::extractFromProgram(linked, options.entryPointDesc);
+    // ===================
+
+    t.printReflectionInfo();
+    auto s = t.getReflectionSummary();
+    DM_CORE_INFO("{}", s)
+
     // Get target code with proper error handling
-    Slang::ComPtr<slang::IBlob> spirvBlob;
+    Slang::ComPtr<slang::IBlob>
+        spirvBlob;
     Slang::ComPtr<slang::IBlob> compileDiagnostics;
     SlangResult result = linked->getTargetCode(
         0, // entry point index
@@ -165,7 +175,7 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
 nvrhi::ShaderHandle ShaderCompiler::createShaderFromBlob(nvrhi::IDevice* device, Slang::ComPtr<slang::IBlob> blob, const EntryPointDescription entryPointDesc)
 {
     if (blob->getBufferSize() <= 0) {
-        DM_CORE_ERROR("Cannot create shader from empty blob for entry point: {0}", entryPointDesc.entryPoint);
+        DM_CORE_ERROR("Cannot create shader from empty blob for entry point: {0}", entryPointDesc.name);
         return nullptr;
     }
 
@@ -174,13 +184,14 @@ nvrhi::ShaderHandle ShaderCompiler::createShaderFromBlob(nvrhi::IDevice* device,
     // the entry point to "main" even with the necessary compile option. Maybe bug?
     desc.entryName = "main";
     desc.shaderType = entryPointDesc.type;
-    desc.debugName = entryPointDesc.entryPoint;
+    desc.debugName = entryPointDesc.name;
 
     auto handle = device->createShader(desc, blob->getBufferPointer(), blob->getBufferSize());
+
     if (!handle) {
-        DM_CORE_ERROR("Failed to create NVRHI shader for entry point {0} (blob size: {1} bytes)", entryPointDesc.entryPoint, blob->getBufferSize());
+        DM_CORE_ERROR("Failed to create NVRHI shader for entry point {0} (blob size: {1} bytes)", entryPointDesc.name, blob->getBufferSize());
     } else {
-        DM_CORE_INFO("Successfully created NVRHI shader for entry point: {0}", entryPointDesc.entryPoint);
+        DM_CORE_INFO("Successfully created NVRHI shader for entry point: {0}", entryPointDesc.name);
     }
 
     return handle;

@@ -11,12 +11,12 @@
 namespace Dimensional {
 
 struct EntryPointDescription {
-    std::string entryPoint;
+    std::string name;
     nvrhi::ShaderType type;
 };
 
 struct ShaderCompileOptions {
-    EntryPointDescription entryPoint;
+    EntryPointDescription entryPointDesc;
     std::vector<const char*> includePaths;
     std::vector<slang::PreprocessorMacroDesc> definesMacros;
     int optimizationLevel = 3;
@@ -25,12 +25,6 @@ struct ShaderCompileOptions {
 
 struct ShaderVarient {
     nvrhi::ShaderHandle handle;
-    std::string entryPoint;
-    nvrhi::ShaderType type;
-};
-
-struct ShaderBlob {
-    std::vector<u32> data;
     std::string entryPoint;
     nvrhi::ShaderType type;
 };

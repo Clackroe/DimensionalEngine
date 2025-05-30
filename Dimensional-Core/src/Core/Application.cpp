@@ -52,8 +52,8 @@ static void tempInit()
 
     // Compile vertex shader with debug info
     ShaderCompileOptions opts;
-    opts.entryPoint = { "mainVS", nvrhi::ShaderType::Vertex };
-    opts.optimizationLevel = 3; // Disable optimizations for debugging
+    opts.entryPointDesc = { "mainVS", nvrhi::ShaderType::Vertex };
+    opts.optimizationLevel = 0; // Disable optimizations for debugging
     opts.enableDebugInfo = false;
     opts.includePaths = { "Assets/Shaders" };
 
@@ -65,7 +65,7 @@ static void tempInit()
     }
 
     // Compile pixel shader with debug info
-    opts.entryPoint = { "mainPS", nvrhi::ShaderType::Pixel };
+    opts.entryPointDesc = { "mainPS", nvrhi::ShaderType::Pixel };
     DM_CORE_INFO("Compiling pixel shader...");
     ps = comp.compileShader(dev, "Assets/Shaders/helloworld.slang", opts);
     if (!ps.handle) {
