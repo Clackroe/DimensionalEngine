@@ -21,20 +21,33 @@ set(VK_BOOTSTRAP_TEST OFF)
 set_target_properties(vk-bootstrap PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 find_package(Vulkan REQUIRED)
-if (DEFINED VULKAN_SDK_PATH)
-  set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK_PATH}/Include") # 1.1 Make sure this include path is correct
-  set(Vulkan_LIBRARIES "${VULKAN_SDK_PATH}/Lib") # 1.2 Make sure lib path is correct
+if (DEFINED VULKAN_SDK)
+    set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK}/include") # 1.1 Make sure this include path is correct
+    set(Vulkan_LIBRARIES "${VULKAN_SDK}/lib") # 1.2 Make sure lib path is correct
   set(Vulkan_FOUND "True")
 else()
   find_package(Vulkan REQUIRED) # throws error if could not find Vulkan
   message(STATUS "Found Vulkan: $ENV{VULKAN_SDK}")
 endif()
-find_package(spirv_cross_core REQUIRED)
-find_package(spirv_cross_glsl REQUIRED)
-find_package(spirv_cross_cpp REQUIRED)
+
+set(SLANG_INCLUDE_DIR "$ENV{VULKAN_SDK}/include")
+set(SLANG_LIBRARY "$ENV{VULKAN_SDK}/lib/libslang.so")
+
+# Validate file exists
+if(NOT EXISTS "${SLANG_LIBRARY}")
+    message(FATAL_ERROR "Slang library not found at ${SLANG_LIBRARY}")
+endif()
+
+# Add Slang as an imported library
+add_library(slang SHARED IMPORTED)
+set_target_properties(slang PROPERTIES
+    IMPORTED_LOCATION "${SLANG_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${SLANG_INCLUDE_DIR}"
+)
 
 
 include_directories(${Vulkan_INCLUDE_DIRS})
+link_directories(${Vulkan_LIBRARIES})
 
 
 
@@ -126,7 +139,8 @@ set_source_files_properties(${PCH_HEADER} PROPERTIES HEADER_FILE_ONLY ON)
 
 # Shared Library
 add_library(Dimensional-Core SHARED ${SOURCES})
-target_link_libraries(Dimensional-Core glfw glad imgui spdlog yaml-cpp assimp nvrhi nvrhi_vk vk-bootstrap::vk-bootstrap Vulkan::Vulkan shaderc_combined spirv-cross-cpp slang)
+
+target_link_libraries(Dimensional-Core glfw glad imgui spdlog yaml-cpp assimp nvrhi nvrhi_vk vk-bootstrap::vk-bootstrap Vulkan::Vulkan slang)
  
 target_compile_definitions(Dimensional-Core PRIVATE MYLIB_BUILD)
 

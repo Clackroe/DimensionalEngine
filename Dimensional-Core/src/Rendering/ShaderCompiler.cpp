@@ -6,7 +6,7 @@
 #include <ios>
 #include <nvrhi/nvrhi.h>
 #include <nvrhi/utils.h>
-#include <slang.h>
+#include <slang/slang.h>
 #include <vector>
 
 namespace Dimensional {
@@ -61,14 +61,24 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
     targetDesc.format = SLANG_SPIRV;
     targetDesc.profile = s_slangGlobalSession->findProfile("spirv_1_4");
 
-    slang::CompilerOptionValue val;
-    val.kind = slang::CompilerOptionValueKind::Int;
-    val.intValue0 = 1;
-    slang::CompilerOptionEntry ent = {
-        .name = slang::CompilerOptionName::VulkanUseEntryPointName,
-        .value = val
+    slang::CompilerOptionEntry entries[] = {
+        {
+            .name = slang::CompilerOptionName::VulkanUseEntryPointName,
+            .value = {
+                .kind = slang::CompilerOptionValueKind::Int,
+                .intValue0 = 1 //
+            } //
+        },
+        {
+            .name = slang::CompilerOptionName::Optimization, //
+            .value = {
+                .kind = slang::CompilerOptionValueKind::Int,
+                .intValue0 = options.optimizationLevel //
+            } //
+        }
     };
-    targetDesc.compilerOptionEntries = &ent;
+    targetDesc.compilerOptionEntries = entries;
+    targetDesc.compilerOptionEntryCount = std::size(entries);
 
     sessionDesc.targets = &targetDesc;
     sessionDesc.targetCount = 1;
@@ -131,12 +141,12 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
     }
 
     // ==== TEMPORARY ====
-    auto t = ShaderReflection::extractFromProgram(linked, options.entryPointDesc);
+    auto t = ShaderReflector::extractFromProgram(linked, options.entryPointDesc);
     // ===================
 
-    t.printReflectionInfo();
-    auto s = t.getReflectionSummary();
-    DM_CORE_INFO("{}", s)
+    // t.printReflectionInfo();
+    // auto s = t.getReflectionSummary();
+    // DM_CORE_INFO("{}", s)
 
     // Get target code with proper error handling
     Slang::ComPtr<slang::IBlob>
@@ -180,9 +190,7 @@ nvrhi::ShaderHandle ShaderCompiler::createShaderFromBlob(nvrhi::IDevice* device,
     }
 
     nvrhi::ShaderDesc desc;
-    // TODO: Potential issues here, when compiling to SPIR-V for Vulkan, it changes
-    // the entry point to "main" even with the necessary compile option. Maybe bug?
-    desc.entryName = "main";
+    desc.entryName = entryPointDesc.name;
     desc.shaderType = entryPointDesc.type;
     desc.debugName = entryPointDesc.name;
 

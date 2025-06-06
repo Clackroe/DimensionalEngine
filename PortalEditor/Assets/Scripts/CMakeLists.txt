@@ -53,7 +53,8 @@ else()
 endif()
 
 # Create the library
-add_library(GameApp SHARED ${APP_SOURCES} ${GENERATED_FILE})
+# add_library(GameApp SHARED ${APP_SOURCES} ${GENERATED_FILE})
+add_library(GameApp SHARED ${APP_SOURCES} )
 target_link_libraries(GameApp PRIVATE ScriptingCore)
 
 # Make GameApp depend on generate_scripts and DReflect

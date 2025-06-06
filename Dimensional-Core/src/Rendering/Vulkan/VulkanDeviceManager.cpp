@@ -338,6 +338,7 @@ bool DeviceManager_VK::pickPhysicalDevice()
                         .set_required_features_11(vulkan11features)
                         .set_required_features_12(vulkan12features)
                         .set_required_features(deviceFeatures)
+                        .prefer_gpu_device_type(vkb::PreferredDeviceType::discrete)
                         .add_required_extension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
     auto pdev = pdev_ret.select();

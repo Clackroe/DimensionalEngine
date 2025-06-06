@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <memory>
 #include <nvrhi/nvrhi.h>
-#include <slang-com-ptr.h>
-#include <slang.h>
+#include <slang/slang-com-ptr.h>
+#include <slang/slang.h>
 #include <string>
 #include <vector>
 

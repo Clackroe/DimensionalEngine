@@ -2,8 +2,8 @@
 #define DM_SHADER_HPP
 
 #include "nvrhi/nvrhi.h"
-#include <slang-com-ptr.h>
-#include <slang.h>
+#include <slang/slang-com-ptr.h>
+#include <slang/slang.h>
 
 namespace Dimensional {
 

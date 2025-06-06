@@ -158,6 +158,7 @@ static void tempUpdate()
     t.setSlot(0);
     t.setBuffer(vertexBuffer);
     t.setOffset(0);
+
     auto graphicsState = nvrhi::GraphicsState()
                              .setPipeline(graphicsPipeline)
                              .setFramebuffer(fb)

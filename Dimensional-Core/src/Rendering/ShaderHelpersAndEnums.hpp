@@ -2,7 +2,7 @@
 #define SHADER_HELPERS_HPP
 #include "Rendering/Shader.hpp"
 #include "nvrhi/nvrhi.h"
-#include <slang.h>
+#include <slang/slang.h>
 namespace Dimensional {
 
 inline std::string ShaderTypeToSpecifier(const ShaderType type)
