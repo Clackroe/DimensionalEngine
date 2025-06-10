@@ -1,5 +1,6 @@
 #ifndef DM_SHADER_COMPILER
 #define DM_SHADER_COMPILER
+#include "Rendering/ShaderReflection.hpp"
 #include <filesystem>
 #include <memory>
 #include <nvrhi/nvrhi.h>
@@ -27,6 +28,8 @@ struct ShaderVarient {
     nvrhi::ShaderHandle handle;
     std::string entryPoint;
     nvrhi::ShaderType type;
+
+    ShaderReflectionData reflection;
 };
 
 class ShaderCompiler {
@@ -37,7 +40,7 @@ public:
     ShaderVarient compileShader(nvrhi::IDevice* device, const std::string& filePath, const ShaderCompileOptions& options);
 
 private:
-    Slang::ComPtr<slang::IBlob> compileShaderToBlob(const std::string& filePath, const ShaderCompileOptions& options);
+    Slang::ComPtr<slang::IBlob> compileShaderToBlob(const std::string& filePath, const ShaderCompileOptions& options, ShaderReflectionData* reflection);
     nvrhi::ShaderHandle createShaderFromBlob(nvrhi::IDevice* device, Slang::ComPtr<slang::IBlob> blob, const EntryPointDescription entryPointDesc);
 
 private:

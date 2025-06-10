@@ -1,4 +1,5 @@
 #include "ShaderCompiler.hpp"
+#include "Log/log.hpp"
 #include "Rendering/ShaderReflection.hpp"
 #include <algorithm>
 #include <filesystem>
@@ -7,6 +8,7 @@
 #include <nvrhi/nvrhi.h>
 #include <nvrhi/utils.h>
 #include <slang/slang.h>
+#include <string>
 #include <vector>
 
 namespace Dimensional {
@@ -30,7 +32,10 @@ ShaderCompiler::~ShaderCompiler()
 
 ShaderVarient ShaderCompiler::compileShader(nvrhi::IDevice* device, const std::string& filePath, const ShaderCompileOptions& options)
 {
-    auto shaderBlob = compileShaderToBlob(filePath, options);
+    ShaderReflectionData reflection;
+
+    auto shaderBlob = compileShaderToBlob(filePath, options, &reflection);
+    ShaderReflector::printReflection(reflection);
 
     if (shaderBlob->getBufferSize() <= 0) {
         DM_CORE_ERROR("Failed to compile shader to blob: {0}", filePath);
@@ -43,11 +48,12 @@ ShaderVarient ShaderCompiler::compileShader(nvrhi::IDevice* device, const std::s
     varient.entryPoint = options.entryPointDesc.name;
     varient.handle = handle;
     varient.type = options.entryPointDesc.type;
+    varient.reflection = reflection;
 
     return varient;
 }
 
-Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::string& filePath, const ShaderCompileOptions& options)
+Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::string& filePath, const ShaderCompileOptions& options, ShaderReflectionData* reflection)
 {
     if (!std::filesystem::exists(filePath)) {
         DM_CORE_ERROR("Shader file does not exist: {0}", filePath);
@@ -130,6 +136,9 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
     Slang::ComPtr<slang::IComponentType> linked;
     SlangResult linkResult = slangSession->createCompositeComponentType(componentTypes, 2, linked.writeRef(), diagnostics.writeRef());
 
+    // Reflection
+    *reflection = ShaderReflector::extractFromProgram(linked, options.entryPointDesc);
+
     if (diagnostics && diagnostics->getBufferSize() > 1) {
         DM_CORE_WARN("Linking diagnostics for {0}:\n{1}",
             options.entryPointDesc.name, static_cast<const char*>(diagnostics->getBufferPointer()));
@@ -140,17 +149,8 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
         return {};
     }
 
-    // ==== TEMPORARY ====
-    auto t = ShaderReflector::extractFromProgram(linked, options.entryPointDesc);
-    // ===================
-
-    // t.printReflectionInfo();
-    // auto s = t.getReflectionSummary();
-    // DM_CORE_INFO("{}", s)
-
     // Get target code with proper error handling
-    Slang::ComPtr<slang::IBlob>
-        spirvBlob;
+    Slang::ComPtr<slang::IBlob> spirvBlob;
     Slang::ComPtr<slang::IBlob> compileDiagnostics;
     SlangResult result = linked->getTargetCode(
         0, // entry point index

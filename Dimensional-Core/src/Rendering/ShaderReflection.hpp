@@ -5,43 +5,54 @@
 #include <Rendering/ShaderHelpersAndEnums.hpp>
 #include <slang/slang-com-ptr.h>
 #include <slang/slang.h>
+#include <string>
 #include <vector>
 
 namespace Dimensional {
 
 struct EntryPointDescription;
 
+enum class ShaderResourceKind {
+    ConstantBuffer,
+    StructuredBuffer,
+    Texture1D,
+    Texture2D,
+    Texture3D,
+    TextureCube,
+    TextureBuffer,
+    Sampler,
+    ByteBuffer,
+    Unknown
+};
+
+enum class ShaderResourceAccess {
+    READ,
+    WRITE,
+    READ_WRITE
+};
+
 struct Binding {
-    int slot, space; // Space -> Set
+    u32 slot;
+    u32 space;
 };
 
-struct ShaderParam {
-    Binding binding;
+struct ShaderResource {
     std::string name;
-    nvrhi::ResourceType type;
+    Binding binding;
+    ShaderResourceKind kind;
+    ShaderResourceAccess access;
 };
 
-// Constant and Structured Buffers (Maybe it could be useful to separate them?)
-struct ShaderBuffer : public ShaderParam {
-    u32 size;
-    std::vector<std::pair<std::string, u32>> members; // (member name, offset)
+struct ShaderReflectionData {
+    std::string name;
+    nvrhi::ShaderType type;
+    std::vector<ShaderResource> resources;
 };
+namespace ShaderReflector {
 
-typedef ShaderParam ShaderTexture;
+    ShaderReflectionData extractFromProgram(Slang::ComPtr<slang::IComponentType> program, const EntryPointDescription& entryPointDesc);
 
-struct ShaderReflection {
-    std::vector<ShaderBuffer> shaderBuffers; // Set -> Buffer
-    std::vector<ShaderTexture> shaderTextures; // Set -> Texture
-};
-
-class ShaderReflector {
-public:
-    ShaderReflector() = default;
-    ~ShaderReflector() = default;
-
-    static ShaderReflection extractFromProgram(Slang::ComPtr<slang::IComponentType> program, const EntryPointDescription& entryPointDesc);
-
-private:
+    void printReflection(const ShaderReflectionData& data);
 };
 
 }

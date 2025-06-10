@@ -17,12 +17,8 @@ enum ShaderType {
 
 struct ShaderData {
     std::string name;
-    UMap<ShaderType, std::string> programs;
+    std::map<ShaderType, std::string> programs;
 };
-
-// struct ShaderSetReflectionData {
-//     UMap<u32, nvrhi::BindingLayoutDesc> bindingSetDescs;
-// };
 
 struct ShaderCreateInfo {
     const std::vector<const char*>& includePaths = {};
