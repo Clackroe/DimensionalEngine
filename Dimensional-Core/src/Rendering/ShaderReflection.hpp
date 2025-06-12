@@ -43,10 +43,24 @@ struct ShaderResource {
     ShaderResourceAccess access;
 };
 
+struct ShaderVertexAttribute {
+    std::string name = "unamed";
+    u64 offset = 0;
+    u64 size = 0;
+    nvrhi::Format format = nvrhi::Format::UNKNOWN;
+};
+
+struct VertexInput {
+    std::string name;
+    u64 size = 0;
+    std::vector<ShaderVertexAttribute> attributes;
+};
+
 struct ShaderReflectionData {
     std::string name;
     nvrhi::ShaderType type;
     std::vector<ShaderResource> resources;
+    std::vector<VertexInput> vertexInputs;
 };
 namespace ShaderReflector {
 

@@ -5,22 +5,22 @@
 #include <slang/slang.h>
 namespace Dimensional {
 
-inline std::string ShaderTypeToSpecifier(const ShaderType type)
-{
-    switch (type) {
-    case COMPUTE:
-        return "##COMPUTE";
-    case VERTEX:
-        return "##VERTEXSHADER";
-    case FRAGMENT:
-        return "##FRAGSHADER";
-    case GEOMETRY:
-        return "##GEOMETRY";
-    case NONE:
-        break;
-    }
-    return "";
-};
+// inline std::string ShaderTypeToSpecifier(const ShaderType type)
+// {
+//     switch (type) {
+//     case COMPUTE:
+//         return "##COMPUTE";
+//     case VERTEX:
+//         return "##VERTEXSHADER";
+//     case FRAGMENT:
+//         return "##FRAGSHADER";
+//     case GEOMETRY:
+//         return "##GEOMETRY";
+//     case NONE:
+//         break;
+//     }
+//     return "";
+// };
 
 inline std::string ShaderTypeToString(const nvrhi::ShaderType type)
 {
@@ -65,22 +65,22 @@ inline std::string ShaderTypeToString(const nvrhi::ShaderType type)
     }
 };
 
-inline nvrhi::ShaderType ShaderTypeToNVRHI(const ShaderType type)
-{
-    switch (type) {
-    case COMPUTE:
-        return nvrhi::ShaderType::Compute;
-    case VERTEX:
-        return nvrhi::ShaderType::Vertex;
-    case FRAGMENT:
-        return nvrhi::ShaderType::Pixel;
-    case GEOMETRY:
-        return nvrhi::ShaderType::Geometry;
-    case NONE:
-        return nvrhi::ShaderType::None;
-        break;
-    }
-};
+// inline nvrhi::ShaderType ShaderTypeToNVRHI(const ShaderType type)
+// {
+//     switch (type) {
+//     case COMPUTE:
+//         return nvrhi::ShaderType::Compute;
+//     case VERTEX:
+//         return nvrhi::ShaderType::Vertex;
+//     case FRAGMENT:
+//         return nvrhi::ShaderType::Pixel;
+//     case GEOMETRY:
+//         return nvrhi::ShaderType::Geometry;
+//     case NONE:
+//         return nvrhi::ShaderType::None;
+//         break;
+//     }
+// };
 
 inline nvrhi::ShaderType SlangStageToNVRHI(SlangStage stage)
 {

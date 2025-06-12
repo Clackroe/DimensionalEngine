@@ -1,17 +1,170 @@
 #include "Log/log.hpp"
 #include "Rendering/ShaderHelpersAndEnums.hpp"
 #include "nvrhi/nvrhi.h"
+#include "nvrhi/utils.h"
 #include <Rendering/ShaderCompiler.hpp>
 #include <Rendering/ShaderReflection.hpp>
 #include <algorithm>
+#include <functional>
 #include <slang/slang.h>
+#include <vector>
 
 namespace Dimensional {
 
 namespace ShaderReflector {
 
+    static nvrhi::Format _mapSlangTypeToNvrhiFormat(slang::TypeReflection* type)
+    {
+        if (!type) {
+            return nvrhi::Format::UNKNOWN;
+        }
+
+        auto kind = type->getKind();
+
+        switch (kind) {
+        case slang::TypeReflection::Kind::Scalar: {
+            auto scalarType = type->getScalarType();
+            switch (scalarType) {
+            case slang::TypeReflection::ScalarType::Float32:
+                return nvrhi::Format::R32_FLOAT;
+            case slang::TypeReflection::ScalarType::Int32:
+                return nvrhi::Format::R32_SINT;
+            case slang::TypeReflection::ScalarType::UInt32:
+                return nvrhi::Format::R32_UINT;
+            case slang::TypeReflection::ScalarType::Float16:
+                return nvrhi::Format::R16_FLOAT;
+            case slang::TypeReflection::ScalarType::Int16:
+                return nvrhi::Format::R16_SINT;
+            case slang::TypeReflection::ScalarType::UInt16:
+                return nvrhi::Format::R16_UINT;
+            case slang::TypeReflection::ScalarType::Int8:
+                return nvrhi::Format::R8_SINT;
+            case slang::TypeReflection::ScalarType::UInt8:
+                return nvrhi::Format::R8_UINT;
+            default:
+                return nvrhi::Format::UNKNOWN;
+            }
+        }
+
+        case slang::TypeReflection::Kind::Vector: {
+            auto elementType = type->getElementType();
+            uint32_t elementCount = type->getElementCount();
+
+            if (elementType->getKind() == slang::TypeReflection::Kind::Scalar) {
+                auto scalarType = elementType->getScalarType();
+
+                // Float vectors
+                if (scalarType == slang::TypeReflection::ScalarType::Float32) {
+                    switch (elementCount) {
+                    case 2:
+                        return nvrhi::Format::RG32_FLOAT;
+                    case 3:
+                        return nvrhi::Format::RGB32_FLOAT;
+                    case 4:
+                        return nvrhi::Format::RGBA32_FLOAT;
+                    default:
+                        return nvrhi::Format::UNKNOWN;
+                    }
+                }
+                // Int vectors
+                else if (scalarType == slang::TypeReflection::ScalarType::Int32) {
+                    switch (elementCount) {
+                    case 2:
+                        return nvrhi::Format::RG32_SINT;
+                    case 3:
+                        return nvrhi::Format::RGB32_SINT;
+                    case 4:
+                        return nvrhi::Format::RGBA32_SINT;
+                    default:
+                        return nvrhi::Format::UNKNOWN;
+                    }
+                }
+                // UInt vectors
+                else if (scalarType == slang::TypeReflection::ScalarType::UInt32) {
+                    switch (elementCount) {
+                    case 2:
+                        return nvrhi::Format::RG32_UINT;
+                    case 3:
+                        return nvrhi::Format::RGB32_UINT;
+                    case 4:
+                        return nvrhi::Format::RGBA32_UINT;
+                    default:
+                        return nvrhi::Format::UNKNOWN;
+                    }
+                }
+                // Float16 vectors
+                else if (scalarType == slang::TypeReflection::ScalarType::Float16) {
+                    switch (elementCount) {
+                    case 2:
+                        return nvrhi::Format::RG16_FLOAT;
+                    case 4:
+                        return nvrhi::Format::RGBA16_FLOAT;
+                    default:
+                        return nvrhi::Format::UNKNOWN;
+                    }
+                }
+                // Int16 vectors
+                else if (scalarType == slang::TypeReflection::ScalarType::Int16) {
+                    switch (elementCount) {
+                    case 2:
+                        return nvrhi::Format::RG16_SINT;
+                    case 4:
+                        return nvrhi::Format::RGBA16_SINT;
+                    default:
+                        return nvrhi::Format::UNKNOWN;
+                    }
+                }
+                // UInt16 vectors
+                else if (scalarType == slang::TypeReflection::ScalarType::UInt16) {
+                    switch (elementCount) {
+                    case 2:
+                        return nvrhi::Format::RG16_UINT;
+                    case 4:
+                        return nvrhi::Format::RGBA16_UINT;
+                    default:
+                        return nvrhi::Format::UNKNOWN;
+                    }
+                }
+                // Int8 vectors
+                else if (scalarType == slang::TypeReflection::ScalarType::Int8) {
+                    switch (elementCount) {
+                    case 2:
+                        return nvrhi::Format::RG8_SINT;
+                    case 4:
+                        return nvrhi::Format::RGBA8_SINT;
+                    default:
+                        return nvrhi::Format::UNKNOWN;
+                    }
+                }
+                // UInt8 vectors
+                else if (scalarType == slang::TypeReflection::ScalarType::UInt8) {
+                    switch (elementCount) {
+                    case 2:
+                        return nvrhi::Format::RG8_UINT;
+                    case 4:
+                        return nvrhi::Format::RGBA8_UINT;
+                    default:
+                        return nvrhi::Format::UNKNOWN;
+                    }
+                }
+            }
+            return nvrhi::Format::UNKNOWN;
+        }
+
+        case slang::TypeReflection::Kind::Matrix: {
+            // Matrices are typically flattened to multiple vectors in vertex input
+            // For now, return UNKNOWN as matrices need special handling
+            return nvrhi::Format::UNKNOWN;
+        }
+
+        default:
+            return nvrhi::Format::UNKNOWN;
+        }
+    }
+
     static ShaderResourceKind _getResourceKind(slang::TypeReflection* ref)
     {
+
         auto kind = ref->getKind();
 
         if (kind == slang::TypeReflection::Kind::ConstantBuffer) {
@@ -114,6 +267,7 @@ namespace ShaderReflector {
         ShaderReflectionData data;
 
         auto reflection = program->getLayout();
+
         int paramCount = reflection->getParameterCount();
 
         for (int i = 0; i < paramCount; ++i) {
@@ -140,12 +294,54 @@ namespace ShaderReflector {
             }
         }
 
+        auto entry = reflection->getEntryPointByIndex(0); // Should only have one
+        for (uint32_t i = 0; i < entry->getParameterCount(); ++i) {
+            auto param = entry->getParameterByIndex(i);
+            if (param->getCategory() == slang::ParameterCategory::VertexInput) {
+                slang::TypeReflection* type = param->getType();
+                slang::VariableLayoutReflection* layout = param->getPendingDataLayout();
+
+                VertexInput input;
+                input.name = param->getName();
+                u64 inputSize = 0;
+                if (type->getKind() == slang::TypeReflection::Kind::Struct) {
+
+                    for (uint32_t m = 0; m < type->getFieldCount(); ++m) {
+                        auto field = type->getFieldByIndex(m);
+                        nvrhi::Format format = _mapSlangTypeToNvrhiFormat(field->getType());
+                        u64 size = GetFormatSize(format);
+
+                        ShaderVertexAttribute att;
+                        att.offset = inputSize;
+                        att.size = size;
+                        att.name = field->getName();
+                        att.format = format;
+
+                        inputSize += size;
+                        input.attributes.push_back(std::move(att));
+                    }
+                    input.size = inputSize;
+                    data.vertexInputs.push_back(std::move(input));
+
+                } else {
+                    // For scalar inputs, currently unsupported
+                }
+            }
+        }
         return data;
     }
 
     void printReflection(const ShaderReflectionData& data)
     {
         DM_CORE_INFO("\n\t==== {0} | {1} Shader ====", data.name, ShaderTypeToString(data.type))
+
+        for (auto input : data.vertexInputs) {
+            DM_CORE_INFO("Input: {}", input.name);
+            for (auto att : input.attributes) {
+                DM_CORE_INFO("\t{0}, Offset: {1}, Size {2}, Format: {3}", att.name, att.offset, att.size, nvrhi::utils::FormatToString(att.format));
+            }
+            DM_CORE_INFO("Size: {}", input.size);
+        }
 
         for (auto res : data.resources) {
             DM_CORE_INFO("\t{0} | Binding ({1},{2})", res.name, res.binding.slot, res.binding.space)

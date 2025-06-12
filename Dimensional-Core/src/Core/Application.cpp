@@ -32,9 +32,18 @@ nvrhi::FramebufferHandle fb;
 
 struct Vertex {
     glm::vec3 pos;
+    glm::vec2 uv;
+    glm::vec2 uv2;
 };
 
 static const Vertex g_Vertices[] = {
+    //  position
+    { { 0.f, 0.5f, 0.f } },
+    { { 0.5f, -0.5f, 0.f } },
+    { { -0.5f, -0.5f, 0.f } },
+};
+
+static const Vertex g_Vertices1[] = {
     //  position
     { { 0.f, -0.5f, 0.f } },
     { { 0.5f, 0.5f, 0.f } },
@@ -42,6 +51,7 @@ static const Vertex g_Vertices[] = {
 };
 
 nvrhi::BufferHandle vertexBuffer;
+nvrhi::BufferHandle vertexBuffer1;
 nvrhi::GraphicsPipelineHandle graphicsPipeline;
 nvrhi::BindingSetHandle bindingSet;
 static void tempInit()
@@ -49,36 +59,21 @@ static void tempInit()
     cmd = dev->createCommandList();
 
     ShaderCompiler comp;
-
-    // Compile vertex shader with debug info
     ShaderCompileOptions opts;
-    opts.entryPointDesc = { "mainVS", nvrhi::ShaderType::Vertex };
-    opts.optimizationLevel = 0; // Disable optimizations for debugging
-    opts.enableDebugInfo = false;
+    opts.optimizationLevel = 0;
     opts.includePaths = { "Assets/Shaders" };
 
-    DM_CORE_INFO("Compiling vertex shader...");
-    vs = comp.compileShader(dev, "Assets/Shaders/helloworld.slang", opts);
-    if (!vs.handle) {
-        DM_CORE_ERROR("Failed to compile vertex shader");
-        return;
-    }
-
-    // Compile pixel shader with debug info
-    opts.entryPointDesc = { "mainPS", nvrhi::ShaderType::Pixel };
-    DM_CORE_INFO("Compiling pixel shader...");
-    ps = comp.compileShader(dev, "Assets/Shaders/helloworld.slang", opts);
-    if (!ps.handle) {
-        DM_CORE_ERROR("Failed to compile pixel shader");
-        return;
-    }
-    // shader = Shader::Create("Assets/Shaders/nvrhi-test.glsl");
+    ShaderCreateInfo info;
+    info.includePaths = { "Assets/Shaders" };
+    info.optimizationLevel = 0;
+    shader = Shader::Create("Assets/Shaders/helloworld.slang", info);
 
     nvrhi::TextureDesc td;
     td.debugName = "Att 1";
     td.setFormat(nvrhi::Format::RGB32_FLOAT);
     td.setWidth(Application::getApp().getWindowDM().getWidth());
     td.setHeight(Application::getApp().getWindowDM().getHeight());
+
     td.arraySize = 1;
 
     auto textureTest1 = dev->createTexture(td);
@@ -101,20 +96,10 @@ static void tempInit()
         DM_CORE_ERROR("Failed to create framebuff")
     }
 
-    std::vector<nvrhi::VertexAttributeDesc> vertexLayout = {
-        nvrhi::VertexAttributeDesc()
-            .setName("POSITION")
-            .setFormat(nvrhi::Format::RGB32_FLOAT)
-            .setOffset(0)
-            .setElementStride(sizeof(Vertex))
-    };
-    nvrhi::InputLayoutHandle inputLayout = dev->createInputLayout(
-        vertexLayout.data(), 1, vs.handle);
-
     auto pipelineDesc = nvrhi::GraphicsPipelineDesc()
-                            .setInputLayout(inputLayout)
-                            .setVertexShader(vs.handle)
-                            .setPixelShader(ps.handle);
+                            .setInputLayout(shader->GetShaderVariant(nvrhi::ShaderType::Vertex).inputLayout)
+                            .setVertexShader(shader->GetShaderHandle(nvrhi::ShaderType::Vertex))
+                            .setPixelShader(shader->GetShaderHandle(nvrhi::ShaderType::Pixel));
     // for (auto& b : shader->GetBindingLayouts()) {
     //     pipelineDesc.addBindingLayout(b);
     // }
@@ -136,6 +121,7 @@ static void tempInit()
                                 .setDebugName("Vertex Buffer");
 
     vertexBuffer = dev->createBuffer(vertexBufferDesc);
+    vertexBuffer1 = dev->createBuffer(vertexBufferDesc);
 
     auto bindingSetDesc = nvrhi::BindingSetDesc();
 
@@ -147,6 +133,7 @@ static void tempUpdate()
 
     cmd->open();
     cmd->writeBuffer(vertexBuffer, g_Vertices, sizeof(g_Vertices));
+    cmd->writeBuffer(vertexBuffer1, g_Vertices1, sizeof(g_Vertices));
     cmd->close();
     dev->executeCommandList(cmd);
     cmd->open();
@@ -159,13 +146,20 @@ static void tempUpdate()
     t.setBuffer(vertexBuffer);
     t.setOffset(0);
 
+    nvrhi::VertexBufferBinding t1;
+    t1.setSlot(1);
+    t1.setBuffer(vertexBuffer1);
+    t1.setOffset(0);
+
     auto graphicsState = nvrhi::GraphicsState()
                              .setPipeline(graphicsPipeline)
                              .setFramebuffer(fb)
                              .setViewport(nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport(Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight())))
                              // .addBindingSet(bindingSet)
-                             .addVertexBuffer(t);
+                             .addVertexBuffer(t)
+                             .addVertexBuffer(t1);
     cmd->setGraphicsState(graphicsState);
+    // cmd->setResourceStatesForBindingSet();
 
     // Draw our geometry
     auto drawArguments = nvrhi::DrawArguments()

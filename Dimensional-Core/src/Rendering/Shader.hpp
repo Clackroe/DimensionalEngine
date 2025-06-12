@@ -7,40 +7,32 @@
 
 namespace Dimensional {
 
-enum ShaderType {
-    NONE = 0,
-    COMPUTE,
-    VERTEX,
-    FRAGMENT,
-    GEOMETRY
-};
+struct ShaderVarient;
 
 struct ShaderData {
     std::string name;
-    std::map<ShaderType, std::string> programs;
+    std::map<nvrhi::ShaderType, std::string> programs;
 };
 
 struct ShaderCreateInfo {
-    const std::vector<const char*>& includePaths = {};
-    const std::vector<slang::PreprocessorMacroDesc>& defines = {};
+    std::vector<const char*> includePaths;
+    std::vector<slang::PreprocessorMacroDesc> defines;
     int optimizationLevel = 3;
-    bool debugInfo = true;
 };
 
 class Shader {
 public:
     static Ref<Shader> Create(const std::string& path, const ShaderCreateInfo info = {});
 
-    nvrhi::ShaderHandle GetShaderHandle(ShaderType type);
+    nvrhi::ShaderHandle GetShaderHandle(nvrhi::ShaderType type);
+    ShaderVarient GetShaderVariant(nvrhi::ShaderType type);
 
 private:
     bool Compile(std::string path, const ShaderCreateInfo info);
-    // bool CompileWithSlang(const ShaderData& sources);
-    bool CreateNVRHIShaders();
 
     Shader() = default;
 
-    std::map<ShaderType, nvrhi::ShaderHandle> m_Shaders;
+    std::map<nvrhi::ShaderType, ShaderVarient> m_Shaders;
 
     std::string m_Name = "Default Shader Name";
 };

@@ -13,11 +13,30 @@
 
 namespace Dimensional {
 
+static nvrhi::ShaderType slangStageToNvrhiType(SlangStage stage)
+{
+    switch (stage) {
+    case SLANG_STAGE_VERTEX:
+        return nvrhi::ShaderType::Vertex;
+    case SLANG_STAGE_FRAGMENT:
+        return nvrhi::ShaderType::Pixel;
+    case SLANG_STAGE_COMPUTE:
+        return nvrhi::ShaderType::Compute;
+    case SLANG_STAGE_GEOMETRY:
+        return nvrhi::ShaderType::Geometry;
+    case SLANG_STAGE_HULL:
+        return nvrhi::ShaderType::Hull;
+    case SLANG_STAGE_DOMAIN:
+        return nvrhi::ShaderType::Domain;
+    default:
+        return nvrhi::ShaderType::None;
+    }
+}
+
 Slang::ComPtr<slang::IGlobalSession> ShaderCompiler::s_slangGlobalSession;
 
 ShaderCompiler::ShaderCompiler()
 {
-    // Initialize Slang global session
     if (!s_slangGlobalSession) {
         slang::createGlobalSession(s_slangGlobalSession.writeRef());
         if (!s_slangGlobalSession) {
@@ -30,11 +49,15 @@ ShaderCompiler::~ShaderCompiler()
 {
 }
 
-ShaderVarient ShaderCompiler::compileShader(nvrhi::IDevice* device, const std::string& filePath, const ShaderCompileOptions& options)
+ShaderVarient ShaderCompiler::compileShader(nvrhi::IDevice* device, const std::string& filePath, const ShaderCompileOptions& options, EntryPointDescription entryPointDesc)
 {
     ShaderReflectionData reflection;
 
-    auto shaderBlob = compileShaderToBlob(filePath, options, &reflection);
+    Slang::ComPtr<slang::ISession> slangSession = createSession(filePath, options);
+    Slang::ComPtr<slang::IModule> module = loadModule(filePath, slangSession);
+
+    auto shaderBlob = compileShaderToBlob(filePath, module, slangSession, entryPointDesc, &reflection);
+
     ShaderReflector::printReflection(reflection);
 
     if (shaderBlob->getBufferSize() <= 0) {
@@ -42,18 +65,64 @@ ShaderVarient ShaderCompiler::compileShader(nvrhi::IDevice* device, const std::s
         return ShaderVarient {};
     }
 
-    nvrhi::ShaderHandle handle = createShaderFromBlob(device, shaderBlob, options.entryPointDesc);
+    nvrhi::ShaderHandle handle = createShaderFromBlob(device, shaderBlob, entryPointDesc);
+
+    nvrhi::InputLayoutHandle inputLayout;
+    if (entryPointDesc.type == nvrhi::ShaderType::Vertex) {
+        inputLayout = createInputLaytout(device, reflection, handle);
+    }
 
     ShaderVarient varient;
-    varient.entryPoint = options.entryPointDesc.name;
+    varient.entryPoint = entryPointDesc.name;
     varient.handle = handle;
-    varient.type = options.entryPointDesc.type;
+    varient.type = entryPointDesc.type;
     varient.reflection = reflection;
+    varient.inputLayout = inputLayout;
 
     return varient;
 }
 
-Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::string& filePath, const ShaderCompileOptions& options, ShaderReflectionData* reflection)
+std::map<nvrhi::ShaderType, ShaderVarient> ShaderCompiler::compileAllEntryPoints(nvrhi::IDevice* device, const std::string& filePath, const ShaderCompileOptions& options)
+{
+    ShaderReflectionData reflection;
+
+    Slang::ComPtr<slang::ISession> slangSession = createSession(filePath, options);
+    Slang::ComPtr<slang::IModule> module = loadModule(filePath, slangSession);
+
+    std::vector<EntryPointDescription> entryPoints = discoverEntryPoints(module);
+
+    std::map<nvrhi::ShaderType, ShaderVarient> variants;
+
+    for (auto ep : entryPoints) {
+
+        auto shaderBlob = compileShaderToBlob(filePath, module, slangSession, ep, &reflection);
+        ShaderReflector::printReflection(reflection);
+
+        if (shaderBlob->getBufferSize() <= 0) {
+            DM_CORE_ERROR("Failed to compile shader to blob: {0}", filePath);
+            return {};
+        }
+
+        nvrhi::ShaderHandle handle = createShaderFromBlob(device, shaderBlob, ep);
+
+        nvrhi::InputLayoutHandle inputLayout;
+        if (ep.type == nvrhi::ShaderType::Vertex) {
+            inputLayout = createInputLaytout(device, reflection, handle);
+        }
+
+        ShaderVarient varient;
+        varient.entryPoint = ep.name;
+        varient.handle = handle;
+        varient.type = ep.type;
+        varient.reflection = reflection;
+        varient.inputLayout = inputLayout;
+
+        variants.insert({ ep.type, std::move(varient) });
+    }
+    return variants;
+}
+
+Slang::ComPtr<slang::ISession> ShaderCompiler::createSession(const std::string& filePath, const ShaderCompileOptions& options)
 {
     if (!std::filesystem::exists(filePath)) {
         DM_CORE_ERROR("Shader file does not exist: {0}", filePath);
@@ -108,27 +177,41 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
         return {};
     }
 
-    Slang::ComPtr<slang::IBlob> diagnostics;
-    std::string moduleName = std::filesystem::path(filePath).stem().string();
+    return slangSession;
+}
 
-    slang::IModule* module = slangSession->loadModule(
-        moduleName.c_str(),
-        diagnostics.writeRef());
+Slang::ComPtr<slang::IModule> ShaderCompiler::loadModule(const std::string& moduleName, Slang::ComPtr<slang::ISession> session)
+{
+
+    Slang::ComPtr<slang::IBlob> diagnostics;
+
+    Slang::ComPtr<slang::IModule> module;
+    module = session->loadModule(moduleName.c_str(), diagnostics.writeRef());
 
     if (diagnostics && diagnostics->getBufferSize() > 1) {
         DM_CORE_WARN("Slang module diagnostics:\n{0}", static_cast<const char*>(diagnostics->getBufferPointer()));
     }
 
     if (!module) {
-        DM_CORE_ERROR("Failed to load module from shader file: {0}", filePath);
+        DM_CORE_ERROR("Failed to load module from shader module: {0}", moduleName);
         return {};
     }
 
+    return module;
+}
+
+Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::string& filePath, Slang::ComPtr<slang::IModule> module, Slang::ComPtr<slang::ISession> slangSession, const EntryPointDescription& entryPointDesc, ShaderReflectionData* reflection)
+{
+
+    Slang::ComPtr<slang::IBlob> diagnostics;
+
+    std::string moduleName = std::filesystem::path(filePath).stem().string();
+
     Slang::ComPtr<slang::IEntryPoint> entryPoint;
-    module->findEntryPointByName(options.entryPointDesc.name.c_str(), entryPoint.writeRef());
+    module->findEntryPointByName(entryPointDesc.name.c_str(), entryPoint.writeRef());
 
     if (!entryPoint) {
-        DM_CORE_ERROR("Entry point '{0}' not found in shader: {1}", options.entryPointDesc.name, filePath);
+        DM_CORE_ERROR("Entry point '{0}' not found in shader: {1}", entryPointDesc.name, filePath);
         return {};
     }
 
@@ -137,11 +220,11 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
     SlangResult linkResult = slangSession->createCompositeComponentType(componentTypes, 2, linked.writeRef(), diagnostics.writeRef());
 
     // Reflection
-    *reflection = ShaderReflector::extractFromProgram(linked, options.entryPointDesc);
+    *reflection = ShaderReflector::extractFromProgram(linked, entryPointDesc);
 
     if (diagnostics && diagnostics->getBufferSize() > 1) {
         DM_CORE_WARN("Linking diagnostics for {0}:\n{1}",
-            options.entryPointDesc.name, static_cast<const char*>(diagnostics->getBufferPointer()));
+            entryPointDesc.name, static_cast<const char*>(diagnostics->getBufferPointer()));
     }
 
     if (SLANG_FAILED(linkResult)) {
@@ -149,13 +232,9 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
         return {};
     }
 
-    // Get target code with proper error handling
     Slang::ComPtr<slang::IBlob> spirvBlob;
     Slang::ComPtr<slang::IBlob> compileDiagnostics;
-    SlangResult result = linked->getTargetCode(
-        0, // entry point index
-        spirvBlob.writeRef(),
-        compileDiagnostics.writeRef());
+    SlangResult result = linked->getTargetCode(0, /** entry point index*/ spirvBlob.writeRef(), compileDiagnostics.writeRef());
 
     if (compileDiagnostics && compileDiagnostics->getBufferSize() > 1) {
         DM_CORE_WARN("Compilation diagnostics for {0}:\n{1}",
@@ -167,7 +246,8 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::compileShaderToBlob(const std::strin
         return {};
     }
 
-    // Validate SPIR-V blob size and alignment
+    // TODO: Support DX
+    //  Validate SPIR-V blob size and alignment
     const size_t blobSize = spirvBlob->getBufferSize();
     if (blobSize == 0) {
         DM_CORE_ERROR("Empty SPIR-V blob for shader: {0}", filePath);
@@ -204,4 +284,72 @@ nvrhi::ShaderHandle ShaderCompiler::createShaderFromBlob(nvrhi::IDevice* device,
 
     return handle;
 }
+
+std::vector<EntryPointDescription> ShaderCompiler::discoverEntryPoints(Slang::ComPtr<slang::IModule> module)
+{
+    std::vector<EntryPointDescription> entryPoints;
+
+    SlangInt entryPointCount = module->getDefinedEntryPointCount();
+    for (SlangInt i = 0; i < entryPointCount; i++) {
+        Slang::ComPtr<slang::IEntryPoint> entryPoint;
+        module->getDefinedEntryPoint(i, entryPoint.writeRef());
+
+        if (!entryPoint)
+            continue;
+
+        const char* name = entryPoint->getFunctionReflection()->getName();
+        SlangStage stage = entryPoint->getLayout()->getEntryPointByIndex(0)->getStage();
+
+        nvrhi::ShaderType nvrhiType = slangStageToNvrhiType(stage);
+
+        if (nvrhiType != nvrhi::ShaderType::None) {
+            EntryPointDescription info;
+            info.name = name ? name : "";
+            info.stage = stage;
+            info.type = nvrhiType;
+            entryPoints.push_back(info);
+        } else {
+            DM_CORE_WARN("Unsupported shader stage for entry point: {0}", name ? name : "unknown");
+        }
+    }
+
+    for (auto t : entryPoints) {
+        DM_CORE_WARN("\tName: {}", t.name);
+        DM_CORE_WARN("\tNVType: {}", (int)t.type);
+        DM_CORE_WARN("\tSlangStage: {}", (int)t.stage);
+    }
+
+    return entryPoints;
+}
+
+nvrhi::InputLayoutHandle ShaderCompiler::createInputLaytout(nvrhi::IDevice* device, const ShaderReflectionData& data, nvrhi::ShaderHandle vertexHandle)
+{
+    if (data.type != nvrhi::ShaderType::Vertex) {
+        DM_CORE_INFO("Attempted to create an inputLayout on a non-vertex shader");
+        return nullptr;
+    }
+    u64 totalSize = 0;
+    for (auto input : data.vertexInputs) {
+        totalSize += input.size;
+    }
+
+    std::vector<nvrhi::VertexAttributeDesc> vertexLayout = {};
+
+    int numInputs = data.vertexInputs.size();
+    for (int i = 0; i < numInputs; i++) {
+        auto input = data.vertexInputs[i];
+        for (auto att : input.attributes) {
+            auto attribute = nvrhi::VertexAttributeDesc()
+                                 .setName(att.name)
+                                 .setFormat(att.format)
+                                 .setOffset(att.offset)
+                                 .setBufferIndex(i)
+                                 .setElementStride(input.size);
+            vertexLayout.push_back(std::move(attribute));
+        }
+    };
+    nvrhi::InputLayoutHandle inputLayout = device->createInputLayout(vertexLayout.data(), vertexLayout.size(), vertexHandle);
+    return inputLayout;
+}
+
 }
