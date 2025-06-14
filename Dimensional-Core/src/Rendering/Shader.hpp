@@ -35,6 +35,8 @@ private:
     std::map<nvrhi::ShaderType, ShaderVarient> m_Shaders;
 
     std::string m_Name = "Default Shader Name";
+
+    friend class GraphicsPipeline;
 };
 
 }

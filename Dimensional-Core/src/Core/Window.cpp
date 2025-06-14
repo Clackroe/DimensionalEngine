@@ -71,6 +71,8 @@ void Window::initWindow(const WindowSettings& settings)
 
     DeviceCreationParameters params;
     params.vsyncEnabled = true;
+    // params.enableDebugRuntime = true;
+    params.enableNvrhiValidationLayer = true;
     device->CreateWindowDeviceAndSwapChain(params, "Test Title");
 
     CommandList = device->GetDevice()->createCommandList();

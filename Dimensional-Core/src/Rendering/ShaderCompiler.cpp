@@ -122,6 +122,46 @@ std::map<nvrhi::ShaderType, ShaderVarient> ShaderCompiler::compileAllEntryPoints
     return variants;
 }
 
+static int _packInt3(uint8_t upper, int lower)
+{
+    return ((u32)(upper) << 24) | (lower & 0xFFFFFF);
+}
+
+enum class _ShiftKind {
+    Invalid = -1,
+
+    /// Unordered access view (u)
+    ///
+    /// RWByteAddressBuffer/RWStructuredBuffer
+    /// Append/ConsumeStructuredBuffer
+    /// RWBuffer
+    /// RWTextureXD/Array
+    UnorderedAccess = 0,
+
+    /// Sampler (s)
+    ///
+    /// SamplerXD
+    /// SamplerState/SamplerComparisonState
+    Sampler,
+
+    /// Shader Resource (t)
+    ///
+    /// TextureXD/Array
+    /// ByteAddressBuffer/StructuredBuffer/Buffer/TBuffer
+    ShaderResource,
+
+    /// Constant buffer (b)
+    ///
+    /// ConstantBufferViews, CBuffer
+    ConstantBuffer,
+
+    CountOf,
+};
+
+#define VKSHIFTOPTION(space, shift, kindR) {                                                                                                                                          \
+    .name = slang::CompilerOptionName::VulkanBindShift, .value = { .kind = slang::CompilerOptionValueKind::Int, .intValue0 = _packInt3((u8)(kindR), space), .intValue1 = i32(shift) } \
+},
+
 Slang::ComPtr<slang::ISession> ShaderCompiler::createSession(const std::string& filePath, const ShaderCompileOptions& options)
 {
     if (!std::filesystem::exists(filePath)) {
@@ -135,6 +175,12 @@ Slang::ComPtr<slang::ISession> ShaderCompiler::createSession(const std::string& 
     // TODO: Support other Graphics APIs
     targetDesc.format = SLANG_SPIRV;
     targetDesc.profile = s_slangGlobalSession->findProfile("spirv_1_4");
+
+    // Pulled from NVRHI's default Vulkan binding offsets
+    uint32_t shaderResource = 0;
+    uint32_t sampler = 128;
+    uint32_t constantBuffer = 256;
+    uint32_t unorderedAccess = 384;
 
     slang::CompilerOptionEntry entries[] = {
         {
@@ -150,10 +196,53 @@ Slang::ComPtr<slang::ISession> ShaderCompiler::createSession(const std::string& 
                 .kind = slang::CompilerOptionValueKind::Int,
                 .intValue0 = options.optimizationLevel //
             } //
-        }
+        },
+        VKSHIFTOPTION(0, shaderResource, _ShiftKind::ShaderResource)
+        //
+        VKSHIFTOPTION(1, shaderResource, _ShiftKind::ShaderResource)
+        //
+        VKSHIFTOPTION(2, shaderResource, _ShiftKind::ShaderResource)
+        //
+        VKSHIFTOPTION(3, shaderResource, _ShiftKind::ShaderResource)
+        //
+        VKSHIFTOPTION(4, shaderResource, _ShiftKind::ShaderResource)
+
+        //
+        VKSHIFTOPTION(0, sampler, _ShiftKind::Sampler)
+        //
+        VKSHIFTOPTION(1, sampler, _ShiftKind::Sampler)
+        //
+        VKSHIFTOPTION(2, sampler, _ShiftKind::Sampler)
+        //
+        VKSHIFTOPTION(3, sampler, _ShiftKind::Sampler)
+        //
+        VKSHIFTOPTION(4, sampler, _ShiftKind::Sampler)
+
+        //
+        VKSHIFTOPTION(0, constantBuffer, _ShiftKind::ConstantBuffer)
+        //
+        VKSHIFTOPTION(1, constantBuffer, _ShiftKind::ConstantBuffer)
+        //
+        VKSHIFTOPTION(2, constantBuffer, _ShiftKind::ConstantBuffer)
+        //
+        VKSHIFTOPTION(3, constantBuffer, _ShiftKind::ConstantBuffer)
+        //
+        VKSHIFTOPTION(4, constantBuffer, _ShiftKind::ConstantBuffer)
+
+        //
+        VKSHIFTOPTION(0, unorderedAccess, _ShiftKind::UnorderedAccess)
+        //
+        VKSHIFTOPTION(1, unorderedAccess, _ShiftKind::UnorderedAccess)
+        //
+        VKSHIFTOPTION(2, unorderedAccess, _ShiftKind::UnorderedAccess)
+        //
+        VKSHIFTOPTION(3, unorderedAccess, _ShiftKind::UnorderedAccess)
+        //
+        VKSHIFTOPTION(4, unorderedAccess, _ShiftKind::UnorderedAccess)
+
     };
     targetDesc.compilerOptionEntries = entries;
-    targetDesc.compilerOptionEntryCount = std::size(entries);
+    targetDesc.compilerOptionEntryCount = std::size(entries); // entries.size();
 
     sessionDesc.targets = &targetDesc;
     sessionDesc.targetCount = 1;

@@ -171,6 +171,10 @@ namespace ShaderReflector {
             return ShaderResourceKind::ConstantBuffer;
         }
 
+        if (kind == slang::TypeReflection::Kind::SamplerState) {
+            return ShaderResourceKind::Sampler;
+        }
+
         if (kind != slang::TypeReflection::Kind::Resource) {
             return ShaderResourceKind::Unknown;
         }

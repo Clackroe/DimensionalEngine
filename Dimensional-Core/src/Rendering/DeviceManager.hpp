@@ -93,7 +93,7 @@ struct DeviceCreationParameters : public InstanceParameters {
     uint32_t backBufferHeight = 720;
     uint32_t refreshRate = 0;
     uint32_t swapChainBufferCount = 3;
-    nvrhi::Format swapChainFormat = nvrhi::Format::SRGBA8_UNORM;
+    nvrhi::Format swapChainFormat = nvrhi::Format::RGBA8_UNORM;
     uint32_t swapChainSampleCount = 1;
     uint32_t swapChainSampleQuality = 0;
     uint32_t maxFramesInFlight = 2;

@@ -1,5 +1,9 @@
 module helloworld;
 
+__include Dimensional;
+
+#include <Dimensional.slang>
+
 struct VertexInput {
     float3 position : POSITION;
     float2  uv:TEXCOORD0;
@@ -10,6 +14,7 @@ struct VertexInput {
 
 struct VertexOutput {
     float4 position : SV_Position;
+    float2 uv;
 };
 
 
@@ -29,29 +34,27 @@ struct MultUniforms {
 };
 
 
-ConstantBuffer<MultUniforms>  uniforms1: register(b1, space3);
-// RWConstantBuffer<MultUniforms>  uniforms2: register(b2, space3);
-// RConstantBuffer<MultUniforms>  uniforms3: register(b3, space3);
+// ConstantBuffer<MultUniforms>  uniforms1: PIPELINE(b3);
 
-StructuredBuffer<MultUniforms>  uniforms5: register(b2, space1);
-RWStructuredBuffer<MultUniforms>  uniforms0: register(b3, space1);
+Texture2D tex: PIPELINE(t0);
 
-// RWStructuredBuffer<MultUniforms> ufs: register(b1, space2);
+SamplerState samp: PIPELINE(s10);
 
 
-Texture2D tex: register(t1, space1);
+
+
 
 [shader("vertex")]
 VertexOutput mainVS(VertexInput input, VertexInput input2) {
     VertexOutput output;
     output.position = float4(input.position, 1.0);
+    output.uv = input.uv;
     return output;
 }
 
 [shader("fragment")]
 float4 mainPS(VertexOutput input) : SV_Target {
-    MultUniforms test;
-    test.mult = 0.1;
 
-    return float4(1.0 * test.mult, 0.0, 0.0, 1.0);
+    return float4(tex.Sample(samp, input.uv, 0).rgb, 1.0);
+    // return float4(1, 0, 0, 1.0);
 }
