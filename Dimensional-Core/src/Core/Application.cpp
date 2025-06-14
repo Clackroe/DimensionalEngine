@@ -27,7 +27,7 @@ Ref<Shader> shader;
 
 nvrhi::TextureHandle textureTest1;
 
-nvrhi::SamplerHandle sampler;
+// nvrhi::SamplerHandle sampler;
 
 ShaderVarient vs;
 ShaderVarient ps;
@@ -42,10 +42,16 @@ struct Vertex {
     glm::vec2 uv2;
 };
 
+// static const Vertex g_Vertices[] = {
+//     //  position
+//     { { 0.f, 0.5f, 0.f }, { 2 * 0.5f, 2 * 1.0f } },
+//     { { 0.5f, -0.5f, 0.f }, { 2 * 1.0f, 0.0f } },
+//     { { -0.5f, -0.5f, 0.f }, { 0.0f, 0.0f } },
+// };
+
 static const Vertex g_Vertices[] = {
-    //  position
-    { { 0.f, 0.5f, 0.f }, { 0.5f, 1.0f } },
-    { { 0.5f, -0.5f, 0.f }, { 1.0f, 0.0f } },
+    { { 0.f, 0.5f, 0.f }, { 1.5f, 3.0f } },
+    { { 0.5f, -0.5f, 0.f }, { 3.0f, 0.0f } },
     { { -0.5f, -0.5f, 0.f }, { 0.0f, 0.0f } },
 };
 
@@ -61,11 +67,13 @@ nvrhi::BufferHandle vertexBuffer1;
 nvrhi::GraphicsPipelineHandle graphicsPipeline;
 nvrhi::BindingSetHandle bindingSet;
 unsigned char* imageBytes;
+
 int w, h, c;
 
 static void tempInit()
 {
-    imageBytes = stbi_load("Assets/Textures/Albedo.png", &w, &h, &c, STBI_rgb_alpha);
+    // imageBytes = stbi_load("Assets/Textures/Albedo.png", &w, &h, &c, STBI_rgb_alpha);
+    imageBytes = stbi_load("Assets/Resources/Folder.png", &w, &h, &c, STBI_rgb_alpha);
 
     cmd = dev->createCommandList();
 
@@ -101,9 +109,30 @@ static void tempInit()
     auto framebufferDesc = nvrhi::FramebufferDesc()
                                .addColorAttachment(textureTest1)
                                .addColorAttachment(textureTest2);
-
-    auto samDesc = nvrhi::SamplerDesc();
-    sampler = dev->createSampler(samDesc);
+    //
+    // auto samplerDesc = nvrhi::SamplerDesc();
+    // // Set addressing mode to repeat (wrap) for all texture coordinates
+    // samplerDesc.addressU = nvrhi::SamplerAddressMode::Border;
+    // samplerDesc.addressV = nvrhi::SamplerAddressMode::Border;
+    // samplerDesc.addressW = nvrhi::SamplerAddressMode::Border;
+    //
+    // // Set filtering modes (true = linear, false = point)
+    // samplerDesc.minFilter = true; // Linear minification
+    // samplerDesc.magFilter = true; // Linear magnification
+    // samplerDesc.mipFilter = true; // Linear mipmap filtering
+    //
+    // // Optional: Set anisotropy for better quality at oblique angles
+    // samplerDesc.maxAnisotropy = 16.0f;
+    //
+    // // Optional: Set mip LOD bias
+    // samplerDesc.mipBias = 0.0f;
+    //
+    // // Optional: Set border color (not used with repeat mode, but initialized)
+    // samplerDesc.borderColor = nvrhi::Color(0.0f, 0.0f, 0.0f, 1.0f);
+    //
+    // // Standard reduction type
+    // samplerDesc.reductionType = nvrhi::SamplerReductionType::Standard;
+    // sampler = dev->createSampler(samplerDesc);
 
     nvrhi::FramebufferHandle framebuffer = dev->createFramebuffer(framebufferDesc);
     if (!framebuffer) {
@@ -117,8 +146,6 @@ static void tempInit()
 
     auto item = nvrhi::BindingLayoutItem::Texture_SRV(0);
     lDesc.addItem(item);
-    item = nvrhi::BindingLayoutItem::Sampler(1);
-    lDesc.addItem(item);
 
     layout = dev->createBindingLayout(lDesc);
 
@@ -126,6 +153,7 @@ static void tempInit()
                             .setInputLayout(shader->GetShaderVariant(nvrhi::ShaderType::Vertex).inputLayout)
                             .setVertexShader(shader->GetShaderHandle(nvrhi::ShaderType::Vertex))
                             .setPixelShader(shader->GetShaderHandle(nvrhi::ShaderType::Pixel))
+                            .addBindingLayout(Renderer::GetConstantBindingLayout())
                             .addBindingLayout(layout);
     // for (auto& b : shader->GetBindingLayouts()) {
     //     pipelineDesc.addBindingLayout(b);
@@ -152,7 +180,7 @@ static void tempInit()
     vertexBuffer = dev->createBuffer(vertexBufferDesc);
     vertexBuffer1 = dev->createBuffer(vertexBufferDesc);
 
-    auto bindingSetDesc = nvrhi::BindingSetDesc().addItem(nvrhi::BindingSetItem::Texture_SRV(0, textureTest1)).addItem(nvrhi::BindingSetItem::Sampler(1, sampler));
+    auto bindingSetDesc = nvrhi::BindingSetDesc().addItem(nvrhi::BindingSetItem::Texture_SRV(0, textureTest1));
 
     bindingSet = dev->createBindingSet(bindingSetDesc, layout);
 };
@@ -185,6 +213,7 @@ static void tempUpdate()
                              .setPipeline(graphicsPipeline)
                              .setFramebuffer(fb)
                              .setViewport(nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport(Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight())))
+                             .addBindingSet(Renderer::GetConstantBindingSet())
                              .addBindingSet(bindingSet)
                              .addVertexBuffer(t)
                              .addVertexBuffer(t1);
@@ -266,6 +295,7 @@ void Application::runApplication()
 
 void Application::initializeSubSystems()
 {
+    Renderer::Init({});
     m_EventSystem.Init();
     Input::Init();
 

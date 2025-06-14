@@ -164,6 +164,14 @@ inline nvrhi::Format SlangTypeToNVRHIFormat(slang::TypeReflection* type)
         case TypeReflection::ScalarType::UInt8:
             return nvrhi::Format::R8_UINT;
             break;
+        case slang::TypeReflection::None:
+        case slang::TypeReflection::Void:
+        case slang::TypeReflection::Bool:
+        case slang::TypeReflection::Int64:
+        case slang::TypeReflection::UInt64:
+        case slang::TypeReflection::Float64:
+            return nvrhi::Format::UNKNOWN;
+            break;
         }
     }
 

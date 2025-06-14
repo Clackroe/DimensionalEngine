@@ -1,7 +1,5 @@
 module helloworld;
 
-__include Dimensional;
-
 #include <Dimensional.slang>
 
 struct VertexInput {
@@ -38,11 +36,6 @@ struct MultUniforms {
 
 Texture2D tex: PIPELINE(t0);
 
-SamplerState samp: PIPELINE(s10);
-
-
-
-
 
 [shader("vertex")]
 VertexOutput mainVS(VertexInput input, VertexInput input2) {
@@ -55,6 +48,5 @@ VertexOutput mainVS(VertexInput input, VertexInput input2) {
 [shader("fragment")]
 float4 mainPS(VertexOutput input) : SV_Target {
 
-    return float4(tex.Sample(samp, input.uv, 0).rgb, 1.0);
-    // return float4(1, 0, 0, 1.0);
+    return float4(tex.Sample(linearRepeat, input.uv, 0).rgb, 1.0);
 }

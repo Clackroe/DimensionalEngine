@@ -1,6 +1,7 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
+#include "nvrhi/nvrhi.h"
 #include <Core/Window.hpp>
 namespace Dimensional {
 
@@ -12,14 +13,15 @@ enum class RESOURCE_DOMAIN {
 };
 
 struct RendererInfo {
-    Window& window;
 };
 
 struct Renderer {
 
     static void Init(const RendererInfo& data);
-
     static void Shutdown();
+
+    static nvrhi::BindingLayoutHandle GetConstantBindingLayout();
+    static nvrhi::BindingSetHandle GetConstantBindingSet();
 };
 }
 
