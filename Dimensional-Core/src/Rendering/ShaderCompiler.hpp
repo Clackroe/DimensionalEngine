@@ -11,6 +11,12 @@
 
 namespace Dimensional {
 
+// Pulled from NVRHI's default Vulkan binding offsets
+static uint32_t SHADER_RESOURCE_OFFSET = 0;
+static uint32_t SAMPLER_OFFSET = 128;
+static uint32_t CONSTANTBUFFER_OFFSET = 256;
+static uint32_t UNORDEREDACCESS_OFFSET = 384;
+
 struct EntryPointDescription {
     std::string name;
     nvrhi::ShaderType type;

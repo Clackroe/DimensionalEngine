@@ -16,21 +16,97 @@ Ref<GraphicsPipeline> GraphicsPipeline::Create(const GraphicsPipelineCreateinfo 
     out->m_Shader = info.shader;
     out->m_TEMPframebuff = info.TEMPframebuff;
 
-    if (!out->createBindingLayout()) {
-        DM_CORE_ERROR("Failed to create Pipeline: {}", out->m_Name);
-        return nullptr;
+    return out;
+}
+
+void GraphicsPipeline::SetConstantSpace(nvrhi::BindingSetHandle handle)
+{
+    m_BindingSets[(u32)RESOURCE_DOMAIN::CONSTANT] = handle;
+}
+void GraphicsPipeline::SetPerFrameSpace(nvrhi::BindingSetHandle handle)
+{
+    m_BindingSets[(u32)RESOURCE_DOMAIN::FRAME] = handle;
+}
+void GraphicsPipeline::SetMaterial(nvrhi::BindingSetHandle handle)
+{
+    m_BindingSets[(u32)RESOURCE_DOMAIN::MATERIAL] = handle;
+}
+
+void GraphicsPipeline::SetTexture(nvrhi::TextureHandle handle, u32 slot)
+{
+    m_PipeLineSetDirty = true;
+    m_PipelineSetItems[slot] = (nvrhi::BindingSetItem::Texture_SRV(slot, handle));
+}
+
+bool GraphicsPipeline::Compile()
+{
+    if (m_PipeLineSetDirty) {
+        if (!createPipelineBindingSet()) {
+            return false;
+        }
+    }
+    if (!createNVRHIPipeline()) {
+        return false;
     }
 
-    return out;
+    return true;
+}
+
+bool GraphicsPipeline::createPipelineBindingSet()
+{
+
+    nvrhi::BindingSetDesc desc;
+    for (auto& [slot, item] : m_PipelineSetItems) {
+        desc.addItem(item);
+    }
+
+    auto dev = Application::getDevice();
+
+    if (m_Shader->m_Layouts.contains((u32)RESOURCE_DOMAIN::PIPELINE)) {
+        auto set = dev->createBindingSet(desc, m_Shader->m_Layouts.at((u32)RESOURCE_DOMAIN::PIPELINE));
+        if (!set) {
+            DM_CORE_ERROR("Failed to create Pipeline Binding set for pipeline: {}", m_Name);
+            return false;
+        }
+        m_BindingSets[(u32)RESOURCE_DOMAIN::PIPELINE] = set;
+        return true;
+    }
+    DM_CORE_ERROR("Pipeline Binding set doesn't exist for pipeline: {}", m_Name);
+    return false;
+}
+
+void GraphicsPipeline::Bind(nvrhi::GraphicsState& state)
+{
+    state.setPipeline(m_Pipeline);
+
+    // TODO: Set Framebuffer (once rendertarges are implemented)
+
+    // Maintain parity with binding layouts
+    for (auto& [set, layout] : m_Shader->m_Layouts) {
+        if (m_BindingSets.contains(set)) {
+            state.addBindingSet(m_BindingSets[set]);
+        } else {
+            state.addBindingSet(nullptr);
+        }
+    }
 }
 
 bool GraphicsPipeline::createNVRHIPipeline()
 {
     nvrhi::GraphicsPipelineDesc desc;
+    desc.setInputLayout(m_Shader->GetShaderVariant(nvrhi::ShaderType::Vertex).inputLayout);
     desc.setVertexShader(m_Shader->GetShaderHandle(nvrhi::ShaderType::Vertex));
     desc.setFragmentShader(m_Shader->GetShaderHandle(nvrhi::ShaderType::Pixel));
     desc.setPrimType(m_PrimType);
-    desc.addBindingLayout(m_PipelineLayout);
+
+    // TODO: Make more modular and configurable;
+    desc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+    desc.renderState.depthStencilState.depthTestEnable = false;
+    //
+
+    for (auto& [_space, set] : m_BindingSets) {
+        desc.addBindingLayout(set->getLayout());
+    }
 
     auto dev = Application::getDevice();
 
@@ -44,84 +120,4 @@ bool GraphicsPipeline::createNVRHIPipeline()
     return true;
 }
 
-void GraphicsPipeline::retrievePipelineBindings()
-{
-
-    std::map<u32, ShaderResource> out; // Specifically, the pipeline sets | binding slot -> Resource
-
-    for (const auto& [type, variant] : m_Shader->m_Shaders) {
-        auto& resources = variant.reflection.resources;
-
-        for (const auto& resource : resources) {
-            if (resource.binding.slot == (u32)RESOURCE_DOMAIN::PIPELINE) {
-                if (out.contains(resource.binding.slot)) {
-                    DM_CORE_WARN("Pipeline, {0}, contains duplicate bindings at binding slot: {1} [Replacing]", m_Name, resource.binding.slot)
-                }
-                out[resource.binding.slot] = resource;
-            }
-        }
-    }
-
-    m_Resources = out;
-}
-
-bool GraphicsPipeline::createBindingLayout()
-{
-    retrievePipelineBindings();
-
-    nvrhi::BindingLayoutDesc lDesc;
-    lDesc.setRegisterSpaceIsDescriptorSet(true);
-    lDesc.setRegisterSpace((u32)RESOURCE_DOMAIN::PIPELINE);
-    lDesc.visibility = nvrhi::ShaderType::AllGraphics;
-
-    // SRV Readonly UAV ReadWrite
-    for (auto& [_, resource] : m_Resources) {
-
-        bool canWrite = resource.access == ShaderResourceAccess::READ_WRITE || resource.access == ShaderResourceAccess::WRITE;
-
-        nvrhi::BindingLayoutItem item;
-
-        switch (resource.kind) {
-
-        case ShaderResourceKind::ConstantBuffer:
-            item = nvrhi::BindingLayoutItem::ConstantBuffer(resource.binding.slot);
-        case ShaderResourceKind::StructuredBuffer:
-            if (canWrite) {
-                item = nvrhi::BindingLayoutItem::StructuredBuffer_UAV(resource.binding.slot);
-            } else {
-                item = nvrhi::BindingLayoutItem::StructuredBuffer_SRV(resource.binding.slot);
-            }
-
-        case ShaderResourceKind::Texture1D:
-        case ShaderResourceKind::Texture2D:
-        case ShaderResourceKind::Texture3D:
-        case ShaderResourceKind::TextureCube:
-        case ShaderResourceKind::TextureBuffer:
-            if (canWrite) {
-                item = nvrhi::BindingLayoutItem::Texture_UAV(resource.binding.slot);
-            } else {
-                item = nvrhi::BindingLayoutItem::Texture_SRV(resource.binding.slot);
-            }
-
-        case ShaderResourceKind::Sampler:
-            item = nvrhi::BindingLayoutItem::Sampler(resource.binding.slot);
-        case ShaderResourceKind::ByteBuffer:
-            if (canWrite) {
-                item = nvrhi::BindingLayoutItem::RawBuffer_SRV(resource.binding.slot);
-            } else {
-                item = nvrhi::BindingLayoutItem::RawBuffer_UAV(resource.binding.slot);
-            }
-        case ShaderResourceKind::Unknown:
-            break;
-        }
-        lDesc.addItem(item);
-    }
-    auto dev = Application::getDevice();
-    m_PipelineLayout = dev->createBindingLayout(lDesc);
-    if (!m_PipelineLayout) {
-        DM_CORE_ERROR("Failed to create Pipeline binding layout: {}", m_Name);
-        return false;
-    }
-    return true;
-}
 }

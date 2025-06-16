@@ -7,6 +7,8 @@
 
 namespace Dimensional {
 
+struct ShaderResource;
+
 struct ShaderVarient;
 
 struct ShaderData {
@@ -25,14 +27,21 @@ public:
     static Ref<Shader> Create(const std::string& path, const ShaderCreateInfo info = {});
 
     nvrhi::ShaderHandle GetShaderHandle(nvrhi::ShaderType type);
-    ShaderVarient GetShaderVariant(nvrhi::ShaderType type);
+    const ShaderVarient& GetShaderVariant(nvrhi::ShaderType type);
 
 private:
     bool Compile(std::string path, const ShaderCreateInfo info);
 
+    void retrieveResources();
+    bool createLayouts();
+
     Shader() = default;
 
     std::map<nvrhi::ShaderType, ShaderVarient> m_Shaders;
+
+    std::map<u32, nvrhi::BindingLayoutHandle> m_Layouts; // space/set -> BindingLayout
+
+    std::map<u32, std::map<u32, ShaderResource>> m_Resources; // space/set => (Binding slot -> Resource)
 
     std::string m_Name = "Default Shader Name";
 

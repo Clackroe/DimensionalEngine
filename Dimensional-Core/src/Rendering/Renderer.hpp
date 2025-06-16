@@ -10,6 +10,7 @@ enum class RESOURCE_DOMAIN {
     FRAME = 1,
     PIPELINE = 2,
     MATERIAL = 3,
+    UNKNOWN
 };
 
 struct RendererInfo {
@@ -19,6 +20,10 @@ struct Renderer {
 
     static void Init(const RendererInfo& data);
     static void Shutdown();
+
+    static nvrhi::GraphicsState GetDefaultGraphicsState();
+
+    // static void ApplyConstantState(nvrhi::GraphicsState& state);
 
     static nvrhi::BindingLayoutHandle GetConstantBindingLayout();
     static nvrhi::BindingSetHandle GetConstantBindingSet();

@@ -176,12 +176,6 @@ Slang::ComPtr<slang::ISession> ShaderCompiler::createSession(const std::string& 
     targetDesc.format = SLANG_SPIRV;
     targetDesc.profile = s_slangGlobalSession->findProfile("spirv_1_4");
 
-    // Pulled from NVRHI's default Vulkan binding offsets
-    uint32_t shaderResource = 0;
-    uint32_t sampler = 128;
-    uint32_t constantBuffer = 256;
-    uint32_t unorderedAccess = 384;
-
     slang::CompilerOptionEntry entries[] = {
         {
             .name = slang::CompilerOptionName::VulkanUseEntryPointName,
@@ -197,48 +191,48 @@ Slang::ComPtr<slang::ISession> ShaderCompiler::createSession(const std::string& 
                 .intValue0 = options.optimizationLevel //
             } //
         },
-        VKSHIFTOPTION(0, shaderResource, _ShiftKind::ShaderResource)
+        VKSHIFTOPTION(0, SHADER_RESOURCE_OFFSET, _ShiftKind::ShaderResource)
         //
-        VKSHIFTOPTION(1, shaderResource, _ShiftKind::ShaderResource)
+        VKSHIFTOPTION(1, SHADER_RESOURCE_OFFSET, _ShiftKind::ShaderResource)
         //
-        VKSHIFTOPTION(2, shaderResource, _ShiftKind::ShaderResource)
+        VKSHIFTOPTION(2, SHADER_RESOURCE_OFFSET, _ShiftKind::ShaderResource)
         //
-        VKSHIFTOPTION(3, shaderResource, _ShiftKind::ShaderResource)
+        VKSHIFTOPTION(3, SHADER_RESOURCE_OFFSET, _ShiftKind::ShaderResource)
         //
-        VKSHIFTOPTION(4, shaderResource, _ShiftKind::ShaderResource)
+        VKSHIFTOPTION(4, SHADER_RESOURCE_OFFSET, _ShiftKind::ShaderResource)
 
         //
-        VKSHIFTOPTION(0, sampler, _ShiftKind::Sampler)
+        VKSHIFTOPTION(0, SAMPLER_OFFSET, _ShiftKind::Sampler)
         //
-        VKSHIFTOPTION(1, sampler, _ShiftKind::Sampler)
+        VKSHIFTOPTION(1, SAMPLER_OFFSET, _ShiftKind::Sampler)
         //
-        VKSHIFTOPTION(2, sampler, _ShiftKind::Sampler)
+        VKSHIFTOPTION(2, SAMPLER_OFFSET, _ShiftKind::Sampler)
         //
-        VKSHIFTOPTION(3, sampler, _ShiftKind::Sampler)
+        VKSHIFTOPTION(3, SAMPLER_OFFSET, _ShiftKind::Sampler)
         //
-        VKSHIFTOPTION(4, sampler, _ShiftKind::Sampler)
+        VKSHIFTOPTION(4, SAMPLER_OFFSET, _ShiftKind::Sampler)
 
         //
-        VKSHIFTOPTION(0, constantBuffer, _ShiftKind::ConstantBuffer)
+        VKSHIFTOPTION(0, CONSTANTBUFFER_OFFSET, _ShiftKind::ConstantBuffer)
         //
-        VKSHIFTOPTION(1, constantBuffer, _ShiftKind::ConstantBuffer)
+        VKSHIFTOPTION(1, CONSTANTBUFFER_OFFSET, _ShiftKind::ConstantBuffer)
         //
-        VKSHIFTOPTION(2, constantBuffer, _ShiftKind::ConstantBuffer)
+        VKSHIFTOPTION(2, CONSTANTBUFFER_OFFSET, _ShiftKind::ConstantBuffer)
         //
-        VKSHIFTOPTION(3, constantBuffer, _ShiftKind::ConstantBuffer)
+        VKSHIFTOPTION(3, CONSTANTBUFFER_OFFSET, _ShiftKind::ConstantBuffer)
         //
-        VKSHIFTOPTION(4, constantBuffer, _ShiftKind::ConstantBuffer)
+        VKSHIFTOPTION(4, CONSTANTBUFFER_OFFSET, _ShiftKind::ConstantBuffer)
 
         //
-        VKSHIFTOPTION(0, unorderedAccess, _ShiftKind::UnorderedAccess)
+        VKSHIFTOPTION(0, UNORDEREDACCESS_OFFSET, _ShiftKind::UnorderedAccess)
         //
-        VKSHIFTOPTION(1, unorderedAccess, _ShiftKind::UnorderedAccess)
+        VKSHIFTOPTION(1, UNORDEREDACCESS_OFFSET, _ShiftKind::UnorderedAccess)
         //
-        VKSHIFTOPTION(2, unorderedAccess, _ShiftKind::UnorderedAccess)
+        VKSHIFTOPTION(2, UNORDEREDACCESS_OFFSET, _ShiftKind::UnorderedAccess)
         //
-        VKSHIFTOPTION(3, unorderedAccess, _ShiftKind::UnorderedAccess)
+        VKSHIFTOPTION(3, UNORDEREDACCESS_OFFSET, _ShiftKind::UnorderedAccess)
         //
-        VKSHIFTOPTION(4, unorderedAccess, _ShiftKind::UnorderedAccess)
+        VKSHIFTOPTION(4, UNORDEREDACCESS_OFFSET, _ShiftKind::UnorderedAccess)
 
     };
     targetDesc.compilerOptionEntries = entries;

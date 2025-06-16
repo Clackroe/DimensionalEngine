@@ -14,14 +14,14 @@ static struct RendererData {
     nvrhi::BindingSetHandle constantBindingSet;
 } s_RendererInstance;
 
-static nvrhi::BindingLayoutHandle createConstantBindingLayout(nvrhi::DeviceHandle dev, std::vector<nvrhi::BindingLayoutItem> items)
+static nvrhi::BindingLayoutHandle createConstantBindingLayout(nvrhi::DeviceHandle dev, std::map<u32, nvrhi::BindingLayoutItem> items)
 {
     nvrhi::BindingLayoutDesc desc;
     desc.setRegisterSpaceIsDescriptorSet(true);
     desc.setRegisterSpace((u32)RESOURCE_DOMAIN::CONSTANT);
     desc.setVisibility(nvrhi::ShaderType::All);
 
-    for (auto it : items) {
+    for (auto& [slot, it] : items) {
         desc.addItem(it);
     }
 
@@ -33,12 +33,12 @@ static nvrhi::BindingLayoutHandle createConstantBindingLayout(nvrhi::DeviceHandl
     return out;
 }
 
-static nvrhi::BindingSetHandle createConstantBindingSet(nvrhi::DeviceHandle dev, std::vector<nvrhi::BindingSetItem> items, nvrhi::BindingLayoutHandle layout)
+static nvrhi::BindingSetHandle createConstantBindingSet(nvrhi::DeviceHandle dev, std::map<u32, nvrhi::BindingSetItem> items, nvrhi::BindingLayoutHandle layout)
 {
     nvrhi::BindingSetDesc desc;
-    desc.setTrackLiveness(true);
+    // desc.setTrackLiveness(true);
 
-    for (auto it : items) {
+    for (auto& [slot, it] : items) {
         desc.addItem(it);
     }
 
@@ -50,15 +50,15 @@ static nvrhi::BindingSetHandle createConstantBindingSet(nvrhi::DeviceHandle dev,
     return out;
 }
 
-#define SAMPLER_ITEM_SET(pair)                                                          \
-    bindingSetItems.push_back(nvrhi::BindingSetItem::Sampler(pair.second, pair.first)); \
-    bindingLayoutItems.push_back(nvrhi::BindingLayoutItem::Sampler(pair.second));
+#define SAMPLER_ITEM_SET(pair)                                                                \
+    bindingSetItems[pair.second] = (nvrhi::BindingSetItem::Sampler(pair.second, pair.first)); \
+    bindingLayoutItems[pair.second] = (nvrhi::BindingLayoutItem::Sampler(pair.second));
 
 void Renderer::Init(const RendererInfo& data)
 {
 
-    std::vector<nvrhi::BindingLayoutItem> bindingLayoutItems;
-    std::vector<nvrhi::BindingSetItem> bindingSetItems;
+    std::map<u32, nvrhi::BindingLayoutItem> bindingLayoutItems;
+    std::map<u32, nvrhi::BindingSetItem> bindingSetItems;
 
     auto dev = Application::getDevice();
     s_RendererInstance.samplers = CreateAllSamplers(dev);
@@ -101,6 +101,23 @@ nvrhi::BindingSetHandle Renderer::GetConstantBindingSet()
         return nullptr;
     }
     return s_RendererInstance.constantBindingSet;
+}
+
+// void Renderer::ApplyConstantState(nvrhi::GraphicsState& state)
+// {
+//     auto set = GetConstantBindingSet();
+//     if (set) {
+//         state.addBindingSet(set);
+//     }
+// }
+
+nvrhi::GraphicsState Renderer::GetDefaultGraphicsState()
+{
+    nvrhi::GraphicsState state;
+    auto set = GetConstantBindingSet();
+    state.addBindingSet(set);
+
+    return state;
 }
 
 void Renderer::Shutdown()

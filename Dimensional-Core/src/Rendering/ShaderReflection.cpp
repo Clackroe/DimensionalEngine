@@ -266,6 +266,42 @@ namespace ShaderReflector {
         return "UNKNOWN";
     }
 
+    static u32 _offsetFromType(slang::TypeReflection* type)
+    {
+        if (!type)
+            return 0;
+
+        // Get the resource shape/kind from the type
+        auto kind = type->getKind();
+        bool readWrite = type->getResourceAccess() & SLANG_RESOURCE_ACCESS_READ_WRITE;
+
+        switch (kind) {
+        case slang::TypeReflection::Kind::SamplerState:
+            return SAMPLER_OFFSET;
+
+        case slang::TypeReflection::Kind::ConstantBuffer:
+            return CONSTANTBUFFER_OFFSET;
+
+        case slang::TypeReflection::Kind::Resource:
+            // Resources can be either shader resources (t) or unordered access (u)
+            // depending on read/write access
+            if (readWrite)
+                return UNORDEREDACCESS_OFFSET;
+            else
+                return SHADER_RESOURCE_OFFSET;
+
+        case slang::TypeReflection::Kind::TextureBuffer:
+        case slang::TypeReflection::Kind::ShaderStorageBuffer:
+            if (readWrite)
+                return UNORDEREDACCESS_OFFSET;
+            else
+                return SHADER_RESOURCE_OFFSET;
+
+        default:
+            // Default to shader resource for unknown types
+            return SHADER_RESOURCE_OFFSET;
+        }
+    }
     ShaderReflectionData extractFromProgram(Slang::ComPtr<slang::IComponentType> program, const EntryPointDescription& entryPointDesc)
     {
         ShaderReflectionData data;
@@ -277,10 +313,13 @@ namespace ShaderReflector {
         for (int i = 0; i < paramCount; ++i) {
             auto param = reflection->getParameterByIndex(i);
             auto name = std::string(param->getName());
-            u32 bindingIndex = param->getBindingIndex();
-            u32 bindingSet = param->getBindingSpace();
 
             auto typeRef = param->getType();
+
+            u32 bindingIndex = param->getBindingIndex() - _offsetFromType(typeRef);
+
+            u32 bindingSet = param->getBindingSpace();
+
             ShaderResourceKind kind = _getResourceKind(typeRef);
             auto acc = _getResourceAccess(typeRef->getResourceAccess());
 

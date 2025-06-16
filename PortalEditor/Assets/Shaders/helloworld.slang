@@ -32,7 +32,6 @@ struct MultUniforms {
 };
 
 
-// ConstantBuffer<MultUniforms>  uniforms1: PIPELINE(b3);
 
 Texture2D tex: PIPELINE(t0);
 

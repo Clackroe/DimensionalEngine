@@ -3,6 +3,8 @@
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
 #include "Rendering/GPUBuffer.hpp"
+
+#include "Rendering/Pipeline.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ShaderCompiler.hpp"
 #include "Scripting/NativeScriptManager.hpp"
@@ -10,6 +12,7 @@
 #include "nvrhi/nvrhi.h"
 #include "nvrhi/utils.h"
 #include <Core/Application.hpp>
+#include <imgui_impl_vulkan.h>
 
 #include <stb_image.hpp>
 
@@ -26,6 +29,8 @@ nvrhi::IDevice* dev;
 Ref<Shader> shader;
 
 nvrhi::TextureHandle textureTest1;
+
+Ref<GraphicsPipeline> pipe;
 
 // nvrhi::SamplerHandle sampler;
 
@@ -64,8 +69,8 @@ static const Vertex g_Vertices1[] = {
 
 nvrhi::BufferHandle vertexBuffer;
 nvrhi::BufferHandle vertexBuffer1;
-nvrhi::GraphicsPipelineHandle graphicsPipeline;
-nvrhi::BindingSetHandle bindingSet;
+// nvrhi::GraphicsPipelineHandle graphicsPipeline;
+// nvrhi::BindingSetHandle bindingSet;
 unsigned char* imageBytes;
 
 int w, h, c;
@@ -92,6 +97,8 @@ static void tempInit()
     td.setFormat(nvrhi::Format::RGBA8_UNORM);
     td.setWidth(w);
     td.setHeight(h);
+    td.setInitialState(nvrhi::ResourceStates::ShaderResource);
+    td.setKeepInitialState(true);
 
     td.arraySize = 1;
 
@@ -109,66 +116,26 @@ static void tempInit()
     auto framebufferDesc = nvrhi::FramebufferDesc()
                                .addColorAttachment(textureTest1)
                                .addColorAttachment(textureTest2);
-    //
-    // auto samplerDesc = nvrhi::SamplerDesc();
-    // // Set addressing mode to repeat (wrap) for all texture coordinates
-    // samplerDesc.addressU = nvrhi::SamplerAddressMode::Border;
-    // samplerDesc.addressV = nvrhi::SamplerAddressMode::Border;
-    // samplerDesc.addressW = nvrhi::SamplerAddressMode::Border;
-    //
-    // // Set filtering modes (true = linear, false = point)
-    // samplerDesc.minFilter = true; // Linear minification
-    // samplerDesc.magFilter = true; // Linear magnification
-    // samplerDesc.mipFilter = true; // Linear mipmap filtering
-    //
-    // // Optional: Set anisotropy for better quality at oblique angles
-    // samplerDesc.maxAnisotropy = 16.0f;
-    //
-    // // Optional: Set mip LOD bias
-    // samplerDesc.mipBias = 0.0f;
-    //
-    // // Optional: Set border color (not used with repeat mode, but initialized)
-    // samplerDesc.borderColor = nvrhi::Color(0.0f, 0.0f, 0.0f, 1.0f);
-    //
-    // // Standard reduction type
-    // samplerDesc.reductionType = nvrhi::SamplerReductionType::Standard;
-    // sampler = dev->createSampler(samplerDesc);
 
     nvrhi::FramebufferHandle framebuffer = dev->createFramebuffer(framebufferDesc);
     if (!framebuffer) {
         DM_CORE_ERROR("Failed to create framebuff")
     }
 
-    nvrhi::BindingLayoutDesc lDesc;
-    lDesc.setRegisterSpaceIsDescriptorSet(true);
-    lDesc.setRegisterSpace((u32)RESOURCE_DOMAIN::PIPELINE);
-    lDesc.visibility = nvrhi::ShaderType::AllGraphics;
-
-    auto item = nvrhi::BindingLayoutItem::Texture_SRV(0);
-    lDesc.addItem(item);
-
-    layout = dev->createBindingLayout(lDesc);
-
-    auto pipelineDesc = nvrhi::GraphicsPipelineDesc()
-                            .setInputLayout(shader->GetShaderVariant(nvrhi::ShaderType::Vertex).inputLayout)
-                            .setVertexShader(shader->GetShaderHandle(nvrhi::ShaderType::Vertex))
-                            .setPixelShader(shader->GetShaderHandle(nvrhi::ShaderType::Pixel))
-                            .addBindingLayout(Renderer::GetConstantBindingLayout())
-                            .addBindingLayout(layout);
-    // for (auto& b : shader->GetBindingLayouts()) {
-    //     pipelineDesc.addBindingLayout(b);
-    // }
-
-    nvrhi::VulkanBindingOffsets a;
-    pipelineDesc.primType = nvrhi::PrimitiveType::TriangleList;
-    pipelineDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
-    pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
-
     auto f = Application::getDeviceManager()->GetCurrentFramebuffer();
-    graphicsPipeline = dev->createGraphicsPipeline(pipelineDesc, f);
-    if (!graphicsPipeline) {
-        DM_CORE_ERROR("Failed to create Pipeline")
-    }
+    GraphicsPipelineCreateinfo i;
+    i.debugName = "Test Pipeline";
+    i.shader = shader;
+    i.TEMPframebuff = f;
+    pipe = GraphicsPipeline::Create(i);
+    pipe->SetConstantSpace(Renderer::GetConstantBindingSet());
+    pipe->SetTexture(textureTest1, 0);
+    pipe->Compile();
+
+    // pipelineDesc.primType = nvrhi::PrimitiveType::TriangleList;
+    //
+    // pipelineDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+    // pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
 
     auto vertexBufferDesc = nvrhi::BufferDesc()
                                 .setByteSize(sizeof(g_Vertices))
@@ -180,9 +147,9 @@ static void tempInit()
     vertexBuffer = dev->createBuffer(vertexBufferDesc);
     vertexBuffer1 = dev->createBuffer(vertexBufferDesc);
 
-    auto bindingSetDesc = nvrhi::BindingSetDesc().addItem(nvrhi::BindingSetItem::Texture_SRV(0, textureTest1));
-
-    bindingSet = dev->createBindingSet(bindingSetDesc, layout);
+    // auto bindingSetDesc = nvrhi::BindingSetDesc().addItem(nvrhi::BindingSetItem::Texture_SRV(0, textureTest1));
+    //
+    // bindingSet = dev->createBindingSet(bindingSetDesc, layout);
 };
 
 static void tempUpdate()
@@ -209,14 +176,17 @@ static void tempUpdate()
     t1.setBuffer(vertexBuffer1);
     t1.setOffset(0);
 
-    auto graphicsState = nvrhi::GraphicsState()
-                             .setPipeline(graphicsPipeline)
-                             .setFramebuffer(fb)
-                             .setViewport(nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport(Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight())))
-                             .addBindingSet(Renderer::GetConstantBindingSet())
-                             .addBindingSet(bindingSet)
-                             .addVertexBuffer(t)
-                             .addVertexBuffer(t1);
+    auto graphicsState = nvrhi::GraphicsState(); // Renderer::GetDefaultGraphicsState();
+
+    graphicsState
+        // .setPipeline(graphicsPipeline)
+        .setFramebuffer(fb)
+        .setViewport(nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport(Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight())))
+        // .addBindingSet(bindingSet)
+        .addVertexBuffer(t)
+        .addVertexBuffer(t1);
+
+    pipe->Bind(graphicsState);
 
     cmd->setGraphicsState(graphicsState);
     // cmd->setResourceStatesForBindingSet();

@@ -22,6 +22,18 @@ public:
 
     nvrhi::GraphicsPipelineHandle getPipeline() { return m_Pipeline; };
 
+    void SetConstantSpace(nvrhi::BindingSetHandle handle);
+    void SetPerFrameSpace(nvrhi::BindingSetHandle handle);
+
+    // TODO: Implement Materials (Add Material instead of handle)
+    void SetMaterial(nvrhi::BindingSetHandle handle);
+
+    void SetTexture(nvrhi::TextureHandle handle, u32 slot);
+
+    void Bind(nvrhi::GraphicsState& state);
+
+    bool Compile();
+
 private:
     // TEMPORARY
     nvrhi::FramebufferHandle m_TEMPframebuff;
@@ -29,18 +41,21 @@ private:
 
     GraphicsPipeline() = default;
 
-    void retrievePipelineBindings();
-    bool createBindingLayout();
+    bool createPipelineBindingSet();
 
     bool createNVRHIPipeline();
 
-    nvrhi::BindingLayoutHandle m_PipelineLayout;
+    std::map<u32, nvrhi::BindingSetHandle> m_BindingSets; // space => BindingSet
+    std::map<u32, nvrhi::BindingSetItem> m_PipelineSetItems; // Slot-> setItem
+
     nvrhi::GraphicsPipelineHandle m_Pipeline;
 
     Ref<Shader> m_Shader;
     nvrhi::PrimitiveType m_PrimType = nvrhi::PrimitiveType::TriangleList;
 
-    std::map<u32, ShaderResource> m_Resources; // Binding slot -> Resource
+    bool m_PipeLineSetDirty = false;
+    bool m_ShouldRecompile = false;
+
     std::string m_Name;
 };
 
