@@ -184,6 +184,11 @@ namespace ShaderReflector {
         auto baseShape = shape & SR::SLANG_RESOURCE_BASE_SHAPE_MASK;
 
         switch (baseShape) {
+        case SR::SLANG_TEXTURE_2D_ARRAY:
+            return ShaderResourceKind::Texture2DArray;
+        case SR::SLANG_TEXTURE_1D_ARRAY:
+            return ShaderResourceKind::Texture1DArray;
+
         case SR::SLANG_TEXTURE_1D:
             return ShaderResourceKind::Texture1D;
         case SR::SLANG_TEXTURE_2D:
@@ -249,6 +254,11 @@ namespace ShaderReflector {
             return "ByteBuffer";
         case ShaderResourceKind::Unknown:
             return "Unknown";
+        case ShaderResourceKind::Texture1DArray:
+            return "Texture 1D Array";
+        case ShaderResourceKind::Texture2DArray:
+            return "Texture 2D Array";
+            break;
         }
         return "Unknown";
     }

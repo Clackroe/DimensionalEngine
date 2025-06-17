@@ -30,7 +30,7 @@ else()
   message(STATUS "Found Vulkan: $ENV{VULKAN_SDK}")
 endif()
 
-set(SLANG_INCLUDE_DIR "$ENV{VULKAN_SDK}/include")
+# set(SLANG_INCLUDE_DIR "$ENV{VULKAN_SDK}/include")
 set(SLANG_LIBRARY "$ENV{VULKAN_SDK}/lib/libslang.so")
 
 # Validate file exists

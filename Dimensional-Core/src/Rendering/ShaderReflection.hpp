@@ -17,6 +17,9 @@ enum class ShaderResourceKind {
     StructuredBuffer,
     Texture1D,
     Texture2D,
+    Texture1DArray,
+    Texture2DArray,
+
     Texture3D,
     TextureCube,
     TextureBuffer,

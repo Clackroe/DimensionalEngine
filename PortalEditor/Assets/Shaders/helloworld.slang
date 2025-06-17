@@ -34,6 +34,8 @@ struct MultUniforms {
 
 
 Texture2D tex: PIPELINE(t0);
+// RWTexture2DArray tex1: PIPELINE(u1);
+
 
 
 [shader("vertex")]

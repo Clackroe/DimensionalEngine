@@ -3,6 +3,7 @@
 
 #include "Rendering/Shader.hpp"
 #include "Rendering/ShaderReflection.hpp"
+#include "Rendering/Texture.hpp"
 #include "nvrhi/nvrhi.h"
 namespace Dimensional {
 
@@ -29,6 +30,8 @@ public:
     void SetMaterial(nvrhi::BindingSetHandle handle);
 
     void SetTexture(nvrhi::TextureHandle handle, u32 slot);
+    void SetTexture(Ref<Texture2D> tex, u32 slot);
+    void SetTextureUAV(Ref<Texture2D> tex, u32 slot);
 
     void Bind(nvrhi::GraphicsState& state);
 

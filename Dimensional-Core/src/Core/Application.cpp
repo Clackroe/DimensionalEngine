@@ -14,6 +14,8 @@
 #include <Core/Application.hpp>
 #include <imgui_impl_vulkan.h>
 
+#include <Rendering/Texture.hpp>
+
 #include <stb_image.hpp>
 
 #include <Core/Time.hpp>
@@ -28,7 +30,8 @@ nvrhi::IDevice* dev;
 
 Ref<Shader> shader;
 
-nvrhi::TextureHandle textureTest1;
+// nvrhi::TextureHandle textureTest1;
+Ref<Texture2D> tex;
 
 Ref<GraphicsPipeline> pipe;
 
@@ -92,30 +95,28 @@ static void tempInit()
     info.optimizationLevel = 0;
     shader = Shader::Create("Assets/Shaders/helloworld.slang", info);
 
-    nvrhi::TextureDesc td;
-    td.debugName = "Att 1";
-    td.setFormat(nvrhi::Format::RGBA8_UNORM);
-    td.setWidth(w);
-    td.setHeight(h);
-    td.setInitialState(nvrhi::ResourceStates::ShaderResource);
-    td.setKeepInitialState(true);
+    // nvrhi::TextureDesc td;
+    // td.debugName = "Att 1";
+    // td.setFormat(nvrhi::Format::RGBA8_UNORM);
+    // td.setWidth(w);
+    // td.setHeight(h);
+    // td.setInitialState(nvrhi::ResourceStates::ShaderResource);
+    // td.setKeepInitialState(true);
 
-    td.arraySize = 1;
-
-    textureTest1 = dev->createTexture(td);
-    if (!textureTest1) {
-        DM_CORE_ERROR("Failed to create tex1")
-    }
+    TextureCreateInfo td;
+    td.width = w;
+    td.height = h;
+    td.format = nvrhi::Format::RGBA8_UNORM;
+    td.debugName = "Texture Ma Man!!";
+    tex = Texture2D::Create(td);
+    tex->SetData(imageBytes, w * h * c * 4);
 
     td.debugName += "2";
-    auto textureTest2 = dev->createTexture(td);
-    if (!textureTest2) {
-        DM_CORE_ERROR("Failed to create tex2")
-    }
+    Ref<Texture2D> t2 = Texture2D::Create(td);
 
     auto framebufferDesc = nvrhi::FramebufferDesc()
-                               .addColorAttachment(textureTest1)
-                               .addColorAttachment(textureTest2);
+                               .addColorAttachment(tex->GetHandle())
+                               .addColorAttachment(t2->GetHandle());
 
     nvrhi::FramebufferHandle framebuffer = dev->createFramebuffer(framebufferDesc);
     if (!framebuffer) {
@@ -129,7 +130,7 @@ static void tempInit()
     i.TEMPframebuff = f;
     pipe = GraphicsPipeline::Create(i);
     pipe->SetConstantSpace(Renderer::GetConstantBindingSet());
-    pipe->SetTexture(textureTest1, 0);
+    pipe->SetTexture(tex, 0);
     pipe->Compile();
 
     // pipelineDesc.primType = nvrhi::PrimitiveType::TriangleList;
@@ -156,7 +157,9 @@ static void tempUpdate()
 {
 
     cmd->open();
-    cmd->writeTexture(textureTest1, 0, 0, imageBytes, w * 4);
+
+    // cmd->writeTexture(textureTest1, 0, 0, imageBytes, w * 4);
+
     cmd->writeBuffer(vertexBuffer, g_Vertices, sizeof(g_Vertices));
     cmd->writeBuffer(vertexBuffer1, g_Vertices1, sizeof(g_Vertices));
     cmd->close();

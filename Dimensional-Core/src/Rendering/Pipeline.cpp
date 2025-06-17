@@ -32,6 +32,17 @@ void GraphicsPipeline::SetMaterial(nvrhi::BindingSetHandle handle)
     m_BindingSets[(u32)RESOURCE_DOMAIN::MATERIAL] = handle;
 }
 
+void GraphicsPipeline::SetTexture(Ref<Texture2D> tex, u32 slot)
+{
+    m_PipeLineSetDirty = true;
+    m_PipelineSetItems[slot] = (nvrhi::BindingSetItem::Texture_SRV(slot, tex->GetHandle()));
+}
+void GraphicsPipeline::SetTextureUAV(Ref<Texture2D> tex, u32 slot)
+{
+    m_PipeLineSetDirty = true;
+    m_PipelineSetItems[slot] = (nvrhi::BindingSetItem::Texture_UAV(slot, tex->GetHandle()));
+}
+
 void GraphicsPipeline::SetTexture(nvrhi::TextureHandle handle, u32 slot)
 {
     m_PipeLineSetDirty = true;

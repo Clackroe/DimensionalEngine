@@ -87,6 +87,8 @@ bool Shader::createLayouts()
                 }
                 break;
 
+            case ShaderResourceKind::Texture1DArray:
+            case ShaderResourceKind::Texture2DArray:
             case ShaderResourceKind::Texture1D:
             case ShaderResourceKind::Texture2D:
             case ShaderResourceKind::Texture3D:
