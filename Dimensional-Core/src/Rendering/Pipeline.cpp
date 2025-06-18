@@ -19,7 +19,7 @@ Ref<GraphicsPipeline> GraphicsPipeline::Create(const GraphicsPipelineCreateinfo 
     return out;
 }
 
-void GraphicsPipeline::SetConstantSpace(nvrhi::BindingSetHandle handle)
+void GraphicsPipeline::SetRendererConstantSpace(nvrhi::BindingSetHandle handle)
 {
     m_BindingSets[(u32)RESOURCE_DOMAIN::CONSTANT] = handle;
 }
@@ -47,6 +47,12 @@ void GraphicsPipeline::SetTexture(nvrhi::TextureHandle handle, u32 slot)
 {
     m_PipeLineSetDirty = true;
     m_PipelineSetItems[slot] = (nvrhi::BindingSetItem::Texture_SRV(slot, handle));
+}
+
+void GraphicsPipeline::SetConstantBuffer(Ref<ConstantBuffer> buff, u32 slot)
+{
+    m_PipeLineSetDirty = true;
+    m_PipelineSetItems[slot] = (nvrhi::BindingSetItem::ConstantBuffer(slot, buff->GetHandle()));
 }
 
 bool GraphicsPipeline::Compile()

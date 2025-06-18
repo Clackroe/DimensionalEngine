@@ -2,6 +2,7 @@
 #include "GLFW/glfw3.h"
 #include "ImGui/ImGuiLayer.hpp"
 #include "Log/log.hpp"
+#include "Rendering/Buffer.hpp"
 #include "Rendering/GPUBuffer.hpp"
 
 #include "Rendering/Pipeline.hpp"
@@ -50,6 +51,10 @@ struct Vertex {
     glm::vec2 uv2;
 };
 
+struct ColTest {
+    glm::vec4 col = { 5, 2, 1, 1.0 };
+} test1;
+
 // static const Vertex g_Vertices[] = {
 //     //  position
 //     { { 0.f, 0.5f, 0.f }, { 2 * 0.5f, 2 * 1.0f } },
@@ -63,51 +68,39 @@ static const Vertex g_Vertices[] = {
     { { -0.5f, -0.5f, 0.f }, { 0.0f, 0.0f } },
 };
 
-static const Vertex g_Vertices1[] = {
-    //  position
-    { { 0.f, -0.5f, 0.f } },
-    { { 0.5f, 0.5f, 0.f } },
-    { { -0.5f, 0.5f, 0.f } },
-};
-
-nvrhi::BufferHandle vertexBuffer;
-nvrhi::BufferHandle vertexBuffer1;
-// nvrhi::GraphicsPipelineHandle graphicsPipeline;
-// nvrhi::BindingSetHandle bindingSet;
+Ref<VertexBuffer> vBuff;
+// nvrhi::BufferHandle vertexBuffer;
 unsigned char* imageBytes;
+
+Ref<ConstantBuffer> cBuf;
 
 int w, h, c;
 
 static void tempInit()
 {
-    // imageBytes = stbi_load("Assets/Textures/Albedo.png", &w, &h, &c, STBI_rgb_alpha);
-    imageBytes = stbi_load("Assets/Resources/Folder.png", &w, &h, &c, STBI_rgb_alpha);
 
+    BufferCreateInfo in;
+    in.debugName = "Color Test";
+    in.sizeBytes = sizeof(ColTest);
+    cBuf = ConstantBuffer::Create(in);
     cmd = dev->createCommandList();
+    cmd->open();
+    cBuf->SetData(cmd, &test1, sizeof(ColTest));
+    cmd->close();
+    dev->executeCommandList(cmd);
 
-    ShaderCompiler comp;
-    ShaderCompileOptions opts;
-    opts.optimizationLevel = 0;
-    opts.includePaths = { "Assets/Shaders" };
+    imageBytes = stbi_load("Assets/Resources/Folder.png", &w, &h, &c, 0);
 
     ShaderCreateInfo info;
     info.includePaths = { "Assets/Shaders" };
     info.optimizationLevel = 0;
     shader = Shader::Create("Assets/Shaders/helloworld.slang", info);
 
-    // nvrhi::TextureDesc td;
-    // td.debugName = "Att 1";
-    // td.setFormat(nvrhi::Format::RGBA8_UNORM);
-    // td.setWidth(w);
-    // td.setHeight(h);
-    // td.setInitialState(nvrhi::ResourceStates::ShaderResource);
-    // td.setKeepInitialState(true);
-
     TextureCreateInfo td;
     td.width = w;
     td.height = h;
     td.format = nvrhi::Format::RGBA8_UNORM;
-    td.debugName = "Texture Ma Man!!";
+    td.debugName = "A FRICKING TEXTURE";
     tex = Texture2D::Create(td);
     tex->SetData(imageBytes, w * h * c * 4);
 
@@ -129,8 +122,9 @@ static void tempInit()
     i.shader = shader;
     i.TEMPframebuff = f;
     pipe = GraphicsPipeline::Create(i);
-    pipe->SetConstantSpace(Renderer::GetConstantBindingSet());
+    pipe->SetRendererConstantSpace(Renderer::GetConstantBindingSet());
     pipe->SetTexture(tex, 0);
+    pipe->SetConstantBuffer(cBuf, 1);
     pipe->Compile();
 
     // pipelineDesc.primType = nvrhi::PrimitiveType::TriangleList;
@@ -145,12 +139,9 @@ static void tempInit()
                                 .setKeepInitialState(true) // enable fully automatic state tracking
                                 .setDebugName("Vertex Buffer");
 
-    vertexBuffer = dev->createBuffer(vertexBufferDesc);
-    vertexBuffer1 = dev->createBuffer(vertexBufferDesc);
-
-    // auto bindingSetDesc = nvrhi::BindingSetDesc().addItem(nvrhi::BindingSetItem::Texture_SRV(0, textureTest1));
-    //
-    // bindingSet = dev->createBindingSet(bindingSetDesc, layout);
+    BufferCreateInfo t;
+    t.sizeBytes = sizeof(g_Vertices);
+    vBuff = VertexBuffer::Create(t);
 };
 
 static void tempUpdate()
@@ -158,10 +149,8 @@ static void tempUpdate()
 
     cmd->open();
 
-    // cmd->writeTexture(textureTest1, 0, 0, imageBytes, w * 4);
+    vBuff->SetData(cmd, g_Vertices, sizeof(g_Vertices));
 
-    cmd->writeBuffer(vertexBuffer, g_Vertices, sizeof(g_Vertices));
-    cmd->writeBuffer(vertexBuffer1, g_Vertices1, sizeof(g_Vertices));
     cmd->close();
     dev->executeCommandList(cmd);
     cmd->open();
@@ -171,28 +160,19 @@ static void tempUpdate()
 
     nvrhi::VertexBufferBinding t;
     t.setSlot(0);
-    t.setBuffer(vertexBuffer);
+    t.setBuffer(vBuff->GetHandle());
     t.setOffset(0);
 
-    nvrhi::VertexBufferBinding t1;
-    t1.setSlot(1);
-    t1.setBuffer(vertexBuffer1);
-    t1.setOffset(0);
-
-    auto graphicsState = nvrhi::GraphicsState(); // Renderer::GetDefaultGraphicsState();
+    auto graphicsState = nvrhi::GraphicsState();
 
     graphicsState
-        // .setPipeline(graphicsPipeline)
         .setFramebuffer(fb)
         .setViewport(nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport(Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight())))
-        // .addBindingSet(bindingSet)
-        .addVertexBuffer(t)
-        .addVertexBuffer(t1);
+        .addVertexBuffer(t);
 
     pipe->Bind(graphicsState);
 
     cmd->setGraphicsState(graphicsState);
-    // cmd->setResourceStatesForBindingSet();
 
     // Draw our geometry
     auto drawArguments = nvrhi::DrawArguments()

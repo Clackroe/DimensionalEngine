@@ -1,6 +1,7 @@
 #ifndef DM_PIPELINE_HPP
 #define DM_PIPELINE_HPP
 
+#include "Rendering/Buffer.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ShaderReflection.hpp"
 #include "Rendering/Texture.hpp"
@@ -23,7 +24,7 @@ public:
 
     nvrhi::GraphicsPipelineHandle getPipeline() { return m_Pipeline; };
 
-    void SetConstantSpace(nvrhi::BindingSetHandle handle);
+    void SetRendererConstantSpace(nvrhi::BindingSetHandle handle);
     void SetPerFrameSpace(nvrhi::BindingSetHandle handle);
 
     // TODO: Implement Materials (Add Material instead of handle)
@@ -32,6 +33,8 @@ public:
     void SetTexture(nvrhi::TextureHandle handle, u32 slot);
     void SetTexture(Ref<Texture2D> tex, u32 slot);
     void SetTextureUAV(Ref<Texture2D> tex, u32 slot);
+
+    void SetConstantBuffer(Ref<ConstantBuffer> buff, u32 slot);
 
     void Bind(nvrhi::GraphicsState& state);
 

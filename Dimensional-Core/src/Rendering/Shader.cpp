@@ -79,6 +79,7 @@ bool Shader::createLayouts()
 
             case ShaderResourceKind::ConstantBuffer:
                 item = nvrhi::BindingLayoutItem::ConstantBuffer(resource.binding.slot);
+                break;
             case ShaderResourceKind::StructuredBuffer:
                 if (canWrite) {
                     item = nvrhi::BindingLayoutItem::StructuredBuffer_UAV(resource.binding.slot);
