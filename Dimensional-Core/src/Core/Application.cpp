@@ -6,6 +6,7 @@
 #include "Rendering/GPUBuffer.hpp"
 
 #include "Rendering/Pipeline.hpp"
+#include "Rendering/RenderTarget.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ShaderCompiler.hpp"
 #include "Scripting/NativeScriptManager.hpp"
@@ -30,16 +31,11 @@ Ref<DeviceManager> dm_dev;
 nvrhi::IDevice* dev;
 
 Ref<Shader> shader;
-
-// nvrhi::TextureHandle textureTest1;
 Ref<Texture2D> tex;
 
+Ref<RenderTarget> rTarget;
+
 Ref<GraphicsPipeline> pipe;
-
-// nvrhi::SamplerHandle sampler;
-
-ShaderVarient vs;
-ShaderVarient ps;
 
 nvrhi::FramebufferHandle fb;
 
@@ -54,13 +50,6 @@ struct Vertex {
 struct ColTest {
     glm::vec4 col = { 5, 2, 1, 1.0 };
 } test1;
-
-// static const Vertex g_Vertices[] = {
-//     //  position
-//     { { 0.f, 0.5f, 0.f }, { 2 * 0.5f, 2 * 1.0f } },
-//     { { 0.5f, -0.5f, 0.f }, { 2 * 1.0f, 0.0f } },
-//     { { -0.5f, -0.5f, 0.f }, { 0.0f, 0.0f } },
-// };
 
 static const Vertex g_Vertices[] = {
     { { 0.f, 0.5f, 0.f }, { 1.5f, 3.0f } },
@@ -84,10 +73,8 @@ static void tempInit()
     in.sizeBytes = sizeof(ColTest);
     cBuf = ConstantBuffer::Create(in);
     cmd = dev->createCommandList();
-    cmd->open();
-    cBuf->SetData(cmd, &test1, sizeof(ColTest));
-    cmd->close();
-    dev->executeCommandList(cmd);
+
+    cBuf->SetData(&test1, sizeof(ColTest));
 
     imageBytes = stbi_load("Assets/Resources/Folder.png", &w, &h, &c, 0);
 
@@ -99,7 +86,7 @@ static void tempInit()
     TextureCreateInfo td;
     td.width = w;
     td.height = h;
-    td.format = nvrhi::Format::RGBA8_UNORM;
+    td.format = TextureFormat::RGBA;
     td.debugName = "A FRICKING TEXTURE";
     tex = Texture2D::Create(td);
     tex->SetData(imageBytes, w * h * c * 4);
@@ -116,11 +103,20 @@ static void tempInit()
         DM_CORE_ERROR("Failed to create framebuff")
     }
 
-    auto f = Application::getDeviceManager()->GetCurrentFramebuffer();
+    RenderTargetCreateInfo info1;
+    info1.clearColor = true;
+    info1.clearColorValue = glm::vec4(1.0, 0.5, 0.1, 1.0);
+    info1.width = 1920;
+    info1.height = 1080;
+
+    info1.colorAttachments = { { TextureFormat::RGBA, false }, { TextureFormat::RGBA, true } };
+
+    rTarget = RenderTarget::Create(info1);
+
     GraphicsPipelineCreateinfo i;
     i.debugName = "Test Pipeline";
     i.shader = shader;
-    i.TEMPframebuff = f;
+    i.renderTarget = rTarget;
     pipe = GraphicsPipeline::Create(i);
     pipe->SetRendererConstantSpace(Renderer::GetConstantBindingSet());
     pipe->SetTexture(tex, 0);
@@ -132,16 +128,10 @@ static void tempInit()
     // pipelineDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
     // pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
 
-    auto vertexBufferDesc = nvrhi::BufferDesc()
-                                .setByteSize(sizeof(g_Vertices))
-                                .setIsVertexBuffer(true)
-                                .setInitialState(nvrhi::ResourceStates::VertexBuffer)
-                                .setKeepInitialState(true) // enable fully automatic state tracking
-                                .setDebugName("Vertex Buffer");
-
     BufferCreateInfo t;
     t.sizeBytes = sizeof(g_Vertices);
     vBuff = VertexBuffer::Create(t);
+    vBuff->SetData(g_Vertices, sizeof(g_Vertices));
 };
 
 static void tempUpdate()
@@ -149,28 +139,14 @@ static void tempUpdate()
 
     cmd->open();
 
-    vBuff->SetData(cmd, g_Vertices, sizeof(g_Vertices));
-
-    cmd->close();
-    dev->executeCommandList(cmd);
-    cmd->open();
-
     fb = dm_dev->GetCurrentFramebuffer();
     nvrhi::utils::ClearColorAttachment(cmd, fb, 0, { static_cast<float>(std::sin(glfwGetTime())), static_cast<float>(std::sin(glfwGetTime())), 0.5, 1 });
 
-    nvrhi::VertexBufferBinding t;
-    t.setSlot(0);
-    t.setBuffer(vBuff->GetHandle());
-    t.setOffset(0);
-
     auto graphicsState = nvrhi::GraphicsState();
 
-    graphicsState
-        .setFramebuffer(fb)
-        .setViewport(nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport(Application::getApp().getWindowDM().getWidth(), Application::getApp().getWindowDM().getHeight())))
-        .addVertexBuffer(t);
+    graphicsState.addVertexBuffer(vBuff->GetBinding());
 
-    pipe->Bind(graphicsState);
+    pipe->Bind(cmd, graphicsState);
 
     cmd->setGraphicsState(graphicsState);
 

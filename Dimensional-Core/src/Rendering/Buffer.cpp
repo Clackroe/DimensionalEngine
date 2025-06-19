@@ -45,6 +45,16 @@ void Buffer::SetData(nvrhi::CommandListHandle cmd, const void* data, size_t size
     cmd->writeBuffer(m_Handle, data, size, offset);
 }
 
+void Buffer::SetData(const void* data, size_t size, size_t offset)
+{
+    auto dev = Application::getDevice();
+    auto cmd = dev->createCommandList();
+    cmd->open();
+    SetData(cmd, data, size, offset);
+    cmd->close();
+    dev->executeCommandList(cmd);
+}
+
 void Buffer::Resize(nvrhi::CommandListHandle cmd, size_t size)
 {
 
@@ -66,7 +76,7 @@ void Buffer::Resize(nvrhi::CommandListHandle cmd, size_t size)
 // ========Vertex BUFFER======
 // ==========================
 
-Ref<VertexBuffer> VertexBuffer::Create(const BufferCreateInfo& info)
+Ref<VertexBuffer> VertexBuffer::Create(const BufferCreateInfo& info, VERTEX_BUFFER_TYPE type)
 {
 
     Ref<VertexBuffer> buff = Ref<VertexBuffer>(new VertexBuffer());
@@ -78,6 +88,24 @@ Ref<VertexBuffer> VertexBuffer::Create(const BufferCreateInfo& info)
 
     buff->m_Buffer = Buffer::InternalCreate(desc, info);
 
+    switch (type) {
+    case VERTEX_BUFFER_TYPE::VERTEX_DATA:
+        buff->m_VertexSlot = 0;
+        break;
+    case VERTEX_BUFFER_TYPE::INSTANCE_DATE:
+        buff->m_VertexSlot = 1;
+        break;
+    case VERTEX_BUFFER_TYPE::UNKNOWN:
+        buff->m_VertexSlot = 0;
+        break;
+    }
+
+    nvrhi::VertexBufferBinding binding;
+    binding.offset = 0;
+    binding.setBuffer(buff->m_Buffer->m_Handle);
+    binding.setSlot(buff->m_VertexSlot);
+    buff->m_Binding = binding;
+
     return buff;
 }
 
@@ -85,6 +113,11 @@ void VertexBuffer::SetData(nvrhi::CommandListHandle cmd, const void* data, size_
 {
     m_Buffer->SetData(cmd, data, size, offset);
 }
+void VertexBuffer::SetData(const void* data, size_t size, size_t offset)
+{
+    m_Buffer->SetData(data, size, offset);
+}
+
 void VertexBuffer::Resize(nvrhi::CommandListHandle cmd, size_t size)
 {
     m_Buffer->Resize(cmd, size);
@@ -113,6 +146,12 @@ void IndexBuffer::SetData(nvrhi::CommandListHandle cmd, const void* data, size_t
 {
     m_Buffer->SetData(cmd, data, size, offset);
 }
+void IndexBuffer::SetData(const void* data, size_t size, size_t offset)
+
+{
+    m_Buffer->SetData(data, size, offset);
+}
+
 void IndexBuffer::Resize(nvrhi::CommandListHandle cmd, size_t size)
 {
     m_Buffer->Resize(cmd, size);
@@ -141,6 +180,12 @@ void ConstantBuffer::SetData(nvrhi::CommandListHandle cmd, const void* data, siz
 {
     m_Buffer->SetData(cmd, data, size, offset);
 }
+
+void ConstantBuffer::SetData(const void* data, size_t size, size_t offset)
+{
+    m_Buffer->SetData(data, size, offset);
+}
+
 void ConstantBuffer::Resize(nvrhi::CommandListHandle cmd, size_t size)
 {
     m_Buffer->Resize(cmd, size);
@@ -169,6 +214,12 @@ void StorageBuffer::SetData(nvrhi::CommandListHandle cmd, const void* data, size
 {
     m_Buffer->SetData(cmd, data, size, offset);
 }
+
+void StorageBuffer::SetData(const void* data, size_t size, size_t offset)
+{
+    m_Buffer->SetData(data, size, offset);
+}
+
 void StorageBuffer::Resize(nvrhi::CommandListHandle cmd, size_t size)
 {
     m_Buffer->Resize(cmd, size);

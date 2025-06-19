@@ -14,7 +14,7 @@ Ref<GraphicsPipeline> GraphicsPipeline::Create(const GraphicsPipelineCreateinfo 
     Ref<GraphicsPipeline> out = Ref<GraphicsPipeline>(new GraphicsPipeline());
     out->m_Name = info.debugName;
     out->m_Shader = info.shader;
-    out->m_TEMPframebuff = info.TEMPframebuff;
+    out->m_RenderTarget = info.renderTarget;
 
     return out;
 }
@@ -92,11 +92,11 @@ bool GraphicsPipeline::createPipelineBindingSet()
     return false;
 }
 
-void GraphicsPipeline::Bind(nvrhi::GraphicsState& state)
+void GraphicsPipeline::Bind(nvrhi::CommandListHandle cmd, nvrhi::GraphicsState& state)
 {
     state.setPipeline(m_Pipeline);
 
-    // TODO: Set Framebuffer (once rendertarges are implemented)
+    m_RenderTarget->Bind(cmd, state);
 
     // Maintain parity with binding layouts
     for (auto& [set, layout] : m_Shader->m_Layouts) {
@@ -127,7 +127,7 @@ bool GraphicsPipeline::createNVRHIPipeline()
 
     auto dev = Application::getDevice();
 
-    nvrhi::GraphicsPipelineHandle pipe = dev->createGraphicsPipeline(desc, m_TEMPframebuff);
+    nvrhi::GraphicsPipelineHandle pipe = dev->createGraphicsPipeline(desc, m_RenderTarget->GetFramebuffer());
     if (!pipe) {
         DM_CORE_ERROR("Failed to create Pipeline: {}", m_Name);
         return false;

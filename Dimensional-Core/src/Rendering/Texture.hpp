@@ -4,14 +4,60 @@
 #include "nvrhi/nvrhi.h"
 namespace Dimensional {
 
+enum class TextureFormat {
+    NONE,
+    R,
+    RG,
+    RGB,
+    RGBA,
+
+    // DEPTH
+    Depth16,
+    Depth24,
+    Depth32F,
+    Depth24Stencil8,
+};
+
+inline nvrhi::Format TexFormatToNVRI(TextureFormat format, bool hdr = false)
+{
+    switch (format) {
+    case TextureFormat::R:
+        return hdr ? nvrhi::Format::R32_FLOAT : nvrhi::Format::R8_UNORM;
+    case TextureFormat::RG:
+        return hdr ? nvrhi::Format::RG32_FLOAT : nvrhi::Format::RG8_UNORM;
+    case TextureFormat::RGB:
+        return hdr ? nvrhi::Format::RGB32_FLOAT : nvrhi::Format::RGBA8_UNORM;
+    case TextureFormat::RGBA:
+        return hdr ? nvrhi::Format::RGBA32_FLOAT : nvrhi::Format::RGBA8_UNORM;
+    case TextureFormat::Depth16:
+        return nvrhi::Format::D16;
+    case TextureFormat::Depth24:
+        return nvrhi::Format::D24S8;
+    case TextureFormat::Depth32F:
+        return nvrhi::Format::D32;
+    case TextureFormat::Depth24Stencil8:
+        return nvrhi::Format::D24S8;
+        break;
+    case TextureFormat::NONE:
+        return nvrhi::Format::UNKNOWN;
+
+        break;
+    }
+}
+
 struct TextureCreateInfo {
-    nvrhi::Format format = nvrhi::Format::RGBA8_UNORM;
+    TextureFormat format = TextureFormat::RGBA;
+    bool isHDR = false;
+
     u32 width, height;
     u32 depth = 1; // Unused in 2D textures;
     u32 arraySize = 1; // If >1 will be texture array;
 
+    u32 sampleCount = 1; // MSAA
+
     bool generateMipmaps = true;
     bool storage = false;
+    bool isRenderTarget;
 
     std::string debugName = "Unamed Texture";
 };
@@ -41,7 +87,7 @@ private:
 
     std::string m_DebugName;
 
-    nvrhi::Format m_Format;
+    TextureFormat m_Format;
 
     nvrhi::TextureHandle m_Handle;
     bool m_IsUAV;

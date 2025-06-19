@@ -13,6 +13,12 @@ enum class RESOURCE_DOMAIN {
     UNKNOWN
 };
 
+enum class VERTEX_BUFFER_TYPE {
+    VERTEX_DATA = 0, // Maps to slot
+    INSTANCE_DATE = 1,
+    UNKNOWN
+};
+
 struct RendererInfo {
 };
 

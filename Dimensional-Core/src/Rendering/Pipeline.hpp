@@ -2,6 +2,7 @@
 #define DM_PIPELINE_HPP
 
 #include "Rendering/Buffer.hpp"
+#include "Rendering/RenderTarget.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ShaderReflection.hpp"
 #include "Rendering/Texture.hpp"
@@ -13,9 +14,7 @@ struct GraphicsPipelineCreateinfo {
     nvrhi::PrimitiveType primitive = nvrhi::PrimitiveType::TriangleList;
     std::string debugName = "Dimensional Pipeline";
 
-    // TEMPORARY
-    nvrhi::FramebufferHandle TEMPframebuff;
-    //===
+    Ref<RenderTarget> renderTarget;
 };
 
 class GraphicsPipeline {
@@ -36,15 +35,11 @@ public:
 
     void SetConstantBuffer(Ref<ConstantBuffer> buff, u32 slot);
 
-    void Bind(nvrhi::GraphicsState& state);
+    void Bind(nvrhi::CommandListHandle cmd, nvrhi::GraphicsState& state);
 
     bool Compile();
 
 private:
-    // TEMPORARY
-    nvrhi::FramebufferHandle m_TEMPframebuff;
-    //===
-
     GraphicsPipeline() = default;
 
     bool createPipelineBindingSet();
@@ -57,6 +52,7 @@ private:
     nvrhi::GraphicsPipelineHandle m_Pipeline;
 
     Ref<Shader> m_Shader;
+    Ref<RenderTarget> m_RenderTarget;
     nvrhi::PrimitiveType m_PrimType = nvrhi::PrimitiveType::TriangleList;
 
     bool m_PipeLineSetDirty = false;
