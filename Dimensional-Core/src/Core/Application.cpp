@@ -153,8 +153,7 @@ static void tempUpdate()
     cmd->setGraphicsState(graphicsState);
 
     // Draw our geometry
-    auto drawArguments = nvrhi::DrawArguments()
-                             .setVertexCount(std::size(g_Vertices));
+    auto drawArguments = nvrhi::DrawArguments().setVertexCount(std::size(g_Vertices));
     cmd->draw(drawArguments);
 
     // Close and execute the command list

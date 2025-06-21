@@ -27,7 +27,7 @@ bool RenderTarget::Init(nvrhi::DeviceHandle dev, const RenderTargetCreateInfo& i
         return false;
     }
 
-    if (info.colorAttachments.empty() && info.depthFormat != TextureFormat::NONE) {
+    if (info.colorAttachments.empty() && info.depthFormat == TextureFormat::NONE) {
         DM_CORE_ERROR("RenderTarget must have at least one color or depth attachment");
         return false;
     }

@@ -45,6 +45,9 @@ bool RenderDevice::InitializeDevice(Ref<Window> window, RenderDeviceCreateInfo& 
     if (!CreateSwapChain()) {
         return false;
     }
+    m_Width = 0;
+    m_Height = 0;
+
     UpdateWindowSize();
     return true;
 }
@@ -56,6 +59,8 @@ void RenderDevice::UpdateWindowSize()
 
         ResizeSwapChain();
         BackBufferResized();
+        m_Width = m_Window->GetWidth();
+        m_Height = m_Window->GetHeight();
     }
 }
 

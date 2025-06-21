@@ -64,9 +64,6 @@ protected:
             destroySwapChain();
             createSwapChain();
         }
-
-        m_Width = m_Window->GetWidth();
-        m_Height = m_Window->GetHeight();
     }
     bool CreateInstanceInternal() override;
     bool CreateDevice() override;
