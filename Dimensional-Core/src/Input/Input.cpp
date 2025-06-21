@@ -125,9 +125,9 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 
 void Input::Init()
 {
-    glfwSetKeyCallback(Application::getApp().getWindowDM().getGLFWWindow(), keyCallBack);
-    glfwSetCursorPosCallback(Application::getApp().getWindowDM().getGLFWWindow(), mouseMovedCallback);
-    glfwSetMouseButtonCallback(Application::getApp().getWindowDM().getGLFWWindow(), mouseButtonCallback);
+    glfwSetKeyCallback(Application::getApp().getWindowDM()->getGLFWWindow(), keyCallBack);
+    glfwSetCursorPosCallback(Application::getApp().getWindowDM()->getGLFWWindow(), mouseMovedCallback);
+    glfwSetMouseButtonCallback(Application::getApp().getWindowDM()->getGLFWWindow(), mouseButtonCallback);
 
     DM_CORE_INFO("Input System Initialized");
 }

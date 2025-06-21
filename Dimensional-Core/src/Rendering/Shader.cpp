@@ -35,7 +35,7 @@ bool Shader::Compile(std::string path, const ShaderCreateInfo info)
     options.includePaths = info.includePaths;
     options.optimizationLevel = info.optimizationLevel;
 
-    m_Shaders = sc.compileAllEntryPoints(Application::getDeviceManager()->GetDevice(), path, options);
+    m_Shaders = sc.compileAllEntryPoints(Application::getRenderDevice()->GetDevice(), path, options);
 
     return true;
 }

@@ -3,6 +3,7 @@
 #include <core.hpp>
 
 #include "ImGui/ImGuiLayer.hpp"
+#include "Rendering/RenderDevice.hpp"
 #include "Rendering/Renderer.hpp"
 #include "Scripting/NativeScriptManager.hpp"
 #include "nvrhi/nvrhi.h"
@@ -28,11 +29,13 @@ public:
     void PushLayer(Layer* layer) { m_LayerStack.pushLayer(layer); }
 
     static Application& getApp() { return *s_Application; }
-    inline Window& getWindowDM() { return *m_Window; };
+
+    inline Ref<Window> getWindowDM() { return m_Window; };
+
     NativeScriptManager& getScriptManager() { return m_ScriptManager; };
 
-    static Ref<DeviceManager> getDeviceManager() { return getApp().getWindowDM().GetDeviceManager(); };
-    static nvrhi::DeviceHandle getDevice() { return getApp().getWindowDM().GetDeviceManager()->GetDevice(); };
+    static Ref<RenderDevice> getRenderDevice() { return getApp().m_Device; };
+    static nvrhi::DeviceHandle getDevice() { return getApp().m_Device->GetDevice(); };
 
     ImGuiContext* getImGuiContext()
     {
@@ -42,7 +45,7 @@ public:
     Ref<Scene> getSceneCTX();
     void setSceneCTX(Ref<Scene> scene) { m_SceneCTX = scene; };
 
-    // static GraphicsAPI getGraphicsAPI() { return getApp().getWindowDM().getGraphicsAPI(); };
+    static nvrhi::GraphicsAPI getGraphicsAPI() { return getApp().m_Device->GetGraphicsAPI(); };
 
     // ---
 
@@ -54,7 +57,8 @@ private:
     NativeScriptManager m_ScriptManager;
 
 private:
-    Scope<Window> m_Window;
+    Ref<Window> m_Window;
+    Ref<RenderDevice> m_Device;
 
     Ref<Scene> m_SceneCTX = nullptr;
 

@@ -5,8 +5,6 @@
 #include "Log/log.hpp"
 // #include "Rendering/SceneRenderer.hpp"
 // #include "Rendering/SubMesh.hpp"
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.hpp>
 // #include "Rendering/SceneRenderer.hpp"
 // #include "Rendering/OpenGL/OpenGL_Texture2D.hpp"
 // #include "Rendering/RenderTarget.hpp"
@@ -56,30 +54,6 @@ static Ref<MaterialsPanel> s_MatPanel;
 
 static void testBedStart()
 {
-    std::vector<float> vertices = {
-        0.5f, 0.5f, 0.0f, // top right
-        1.0f, 0.0f, 0.0f, // top right
-        1.0, 1.0,
-        //
-        0.5f, -0.5f, 0.0f, // bottom right
-        0.0f, 1.0f, 0.0f, // top right
-        1.0, 0.0,
-        //
-        -0.5f, -0.5f, 0.0f, // bottom left
-        0.0f, 0.0f, 1.0f, // top right
-        0.0, 0.0,
-        //
-        -0.5f, 0.5f, 0.0f, // top left
-        1.0f, 0.0f, 1.0f, // top right
-        0.0, 1.0,
-        //
-    };
-    std::vector<u32> indices = {
-        // note that we start from 0!
-        0, 1, 3, // first Triangle
-        1, 2, 3 // second Triangle
-    };
-
     // SubMeshData sData;
     //
     // std::vector<Vertex> vs;

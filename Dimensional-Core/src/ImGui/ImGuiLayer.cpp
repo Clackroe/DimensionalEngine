@@ -1,4 +1,6 @@
 #include "ImGui/ImGuiLayer.hpp"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
 
 #include <Core/Application.hpp>
 
@@ -26,19 +28,21 @@ void ImGuiLayer::OnAttatch()
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
-    ImGui_ImplGlfw_InitForOpenGL(Application::getApp().getWindowDM().getGLFWWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 450");
+    ImGui_ImplGlfw_InitForVulkan(Application::getApp().getWindowDM()->getGLFWWindow(), true);
+    // ImGui_ImplVulkan_InitInfo i;
+    //
+    // ImGui_ImplVulkan_Init(&i);
 }
 void ImGuiLayer::OnDetatch()
 {
-    ImGui_ImplOpenGL3_Shutdown();
+    // ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
 void ImGuiLayer::beginFrame()
 {
-    ImGui_ImplOpenGL3_NewFrame();
+    // ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
@@ -47,10 +51,10 @@ void ImGuiLayer::endFrame()
     // Resize the window if
     ImGuiIO& io = ImGui::GetIO();
     Application& application = Application::getApp();
-    io.DisplaySize = ImVec2((float)application.getWindowDM().getWidth(), (float)application.getWindowDM().getWidth());
+    io.DisplaySize = ImVec2((float)application.getWindowDM()->GetWidth(), (float)application.getWindowDM()->GetWidth());
 
     ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         GLFWwindow* backup_current_context = glfwGetCurrentContext();

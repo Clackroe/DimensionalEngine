@@ -1,3 +1,4 @@
+#include "Core/Window.hpp"
 #include "EngineAPI.hpp"
 #include "GLFW/glfw3.h"
 #include "ImGui/ImGuiLayer.hpp"
@@ -6,6 +7,7 @@
 #include "Rendering/GPUBuffer.hpp"
 
 #include "Rendering/Pipeline.hpp"
+#include "Rendering/RenderDevice.hpp"
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ShaderCompiler.hpp"
@@ -27,7 +29,7 @@ namespace Dimensional {
 Application* Application::s_Application = nullptr;
 
 nvrhi::CommandListHandle cmd;
-Ref<DeviceManager> dm_dev;
+Ref<RenderDevice> dm_dev;
 nvrhi::IDevice* dev;
 
 Ref<Shader> shader;
@@ -93,15 +95,15 @@ static void tempInit()
 
     td.debugName += "2";
     Ref<Texture2D> t2 = Texture2D::Create(td);
-
-    auto framebufferDesc = nvrhi::FramebufferDesc()
-                               .addColorAttachment(tex->GetHandle())
-                               .addColorAttachment(t2->GetHandle());
-
-    nvrhi::FramebufferHandle framebuffer = dev->createFramebuffer(framebufferDesc);
-    if (!framebuffer) {
-        DM_CORE_ERROR("Failed to create framebuff")
-    }
+    //
+    // auto framebufferDesc = nvrhi::FramebufferDesc()
+    //                            .addColorAttachment(tex->GetHandle())
+    //                            .addColorAttachment(t2->GetHandle());
+    //
+    // nvrhi::FramebufferHandle framebuffer = dev->createFramebuffer(framebufferDesc);
+    // if (!framebuffer) {
+    //     DM_CORE_ERROR("Failed to create framebuff")
+    // }
 
     RenderTargetCreateInfo info1;
     info1.clearColor = true;
@@ -168,7 +170,23 @@ Application::Application(const std::string& title, u32 width, u32 height)
     DM_CORE_ASSERT(!s_Application, "Application already created!! Aborting.");
     s_Application = this;
 
-    m_Window = CreateScope<Window>(WindowSettings { width, height, title });
+    WindowSettings settings;
+    settings.Width = width;
+    settings.Height = height;
+    settings.Title = title;
+    settings.VSync = false;
+
+    m_Window = Window::Create(settings);
+    DM_CORE_INFO("Window Created")
+
+    // m_Window = CreateScope<Window>(WindowSettings { width, height, title });
+    m_Device = RenderDevice::Create(nvrhi::GraphicsAPI::VULKAN);
+    RenderDeviceCreateInfo info;
+    info.enableDebugLayer = true;
+    info.enableValidationLayer = true;
+    info.swapChainFormat = settings.format;
+    info.api = nvrhi::GraphicsAPI::VULKAN;
+    m_Device->InitializeDevice(m_Window, info);
 
     m_ImGuiOverlay = new ImGuiLayer();
     m_LayerStack.pushOverlay(m_ImGuiOverlay);
@@ -177,8 +195,8 @@ Application::Application(const std::string& title, u32 width, u32 height)
 
     initializeSubSystems();
 
-    dm_dev = m_Window->GetDeviceManager();
-    dev = dm_dev->GetDevice();
+    dm_dev = m_Device;
+    dev = m_Device->GetDevice();
     tempInit();
     // m_ScriptManager.reloadGameLibrary("Assets/Scripts/build/libGameApp.so");
 }
@@ -191,7 +209,8 @@ void Application::runApplication()
         float frameStartTime = Time::getTime();
         Time::Update();
 
-        m_Window->BeginFrame();
+        m_Window->PollEvents();
+        m_Device->BeginFrame();
 
         EventSystem::ProcessEvents();
 
@@ -205,9 +224,9 @@ void Application::runApplication()
         //------Update imgui Layers-------
         // m_ImGuiOverlay->beginFrame();
         //
-        // // ImGui::Begin("Stats");
-        // // ImGui::Text("FPS: %f", 1 / Time::deltaTime());
-        // // ImGui::End();
+        // ImGui::Begin("Stats");
+        // ImGui::Text("FPS: %f", 1 / Time::deltaTime());
+        // ImGui::End();
         //
         // for (Layer* layer : m_LayerStack) {
         //     layer->OnImGuiRender();
@@ -216,6 +235,7 @@ void Application::runApplication()
         // m_ImGuiOverlay->endFrame();
 
         //------
+        m_Device->Present();
         m_Window->EndFrame();
 
         frameTime = Time::getTime() - frameStartTime;
