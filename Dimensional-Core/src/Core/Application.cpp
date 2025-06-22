@@ -50,7 +50,7 @@ struct Vertex {
 };
 
 struct ColTest {
-    glm::vec4 col = { 5, 2, 1, 1.0 };
+    glm::vec4 col = { 2, 7, 1, 1.0 };
 } test1;
 
 static const Vertex g_Vertices[] = {

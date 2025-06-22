@@ -54,5 +54,5 @@ VertexOutput mainVS(VertexInput input, VertexInput input2) {
 [shader("fragment")]
 float4 mainPS(VertexOutput input) : SV_Target {
 
-    return float4(tex.Sample(linearRepeat, input.uv, 0).rgb * (buff.color.rgb), 1.0);
+    return float4(tex.Sample(whiteBorder , input.uv, 0).rgb * (buff.color.rgb), 1.0);
 }
